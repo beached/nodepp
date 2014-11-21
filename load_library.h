@@ -1,13 +1,13 @@
 #pragma once
 
 #ifdef _WIN32
-#	include <windows.h>
-#else
-#	include <dlfcn.h>
-#endif
-
+#include <windows.h>
 #include <codecvt>
 #include <locale>
+#else
+#include <dlfcn.h>
+#endif
+
 #include <memory>
 #include <string>
 
@@ -59,8 +59,8 @@ namespace daw {
 		}
 
 		template<typename ResultType, typename... ArgTypes>
-		auto get_function_address( const HINSTANCE& handle, std::string&& function_name ) -> typename std::add_pointer<ResultType( ArgTypes... )>::type {
-			using factory_t = std::add_pointer<ResultType( ArgTypes... )>::type;
+		auto get_function_address( void* handle, std::string&& function_name ) -> typename std::add_pointer<ResultType( ArgTypes... )>::type {
+			using factory_t = typename std::add_pointer<ResultType( ArgTypes... )>::type;
 			dlerror( );
 			auto function_ptr = reinterpret_cast<factory_t>( dlsym( handle, function_name.c_str( ) ) );
 			auto has_error = dlerror( );
@@ -76,13 +76,8 @@ namespace daw {
 			handle_t m_handle;
 			LibraryHandle( ): m_handle{ nullptr } { }
 
-			LibraryHandle( std::wstring library_path ): m_handle{ load_library( std::move( library_path ) ) } {
-				if( !m_handle ) {
-					throw std::runtime_error( "Error loading library" );
-				}
-			}
-
-			LibraryHandle( std::string library_path ): m_handle{ load_library( std::move( library_path ) ) } {
+			template<typename StringType>
+			LibraryHandle( StringType library_path ): m_handle{ load_library( std::move( library_path ) ) } {
 				if( !m_handle ) {
 					throw std::runtime_error( "Error loading library" );
 				}

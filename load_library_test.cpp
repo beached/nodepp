@@ -1,16 +1,18 @@
 
 #include "load_library.h"
-#include <windows.h>
 #include <iostream>
 
 int main( int, char** ) {
 
+	#ifdef _WIN32
 	char* strA = "this is a test";
 	char* strB = "is";
 
 	auto result = daw::system::call_dll_function<int>( "User32.dll", "MessageBoxA", (HWND)NULL, (LPCSTR)strA, (LPCSTR)strB, (UINT)0 );
-
-	std::wcout << result << std::endl;
+	#else
+	auto result = daw::system::call_dll_function<std::string>( "./testlib.so", "test", std::string{ "this is a test" } );		
+	#endif
+	std::cout << result << std::endl;
 	system( "PAUSE" );
 	return 0;
 }
