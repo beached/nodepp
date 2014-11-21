@@ -10,7 +10,7 @@ int main( int, char** ) {
 
 	auto result = daw::system::call_dll_function<int>( "User32.dll", "MessageBoxA", (HWND)NULL, (LPCSTR)strA, (LPCSTR)strB, (UINT)0 );
 	#else
-	auto result = daw::system::call_dll_function<std::string>( "./cygtestlib.dll", "test", std::string{ "this is a test" } );
+	auto result = daw::system::call_dll_function<std::string>( "./libtestlib.so", "test", std::string{ "this is a test" } );
 	#endif
 	std::cout << result << std::endl;
 	return 0;
