@@ -59,7 +59,7 @@ namespace daw {
 		}
 
 		template<typename ResultType, typename... ArgTypes>
-		auto get_function_address( void* handle, std::string&& function_name ) -> typename std::add_pointer<ResultType( ArgTypes... )>::type {
+		auto get_function_address( void* handle, std::string function_name ) -> typename std::add_pointer<ResultType( ArgTypes... )>::type {
 			using factory_t = typename std::add_pointer<ResultType( ArgTypes... )>::type;
 			dlerror( );
 			auto function_ptr = reinterpret_cast<factory_t>( dlsym( handle, function_name.c_str( ) ) );
