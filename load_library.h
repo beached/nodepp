@@ -70,6 +70,8 @@ namespace daw {
 		class LibraryHandle {
 			impl::OSLibraryHandle m_handle;
 		public:
+			//////////////////////////////////////////////////////////////////////////
+			/// Summary: deleted
 			LibraryHandle( ) = delete;
 
 			template<typename StringType>

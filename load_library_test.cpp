@@ -12,6 +12,7 @@ int main( int, char** ) {
 	#else
 	auto result = daw::system::call_dll_function<std::string>( "./libtestlib.so", "test", std::string{ "this is a test" } );
 	#endif
+	
 	std::cout << result << std::endl;
 	return 0;
 }
