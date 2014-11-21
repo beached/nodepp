@@ -14,28 +14,9 @@
 namespace daw {
 	namespace system {
 #ifdef _WIN32
-		std::wstring widen_string( std::string in_str ) {
-			static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;	
-			return converter.from_bytes( in_str );
-		}
-
-		HINSTANCE load_library( std::wstring library_path ) {
-			auto result = static_cast<HINSTANCE>(LoadLibraryW( library_path.c_str( ) ));
-			if( !result ) {
-				throw std::runtime_error( "Could not open library" );
-			}
-			return result;
-		}
-
-		HINSTANCE load_library( std::string library_path ) {
-			return load_library( widen_string( std::move( library_path ) ) );
-		}
-
-		void close_library( HINSTANCE handle ) {
-			if( nullptr != handle ) {
-				FreeLibrary( handle );
-			}
-		}
+		HINSTANCE load_library( std::wstring library_path );
+		HINSTANCE load_library( std::string library_path );
+		void close_library( HINSTANCE handle );
 
 		template<typename ResultType, typename... ArgTypes>
 		auto get_function_address( const HINSTANCE& handle, std::string&& function_name ) -> typename std::add_pointer<ResultType( ArgTypes... )>::type {
@@ -48,15 +29,9 @@ namespace daw {
 			return function_ptr;
 		}
 #else
-		void* load_library( std::string library_path ) {
-			return dlopen( library_path.c_str( ), RTLD_LAZY );
-		}
+		void* load_library( std::string library_path );
 
-		void close_library( void* handle ) {
-			if( nullptr != handle ) {
-				dlclose( handle );
-			}
-		}
+		void close_library( void* handle );
 
 		template<typename ResultType, typename... ArgTypes>
 		auto get_function_address( void* handle, std::string function_name ) -> typename std::add_pointer<ResultType( ArgTypes... )>::type {
@@ -74,7 +49,8 @@ namespace daw {
 		struct LibraryHandle {
 			using handle_t = decltype(load_library( "" ));
 			handle_t m_handle;
-			LibraryHandle( ): m_handle{ nullptr } { }
+
+			LibraryHandle( );
 
 			template<typename StringType>
 			LibraryHandle( StringType library_path ): m_handle{ load_library( std::move( library_path ) ) } {
@@ -85,14 +61,9 @@ namespace daw {
 
 			LibraryHandle( LibraryHandle const & ) = delete;
 			LibraryHandle& operator=(LibraryHandle const &) = delete;
-			LibraryHandle( LibraryHandle && other ): m_handle( std::move( other.m_handle ) ) { }
-			LibraryHandle& operator=(LibraryHandle&& rhs) {
-				m_handle = std::move( rhs.m_handle );
-				return *this;
-			}
-			~LibraryHandle( ) {
-				close_library( m_handle );
-			}
+			LibraryHandle( LibraryHandle && other );
+			LibraryHandle& operator=(LibraryHandle&& rhs);
+			~LibraryHandle( );
 
 			template<typename ResultType, typename... Args>
 			ResultType call_function( std::string function_name, Args&&... function_args ) const {
@@ -100,7 +71,6 @@ namespace daw {
 				return (*function_ptr)(std::forward<Args>( function_args )...);
 			}
 		};
-
 
 		template<typename ResultType, typename StringType, typename... Args>
 		ResultType call_dll_function( StringType&& dll_name, std::string&& function_name, Args&&... function_args ) {

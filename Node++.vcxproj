@@ -146,6 +146,7 @@
     <ClInclude Include="load_library.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="load_library.cpp" />
     <ClCompile Include="load_library_test.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
