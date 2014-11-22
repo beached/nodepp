@@ -2,8 +2,8 @@
 
 #include <cinttypes>
 #include <functional>
+#include <memory>
 #include <string>
-
 
 #include "event_listener.h"
 #include "plugin_base.h"
@@ -17,61 +17,33 @@ namespace daw {
 			class HttpResponse { };
 			class Socket { };
 			// END TODO
-
-			class HttpEventRequest: public daw::nodepp::base::IEvent<HttpEventRequest> {
-				struct CallbackArgs {
-					HttpRequest req;
-					HttpResponse resp;
-				};
-
-				static CallbackArgs parse_args( ... );
-			public:
-				virtual std::string name( ) const override;
-				virtual HttpEventRequest& on( std::function<void( ... )> const & call_back ) override;
-				virtual HttpEventRequest& once( std::function<void( ... )> const & call_back ) override;
-				virtual HttpEventRequest& removeListener( std::function<void( ... )> const & call_back ) override;
-				virtual HttpEventRequest& removeAllListeners( ) override;
-				virtual std::vector<HttpEventRequest>& listeners( ) override;
-				virtual std::vector<HttpEventRequest> const & listeners( ) const override;
-				virtual bool emit( ... ) override;
-				virtual size_t listenerCount( ) override;
-				virtual void newListener( std::function<void( HttpEventRequest const & )> ) override;
-				virtual void removeListener( std::function<void( HttpEventRequest const & )> ) override;
-				virtual ~HttpEventRequest( );				
-			};
-
-			class HttpEventConnection: public daw::nodepp::base::IEvent < HttpEventConnection > {
-				struct CallbackArgs {
-					Socket socket;
-				};
-
-				static CallbackArgs parse_args( ... );
-			public:
-				virtual std::string name( ) const override;
-				virtual HttpEventConnection& on( std::function<void( ... )> const & call_back ) override;
-				virtual HttpEventConnection& once( std::function<void( ... )> const & call_back ) override;
-				virtual HttpEventConnection& removeListener( std::function<void( ... )> const & call_back ) override;
-				virtual HttpEventConnection& removeAllListeners( ) override;
-				virtual std::vector<HttpEventConnection>& listeners( ) override;
-				virtual std::vector<HttpEventConnection> const & listeners( ) const override;
-				virtual bool emit( ... ) override;
-				virtual size_t listenerCount( ) override;
-				virtual void newListener( std::function<void( HttpEventConnection const & )> ) override;
-				virtual void removeListener( std::function<void( HttpEventConnection const & )> ) override;
-				virtual ~HttpEventConnection( );
+			
+			struct HttpServerException: public std::runtime_error {
+				uint32_t error_number;
+				template<typename StringType>
+				HttpServerException( const int32_t errorNumber, const StringType& msg ): std::runtime_error( msg ), error_number( errorNumber ) { }
 			};
 
 			class HttpServer: public IPlugin {
-			public:
+			public:				
+				using head_t = std::vector < uint8_t > ;
+
 				virtual std::string name( ) const override;
 				virtual int64_t version( ) const override;
 
 				enum class EventType: int32_t { request, connection, close, checkContinue, connect, upgrade, clientError };
-
-				static HttpServer create( );
-
-				HttpEventRequest request;				
+				struct events {
+					daw::nodepp::base::Event<HttpRequest, HttpResponse> request;
+					daw::nodepp::base::Event<Socket> connection;
+					daw::nodepp::base::Event<> close;
+					daw::nodepp::base::Event<HttpRequest, HttpResponse> check_continue;
+					daw::nodepp::base::Event<HttpRequest, Socket, head_t> connect;
+					daw::nodepp::base::Event<HttpRequest, Socket, head_t> upgrade;
+					daw::nodepp::base::Event<HttpServerException, Socket> client_error;
+				};	// struct events
 			};
+
+			std::unique_ptr<HttpServer> create_plugin( );
 		}	// namespace plugins
 	}	// namespace nodepp
 }	// namespace daw

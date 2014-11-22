@@ -12,22 +12,6 @@ namespace daw {
 		namespace base {
 			using namespace daw::algorithm;
 
-			template<typename Derived>
-			struct IEvent {
-				virtual std::string name( ) const = 0;
-				virtual Derived& on( std::function<void( ... )> const & call_back ) = 0;
-				virtual Derived& once( std::function<void( ... )> const & call_back ) = 0;
-				virtual Derived& removeListener( std::function<void( ... )> const & call_back ) = 0;
-				virtual Derived& removeAllListeners( ) = 0;
-				virtual std::vector<Derived>& listeners( ) = 0;
-				virtual std::vector<Derived> const & listeners( ) const = 0;
-				virtual bool emit( ... ) = 0;
-				virtual size_t listenerCount( ) = 0;
-				virtual void newListener( std::function<void( Derived const& )> ) = 0;
-				virtual void removeListener( std::function<void( Derived const & )> ) = 0;				
-				virtual ~IEvent( ) = 0;
-			};	// class IEvent
-
 			template<typename... CallbackArgs>
 			class Callback {
 			public:
@@ -37,7 +21,7 @@ namespace daw {
 				id_t m_id;
 				callback_function_t m_callback_function;
 				static std::atomic_uint_least64_t s_last_id;
-			public:				
+			public:
 				Callback( callback_function_t callback_function ): m_id( s_last_id++ ), m_callback_function( callback_function ) { }
 				const id_t& id( ) const {
 					return m_id;
@@ -59,7 +43,7 @@ namespace daw {
 				change_callback_t m_on_new;
 				change_callback_t m_on_remove;
 
-				bool exists( const Callback& callback ) {
+				bool exists( const callback_t& callback ) {
 					return find( m_callbacks, callback, []( std::pair<bool, callback_t> const & lhs, std::pair<bool, callback_t> const & rhs ) {
 						return lhs.second == rhs.second;
 					} ) != std::end( m_callbacks );
@@ -81,7 +65,7 @@ namespace daw {
 					return *this;
 				}
 
-				Event& removeListener( callback_t const & call_back ) {					
+				Event& remove_listener( callback_t const & call_back ) {					
 					erase_remove_if( m_callbacks, [&call_back]( callback_t const & val ) {
 						return call_back.id( ) == val.id( );
 					} );
@@ -89,7 +73,7 @@ namespace daw {
 
 				}
 
-				Event& removeAllListeners( ) { 
+				Event& remove_all_listeners( ) { 
 					m_callbacks.clear;
 					return *this;
 				}
@@ -108,28 +92,27 @@ namespace daw {
 					}
 				}
 
-				size_t listenerCount( ) const { 
+				size_t listener_count( ) const { 
 					return m_callbacks.size( );
 				}
 
-				change_callback_t const & newListener( ) const { 
+				change_callback_t const & new_listener( ) const { 
 					return m_on_new;
 				}
 
-				change_callback_t & newListener( ) {
+				change_callback_t & new_listener( ) {
 					return m_on_new;
 				}
 
-				change_callback_t const & removeListener( ) const {
+				change_callback_t const & remove_listener( ) const {
 					return m_on_remove;
 				}
 
-				change_callback_t & removeListener( ) {
+				change_callback_t & remove_listener( ) {
 					return m_on_remove;
 				}
 
-
-				~Event( ) { }
+				virtual ~Event( ) { }
 			};	// class IEvent
 
 
