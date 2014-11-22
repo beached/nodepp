@@ -3,14 +3,12 @@
 #include <boost/filesystem.hpp>
 #include "range_algorithm.h"
 
-std::vector<boost::filesystem::path> get_files_in_folder( std::string folder, std::vector<std::string> const& extensions );
-
 using namespace daw::algorithm;
 
 std::vector<boost::filesystem::path> get_files_in_folder( std::string folder, std::vector<std::string> const& extensions ) {
 	namespace fs = boost::filesystem;
 	auto result = std::vector<fs::path>{ };
-	auto p = fs::path( folder );	
+	auto p = fs::path( folder.c_str( ) );
 
 	if( fs::exists( p ) && fs::is_directory( p ) ) {
 		
