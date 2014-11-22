@@ -1,6 +1,8 @@
 #include <algorithm>
-#include <cstdlib>
 #include <boost/filesystem.hpp>
+#include <cstdlib>
+#include <iostream>
+
 #include "range_algorithm.h"
 #include "plugin_base.h"
 #include "load_library.h"

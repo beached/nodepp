@@ -186,3 +186,4 @@ UpgradeLog*.htm
 FakesAssemblies/
 *.suo
 *.vcxproj.filters
+*.npp

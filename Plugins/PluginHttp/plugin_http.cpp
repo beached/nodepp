@@ -19,7 +19,6 @@ namespace daw {
 	}	// namespace nodepp
 }	// namespace daw
 
-std::unique_ptr<daw::nodepp::plugins::HttpServer> create_plugin( ) {
-	return std::unique_ptr<daw::nodepp::plugins::HttpServer>( new(std::nothrow) daw::nodepp::plugins::HttpServer( ) );
-	
+std::unique_ptr<daw::nodepp::plugins::HttpServer> create_plugin() {
+	return std::unique_ptr<daw::nodepp::plugins::HttpServer>(new(std::nothrow) daw::nodepp::plugins::HttpServer());
 }

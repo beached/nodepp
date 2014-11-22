@@ -42,8 +42,9 @@ namespace daw {
 					daw::nodepp::base::Event<HttpServerException, Socket> client_error;
 				};	// struct events
 			};
-
-			std::unique_ptr<HttpServer> create_plugin( );
 		}	// namespace plugins
 	}	// namespace nodepp
 }	// namespace daw
+
+
+std::unique_ptr<daw::nodepp::plugins::HttpServer> create_plugin();

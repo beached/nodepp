@@ -48,6 +48,11 @@ namespace daw {
 				}
 			}
 #endif
+
+			OSLibraryHandle::OSLibraryHandle(std::string library_path) : m_handle{ impl::load_library(std::move(library_path)) }, m_count{ std::make_shared<size_t>(0) } { }
+			OSLibraryHandle::OSLibraryHandle(std::wstring library_path) : m_handle{ impl::load_library(std::move(library_path)) }, m_count{ std::make_shared<size_t>(0) } { }
+
+
 			OSLibraryHandle::OSLibraryHandle( OSLibraryHandle const & other ):m_handle( other.m_handle ), m_count( other.m_count ) {
 				++(*m_count);
 			}

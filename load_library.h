@@ -55,8 +55,10 @@ namespace daw {
 			public:
 				OSLibraryHandle( ) = delete;
 
-				template<typename StringType>
-				OSLibraryHandle( StringType library_path ): m_handle{ impl::load_library( std::move( library_path ) ) }, m_count{ std::make_shared<size_t>( 0 ) } { }
+				
+				explicit OSLibraryHandle(std::string library_path);
+				explicit OSLibraryHandle(std::wstring library_path);
+
 				OSLibraryHandle( OSLibraryHandle const & other );
 				OSLibraryHandle( OSLibraryHandle && other );
 				OSLibraryHandle& operator=(OSLibraryHandle rhs);
