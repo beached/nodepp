@@ -1,18 +1,22 @@
 cmake_minimum_required(VERSION 2.8.4)
 project(NodePP)
 
+find_package(Boost COMPONENTS filesystem REQUIRED)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-set(SOURCE_FILES
+set( SOURCE_FILES
     load_library.h
     load_library.cpp
-    load_library_test.cpp
-    testlib.cpp)
+    event_listener.h
+    plugin_base.h
+    range_algorithm.h
+    main.cpp )
+
 set( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR} )
 
-add_library( testlib MODULE testlib.cpp)
+add_executable(NodePP ${SOURCE_FILES} ${Boost_LIBRARIES})
 
-add_executable(NodePP load_library.h load_library.cpp load_library_test.cpp)
 
-target_link_libraries(NodePP  ${CMAKE_DL_LIBS})
+
+target_link_libraries(NodePP  ${CMAKE_DL_LIBS} )

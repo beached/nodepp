@@ -1,0 +1,138 @@
+#pragma once
+
+#include <atomic>
+#include <functional>
+#include <string>
+#include <vector>
+
+#include "range_algorithm.h"
+
+namespace daw {
+	namespace nodepp {
+		namespace base {
+			using namespace daw::algorithm;
+
+			template<typename Derived>
+			struct IEvent {
+				virtual std::string name( ) const = 0;
+				virtual Derived& on( std::function<void( ... )> const & call_back ) = 0;
+				virtual Derived& once( std::function<void( ... )> const & call_back ) = 0;
+				virtual Derived& removeListener( std::function<void( ... )> const & call_back ) = 0;
+				virtual Derived& removeAllListeners( ) = 0;
+				virtual std::vector<Derived>& listeners( ) = 0;
+				virtual std::vector<Derived> const & listeners( ) const = 0;
+				virtual bool emit( ... ) = 0;
+				virtual size_t listenerCount( ) = 0;
+				virtual void newListener( std::function<void( Derived const& )> ) = 0;
+				virtual void removeListener( std::function<void( Derived const & )> ) = 0;				
+				virtual ~IEvent( ) = 0;
+			};	// class IEvent
+
+			template<typename... CallbackArgs>
+			class Callback {
+			public:
+				using callback_function_t = std::function < void( CallbackArgs&&... ) > ;
+				using id_t = uint64_t;
+			private:
+				id_t m_id;
+				callback_function_t m_callback_function;
+				static std::atomic_uint_least64_t s_last_id;
+			public:				
+				Callback( callback_function_t callback_function ): m_id( s_last_id++ ), m_callback_function( callback_function ) { }
+				const id_t& id( ) const {
+					return m_id;
+				}
+				const callback_function_t& func( ) const;
+
+				bool operator==(Callback const & rhs) const {
+					return id( ) == rhs.id( );
+				}
+			};
+
+			template<typename... CallbackArgs>
+			class Event {
+				using callback_t = Callback<CallbackArgs...> ;
+				using callbacks_t = std::vector < std::pair<bool, callback_t> > ;
+				using change_callback_t = std::function < void( Event const& ) > ;
+
+				callbacks_t m_callbacks;
+				change_callback_t m_on_new;
+				change_callback_t m_on_remove;
+
+				bool exists( const Callback& callback ) {
+					return find( m_callbacks, callback, []( std::pair<bool, callback_t> const & lhs, std::pair<bool, callback_t> const & rhs ) {
+						return lhs.second == rhs.second;
+					} ) != std::end( m_callbacks );
+				}
+			public:
+				Event( ): m_callbacks( ), m_on_new( ), m_on_remove( ) { }
+
+				Event& on( callback_t const & callback ) {
+					if( !exists( callback ) ) {
+						m_callbacks.push_back( { false, callback } )
+					}
+					return *this;
+				}
+				
+				Event& once( callback_t const & call_back ) {
+					if( !exists( callback ) ) {
+						m_callbacks.push_back( { true, callback } )
+					}
+					return *this;
+				}
+
+				Event& removeListener( callback_t const & call_back ) {					
+					erase_remove_if( m_callbacks, [&call_back]( callback_t const & val ) {
+						return call_back.id( ) == val.id( );
+					} );
+					return *this;
+
+				}
+
+				Event& removeAllListeners( ) { 
+					m_callbacks.clear;
+					return *this;
+				}
+
+				callbacks_t& listeners( ) {
+					return m_callbacks;
+				}
+
+				callbacks_t const & listeners( ) const {
+					return m_callbacks;
+				}
+
+				bool emit( CallbackArgs&&... args ) { 
+					for( auto const & callback : m_callbacks ) {
+						callback( std::forward<CallbackArgs>( args )... );
+					}
+				}
+
+				size_t listenerCount( ) const { 
+					return m_callbacks.size( );
+				}
+
+				change_callback_t const & newListener( ) const { 
+					return m_on_new;
+				}
+
+				change_callback_t & newListener( ) {
+					return m_on_new;
+				}
+
+				change_callback_t const & removeListener( ) const {
+					return m_on_remove;
+				}
+
+				change_callback_t & removeListener( ) {
+					return m_on_remove;
+				}
+
+
+				~Event( ) { }
+			};	// class IEvent
+
+
+		} // namespace base
+	} // namespace nodepp
+} // namespace daw
