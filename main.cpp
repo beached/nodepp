@@ -1,20 +1,11 @@
 #include <algorithm>
 #include <cstdlib>
 #include <boost/filesystem.hpp>
-#include <iostream>
-#include <string>
-#include <vector>
+#include "range_algorithm.h"
 
-template<typename Container>
-Container& sort( Container& container ) {
-	std::sort( std::begin( container ), std::end( container ) );
-	return container;
-}
+std::vector<boost::filesystem::path> get_files_in_folder( std::string folder, std::vector<std::string> const& extensions );
 
-template<typename Container, typename StringType>
-bool contains( Container const & container, StringType const & key ) {
-	return std::find( std::begin( container ), std::end( container ), key ) != std::end( container );	
-}
+using namespace daw::algorithm;
 
 std::vector<boost::filesystem::path> get_files_in_folder( std::string folder, std::vector<std::string> const& extensions ) {
 	namespace fs = boost::filesystem;
@@ -30,7 +21,7 @@ std::vector<boost::filesystem::path> get_files_in_folder( std::string folder, st
 	return sort( result );
 }
 
-int main( int const argc, char const ** argv ) {
+int main( int, char const ** ) {
 	std::string const plugin_folder = ".\\plugins\\";
 	std::vector<std::string> extensions = { ".npp" };
 	for( auto const & plugin_file : get_files_in_folder( plugin_folder, extensions ) ) {

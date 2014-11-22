@@ -26,7 +26,7 @@ namespace daw {
 
 		template<typename Container, typename Value, typename BinaryPredicate>
 		auto find( Container const & container, Value const & value, BinaryPredicate pred ) -> decltype(end( container )) {
-			auto pred2 = [&value]( Value const & val ) {
+			auto pred2 = [&value, &pred]( Value const & val ) {
 				return pred( value, val );
 			};
 			return std::find_if( begin( container ), end( container ), pred2 );
@@ -42,5 +42,20 @@ namespace daw {
 			return container.erase( std::remove_if( begin( container ), end( container ), pred ), end( container ) );
 		}
 
-	}	// namespace algorithm
+        template<typename Container, typename Value>
+        bool contains( Container const & container, Value const & value ) {
+            return std::find( std::begin( container ), std::end( container ), value ) != std::end( container );
+        }
+
+        template<typename Container, typename Value, typename BinaryPredicate>
+        bool contains( Container const & container, Value const & value, BinaryPredicate pred ) {
+            auto pred2 = [&value, &pred]( Value const & val ) {
+                return pred( value, val );
+            };
+            return std::find_if( std::begin( container ), std::end( container ), pred2 ) != std::end( container );
+        }
+
+
+
+    }	// namespace algorithm
 }	// namespace daw
