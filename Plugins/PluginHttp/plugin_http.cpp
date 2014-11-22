@@ -3,6 +3,7 @@
 #include <string>
 
 #include "plugin_http.h"
+#include <boost/shared_ptr.hpp>
 
 namespace daw {
 	namespace nodepp {
