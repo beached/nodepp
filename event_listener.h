@@ -51,8 +51,7 @@ namespace daw {
 					} ) != std::end( m_callbacks );
 				}
 			public:
-				Event( ): m_callbacks( ), m_on_new( ), m_on_remove( ) { }
-
+				Event( nullptr_t np = nullptr ) : m_callbacks( ), m_on_new( ), m_on_remove( ) { }
 				Event& on( callback_t const & callback ) {
 					if( !exists( callback ) ) {
 						m_callbacks.push_back( { false, callback } )

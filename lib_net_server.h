@@ -12,22 +12,23 @@ namespace daw {
 				class Address;
 
 				class Server: public Handle {
+					using namespacec daw::nodepp;
 				public:
 					struct events {
-						using event_t_listening = daw::nodepp::base::Event < > ;
+						using event_t_listening = base::Event < > ;
 						event_t_listening listening;
 						using listening_callback_t = event_t_listening::callback_t;
 
-						using event_t_connecton = daw::nodepp::base::Event < > ;
-						event_t_listening connection;
+						using event_t_connecton = base::Event < > ;
+						event_t_connecton connection;
 						using connection_callback_t = event_t_connecton::callback_t;
 
-						using event_t_close = daw::nodepp::base::Event < > ;
-						event_t_listening close;
+						using event_t_close = base::Event < > ;
+						event_t_close close;
 						using close_callback_t = event_t_close::callback_t;
 
-						using event_t_error = daw::nodepp::base::Event < > ;
-						event_t_listening error;
+						using event_t_error = base::Event < > ;
+						event_t_error error;
 						using error_callback_t = event_t_error::callback_t;
 					};
 

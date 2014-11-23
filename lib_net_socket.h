@@ -20,7 +20,11 @@ namespace daw {
 				public:					
 					using data_t = std::vector < uint8_t >;
 					
-					struct events {						
+					struct events {				
+						using event_t_connect = base::Event < > ;
+						event_t_connect connect;
+						using connect_callback_t = event_t_connect::callback_t;
+
 						daw::nodepp::base::Event<> connect;
 						using connect_callback_t = typename connect::callback_t;
 						
