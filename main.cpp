@@ -2,10 +2,12 @@
 #include <boost/filesystem.hpp>
 #include <cstdlib>
 #include <iostream>
+#include <memory>
 
-#include "range_algorithm.h"
-#include "plugin_base.h"
 #include "load_library.h"
+#include "plugin_base.h"
+#include "range_algorithm.h"
+#include "utility.h"
 
 using namespace daw::algorithm;
 
@@ -25,15 +27,42 @@ std::vector<boost::filesystem::path> get_files_in_folder( std::string folder, st
 
 using plugin_t = std::pair < daw::system::LibraryHandle, std::unique_ptr<daw::nodepp::plugins::IPlugin> > ;
 
+struct test {
+
+// 	int f() const volatile {
+// 		return 1 + 1;
+// 	}
+	int blah;
+	test(int b) : blah(b) {}
+
+	int f() const {
+		return 1 + 1;
+	}
+
+	int g() {
+		return ++blah;
+	}
+
+	uint32_t s(std::string bblah) {
+		uint32_t count = 0;
+		for (auto it = bblah.begin(); it != bblah.end(); ++it ) {
+			count += (uint32_t)*it;
+		}
+		return count;
+	}
+
+};
+
 std::vector<plugin_t> load_libraries_in_folder( std::string plugin_folder ) {
 	static std::vector<std::string> const extensions = { ".npp" };
 
 	std::vector<plugin_t> results;
 	for( auto const & plugin_file : get_files_in_folder( plugin_folder, extensions ) ) {
 		const auto& filename = plugin_file.relative_path( ).string( );
-		try {
+		try {			
 			auto handle = daw::system::LibraryHandle( filename );
-			auto plugin = handle.call_function<std::unique_ptr<daw::nodepp::plugins::IPlugin>>( "create_plugin" );
+			auto create_func = handle.get_function<std::unique_ptr<daw::nodepp::plugins::IPlugin>>("create_plugin");
+			auto plugin = create_func();
 			results.emplace_back( std::move( handle ), std::move( plugin ) );
 		} catch( std::runtime_error const & ex ) {
 			// log better
@@ -48,8 +77,11 @@ std::vector<plugin_t> load_libraries_in_folder( std::string plugin_folder ) {
 int main( int, char const ** ) {
 	std::string const plugin_folder = ".\\plugins\\";
 	auto libraries = load_libraries_in_folder( plugin_folder );
+	for( auto const & lib : libraries ) {
+		const auto& library = *lib.second;
+		std::cout << "name: " << library.name() << " version: " << library.version() << std::endl;
+	}
 
-
-
+	system("pause");
 	return EXIT_SUCCESS;
 }

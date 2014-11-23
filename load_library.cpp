@@ -1,10 +1,3 @@
-#ifdef _WIN32
-#include <windows.h>
-#include <codecvt>
-#include <locale>
-#else
-#include <dlfcn.h>
-#endif
 
 #include <memory>
 #include <string>
@@ -14,41 +7,6 @@
 namespace daw {
 	namespace system {
 		namespace impl {
-#ifdef _WIN32
-			std::wstring widen_string( std::string in_str ) {
-				static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-				return converter.from_bytes( in_str );
-			}
-
-			HINSTANCE load_library( std::wstring library_path ) {
-				auto result = static_cast<HINSTANCE>(LoadLibraryW( library_path.c_str( ) ));
-				if( !result ) {
-					throw std::runtime_error( "Could not open library" );
-				}
-				return result;
-			}
-
-			HINSTANCE load_library( std::string library_path ) {
-				return load_library( widen_string( std::move( library_path ) ) );
-			}
-
-			void close_library( HINSTANCE handle ) {
-				if( nullptr != handle ) {
-					FreeLibrary( handle );
-				}
-			}
-#else
-			void* load_library( std::string library_path ) {
-				return dlopen( library_path.c_str( ), RTLD_LAZY );
-			}
-
-			void close_library( void* handle ) {
-				if( nullptr != handle ) {
-					dlclose( handle );
-				}
-			}
-#endif
-
 			OSLibraryHandle::OSLibraryHandle(std::string library_path) : m_handle{ impl::load_library(std::move(library_path)) }, m_count{ std::make_shared<size_t>(0) } { }
 			OSLibraryHandle::OSLibraryHandle(std::wstring library_path) : m_handle{ impl::load_library(std::move(library_path)) }, m_count{ std::make_shared<size_t>(0) } { }
 
