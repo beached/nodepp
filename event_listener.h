@@ -9,29 +9,57 @@
 
 namespace daw {
 	namespace nodepp {
-		namespace base {
+		namespace lib {
 			using namespace daw::algorithm;
 
 			template<typename... CallbackArgs>
 			class Callback {
 			public:
 				using callback_function_t = std::function < void( CallbackArgs&&... ) > ;
-				using id_t = uint64_t;
+				using id_t = int64_t;
 			private:
 				id_t m_id;
 				callback_function_t m_callback_function;
 				static std::atomic_uint_least64_t s_last_id;
 			public:
+				Callback( ) : m_id{ -1 }, m_callback_function{ } { }
+				~Callback( ) = default;
 				Callback( callback_function_t callback_function ): m_id( s_last_id++ ), m_callback_function( callback_function ) { }
+				
+				Callback( Callback const & ) = default;
+				
+				Callback& operator=(Callback const &) = default;
+
+				Callback( Callback && other ) : m_id{ std::move( other.m_id ) }, m_callback_function{ std::move( other.m_callback_function ) } { }
+				
+				Callback& operator=( Callback && rhs ) {
+					if( this != &rhs ) {
+						m_id = std::move( rhs.m_id );
+						m_callback_function = std::move( rhs.m_callback_function );						
+					}
+					return *this;
+				}
 				const id_t& id( ) const {
 					return m_id;
 				}
+
+				bool empty( ) const {
+					return m_id <= 0;
+				}
+
 				const callback_function_t& func( ) const;
 
 				bool operator==(Callback const & rhs) const {
 					return id( ) == rhs.id( );
 				}
+
+				bool operator<(Callback const &) = delete;
 			};
+
+			template<typename... CallbackArgs>
+			auto make_callback( std::function<void( CallbackArgs&&... )> func ) -> decltype(Callback<CallbackArgs>( decltype( func ) )) {
+				return Callback<CallbackArgs>( func );
+			}
 
 			template<typename... CallbackArgs>
 			class Event {
@@ -51,7 +79,8 @@ namespace daw {
 					} ) != std::end( m_callbacks );
 				}
 			public:
-				Event( nullptr_t np = nullptr ) : m_callbacks( ), m_on_new( ), m_on_remove( ) { }
+				Event( ) : m_callbacks( ), m_on_new( ), m_on_remove( ) { }
+				
 				Event& on( callback_t const & callback ) {
 					if( !exists( callback ) ) {
 						m_callbacks.push_back( { false, callback } )
@@ -116,6 +145,6 @@ namespace daw {
 				virtual ~Event( ) { }
 			};	// class IEvent
 
-		} // namespace base
+		} // namespace lib
 	} // namespace nodepp
 } // namespace daw

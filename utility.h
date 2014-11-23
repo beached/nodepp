@@ -4,7 +4,6 @@
 #include <type_traits>
 #include <vector>
 
-
 namespace daw {
 	namespace impl {
 		template<typename ResultType, typename... ArgTypes>

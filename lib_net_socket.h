@@ -15,27 +15,27 @@ namespace daw {
 			namespace net {
 				class Address;
 
-				class Socket: public Handle {					
-				public:					
-					using data_t = std::vector < uint8_t >;
-					
+				class Socket: public Handle {
+				public:
+					using data_t = std::vector < uint8_t > ;
+
 					struct events {
 						template<typename... Args>
-						using event_t = daw::nodepp::base::Event < Args... > ;
+						using event_t = daw::nodepp::lib::Event < Args... > ;
 
-						using event_t_connect = event_t< > ;
+						using event_t_connect = event_t < > ;
 						event_t_connect connect;
 						using connect_callback_t = event_t_connect::callback_t;
 
-						using event_t_data = event_t<data_t> ;
+						using event_t_data = event_t < data_t > ;
 						event_t_data data;
 						using data_callback_t = event_t_data::callback_t;
 
-						using event_t_end = event_t< > ;
+						using event_t_end = event_t < > ;
 						event_t_end end;
 						using end_callback_t = event_t_end::callback_t;
 
-						using event_t_timeout = event_t< > ;
+						using event_t_timeout = event_t < > ;
 						event_t_timeout timeout;
 						using timeout_callback_t = event_t_timeout::callback_t;
 
@@ -43,11 +43,11 @@ namespace daw {
 						event_t_drain drain;
 						using drain_callback_t = event_t_drain::callback_t;
 
-						using event_t_error = event_t<Error> ;
+						using event_t_error = event_t < Error > ;
 						event_t_error error;
 						using error_callback_t = event_t_error::callback_t;
 
-						using event_t_close = event_t<bool> ;
+						using event_t_close = event_t < bool > ;
 						event_t_close close;
 						using close_callback_t = event_t_close::callback_t;
 
@@ -55,14 +55,14 @@ namespace daw {
 
 					Socket( options_t options = options_t{ } );
 
-					void connect( uint16_t port, std::string host, events::connect_callback_t callback = nullptr );
-					void connect( std::string path, events::connect_callback_t callback = nullptr );
+					void connect( uint16_t port, std::string host, events::connect_callback_t callback = events::connect_callback_t{ } );
+					void connect( std::string path, events::connect_callback_t callback = events::connect_callback_t{ } );
 
 					size_t& buffer_size( );
 					size_t const & buffer_size( ) const;
-					void set_encoding( encoding_t encoding );					
-					
-					bool write( data_t data, encoding_t const & encoding = "", events::drain_callback_t callback = nullptr );
+					void set_encoding( encoding_t encoding );
+
+					bool write( data_t data, encoding_t const & encoding = "", events::drain_callback_t callback = events::drain_callback_t{ } );
 
 					void end( data_t data, encoding_t const & encoding = "" );
 

@@ -15,7 +15,7 @@ namespace daw {
 				public:
 					struct events {
 						template<typename... Args>
-						using event_t = daw::nodepp::base::Event< Args... > ;
+						using event_t = daw::nodepp::lib::Event< Args... > ;
 
 						using event_t_listening = event_t< > ;
 						event_t_listening listening;
@@ -35,10 +35,10 @@ namespace daw {
 					};
 
 
-					void listen( uint16_t port, std::string hostname = "", uint16_t backlog = 511, events::listening_callback_t callback = nullptr );
-					void listen( std::string socket_path, events::listening_callback_t callback = nullptr );
-					void listen( Handle const & handle, events::listening_callback_t = nullptr );
-					void close( events::close_callback_t callback = nullptr );
+					void listen( uint16_t port, std::string hostname = "", uint16_t backlog = 511, events::listening_callback_t callback = events::listening_callback_t{ } );
+					void listen( std::string socket_path, events::listening_callback_t callback = events::listening_callback_t{ } );
+					void listen( Handle const & handle, events::listening_callback_t callback = events::listening_callback_t{ } );
+					void close( events::close_callback_t callback = events::close_callback_t{ } );
 					
 					const Address& address( ) const;
 					void unref( );

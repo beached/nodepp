@@ -11,12 +11,26 @@ set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
 
 set( SOURCE_FILES
+    event_listener.h
+    lib_address.h
+    lib_error.h
+    lib_http.h
+    lib_http.cpp
+    lib_net.h
+    lib_net_handle.h
+    lib_net_server.h
+    lib_net_socket.h
+    lib_net_socket.h
+    lib_types.h
     load_library.h
     load_library.cpp
-    event_listener.h
+    load_library_posix.h
+    load_library_posix.cpp
+    main.cpp
     plugin_base.h
     range_algorithm.h
-    main.cpp )
+    ref_counted_value.h
+    utility.h)
 
 #add_definitions( -DBOOST_ALL_NO_LIB )
 #add_definitions( -DBOOST_ALL_DYN_LINK )
