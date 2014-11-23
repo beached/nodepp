@@ -35,7 +35,9 @@ namespace daw {
 
 			template<typename... CallbackArgs>
 			class Event {
+			public:
 				using callback_t = Callback<CallbackArgs...> ;
+			private:
 				using callbacks_t = std::vector < std::pair<bool, callback_t> > ;
 				using change_callback_t = std::function < void( Event const& ) > ;
 
@@ -114,7 +116,6 @@ namespace daw {
 
 				virtual ~Event( ) { }
 			};	// class IEvent
-
 
 		} // namespace base
 	} // namespace nodepp

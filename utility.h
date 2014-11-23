@@ -47,8 +47,5 @@ namespace daw {
 
 	template<typename ResultType, typename ClassType, typename... ArgTypes>
 	using pointer_to_const_volatile_member_function_t = typename impl::make_pointer_to_const_volatile_member_function_impl<ResultType, ClassType, ArgTypes...>::type;
-	
-
-
 
 }	// namespace daw

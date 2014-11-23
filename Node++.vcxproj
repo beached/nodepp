@@ -154,6 +154,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="event_listener.h" />
+    <ClInclude Include="lib_address.h" />
+    <ClInclude Include="lib_error.h" />
+    <ClInclude Include="lib_http.h" />
+    <ClInclude Include="lib_net.h" />
+    <ClInclude Include="lib_net_handle.h" />
+    <ClInclude Include="lib_net_server.h" />
+    <ClInclude Include="lib_net_socket.h" />
+    <ClInclude Include="lib_types.h" />
     <ClInclude Include="load_library.h" />
     <ClInclude Include="load_library_posix.h" />
     <ClInclude Include="load_library_windows.h" />
@@ -163,6 +171,7 @@
     <ClInclude Include="utility.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="lib_http.cpp" />
     <ClCompile Include="load_library.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
