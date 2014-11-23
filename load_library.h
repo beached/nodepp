@@ -9,14 +9,14 @@
 #endif
 
 #include "utility.h"
+#include "ref_counted_value.h"
 
 namespace daw {
 	namespace system {
 		namespace impl {
 			class OSLibraryHandle {
 				using handle_t = decltype(load_library( "" ));
-				handle_t m_handle;	
-				std::shared_ptr<size_t> m_count;
+				daw::ReferenceCountedValue<handle_t> m_handle;
 			public:
 				OSLibraryHandle( ) = delete;
 
@@ -35,18 +35,24 @@ namespace daw {
 		}	// namespace impl
 
 		class LibraryHandle {
-			impl::OSLibraryHandle m_handle;
+			//impl::OSLibraryHandle m_handle;
+			using handle_t = decltype(impl::load_library( "" ));
+			daw::ReferenceCountedValue<handle_t> m_handle;
 		public:
 			//////////////////////////////////////////////////////////////////////////
 			/// Summary: deleted
 			LibraryHandle( ) = delete;
 
 			template<typename StringType>
-			LibraryHandle( StringType library_path ): m_handle{ std::move( library_path ) } { }
+			LibraryHandle( StringType library_path ) : m_handle{ impl::load_library( std::move( library_path ) ) } {
+				m_handle.set_cleaner( []( handle_t* handle ) {
+					impl::close_library( *handle );
+				} );
+			}
 
 			LibraryHandle( LibraryHandle const & ) = default;
-			LibraryHandle( LibraryHandle && other );
-			LibraryHandle& operator=(LibraryHandle rhs);
+// 			LibraryHandle( LibraryHandle && other );
+// 			LibraryHandle& operator=(LibraryHandle rhs);
 			~LibraryHandle( ) = default;
 
 			template<typename ResultType, typename... Args>
@@ -57,7 +63,7 @@ namespace daw {
 
 			template<typename ResultType, typename... Args>
 			auto get_function(std::string function_name) ->daw::function_pointer_t<ResultType, Args...> {
-				auto function_ptr = impl::get_function_address<ResultType, Args...>(m_handle.get(), std::move(function_name));
+				auto function_ptr = impl::get_function_address<ResultType, Args...>(m_handle( ), std::move(function_name));
 				return function_ptr;
 			}
 		};	// class LibraryHandle

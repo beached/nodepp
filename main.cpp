@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <memory>
+#include <sstream>
 
 #include "load_library.h"
 #include "plugin_base.h"
@@ -61,12 +62,15 @@ std::vector<plugin_t> load_libraries_in_folder( std::string plugin_folder ) {
 		const auto& filename = plugin_file.relative_path( ).string( );
 		try {			
 			auto handle = daw::system::LibraryHandle( filename );
-			auto create_func = handle.get_function<std::unique_ptr<daw::nodepp::plugins::IPlugin>>("create_plugin");
-			auto plugin = create_func();
+			auto create_func = handle.get_function<daw::nodepp::plugins::IPlugin*>("create_plugin");
+			auto plugin = std::unique_ptr<daw::nodepp::plugins::IPlugin>( create_func( ) );
 			results.emplace_back( std::move( handle ), std::move( plugin ) );
 		} catch( std::runtime_error const & ex ) {
-			// log better
-			std::cerr << "Error loading plugin: " << filename << " with error\n" << ex.what( ) << std::endl;
+			// We are going to keep on going if we cannot load a plugin
+			std::stringstream ss;
+
+			ss << "Error loading plugin: " << filename << " with error\n" << ex.what( ) << std::endl;
+			std::cerr << ss.str( ) << std::endl;
 		}
 	}
 
