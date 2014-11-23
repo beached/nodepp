@@ -31,11 +31,14 @@ namespace daw {
 				class ClientRequest {
 				public:
 					struct events {
-						using event_t_response = daw::nodepp::base::Event <IncomingMessage> ;
+						template<typename... Args>
+						using event_t = daw::nodepp::base::Event < Args... > ;
+
+						using event_t_response = event_t<IncomingMessage> ;
 						event_t_response response;
 						using response_callback_t = event_t_response::callback_t;
 
-						using event_t_socket = daw::nodepp::base::Event <daw::nodepp::lib::net::Socket> ;
+						using event_t_socket = event_t<daw::nodepp::lib::net::Socket> ;
 						event_t_socket socket;
 						using socket_callback_t = event_t_socket::callback_t;
 
@@ -82,11 +85,14 @@ namespace daw {
 					friend class Server;
 				public:
 					struct events {
-						using event_t_close = base::Event < > ;
+						template<typename... Args>
+						using event_t = daw::nodepp::base::Event < Args... > ;
+
+						using event_t_close = event_t< > ;
 						event_t_close close;
 						using close_callback_t = event_t_close::callback_t;
 
-						using event_t_finish = base::Event < > ;
+						using event_t_finish = event_t< > ;
 						event_t_finish finish;
 						using finish_callback_t = event_t_finish::callback_t;
 					};
@@ -129,31 +135,34 @@ namespace daw {
 				public:
 
 					struct events {
-						using event_t_request = base::Event <HttpRequest, IncomingMessage> ;
+						template<typename... Args>
+						using event_t = daw::nodepp::base::Event< Args... > ;
+
+						using event_t_request = event_t<HttpRequest, IncomingMessage> ;
 						event_t_request request;
 						using request_callback_t = event_t_request::callback_t;
 
-						using event_t_connection = base::Event <daw::nodepp::lib::net::Socket> ;
+						using event_t_connection = event_t<daw::nodepp::lib::net::Socket> ;
 						event_t_connection connection;
 						using connection_callback_t = event_t_connection::callback_t;
 
-						using event_t_close = base::Event <> ;
+						using event_t_close = event_t<> ;
 						event_t_close close;
 						using close_callback_t = event_t_close::callback_t;
 
-						using event_t_check_continue = base::Event < HttpRequest, ServerResponse > ;
+						using event_t_check_continue = event_t< HttpRequest, ServerResponse > ;
 						event_t_check_continue check_continue;
 						using check_continue_callback_t = event_t_check_continue::callback_t;
 
-						using event_t_connect = base::Event < HttpRequest, daw::nodepp::lib::net::Socket,  head_t > ;
+						using event_t_connect = event_t< HttpRequest, daw::nodepp::lib::net::Socket,  head_t > ;
 						event_t_connect connect;
 						using connect_callback_t = event_t_connect::callback_t;
 
-						using event_t_upgrade = base::Event < HttpRequest, daw::nodepp::lib::net::Socket, head_t >;
+						using event_t_upgrade = event_t< HttpRequest, daw::nodepp::lib::net::Socket, head_t >;
 						event_t_upgrade upgrade;
 						using upgrade_callback_t = event_t_upgrade::callback_t;
 
-						using event_t_client_error = base::Event < daw::nodepp::lib::Error, daw::nodepp::lib::net::Socket > ;
+						using event_t_client_error = event_t< daw::nodepp::lib::Error, daw::nodepp::lib::net::Socket > ;
 						event_t_client_error client_error;
 						using client_error_callback_t = event_t_client_error::callback_t;
 					};	// struct events

@@ -15,36 +15,42 @@ namespace daw {
 			namespace net {
 				class Address;
 
-				class Socket: public Handle {
-					using namespace daw::nodepp::lib;
+				class Socket: public Handle {					
 				public:					
 					using data_t = std::vector < uint8_t >;
 					
-					struct events {				
-						using event_t_connect = base::Event < > ;
+					struct events {
+						template<typename... Args>
+						using event_t = daw::nodepp::base::Event < Args... > ;
+
+						using event_t_connect = event_t< > ;
 						event_t_connect connect;
 						using connect_callback_t = event_t_connect::callback_t;
 
-						daw::nodepp::base::Event<> connect;
-						using connect_callback_t = typename connect::callback_t;
-						
-						daw::nodepp::base::Event<data_t> data;
-						using data_callback_t = typename data::callback_t;
+						using event_t_data = event_t<data_t> ;
+						event_t_data data;
+						using data_callback_t = event_t_data::callback_t;
 
-						daw::nodepp::base::Event<> end;
-						using data_callback_t = typename end::callback_t;
+						using event_t_end = event_t< > ;
+						event_t_end end;
+						using end_callback_t = event_t_end::callback_t;
 
-						daw::nodepp::base::Event<> timeout;
-						using timeout_callback_t = typename timeout::callback_t;
+						using event_t_timeout = event_t< > ;
+						event_t_timeout timeout;
+						using timeout_callback_t = event_t_timeout::callback_t;
 
-						daw::nodepp::base::Event<> drain;
-						using drain_callback_t = typename drain::callback_t;
+						using event_t_drain = event_t < > ;
+						event_t_drain drain;
+						using drain_callback_t = event_t_drain::callback_t;
 
-						daw::nodepp::base::Event<Error> error;
-						using error_callback_t = typename error::callback_t;
+						using event_t_error = event_t<Error> ;
+						event_t_error error;
+						using error_callback_t = event_t_error::callback_t;
 
-						daw::nodepp::base::Event<bool> close;
-						using error_callback_t = typename close::callback_t;
+						using event_t_close = event_t<bool> ;
+						event_t_close close;
+						using close_callback_t = event_t_close::callback_t;
+
 					};
 
 					Socket( options_t options = options_t{ } );
