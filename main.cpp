@@ -26,11 +26,13 @@ void f( int a ) {
 int main( int, char const ** ) {
 	using namespace daw::nodepp::lib;
 
-	auto server = http::create_server( (std::function<void( http::ClientRequest req, http::ServerResponse resp )>)[]( http::ClientRequest req, http::ServerResponse resp ) {
-
+	auto server = http::create_server( (std::function<void( http::ClientRequest, http::ServerResponse )>)[]( http::ClientRequest request, http::ServerResponse response ) {
+// 		response.write_head( 200, "", { { "Content-Type", "text/plain" } } );
+// 		response.write( "Hello World" );
+// 		response.end( );
 	} ).listen( 8080 );
 
-
+	while( true ) { }
 	system( "pause" );
 	return EXIT_SUCCESS;
 }

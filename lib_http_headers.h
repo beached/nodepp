@@ -3,7 +3,6 @@
 #include <string>
 #include <vector>
 
-#include "lib_event_emitter.h"
 
 namespace daw {
 	namespace nodepp {
@@ -14,13 +13,15 @@ namespace daw {
 					std::string value;
 
 					Header( );
+					Header( std::string Name, std::string Value );
 					std::string to_string( ) const;
+					bool empty( ) const;
 				};
 				struct Headers {
 					std::vector<Header> headers;
 
 					Headers( );
-					std::string to_string( ) const;
+					Headers( std::initializer_list<Header> values );
 				};
 			}	// namespace http
 		}	// namespace lib

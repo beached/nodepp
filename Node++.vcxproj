@@ -174,11 +174,13 @@
     <ClInclude Include="plugin_base.h" />
     <ClInclude Include="range_algorithm.h" />
     <ClInclude Include="ref_counted_value.h" />
+    <ClInclude Include="string.h" />
     <ClInclude Include="utility.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="lib_event_emitter.cpp" />
     <ClCompile Include="lib_http.cpp" />
+    <ClCompile Include="lib_http_header.cpp" />
     <ClCompile Include="lib_http_statuscodes.cpp" />
     <ClCompile Include="lib_net_server.cpp" />
     <ClCompile Include="lib_net_socket.cpp" />
