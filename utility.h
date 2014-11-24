@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <string>
 #include <type_traits>
 #include <vector>
@@ -46,5 +47,16 @@ namespace daw {
 
 	template<typename ResultType, typename ClassType, typename... ArgTypes>
 	using pointer_to_const_volatile_member_function_t = typename impl::make_pointer_to_const_volatile_member_function_impl<ResultType, ClassType, ArgTypes...>::type;
+
+
+	namespace details {
+		template<typename Func>
+		std::false_type is_function( Func );
+
+		template<typename Func>
+		auto is_function( Func ) -> typename std::is_convertible< Func, std::function< void( ) > >::type;
+	}	// namespace details
+	template<typename Func>
+	struct is_function: decltype(std::function( std::declval<Func( )> )) {};
 
 }	// namespace daw

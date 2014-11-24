@@ -157,6 +157,7 @@
     <ClInclude Include="lib_address.h" />
     <ClInclude Include="lib_error.h" />
     <ClInclude Include="lib_http.h" />
+    <ClInclude Include="lib_http_client_request.h" />
     <ClInclude Include="lib_net.h" />
     <ClInclude Include="lib_net_handle.h" />
     <ClInclude Include="lib_net_server.h" />
@@ -173,7 +174,12 @@
     <ClInclude Include="utility.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="lib_http.cpp" />
+    <ClCompile Include="lib_http.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="lib_http_statuscodes.cpp" />
     <ClCompile Include="lib_net_server.cpp" />
     <ClCompile Include="lib_net_socket.cpp" />

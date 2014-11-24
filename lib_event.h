@@ -3,6 +3,7 @@
 #include <atomic>
 #include <functional>
 #include <string>
+#include <type_traits>
 #include <vector>
 
 #include "range_algorithm.h"
@@ -62,17 +63,18 @@ namespace daw {
 			}
 
 			template<typename... CallbackArgs>
-			class Event {
+			class EventEmitter {
 			public:
 				using callback_t = Callback<CallbackArgs...> ;
 				using callback_function_t = std::function < void( CallbackArgs... ) > ;
 			private:
 				using callbacks_t = std::vector < std::pair<bool, callback_t> > ;
-				using change_callback_t = std::function < void( Event const& ) > ;
+				using change_callback_t = std::function < void( EventEmitter const& ) > ;
 
 				callbacks_t m_callbacks;
 				change_callback_t m_on_new;
 				change_callback_t m_on_remove;
+				size_t m_max_listeners;
 
 				bool exists( const callback_t& callback ) {
 					return find_if( m_callbacks, [&callback]( std::pair<bool, callback_t> const & value ) {
@@ -80,23 +82,42 @@ namespace daw {
 					} ) != std::end( m_callbacks );
 				}
 			public:
-				Event( ) : m_callbacks( ), m_on_new( ), m_on_remove( ) { }
+				EventEmitter( ) : m_callbacks{ }, m_on_new{ }, m_on_remove{ }, m_max_listeners{ 0 } { }
 				
-				Event& on( callback_t const & callback ) {
+				EventEmitter& on( callback_t const & callback ) {
 					if( !exists( callback ) ) {
-						m_callbacks.push_back( { false, callback } );
+						m_callbacks.emplace_back( false, callback );
 					}
 					return *this;
+				}	
+
+				EventEmitter& set_max_listeners( size_t value ) {
+					throw std::runtime_error( "Method not implemented" );
+					/*return *this;*/
+				}
+
+				int64_t on( callback_function_t func ) {
+					auto callback = callback_t( func );
+					auto id = callback.id( );
+					m_callbacks.emplace_back( false, callback );
+					return id;
 				}
 				
-				Event& once( callback_t const & callback ) {
+				EventEmitter& once( callback_t const & callback ) {
 					if( !exists( callback ) ) {
 						m_callbacks.push_back( { true, callback } );
 					}
 					return *this;
 				}
 
-				Event& remove_listener( callback_t const & callback ) {					
+				auto once( callback_function_t func ) -> typename callback_t::id_t {
+					auto callback = callback_t{ func };
+					auto id = callback.id( );
+					m_callbacks.emplace_back( false, callback );
+					return id;
+				}
+
+				EventEmitter& remove_listener( callback_t const & callback ) {					
 					erase_remove_if( m_callbacks, [&callback]( callback_t const & val ) {
 						return callback.id( ) == val.id( );
 					} );
@@ -104,7 +125,7 @@ namespace daw {
 
 				}
 
-				Event& remove_all_listeners( ) { 
+				EventEmitter& remove_all_listeners( ) { 
 					m_callbacks.clear;
 					return *this;
 				}
@@ -143,7 +164,7 @@ namespace daw {
 					return m_on_remove;
 				}
 
-				virtual ~Event( ) { }
+				virtual ~EventEmitter( ) { }
 			};	// class IEvent
 
 		} // namespace lib
@@ -153,7 +174,7 @@ namespace daw {
 
 //////////////////////////////////////////////////////////////////////////
 // Summary: Defines the following boilerplate inline 
-// event_t_NAME = daw::nodepp::lib::Event&lt;__VA_ARGS__&gt;;
+// event_t_NAME = daw::nodepp::lib::EventEmitter&lt;__VA_ARGS__&gt;;
 // event_t_NAME NAME;
 // using NAME_callback_t = event_t_NAME::callback_t
-#define CREATE_EVENT(NAME, ...) using event_t_ ## NAME = daw::nodepp::lib::Event<__VA_ARGS__>; event_t_## NAME NAME; using callback_t_ ## NAME = event_t_ ## NAME::callback_function_t
+#define CREATE_EVENT(NAME, ...) using event_t_ ## NAME = daw::nodepp::lib::EventEmitter<__VA_ARGS__>; event_t_## NAME NAME; using callback_t_ ## NAME = event_t_ ## NAME::callback_function_t
