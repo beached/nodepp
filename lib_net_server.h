@@ -1,6 +1,9 @@
 #pragma once
 
-#include "event_listener.h"
+#include <memory>
+#include <string>
+
+#include "lib_event.h"
 #include "lib_net_handle.h"
 #include "lib_types.h"
 
@@ -10,44 +13,54 @@ namespace daw {
 			namespace net {				
 				class Error;
 				class Address;
+				class ServerImpl;
 
 				class Server: public Handle {
+					std::shared_ptr<ServerImpl> m_impl;
 				public:
-					struct events {
-						template<typename... Args>
-						using event_t = daw::nodepp::lib::Event< Args... > ;
-
-						using event_t_listening = event_t< > ;
-						event_t_listening listening;
-						using listening_callback_t = event_t_listening::callback_t;
-
-						using event_t_connecton = event_t< >;
-						event_t_connecton connection;
-						using connection_callback_t = event_t_connecton::callback_t;
-
-						using event_t_close = event_t< > ;
-						event_t_close close;
-						using close_callback_t = event_t_close::callback_t;
-
-						using event_t_error = event_t< > ;
-						event_t_error error;
-						using error_callback_t = event_t_error::callback_t;
+					struct events_t {
+						CREATE_EVENT( listening );
+						CREATE_EVENT( connection );
+						CREATE_EVENT( close );
+						CREATE_EVENT( error );
+						enum class types { listening, connection, close, error };
+						events_t( ) = default;
+						~events_t( ) = default;
+						events_t( events_t const & ) = delete;
+						events_t& operator=( events_t const & ) = delete;
+						events_t( events_t && ) = delete;
+						events_t& operator=( events_t && ) = delete;
 					};
 
+					Server( );
+					Server( options_t options );
+					Server( Server const & ) = default;
+					Server& operator=(Server const &) = default;
+					Server( Server&& other );
+					Server& operator=(Server&& rhs);
+					~Server( );
 
-					void listen( uint16_t port, std::string hostname = "", uint16_t backlog = 511, events::listening_callback_t callback = events::listening_callback_t{ } );
-					void listen( std::string socket_path, events::listening_callback_t callback = events::listening_callback_t{ } );
-					void listen( Handle const & handle, events::listening_callback_t callback = events::listening_callback_t{ } );
-					void close( events::close_callback_t callback = events::close_callback_t{ } );
+					events_t& events( );
+					events_t const& events( ) const;
+
+
+					Server& on( events_t::types event_type, events_t::callback_t_listening callback );
+					Server& once( events_t::types event_type, events_t::callback_t_listening callback );
+
+					Server& listen( uint16_t port, std::string hostname = "", uint16_t backlog = 511, events_t::callback_t_listening callback = events_t::callback_t_listening{ } );
+					Server& listen( std::string socket_path, events_t::callback_t_listening callback = events_t::callback_t_listening{ } );
+					Server& listen( Handle const & handle, events_t::callback_t_listening callback = events_t::callback_t_listening{ } );
+					Server& close( events_t::callback_t_close callback = events_t::callback_t_close{ } );
 					
 					const Address& address( ) const;
-					void unref( );
-					void ref( );
-					void max_connections( uint16_t value );
+					Server& unref( );
+					Server& ref( );
+					Server& set_max_connections( uint16_t value );
 
-					void get_connections( std::function<void( Error err, uint16_t count )> callback );
+					Server& get_connections( std::function<void( Error err, uint16_t count )> callback );
 
 				};	// class server
+
 			}	// namespace net
 		}	// namespace lib
 	}	// namespace nodepp

@@ -65,6 +65,7 @@ namespace daw {
 			class Event {
 			public:
 				using callback_t = Callback<CallbackArgs...> ;
+				using callback_function_t = std::function < void( CallbackArgs... ) > ;
 			private:
 				using callbacks_t = std::vector < std::pair<bool, callback_t> > ;
 				using change_callback_t = std::function < void( Event const& ) > ;
@@ -74,8 +75,8 @@ namespace daw {
 				change_callback_t m_on_remove;
 
 				bool exists( const callback_t& callback ) {
-					return find( m_callbacks, callback, []( std::pair<bool, callback_t> const & lhs, std::pair<bool, callback_t> const & rhs ) {
-						return lhs.second == rhs.second;
+					return find_if( m_callbacks, [&callback]( std::pair<bool, callback_t> const & value ) {
+						return callback == value.second;
 					} ) != std::end( m_callbacks );
 				}
 			public:
@@ -83,21 +84,21 @@ namespace daw {
 				
 				Event& on( callback_t const & callback ) {
 					if( !exists( callback ) ) {
-						m_callbacks.push_back( { false, callback } )
+						m_callbacks.push_back( { false, callback } );
 					}
 					return *this;
 				}
 				
-				Event& once( callback_t const & call_back ) {
+				Event& once( callback_t const & callback ) {
 					if( !exists( callback ) ) {
-						m_callbacks.push_back( { true, callback } )
+						m_callbacks.push_back( { true, callback } );
 					}
 					return *this;
 				}
 
-				Event& remove_listener( callback_t const & call_back ) {					
-					erase_remove_if( m_callbacks, [&call_back]( callback_t const & val ) {
-						return call_back.id( ) == val.id( );
+				Event& remove_listener( callback_t const & callback ) {					
+					erase_remove_if( m_callbacks, [&callback]( callback_t const & val ) {
+						return callback.id( ) == val.id( );
 					} );
 					return *this;
 
@@ -148,3 +149,11 @@ namespace daw {
 		} // namespace lib
 	} // namespace nodepp
 } // namespace daw
+
+
+//////////////////////////////////////////////////////////////////////////
+// Summary: Defines the following boilerplate inline 
+// event_t_NAME = daw::nodepp::lib::Event&lt;__VA_ARGS__&gt;;
+// event_t_NAME NAME;
+// using NAME_callback_t = event_t_NAME::callback_t
+#define CREATE_EVENT(NAME, ...) using event_t_ ## NAME = daw::nodepp::lib::Event<__VA_ARGS__>; event_t_## NAME NAME; using callback_t_ ## NAME = event_t_ ## NAME::callback_function_t

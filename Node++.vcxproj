@@ -153,7 +153,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="event_listener.h" />
+    <ClInclude Include="lib_event.h" />
     <ClInclude Include="lib_address.h" />
     <ClInclude Include="lib_error.h" />
     <ClInclude Include="lib_http.h" />
@@ -166,6 +166,7 @@
     <ClInclude Include="load_library_posix.h" />
     <ClInclude Include="load_library_windows.h" />
     <ClInclude Include="load_plugin.h" />
+    <ClInclude Include="make_unique.h" />
     <ClInclude Include="plugin_base.h" />
     <ClInclude Include="range_algorithm.h" />
     <ClInclude Include="ref_counted_value.h" />
@@ -174,6 +175,8 @@
   <ItemGroup>
     <ClCompile Include="lib_http.cpp" />
     <ClCompile Include="lib_http_statuscodes.cpp" />
+    <ClCompile Include="lib_net_server.cpp" />
+    <ClCompile Include="lib_net_socket.cpp" />
     <ClCompile Include="load_library.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>

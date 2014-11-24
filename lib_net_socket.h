@@ -2,8 +2,9 @@
 
 #include <cstdint>
 #include <string>
+#include <memory>
 
-#include "event_listener.h"
+#include "lib_event.h"
 #include "lib_net_handle.h"
 #include "lib_types.h"
 
@@ -13,71 +14,68 @@ namespace daw {
 			class Error;
 
 			namespace net {
-				class Address;
+				class Address {
+
+				};
+
+				class SocketImpl;
 
 				class Socket: public Handle {
+					std::shared_ptr<SocketImpl> m_impl;
 				public:
 					using data_t = std::vector < uint8_t > ;
 
-					struct events {
-						template<typename... Args>
-						using event_t = daw::nodepp::lib::Event < Args... > ;
-
-						using event_t_connect = event_t < > ;
-						event_t_connect connect;
-						using connect_callback_t = event_t_connect::callback_t;
-
-						using event_t_data = event_t < data_t > ;
-						event_t_data data;
-						using data_callback_t = event_t_data::callback_t;
-
-						using event_t_end = event_t < > ;
-						event_t_end end;
-						using end_callback_t = event_t_end::callback_t;
-
-						using event_t_timeout = event_t < > ;
-						event_t_timeout timeout;
-						using timeout_callback_t = event_t_timeout::callback_t;
-
-						using event_t_drain = event_t < > ;
-						event_t_drain drain;
-						using drain_callback_t = event_t_drain::callback_t;
-
-						using event_t_error = event_t < Error > ;
-						event_t_error error;
-						using error_callback_t = event_t_error::callback_t;
-
-						using event_t_close = event_t < bool > ;
-						event_t_close close;
-						using close_callback_t = event_t_close::callback_t;
-
+					struct events_t {
+						CREATE_EVENT( connect );
+						CREATE_EVENT( data, data_t );
+						CREATE_EVENT( end );
+						CREATE_EVENT( timeout );
+						CREATE_EVENT( drain );
+						CREATE_EVENT( error, Error );
+						CREATE_EVENT( close, bool );
+						enum class types { connect, data, end, timeout, drain, error, close };
+						events_t( ) = default;
+						~events_t( ) = default;
+						events_t( events_t const & ) = delete;
+						events_t& operator=( events_t const & ) = delete;
+						events_t( events_t && ) = delete;
+						events_t& operator=( events_t && ) = delete;
 					};
 
-					Socket( options_t options = options_t{ } );
+					Socket( );
+					Socket( options_t options );
+					Socket( Socket const & ) = default;
+					Socket& operator=(Socket const &) = default;
+					Socket( Socket&& other );
+					Socket& operator=(Socket&& rhs);
+					~Socket( );
 
-					void connect( uint16_t port, std::string host, events::connect_callback_t callback = events::connect_callback_t{ } );
-					void connect( std::string path, events::connect_callback_t callback = events::connect_callback_t{ } );
+					events_t& events( );
+					events_t const& events( ) const;
+
+					Socket& connect( uint16_t port, std::string host, events_t::callback_t_connect callback = events_t::callback_t_connect{ } );
+					Socket& connect( std::string path, events_t::callback_t_connect callback = events_t::callback_t_connect{ } );
 
 					size_t& buffer_size( );
 					size_t const & buffer_size( ) const;
-					void set_encoding( encoding_t encoding );
+					Socket& set_encoding( encoding_t encoding );
 
-					bool write( data_t data, encoding_t const & encoding = "", events::drain_callback_t callback = events::drain_callback_t{ } );
+					bool write( data_t data, encoding_t const & encoding = "", events_t::callback_t_drain callback = events_t::callback_t_drain{ } );
 
-					void end( data_t data, encoding_t const & encoding = "" );
+					Socket& end( data_t data, encoding_t const & encoding = "" );
 
-					void destroy( );
-					void pause( );
-					void resume( );
+					Socket& destroy( );
+					Socket& pause( );
+					Socket& resume( );
 
-					void set_timeout( int32_t value, events::timeout_callback_t callback );
-					void set_no_delay( bool noDelay = true );
-					void set_keep_alive( bool keep_alive = false, int32_t initial_delay = 0 );
+					Socket& set_timeout( int32_t value, events_t::callback_t_timeout callback );
+					Socket& set_no_delay( bool noDelay = true );
+					Socket& set_keep_alive( bool keep_alive = false, int32_t initial_delay = 0 );
 		
-					Address address( ) const;	
+					Address const & address( ) const;	
 
-					void unref( );
-					void ref( );
+					Socket& unref( );
+					Socket& ref( );
 
 					std::string remote_address( ) const;
 					

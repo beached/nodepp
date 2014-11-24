@@ -5,7 +5,7 @@
 #include <memory>
 #include <string>
 
-#include "event_listener.h"
+#include "lib_event.h"
 #include "lib_net_server.h"
 #include "lib_net_socket.h"
 
@@ -32,33 +32,27 @@ namespace daw {
 
 				class ClientRequest {
 				public:
-					struct events {
-						template<typename... Args>
-						using event_t = daw::nodepp::lib::Event < Args... > ;
+					struct events_t {
+						CREATE_EVENT( response, IncomingMessage );
+						CREATE_EVENT( socket, daw::nodepp::lib::net::Socket );
+						CREATE_EVENT( connect, IncomingMessage, daw::nodepp::lib::net::Socket, head_t );
+						CREATE_EVENT( upgrade, IncomingMessage, daw::nodepp::lib::net::Socket, head_t );
+						CREATE_EVENT( continued );
+						enum class types { response, socket, connect, upgrade, continued };
+					} events;
 
-						using event_t_response = event_t<IncomingMessage> ;
-						event_t_response response;
-						using response_callback_t = event_t_response::callback_t;
+					ClientRequest& on( events_t::types event_type, events_t::callback_t_response callback );
+					ClientRequest& once( events_t::types event_type, events_t::callback_t_response callback );
 
-						using event_t_socket = event_t<daw::nodepp::lib::net::Socket> ;
-						event_t_socket socket;
-						using socket_callback_t = event_t_socket::callback_t;
+					ClientRequest& on( events_t::types event_type, events_t::callback_t_socket callback );
+					ClientRequest& once( events_t::types event_type, events_t::callback_t_socket callback );
 
-						using event_t_connect = lib::Event < IncomingMessage, daw::nodepp::lib::net::Socket, head_t> ;
-						event_t_connect connect;
-						using connect_callback_t = event_t_connect::callback_t;
+					ClientRequest& on( events_t::types event_type, events_t::callback_t_connect callback );
+					ClientRequest& once( events_t::types event_type, events_t::callback_t_connect callback );
 
-						using event_t_upgrade = lib::Event < IncomingMessage, daw::nodepp::lib::net::Socket, head_t > ;
-						event_t_upgrade upgrade;
-						using upgrade_callback_t = event_t_upgrade::callback_t;
+					ClientRequest& on( events_t::types event_type, events_t::callback_t_continued callback );
+					ClientRequest& once( events_t::types event_type, events_t::callback_t_continued callback );
 
-						using event_t_continued = lib::Event<> ;
-						event_t_continued continued;
-						using continued_callback_t = event_t_continued::callback_t;
-
-
-					};
-				
 					bool write( std::string chunk, daw::nodepp::lib::encoding_t encoding = "" );
 					bool write( daw::nodepp::lib::net::Socket::data_t chunk );
 					
@@ -103,7 +97,7 @@ namespace daw {
 					void write_continue( );
 					void write_head( uint16_t status_code, std::string reason_phrase = "" );
 					void write_head( uint16_t status_code, std::string reason_phrase, header_t headers );
-					void set_timeout( size_t msecs, daw::nodepp::lib::net::Socket::events::timeout_callback_t callback );
+					void set_timeout( size_t msecs, daw::nodepp::lib::net::Socket::events_t::callback_t_timeout callback );
 					void set_status_code( uint16_t status_code );
 					uint16_t status_code( ) const;
 					
@@ -122,88 +116,74 @@ namespace daw {
 					void end( std::string chunk, daw::nodepp::lib::encoding_t encoding = "" );
 					void end( daw::nodepp::lib::net::Socket::data_t chunk );
 					
-					ClientRequest request( daw::nodepp::lib::options_t options, ClientRequest::events::response_callback_t callback );
-					ClientRequest get( daw::nodepp::lib::options_t options, ClientRequest::events::response_callback_t callback );
+					ClientRequest request( daw::nodepp::lib::options_t options, ClientRequest::events_t::callback_t_response callback );
+					ClientRequest get( daw::nodepp::lib::options_t options, ClientRequest::events_t::callback_t_response callback );
 
 				};
 
 				using Request = IncomingMessage;
 
 				class Server {
-				private:
-					class header_t;			
-					
-					
+					class header_t;								
 				public:
-					enum class EventTypes { request, connection, close, check_continue, connect, upgrade, client_error, listening };
+					Server( );
+					Server( std::function<void( Request, Response )> func );
+					Server( Server&& other );
+					Server& operator=(Server&& rhs);
+					Server( Server const & ) = default;
+					Server& operator=(Server const &) = default;
+					~Server( );
 
 					struct events_t {
-						template<typename... Args>
-						using event_t = daw::nodepp::lib::Event< Args... > ;
-
-						using event_t_request = event_t<Request, Response> ;
-						event_t_request request;
-						using request_callback_t = event_t_request::callback_t;
-
-						using event_t_connection = event_t<daw::nodepp::lib::net::Socket> ;
-						event_t_connection connection;
-						using connection_callback_t = event_t_connection::callback_t;
-
-						using event_t_close = event_t<> ;
-						event_t_close close;
-						using close_callback_t = event_t_close::callback_t;
-
-						using event_t_check_continue = event_t< Request, Response > ;
-						event_t_check_continue check_continue;
-						using check_continue_callback_t = event_t_check_continue::callback_t;
-
-						using event_t_connect = event_t< Request, daw::nodepp::lib::net::Socket,  head_t > ;
-						event_t_connect connect;
-						using connect_callback_t = event_t_connect::callback_t;
-
-						using event_t_upgrade = event_t< Request, daw::nodepp::lib::net::Socket, head_t >;
-						event_t_upgrade upgrade;
-						using upgrade_callback_t = event_t_upgrade::callback_t;
-
-						using event_t_client_error = event_t< daw::nodepp::lib::Error, daw::nodepp::lib::net::Socket > ;
-						event_t_client_error client_error;
-						using client_error_callback_t = event_t_client_error::callback_t;
+						CREATE_EVENT( request, Request, Response );
+						CREATE_EVENT( check_continue, Request, Response );
+						CREATE_EVENT( connection, daw::nodepp::lib::net::Socket );
+						CREATE_EVENT( close );
+						CREATE_EVENT( connect, Request, daw::nodepp::lib::net::Socket, head_t );
+						CREATE_EVENT( upgrade, Request, daw::nodepp::lib::net::Socket, head_t );
+						CREATE_EVENT( client_error, daw::nodepp::lib::Error, daw::nodepp::lib::net::Socket );
 						
-						using listening_callback_t = daw::nodepp::lib::net::Server::events::listening_callback_t;
-					} events;	// struct events
+						using callback_t_listening = daw::nodepp::lib::net::Server::events_t::callback_t_listening;
+						enum class types { request, connection, close, check_continue, connect, upgrade, client_error, listening };
+						bool has_moved;
+						events_t( ) = default;
+						~events_t( ) = default;
+						events_t( events_t const & ) = delete;
+						events_t& operator=( events_t const & ) = delete;
+						events_t( events_t && ) = delete;
+						events_t& operator=( events_t && ) = delete;
+					};	// struct events
+
+					std::shared_ptr<events_t> events;
 
 					
-					Server& listen( uint16_t port, std::string hostname = "", uint16_t backlog = 511, events_t::listening_callback_t callback = events_t::listening_callback_t{ } );
-					Server& listen( std::string path, events_t::listening_callback_t callback = events_t::listening_callback_t{ } );
-					Server& listen( daw::nodepp::lib::net::Handle& handle, events_t::listening_callback_t callback = events_t::listening_callback_t{ } );
+					Server& listen( uint16_t port, std::string hostname = "", uint16_t backlog = 511, events_t::callback_t_listening callback = events_t::callback_t_listening{ } );
+					Server& listen( std::string path, events_t::callback_t_listening callback = events_t::callback_t_listening{ } );
+					Server& listen( daw::nodepp::lib::net::Handle& handle, events_t::callback_t_listening callback = events_t::callback_t_listening{ } );
 
-					Server& on( EventTypes et, Callback<Request, Response> cb );	// request, check_continue event(s)
-					Server& once( EventTypes et, Callback<Request, Response> cb );	// request, check_continue event(s)
-					Server& on( EventTypes et, Callback<daw::nodepp::lib::net::Socket> cb );	// connection event(s)
-					Server& once( EventTypes et, Callback<daw::nodepp::lib::net::Socket> cb );	// connection event(s)
-					Server& on( EventTypes et, Callback<> cb );	// close, listening event(s)
-					Server& once( EventTypes et, Callback<> cb );	// close, listening event(s)
+					Server& on( events_t::types et, events_t::callback_t_request callback );	// request, check_continue event(s)
+					Server& once( events_t::types et, events_t::callback_t_request callback );	// request, check_continue event(s)
 
-					Server& on( EventTypes et, Callback<Request, daw::nodepp::lib::net::Socket> cb );	// connect, upgrade event(s)
-					Server& once( EventTypes et, Callback<Request, daw::nodepp::lib::net::Socket> cb );	// connect, upgrade event(s)
-					Server& on( EventTypes et, Callback<daw::nodepp::lib::Error, daw::nodepp::lib::net::Socket> cb );	// client_error event(s)
-					Server& once( EventTypes et, Callback<daw::nodepp::lib::Error, daw::nodepp::lib::net::Socket> cb );	// client_error event(s)
+					Server& on( events_t::types et, events_t::callback_t_connection callback );	// connection event(s)
+					Server& once( events_t::types et, events_t::callback_t_connection callback );	// connection event(s)
 
-					Server& close( events_t::close_callback_t callback = events_t::close_callback_t{ } );
+					Server& on( events_t::types et, events_t::callback_t_close callback );	// close event(s)
+					Server& once( events_t::types et, events_t::callback_t_close callback );	// close event(s)
+
+					Server& on( events_t::types et, events_t::callback_t_connect callback );	// close event(s)
+					Server& once( events_t::types et, events_t::callback_t_connect callback );	// close event(s)
+
+					Server& on( events_t::types et, events_t::callback_t_client_error callback );	// close event(s)
+					Server& once( events_t::types et, events_t::callback_t_client_error callback );	// close event(s)
 
 					size_t& max_header_count( );
 					size_t const & max_header_count( ) const;
 
-					Server& set_timeout( size_t msecs, daw::nodepp::lib::net::Socket::events::timeout_callback_t callback );
+					Server& set_timeout( size_t msecs, daw::nodepp::lib::net::Socket::events_t::callback_t_timeout callback );
 					size_t timeout( ) const;
 				};	// class Server
 
-				Server create_server( std::function<void(Request, Response)> func ) {
-					auto server = Server( );	
-					auto callback = Callback<Request, Response>( func );
-					server.on( Server::EventTypes::request, std::move( callback ) );
-					return server;
-				}
+				Server create_server( std::function<void( Request, Response )> func );
 
 			}	// namespace http
 		}	// namespace lib

@@ -24,12 +24,9 @@ namespace daw {
 			return std::find( begin( container ), end( container ), value );
 		}
 
-		template<typename Container, typename Value, typename BinaryPredicate>
-		auto find( Container const & container, Value const & value, BinaryPredicate pred ) -> decltype(end( container )) {
-			auto pred2 = [&value, &pred]( Value const & val ) {
-				return pred( value, val );
-			};
-			return std::find_if( begin( container ), end( container ), pred2 );
+		template<typename Container, typename UnaryPredicate>
+		auto find_if( Container const & container, UnaryPredicate pred ) -> decltype(end( container )) {
+			return std::find_if( begin( container ), end( container ), pred );
 		}
 
 		template<typename Container, typename Value>
@@ -47,8 +44,8 @@ namespace daw {
             return std::find( std::begin( container ), std::end( container ), value ) != std::end( container );
         }
 
-        template<typename Container, typename Value, typename BinaryPredicate>
-        bool contains( Container const & container, Value const & value, BinaryPredicate pred ) {
+        template<typename Container, typename Value, typename UnaryPredicate>
+        bool contains( Container const & container, Value const & value, UnaryPredicate pred ) {
             auto pred2 = [&value, &pred]( Value const & val ) {
                 return pred( value, val );
             };
