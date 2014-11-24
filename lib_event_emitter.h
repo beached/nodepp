@@ -13,70 +13,76 @@
 namespace daw {
 	namespace nodepp {
 		namespace base {
-			namespace impl {
-				template<typename T>
-				T const & make_const( T const & val ) {
-					return val;
+			template<typename T>
+			T const & make_const( T const & val ) {
+				return val;
+			}
+
+			class Callback {
+			public:
+				using id_t = int64_t;
+			private:
+				enum class callback_type { none = 0, stdfunction, funcptr };
+				static std::atomic_uint_least64_t s_last_id;
+
+				id_t m_id;
+				boost::any m_callback;
+				callback_type m_callback_type;
+			public:
+				Callback( );
+				~Callback( ) = default;
+
+				Callback( void* funcptr );
+				Callback& operator=(void* funcptr);
+
+				template<typename... Args>
+				Callback( std::function<void( Args... )> stdfunction ) : m_id( s_last_id++ ), m_callback( stdfunction ), m_callback_type{ callback_type::stdfunction } { }
+
+				template<typename... Args>
+				Callback& operator=(std::function<void( Args... )> stdfunction) {
+					auto tmp = Callback( stdfunction );
+					tmp.swap( *this );
+					return *this;
 				}
 
-				class Callback {
-				public:
-					using id_t = int64_t;
-				private:
-					enum class callback_type { none = 0, stdfunction, funcptr };
-					static std::atomic_uint_least64_t s_last_id;
+				Callback( Callback const & ) = default;
 
-					id_t m_id;
-					boost::any m_callback;
-					callback_type m_callback_type;
-				public:
-					Callback( );
-					~Callback( ) = default;
+				Callback& operator=(Callback const &) = default;
 
-					Callback( void* funcptr );
+				Callback( Callback && other );
 
-					template<typename... Args>
-					Callback( std::function<void( Args... )> stdfunction ) : m_id( s_last_id++ ), m_callback( stdfunction ), m_callback_type{ callback_type::stdfunction } { }
+				Callback& operator=(Callback && rhs);
 
-					Callback( Callback const & ) = default;
+				const id_t& id( ) const;
 
-					Callback& operator=(Callback const &) = default;
+				bool empty( ) const;
 
-					Callback( Callback && other );
+				void swap( Callback& rhs );
 
-					Callback& operator=(Callback && rhs);
+				bool operator==(Callback const & rhs) const;
 
-					const id_t& id( ) const;
-
-					bool empty( ) const;
-
-
-					bool operator==(Callback const & rhs) const;
-
-					template<typename... Args>
-					void exec( Args&&... args ) {
-						switch( m_callback_type ) {
-						case callback_type::funcptr: {
-							auto callback = (daw::function_pointer_t<void, Args...>)(boost::any_cast<void*>(m_callback));
-							callback( std::forward<Args>( args )... );
-						}
-													 break;
-						case callback_type::stdfunction: {
-							using callback_t = std::function < void( Args... ) > ;
-							auto& callback = boost::any_cast<callback_t>(m_callback);
-							callback( std::forward<Args>( args )... );
-						}
-														 break;
-						case callback_type::none:
-							throw std::runtime_error( "Attempt to execute a empty callback" );
-						default:
-							throw std::runtime_error( "Unexpected callback type" );
-						}
+				template<typename... Args>
+				void exec( Args&&... args ) {
+					switch( m_callback_type ) {
+					case callback_type::funcptr: {
+						auto callback = (daw::function_pointer_t<void, Args...>)(boost::any_cast<void*>(m_callback));
+						callback( std::forward<Args>( args )... );
 					}
+												 break;
+					case callback_type::stdfunction: {
+						using callback_t = std::function < void( Args... ) > ;
+						auto& callback = boost::any_cast<callback_t>(m_callback);
+						callback( std::forward<Args>( args )... );
+					}
+													 break;
+					case callback_type::none:
+						throw std::runtime_error( "Attempt to execute a empty callback" );
+					default:
+						throw std::runtime_error( "Unexpected callback type" );
+					}
+				}
 
-				};
-
-			}	// namespace impl
+			};
 
 
 			// Enum must have removeListener and newListener
@@ -97,16 +103,18 @@ namespace daw {
 
 					EventEmitter( StringType remove_listener_event = "removeListener", StringType new_listener_event = "newListener" ) :m_listeners{ }, m_max_listeners{ 10 }, m_remove_listener_event( remove_listener_event ), m_new_listener_event( new_listener_event ) { }
 
-					std::string const & remove_event_listener_name( ) const {
+					virtual ~EventEmitter( ) { }
+
+					virtual std::string const & remove_event_listener_name( ) const {
 						return m_remove_listener_event;
 					}
 
-					std::string const & new_event_listener_name( ) const {
+					virtual std::string const & new_event_listener_name( ) const {
 						return m_new_listener_event;
 					}
 
 					template<typename Listener>
-					callback_id_t add_listener( StringType event, Listener& listener, bool run_once = false ) {
+					virtual callback_id_t add_listener( StringType event, Listener& listener, bool run_once = false ) {
 						if( !at_max_listeners( event ) ) {
 							auto callback = impl::Callback{ listener };
 							m_listeners[event].emplace_back( run_once, callback );
@@ -119,18 +127,18 @@ namespace daw {
 					}
 
 					template<typename Listener>
-					EventEmitter& on( StringType event, Listener& listener ) {
+					virtual EventEmitter& on( StringType event, Listener& listener ) {
 						add_listener( event, listener );
 						return *this;
 					}
 
 					template<typename Listener>
-					EventEmitter& once( StringType event, Listener& listener ) {
+					virtual EventEmitter& once( StringType event, Listener& listener ) {
 						add_listener( event, true );
 						return *this;
 					}
 
-					EventEmitter& remove_listener( StringType event, callback_id_t id ) {
+					virtual EventEmitter& remove_listener( StringType event, callback_id_t id ) {
 						daw::algorithm::erase_remove_if( m_listeners[event], [&id]( Callback const & item ) {
 							emit( m_remove_listener_event, event, item );
 							return item.id( ) == id;
@@ -138,31 +146,31 @@ namespace daw {
 						return *this;
 					}
 
-					EventEmitter& remove_listener( StringType event, impl::Callback listener ) {
+					virtual EventEmitter& remove_listener( StringType event, impl::Callback listener ) {
 						return remove_listener( event, listener.id( ) );
 					}
 
-					EventEmitter& remove_all_listeners( ) {
+					virtual EventEmitter& remove_all_listeners( ) {
 						m_listeners.clear( );
 						return *this;
 					}
 
-					EventEmitter& remove_all_listeners( StringType event ) {
+					virtual EventEmitter& remove_all_listeners( StringType event ) {
 						if( )
 							m_listeners[event].clear( );
 						return *this;
 					}
 
-					EventEmitter& set_max_listeners( size_t max_listeners ) {
+					virtual EventEmitter& set_max_listeners( size_t max_listeners ) {
 						m_max_listeners = m_max_listeners;
 					}
 
-					auto listeners( StringType event ) -> decltype(impl::make_const( m_listeners[event] )) {
+					virtual auto listeners( StringType event ) -> decltype(impl::make_const( m_listeners[event] )) {
 						return m_listeners[event];
 					}
 
 					template<typename... Args>
-					EventEmitter& emit( StringType event, Args&&... args ) {
+					virtual EventEmitter& emit( StringType event, Args&&... args ) {
 						for( auto& callback : m_listeners[event] ) {
 							callback.second.exec( std::forward<Args>( args )... );
 						}
@@ -172,8 +180,20 @@ namespace daw {
 						return *this;
 					}
 
-					static size_t listener_count( EventEmitter const & emitter, StringType event ) {
+					virtual static size_t listener_count( EventEmitter const & emitter, StringType event ) {
 						return emitter.listeners( event ).size( );
+					}
+
+					template<typename Listener, typename Action>
+					virtual auto rollback_event_on_exception( StringType event, Listener listener, Action action_to_try, bool run_listener_once = false ) -> decltype(action_to_try( )) {
+						auto cb_id = add_listener( event, listener, run_listener_once );
+						try {
+							return action_to_try( );
+						} catch( ... ) {
+							// Rollback listener
+							remove_listener( event, cb_id );
+							std::rethrow_exception( std::current_exception( ) );
+						}
 					}
 
 				};	// class EventEmitter

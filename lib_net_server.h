@@ -3,7 +3,7 @@
 #include <memory>
 #include <string>
 
-#include "lib_event.h"
+#include "lib_event_emitter.h"
 #include "lib_net_handle.h"
 #include "lib_types.h"
 
@@ -13,45 +13,50 @@ namespace daw {
 			namespace net {				
 				class Error;
 				class Address;
-				class ServerImpl;
 
-				class Server: public Handle {
-					std::shared_ptr<ServerImpl> m_impl;
+				enum class ServerEvents { listening, connection, close, error, newListener, remvoeListener };
+				class Server: public Handle, virtual public daw::nodepp::base::generic::EventEmitter<ServerEvents> {
 				public:
-					struct events_t {
-						CREATE_EVENT( listening );
-						CREATE_EVENT( connection );
-						CREATE_EVENT( close );
-						CREATE_EVENT( error );
-						enum class types { listening, connection, close, error };
-						events_t( ) = default;
-						~events_t( ) = default;
-						events_t( events_t const & ) = delete;
-						events_t& operator=( events_t const & ) = delete;
-						events_t( events_t && ) = delete;
-						events_t& operator=( events_t && ) = delete;
-					};
-
 					Server( );
 					Server( options_t options );
 					Server( Server const & ) = default;
 					Server& operator=(Server const &) = default;
 					Server( Server&& other );
 					Server& operator=(Server&& rhs);
-					~Server( );
-
-					events_t& events( );
-					events_t const& events( ) const;
-
-
-					Server& on( events_t::types event_type, events_t::callback_t_listening callback );
-					Server& once( events_t::types event_type, events_t::callback_t_listening callback );
-
-					Server& listen( uint16_t port, std::string hostname = "", uint16_t backlog = 511, events_t::callback_t_listening callback = events_t::callback_t_listening{ } );
-					Server& listen( std::string socket_path, events_t::callback_t_listening callback = events_t::callback_t_listening{ } );
-					Server& listen( Handle const & handle, events_t::callback_t_listening callback = events_t::callback_t_listening{ } );
-					Server& close( events_t::callback_t_close callback = events_t::callback_t_close{ } );
+					virtual ~Server( );
 					
+					Server& listen( uint16_t port, std::string hostname = "", uint16_t backlog = 511 );
+					template<typename Listener>
+					Server& listen( uint16_t port, std::string hostname = "", uint16_t backlog = 511, Listener listener ) {
+						return this->rollback_event_on_exception( ServerEvents::listening, listener, [&]( ) {
+							return listen( port, hostname, backlog );
+						} );
+					}
+
+					Server& listen( std::string socket_path );
+					template<typename Listener>
+					Server& listen( std::string socket_path, Listener listener ) {
+						return this->rollback_event_on_exception( ServerEvents::listening, listener, [&]( ) {
+							return listen( socket_path );
+						} );
+					}
+
+					Server& listen( Handle const & handle );
+					template<typename Listener>
+					Server& listen( Handle const & handle, Listener listener ) {
+						return this->rollback_event_on_exception( ServerEvents::listening, listener, [&]( ) {
+							return listen( handle );
+						} );
+					}
+
+					Server& close( );
+					template<typename Listener>
+					Server& close( Listener listen ) {
+						return this->rollback_event_on_exception( ServerEvents::close, listener, []( ) {
+							return close( );
+						} );
+					}
+
 					const Address& address( ) const;
 					Server& unref( );
 					Server& ref( );

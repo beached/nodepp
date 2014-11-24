@@ -153,12 +153,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="lib_event.h" />
     <ClInclude Include="lib_address.h" />
     <ClInclude Include="lib_error.h" />
     <ClInclude Include="lib_event_emitter.h" />
     <ClInclude Include="lib_http.h" />
     <ClInclude Include="lib_http_client_request.h" />
+    <ClInclude Include="lib_http_headers.h" />
+    <ClInclude Include="lib_http_server_response.h" />
     <ClInclude Include="lib_net.h" />
     <ClInclude Include="lib_net_handle.h" />
     <ClInclude Include="lib_net_server.h" />
