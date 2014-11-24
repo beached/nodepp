@@ -40,8 +40,6 @@ namespace daw {
 				bool Callback::operator==(Callback const & rhs) const {
 					return id( ) == rhs.id( );
 				}
-
-
 			}	// namespace impl
 		}	// namespace base
 	}	// namespace nodepp

@@ -34,11 +34,11 @@ int main( int, char const ** ) {
 
 	test.add_listener( "b", h );
 	std::function<void( int )> i = f;
-	test.add_listener( "b", f );
+	test.add_listener( "b", f, true );
 	test.add_listener( "b", std::function<void( int )>( []( int x ) { std::cout << x * 3 << std::endl; } ) );
 	test.emit( "b", 500 );
 	
-
+	test.emit( "b", 100 );
 
 	// 	auto server = http::create_server( []( http::Request req, http::Response resp ) {
 	// 

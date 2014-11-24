@@ -28,7 +28,7 @@ namespace daw {
 
 					id_t m_id;
 					boost::any m_callback;
-					callback_type m_callback_type;				
+					callback_type m_callback_type;
 				public:
 					Callback( );
 					~Callback( ) = default;
@@ -49,10 +49,10 @@ namespace daw {
 					const id_t& id( ) const;
 
 					bool empty( ) const;
-				
+
 
 					bool operator==(Callback const & rhs) const;
-					
+
 					template<typename... Args>
 					void exec( Args&&... args ) {
 						switch( m_callback_type ) {
@@ -60,13 +60,13 @@ namespace daw {
 							auto callback = (daw::function_pointer_t<void, Args...>)(boost::any_cast<void*>(m_callback));
 							callback( std::forward<Args>( args )... );
 						}
-						break;
+													 break;
 						case callback_type::stdfunction: {
 							using callback_t = std::function < void( Args... ) > ;
 							auto& callback = boost::any_cast<callback_t>(m_callback);
 							callback( std::forward<Args>( args )... );
 						}
-						break;
+														 break;
 						case callback_type::none:
 							throw std::runtime_error( "Attempt to execute a empty callback" );
 						default:
@@ -75,11 +75,12 @@ namespace daw {
 					}
 
 				};
-				
+
 			}	// namespace impl
 
+
+			// Enum must have removeListener and newListener
 			namespace generic {
-				// Enum must have removeListener and newListener
 				template<typename StringType = std::string>
 				class EventEmitter {
 					std::unordered_map<StringType, std::vector<std::pair<bool, impl::Callback>>> m_listeners;
@@ -94,13 +95,21 @@ namespace daw {
 				public:
 					using callback_id_t = typename impl::Callback::id_t;
 
-					EventEmitter( StringType remove_listener_event = "removeListener", StringType new_listener_event = "newListener" ) :m_listeners{ }, m_max_listeners{ 10 }, m_remove_listener_event{ remove_listener_event }, m_new_listener_event{ new_listener_event } { }
+					EventEmitter( StringType remove_listener_event = "removeListener", StringType new_listener_event = "newListener" ) :m_listeners{ }, m_max_listeners{ 10 }, m_remove_listener_event( remove_listener_event ), m_new_listener_event( new_listener_event ) { }
+
+					std::string const & remove_event_listener_name( ) const {
+						return m_remove_listener_event;
+					}
+
+					std::string const & new_event_listener_name( ) const {
+						return m_new_listener_event;
+					}
 
 					template<typename Listener>
 					callback_id_t add_listener( StringType event, Listener& listener, bool run_once = false ) {
 						if( !at_max_listeners( event ) ) {
-							auto callback = impl::Callback{ listener };							
-							m_listeners[event].emplace_back( { run_once, callback } );
+							auto callback = impl::Callback{ listener };
+							m_listeners[event].emplace_back( run_once, callback );
 							emit( m_new_listener_event, event, callback );
 							return callback.id( );
 						} else {
@@ -157,8 +166,8 @@ namespace daw {
 						for( auto& callback : m_listeners[event] ) {
 							callback.second.exec( std::forward<Args>( args )... );
 						}
-						m_listeners[event].remove_if( []( std::pair<bool, impl::Callback> const & item ) {
-							return item->first;
+						daw::algorithm::erase_remove_if( m_listeners[event], []( std::pair<bool, impl::Callback> const & item ) {
+							return item.first;
 						} );
 						return *this;
 					}
@@ -167,10 +176,9 @@ namespace daw {
 						return emitter.listeners( event ).size( );
 					}
 
-				};
+				};	// class EventEmitter
 			}	// namespace generic
-
-			using EventEmitter = generic::EventEmitter <> ;
+			using EventEmitter = generic::EventEmitter < > ;
 		}	// namespace base
 	}	// namespace nodepp
 }	// namespace daw
