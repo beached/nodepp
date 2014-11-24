@@ -109,9 +109,9 @@ namespace daw {
 					virtual ~EventEmitter( ) { }					
 
 					template<typename Listener>
-					callback_id_t add_listener( EventKeyType event, Listener& listener, bool run_once = false ) {
+					callback_id_t add_listener( EventKeyType event, Listener listener, bool run_once = false ) {
 						if( !at_max_listeners( event ) ) {
-							auto callback = Callback{ listener };
+							auto callback = Callback( listener );
 							m_listeners[event].emplace_back( run_once, callback );
 							emit( m_new_listener_event, event, callback );
 							return callback.id( );
@@ -129,7 +129,7 @@ namespace daw {
 
 					template<typename Listener>
 					EventEmitter& once( EventKeyType event, Listener& listener ) {
-						add_listener( event, true );
+						add_listener( event, listener, true );
 						return *this;
 					}
 

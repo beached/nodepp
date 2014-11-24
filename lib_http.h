@@ -9,7 +9,9 @@
 #include "lib_net_server.h"
 #include "lib_net_socket.h"
 #include "lib_http_client_request.h"
-	
+#include "lib_http_headers.h"
+#include "lib_http_chunk.h"
+
 namespace daw {
 	namespace nodepp {
 		namespace lib {
@@ -40,38 +42,38 @@ namespace daw {
 
 				static Agent global_agent;
 
-				class Response {
-					Response( );
+				enum class ServerResponseEvents { close, finish, newListener, removeListener };
+				class ServerResponse: virtual public daw::nodepp::base::generic::EventEmitter<ServerResponseEvents> {
+					ServerResponse( );
 					friend class Server;
 				public:
-					using Header = std::map < std::string, std::vector< std::string > >;
+					ServerResponse& write_continue( );
+					ServerResponse& write_head( uint16_t status_code, std::string reason_phrase = "", Headers headers = Headers{ } );
 					
+					template<typename Listener>
+					ServerResponse& set_timeout( size_t msecs, Listener listener ) {
+						throw std::runtime_error( "Method Not Implemented" );
+					}
+					
+					uint16_t& status_code( );
+					uint16_t const & status_code( ) const;
 
-					void write_continue( );
-					void write_head( uint16_t status_code, std::string reason_phrase = "" );
-					void write_head( uint16_t status_code, std::string reason_phrase, Header headers );
-					void set_timeout( size_t msecs, daw::nodepp::lib::net::Socket::events_t::callback_t_timeout callback );
-					void set_status_code( uint16_t status_code );
-					uint16_t status_code( ) const;
-					
 					void set_header( std::string name, std::string value );
-					void set_header( std::string name, std::vector<std::string> values );
-					void set_header( Header headers );
+					void set_header( Headers headers );
+
 					bool headers_sent( ) const;
-					void send_date( bool flag = true );
-					std::vector<std::string> get_header( std::string name );
-					void remove_header( std::string name );
-					bool write_chunk( std::string chunk, daw::nodepp::lib::encoding_t encoding = "" );
-					bool write_chunk( daw::nodepp::lib::net::Socket::data_t chunk );
-					bool add_trailers( Header headers );
+
+					bool& send_date( );
+					bool const& send_date( ) const;
+
+					Header const & get_header( std::string name ) const;
+					ServerResponse& remove_header( std::string name );
+
+					bool write_chunk( Chunk chunk, daw::nodepp::lib::encoding_t encoding = "" );
+					bool add_trailers( Headers headers );
 
 					void end( );
-					void end( std::string chunk, daw::nodepp::lib::encoding_t encoding = "" );
-					void end( daw::nodepp::lib::net::Socket::data_t chunk );
-					
-					ClientRequest request( daw::nodepp::lib::options_t options, ClientRequest::events_t::callback_t_response callback );
-					ClientRequest get( daw::nodepp::lib::options_t options, ClientRequest::events_t::callback_t_response callback );
-
+					void end( Chunk chunk, daw::nodepp::lib::encoding_t encoding = "" );
 				};
 
 				enum class ServerEvents { request, connection, close, checkContinue, connect, upgrade, clientError, listening, newListener, removeListener };
@@ -85,10 +87,21 @@ namespace daw {
 					Server& operator=(Server const &) = default;
 					virtual ~Server( );
 
+					template<typename Listener>
+					Server& on( ServerEvents event, Listener& listener ) {
+						add_listener( event, listener );
+						return *this;
+					}
+
+					template<typename Listener>
+					Server& once( ServerEvents event, Listener& listener ) {
+						add_listener( event, listener, true );
+						return *this;
+					}
 
 					Server& listen( uint16_t port, std::string hostname = "", uint16_t backlog = 511 );
 					template<typename Listener>
-					Server& listen( uint16_t port, std::string hostname = "", uint16_t backlog = 511, Listener listener ) {
+					Server& listen( uint16_t port, std::string hostname, uint16_t backlog, Listener listener ) {
 						return this->rollback_event_on_exception( ServerEvents::listening, listener, [&]( ) {
 							return listen( port, hostname, backlog );
 						} );
@@ -122,7 +135,10 @@ namespace daw {
 					size_t timeout( ) const;
 				};	// class Server
 
-				Server create_server( std::function<void( Request, Response )> func );
+				template<typename Listener>
+				Server create_server( Listener listener ) {
+					return Server( ).on( ServerEvents::listening, listener );
+				}
 
 			}	// namespace http
 		}	// namespace lib

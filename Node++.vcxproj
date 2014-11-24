@@ -157,6 +157,7 @@
     <ClInclude Include="lib_error.h" />
     <ClInclude Include="lib_event_emitter.h" />
     <ClInclude Include="lib_http.h" />
+    <ClInclude Include="lib_http_chunk.h" />
     <ClInclude Include="lib_http_client_request.h" />
     <ClInclude Include="lib_http_headers.h" />
     <ClInclude Include="lib_http_server_response.h" />
@@ -177,12 +178,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="lib_event_emitter.cpp" />
-    <ClCompile Include="lib_http.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="lib_http.cpp" />
     <ClCompile Include="lib_http_statuscodes.cpp" />
     <ClCompile Include="lib_net_server.cpp" />
     <ClCompile Include="lib_net_socket.cpp" />
