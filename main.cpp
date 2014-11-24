@@ -25,7 +25,7 @@ void f( int a ) {
 
 int main( int, char const ** ) {
 	enum class blah { a = 0, b, c };
-	daw::nodepp::base::EventEmitter test;
+	daw::nodepp::base::EventEmitter test( "removeListener", "newListener" );
 	auto g = []( int a ) {
 		std::cout << a << std::endl;
 	};

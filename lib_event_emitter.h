@@ -9,13 +9,16 @@
 #include <vector>
 
 #include "range_algorithm.h"
+#include "utility.h"
 
 namespace daw {
 	namespace nodepp {
 		namespace base {
-			template<typename T>
-			T const & make_const( T const & val ) {
-				return val;
+			namespace impl {
+				template<typename T>
+				T const & make_const( T const & val ) {
+					return val;
+				}
 			}
 
 			class Callback {
@@ -87,36 +90,28 @@ namespace daw {
 
 			// Enum must have removeListener and newListener
 			namespace generic {
-				template<typename StringType = std::string>
+				template<typename EventKeyType = std::string>
 				class EventEmitter {
-					std::unordered_map<StringType, std::vector<std::pair<bool, impl::Callback>>> m_listeners;
+					std::unordered_map<EventKeyType, std::vector<std::pair<bool, Callback>>> m_listeners;
 					size_t m_max_listeners;
-					std::string m_remove_listener_event;
-					std::string m_new_listener_event;
+					EventKeyType m_remove_listener_event;
+					EventKeyType m_new_listener_event;
 
-					bool at_max_listeners( StringType event ) {
+					bool at_max_listeners( EventKeyType event ) {
 						return 0 != m_max_listeners && m_listeners[event].size( ) >= m_max_listeners;
 					}
 
 				public:
-					using callback_id_t = typename impl::Callback::id_t;
+					using callback_id_t = typename Callback::id_t;
 
-					EventEmitter( StringType remove_listener_event = "removeListener", StringType new_listener_event = "newListener" ) :m_listeners{ }, m_max_listeners{ 10 }, m_remove_listener_event( remove_listener_event ), m_new_listener_event( new_listener_event ) { }
+					EventEmitter( EventKeyType remove_listener_event, EventKeyType new_listener_event ) :m_listeners{ }, m_max_listeners{ 10 }, m_remove_listener_event( remove_listener_event ), m_new_listener_event( new_listener_event ) { }
 
-					virtual ~EventEmitter( ) { }
-
-					virtual std::string const & remove_event_listener_name( ) const {
-						return m_remove_listener_event;
-					}
-
-					virtual std::string const & new_event_listener_name( ) const {
-						return m_new_listener_event;
-					}
+					virtual ~EventEmitter( ) { }					
 
 					template<typename Listener>
-					virtual callback_id_t add_listener( StringType event, Listener& listener, bool run_once = false ) {
+					callback_id_t add_listener( EventKeyType event, Listener& listener, bool run_once = false ) {
 						if( !at_max_listeners( event ) ) {
-							auto callback = impl::Callback{ listener };
+							auto callback = Callback{ listener };
 							m_listeners[event].emplace_back( run_once, callback );
 							emit( m_new_listener_event, event, callback );
 							return callback.id( );
@@ -127,26 +122,29 @@ namespace daw {
 					}
 
 					template<typename Listener>
-					virtual EventEmitter& on( StringType event, Listener& listener ) {
+					EventEmitter& on( EventKeyType event, Listener& listener ) {
 						add_listener( event, listener );
 						return *this;
 					}
 
 					template<typename Listener>
-					virtual EventEmitter& once( StringType event, Listener& listener ) {
+					EventEmitter& once( EventKeyType event, Listener& listener ) {
 						add_listener( event, true );
 						return *this;
 					}
 
-					virtual EventEmitter& remove_listener( StringType event, callback_id_t id ) {
-						daw::algorithm::erase_remove_if( m_listeners[event], [&id]( Callback const & item ) {
-							emit( m_remove_listener_event, event, item );
-							return item.id( ) == id;
+					virtual EventEmitter& remove_listener( EventKeyType event, callback_id_t id ) {
+						daw::algorithm::erase_remove_if( m_listeners[event], [&]( std::pair<bool, Callback> const & item ) {
+							if( item.second.id( ) == id ) {
+								emit( m_remove_listener_event, event, item );
+								return true;
+							}
+							return false;
 						} );
 						return *this;
 					}
 
-					virtual EventEmitter& remove_listener( StringType event, impl::Callback listener ) {
+					virtual EventEmitter& remove_listener( EventKeyType event, Callback listener ) {
 						return remove_listener( event, listener.id( ) );
 					}
 
@@ -155,37 +153,37 @@ namespace daw {
 						return *this;
 					}
 
-					virtual EventEmitter& remove_all_listeners( StringType event ) {
-						if( )
-							m_listeners[event].clear( );
+					virtual EventEmitter& remove_all_listeners( EventKeyType event ) {
+						m_listeners[event].clear( );
 						return *this;
 					}
 
 					virtual EventEmitter& set_max_listeners( size_t max_listeners ) {
 						m_max_listeners = m_max_listeners;
+						return *this;
 					}
 
-					virtual auto listeners( StringType event ) -> decltype(impl::make_const( m_listeners[event] )) {
+					virtual auto listeners( EventKeyType event ) -> decltype(impl::make_const( m_listeners[event] )) {
 						return m_listeners[event];
 					}
 
 					template<typename... Args>
-					virtual EventEmitter& emit( StringType event, Args&&... args ) {
+					EventEmitter& emit( EventKeyType event, Args&&... args ) {
 						for( auto& callback : m_listeners[event] ) {
 							callback.second.exec( std::forward<Args>( args )... );
 						}
-						daw::algorithm::erase_remove_if( m_listeners[event], []( std::pair<bool, impl::Callback> const & item ) {
+						daw::algorithm::erase_remove_if( m_listeners[event], []( std::pair<bool, Callback> const & item ) {
 							return item.first;
 						} );
 						return *this;
 					}
 
-					virtual static size_t listener_count( EventEmitter const & emitter, StringType event ) {
+					static size_t listener_count( EventEmitter const & emitter, EventKeyType event ) {
 						return emitter.listeners( event ).size( );
 					}
 
 					template<typename Listener, typename Action>
-					virtual auto rollback_event_on_exception( StringType event, Listener listener, Action action_to_try, bool run_listener_once = false ) -> decltype(action_to_try( )) {
+					auto rollback_event_on_exception( EventKeyType event, Listener listener, Action action_to_try, bool run_listener_once = false ) -> decltype(action_to_try( )) {
 						auto cb_id = add_listener( event, listener, run_listener_once );
 						try {
 							return action_to_try( );

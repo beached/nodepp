@@ -26,10 +26,11 @@ namespace daw {
 					virtual ~Server( );
 					
 					Server& listen( uint16_t port, std::string hostname = "", uint16_t backlog = 511 );
+					
 					template<typename Listener>
-					Server& listen( uint16_t port, std::string hostname = "", uint16_t backlog = 511, Listener listener ) {
+					Server& listen( uint16_t port, std::string hostname, uint16_t backlog, Listener listener ) {
 						return this->rollback_event_on_exception( ServerEvents::listening, listener, [&]( ) {
-							return listen( port, hostname, backlog );
+							return this->listen( port, hostname, backlog );
 						} );
 					}
 

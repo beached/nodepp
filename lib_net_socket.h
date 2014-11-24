@@ -56,7 +56,7 @@ namespace daw {
 					bool write( data_t data, encoding_t const & encoding = "" );
 
 					template<typename Listener>
-					bool write( data_t data, encoding_t const & encoding = "", Listener listener ) {
+					bool write( data_t data, encoding_t const & encoding, Listener listener ) {
 						return this->rollback_event_on_exception( SocketEvents::drain, listener, [&]( ) {
 							return write( data, encoding );
 						} );
