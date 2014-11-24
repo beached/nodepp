@@ -156,6 +156,7 @@
     <ClInclude Include="lib_event.h" />
     <ClInclude Include="lib_address.h" />
     <ClInclude Include="lib_error.h" />
+    <ClInclude Include="lib_event_emitter.h" />
     <ClInclude Include="lib_http.h" />
     <ClInclude Include="lib_http_client_request.h" />
     <ClInclude Include="lib_net.h" />
@@ -174,6 +175,7 @@
     <ClInclude Include="utility.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="lib_event_emitter.cpp" />
     <ClCompile Include="lib_http.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
