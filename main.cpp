@@ -27,7 +27,7 @@ void f( int a ) {
 int main( int, char const ** ) {
 	using namespace daw::nodepp::lib;
 
-	auto server = http::create_server( (std::function<void( http::ClientRequest, http::ServerResponse )>)[]( http::ClientRequest request, http::ServerResponse response ) {
+	auto server = http::create_server( (std::function<void( http::HttpClientRequest, http::HttpServerResponse )>)[]( http::HttpClientRequest request, http::HttpServerResponse response ) {
 // 		response.write_head( 200, "", { { "Content-Type", "text/plain" } } );
 // 		response.write( "Hello World" );
 // 		response.end( );

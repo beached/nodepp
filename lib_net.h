@@ -8,9 +8,9 @@ namespace daw {
 	namespace nodepp {
 		namespace lib {
 			namespace net {
-				Server create_server( options_t options = options_t{ }, Server::events_t::callback_t_connection callback = Server::events_t::callback_t_connection{ } );
-				Socket create_connection( options_t options, Socket::events_t::callback_t_connect callback = Socket::events_t::callback_t_connect{ } );
-				Socket create_connection( uint16_t port, std::string host = "", Socket::events_t::callback_t_connect callback = Socket::events_t::callback_t_connect{ } );
+				NetServer create_server( options_t options = options_t{ }, NetServer::events_t::callback_t_connection callback = NetServer::events_t::callback_t_connection{ } );
+				NetSocket create_connection( options_t options, NetSocket::events_t::callback_t_connect callback = NetSocket::events_t::callback_t_connect{ } );
+				NetSocket create_connection( uint16_t port, std::string host = "", NetSocket::events_t::callback_t_connect callback = NetSocket::events_t::callback_t_connect{ } );
 
 				uint8_t is_ip( std::string ip_address );
 				bool is_ipv4( std::string ip_address );

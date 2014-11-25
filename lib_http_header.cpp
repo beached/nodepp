@@ -8,20 +8,20 @@ namespace daw {
 	namespace nodepp {
 		namespace lib {
 			namespace http {
-				Header::Header( ) : name{ }, value{ } { }
+				HttpHeader::HttpHeader( ) : name{ }, value{ } { }
 
-				Header::Header( std::string Name, std::string Value ) : name( Name ), value( Value ) { }
+				HttpHeader::HttpHeader( std::string Name, std::string Value ) : name( Name ), value( Value ) { }
 
-				std::string Header::to_string( ) const {
+				std::string HttpHeader::to_string( ) const {
 					return daw::string::string_format( "{0}	: {1}", name, value );
 				}
 				
-				bool Header::empty( ) const {
+				bool HttpHeader::empty( ) const {
 					return name.empty( );
 				}
 				
 				Headers::Headers( ) : headers( ) { }
-				Headers::Headers( std::initializer_list<Header> values ) : headers( std::begin( values ), std::end( values ) ) { }
+				Headers::Headers( std::initializer_list<HttpHeader> values ) : headers( std::begin( values ), std::end( values ) ) { }
 
 			}	// namespace http
 		}	// namespace lib

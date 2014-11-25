@@ -9,17 +9,17 @@ namespace daw {
 	namespace nodepp {
 		namespace lib {
 			namespace http {				
-				class ServerResponse: public daw::nodepp::base::EventEmitter {
-					ServerResponse( );
-					friend class Server;
+				class HttpServerResponse: public daw::nodepp::base::EventEmitter {
+					HttpServerResponse( );
+					friend class HttpServer;
 					virtual bool event_is_valid( std::string const & event ) const override;
 				public:
 
-					ServerResponse& write_continue( );
-					ServerResponse& write_head( uint16_t status_code, std::string reason_phrase = "", Headers headers = Headers{ } );
+					HttpServerResponse& write_continue( );
+					HttpServerResponse& write_head( uint16_t status_code, std::string reason_phrase = "", Headers headers = Headers{ } );
 					
 					template<typename Listener>
-					ServerResponse& set_timeout( size_t msecs, Listener listener ) {
+					HttpServerResponse& set_timeout( size_t msecs, Listener listener ) {
 						throw std::runtime_error( "Method Not Implemented" );
 					}
 					
@@ -34,23 +34,26 @@ namespace daw {
 					bool& send_date( );
 					bool const& send_date( ) const;
 
-					Header const & get_header( std::string name ) const;
-					ServerResponse& remove_header( std::string name );
+					HttpHeader const & get_header( std::string name ) const;
+					HttpServerResponse& remove_header( std::string name );
 
-					bool write_chunk( Chunk chunk, daw::nodepp::base::Encoding encoding = daw::nodepp::base::Encoding{ } );
+					bool write_chunk( std::string const & chunk, daw::nodepp::base::Encoding encoding = daw::nodepp::base::Encoding{ } );
+					bool write_chunk( HttpChunk const & chunk );
+
 					bool add_trailers( Headers headers );
 
 					void end( );
-					void end( Chunk chunk, daw::nodepp::base::Encoding encoding = daw::nodepp::base::Encoding{ } );
+					void end( HttpChunk chunk );
+					void end( std::string const & chunk, daw::nodepp::base::Encoding encoding = daw::nodepp::base::Encoding{ } );
 
 					template<typename Listener>
-					ServerResponse& on( std::string event, Listener& listener ) {
+					HttpServerResponse& on( std::string event, Listener& listener ) {
 						add_listener( event, listener );
 						return *this;
 					}
 
 					template<typename Listener>
-					ServerResponse& once( std::string event, Listener& listener ) {
+					HttpServerResponse& once( std::string event, Listener& listener ) {
 						add_listener( event, listener, true );
 						return *this;
 					}

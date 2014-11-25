@@ -12,30 +12,27 @@ namespace daw {
 		namespace lib {
 			namespace http {
 				
-				class Request { };
-				class IncomingMessage { };
-				
-				class ClientRequest: public daw::nodepp::base::EventEmitter {
+				class HttpClientRequest: public daw::nodepp::base::EventEmitter {
 				protected:
 					virtual bool event_is_valid( std::string const & event ) const override;
 				public:
-					ClientRequest( );
+					HttpClientRequest( );
 					bool write( std::string chunk, daw::nodepp::base::Encoding const & encoding = daw::nodepp::base::Encoding{ } );
-					bool write( Chunk const & chunk );
+					bool write( HttpChunk const & chunk );
 
 					void end( );
 					void end( std::string const & data, daw::nodepp::base::Encoding const & encoding = daw::nodepp::base::Encoding{ } );
-					void end( Chunk const & chunk );
+					void end( HttpChunk const & chunk );
 					void abort( );
 
 					template<typename Listener>
-					ClientRequest& on( std::string event, Listener& listener ) {
+					HttpClientRequest& on( std::string event, Listener& listener ) {
 						add_listener( event, listener );
 						return *this;
 					}
 
 					template<typename Listener>
-					ClientRequest& once( std::string event, Listener& listener ) {
+					HttpClientRequest& once( std::string event, Listener& listener ) {
 						add_listener( event, listener, true );
 						return *this;
 					}

@@ -9,12 +9,12 @@ namespace daw {
 	namespace nodepp {
 		namespace lib {
 			namespace http {
-				class Chunk {
+				class HttpChunk {
 				public:
-					Chunk( ) = default;
-					Chunk( Chunk const & ) = default;
-					Chunk& operator=( Chunk const & ) = default;
-					virtual ~Chunk( ) = default;
+					HttpChunk( ) = default;
+					HttpChunk( HttpChunk const & ) = default;
+					HttpChunk& operator=( HttpChunk const & ) = default;
+					virtual ~HttpChunk( ) = default;
 					//m_Chunk;
 				};	// class chunk
 			}	// namespace http

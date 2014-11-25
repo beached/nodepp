@@ -17,24 +17,23 @@ namespace daw {
 	namespace nodepp {
 		namespace lib {			
 			namespace http {
-				class Error { };
 				static std::map<int16_t, std::string> const STATUS_CODES;
 
 				using head_t = std::vector < uint8_t > ;
 
-				struct HttpServerException: public std::runtime_error {
-					uint32_t error_number;
-					template<typename StringType>
-					HttpServerException( const int32_t errorNumber, const StringType& msg ) : std::runtime_error( msg ), error_number( errorNumber ) { }
-				};
+// 				struct HttpServerException: public std::runtime_error {
+// 					uint32_t error_number;
+// 					template<typename StringType>
+// 					HttpServerException( const int32_t errorNumber, const StringType& msg ) : std::runtime_error( msg ), error_number( errorNumber ) { }
+// 				};
 
 				class Agent { 
 				public:
 					size_t& max_sockets( );
 					size_t const & max_sockets( ) const;
 
-					std::vector<daw::nodepp::lib::net::Socket> const & sockets( ) const;
-					std::vector<ClientRequest> const & requests( ) const;
+					std::vector<daw::nodepp::lib::net::NetSocket> const & sockets( ) const;
+					std::vector<HttpClientRequest> const & requests( ) const;
 				};
 
 				static Agent global_agent;

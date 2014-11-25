@@ -8,7 +8,7 @@ namespace daw {
 			class Encoding {
 				std::string m_encoding;
 			public:
-				Encoding( std::string encoding = "utf8" );	
+				explicit Encoding( std::string encoding = "utf8" );	
 				Encoding( Encoding const & ) = default;
 				Encoding& operator=(Encoding const &) = default;
 				Encoding& operator=(std::string const & rhs);
