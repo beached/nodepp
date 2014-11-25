@@ -19,7 +19,7 @@ namespace daw {
 					virtual bool event_is_valid( std::string const & event ) const override;
 				public:
 					NetServer( );
-					NetServer( options_t options );
+					NetServer( daw::nodepp::base::options_t options );
 					NetServer( NetServer const & ) = default;
 					NetServer& operator=(NetServer const &) = default;
 					NetServer( NetServer&& other );

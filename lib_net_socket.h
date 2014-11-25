@@ -21,7 +21,7 @@ namespace daw {
 					using data_t = std::vector < uint8_t > ;
 					
 					NetSocket( );
-					NetSocket( options_t options );
+					NetSocket( daw::nodepp::base::options_t options );
 					NetSocket( NetSocket const & ) = default;
 					NetSocket& operator=(NetSocket const &) = default;
 					NetSocket( NetSocket&& other );

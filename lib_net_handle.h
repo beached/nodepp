@@ -1,6 +1,6 @@
 #pragma once
 
-#include <boost/asio.hpp>
+//#include <boost/asio.hpp>
 
 namespace daw {
 	namespace nodepp {
@@ -8,7 +8,7 @@ namespace daw {
 			namespace net {
 				class Handle {
 				protected:	
-					boost::asio::io_service m_io_service;
+					//boost::asio::io_service m_io_service;
 				public:
 					Handle( ) = default;
 					Handle( Handle const & ) = default;
