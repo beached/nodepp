@@ -1,12 +1,15 @@
 #pragma once
 
+#include <cstdint>
 #include <string>
+#include <vector>
 
 namespace daw {
 	namespace nodepp {
 		namespace base {
 			class Encoding {
 				std::string m_encoding;
+				static std::vector<std::string> const &	valid_enodings( );
 			public:
 				explicit Encoding( std::string encoding = "utf8" );	
 				Encoding( Encoding const & ) = default;
@@ -23,6 +26,7 @@ namespace daw {
 					return m_encoding;
 				}
 
+				
 			};	// class Encoding
 		}	// namespace base
 	}	// namespace nodepp

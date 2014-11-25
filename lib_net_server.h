@@ -3,11 +3,11 @@
 #include <memory>
 #include <string>
 
-#include "base_event_emitter.h"
 #include "base_error.h"
+#include "base_event_emitter.h"
+#include "base_types.h"
 #include "lib_net_address.h"
 #include "lib_net_handle.h"
-#include "lib_types.h"
 
 namespace daw {
 	namespace nodepp {

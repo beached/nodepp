@@ -3,9 +3,9 @@
 
 #include "base_enoding.h"
 #include "base_event_emitter.h"
+#include "base_types.h"
 #include "lib_http_chunk.h"
 #include "lib_http_client_request.h"
-#include "lib_types.h"
 #include "range_algorithm.h"
 
 namespace daw {
@@ -14,7 +14,7 @@ namespace daw {
 			namespace http {
 				using namespace daw::nodepp::base;
 				bool HttpClientRequest::event_is_valid( std::string const & event ) const {
-					static std::vector<std::string> const valid_events = { "response", "socket", "connect", "upgrade", "continued", "newListener", "removeListener" };
+					static std::vector<std::string> const valid_events = { "response", "socket", "connect", "upgrade", "continued" };
 					return daw::algorithm::find( valid_events, event ) != valid_events.end( ) || EventEmitter::event_is_valid( event );
 				}
 

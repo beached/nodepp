@@ -26,7 +26,7 @@ namespace daw {
 				HttpServer::~HttpServer( ) {  }				
 
 				bool HttpServer::event_is_valid( std::string const & event ) const {
-					static std::vector<std::string> const valid_events = { "request", "connection", "close", "checkContinue", "connect", "upgrade", "clientError", "listening", "newListener", "removeListener" };
+					static std::vector<std::string> const valid_events = { "request", "connection", "close", "checkContinue", "connect", "upgrade", "clientError", "listening" };
 					return daw::algorithm::find( valid_events, event ) != valid_events.end( ) || daw::nodepp::lib::net::NetServer::event_is_valid( event );
 				}
 

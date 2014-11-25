@@ -1,13 +1,14 @@
 #pragma once
 
-#include <map>
-#include <boost/any.hpp>
+#include <boost/asio.hpp>
 
 namespace daw {
 	namespace nodepp {
 		namespace lib {
 			namespace net {
 				class Handle {
+				protected:	
+					boost::asio::io_service m_io_service;
 				public:
 					Handle( ) = default;
 					Handle( Handle const & ) = default;

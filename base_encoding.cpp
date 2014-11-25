@@ -1,10 +1,16 @@
 
 #include <string>
+#include <vector>
 #include "base_enoding.h"
 
 namespace daw {
 	namespace nodepp {
 		namespace base {
+			std::vector<std::string> const & Encoding::valid_enodings( ) {
+				static const std::vector<std::string> result = { "ascii", "utf8", "utf16le", "ucs2", "hex" };
+				return result;
+			}
+
 			Encoding::Encoding( std::string encoding ) { }
 
 			Encoding& Encoding::operator = (std::string const & rhs) {
@@ -28,6 +34,8 @@ namespace daw {
 				// TODO: validate the encoding
 				return true;
 			}
+
+		
 		}	// namespace base
 	}	// namespace nodepp
 }	// namespace daw

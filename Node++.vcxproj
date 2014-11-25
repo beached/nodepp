@@ -154,6 +154,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="base_callback.h" />
+    <ClInclude Include="base_data.h" />
     <ClInclude Include="base_error.h" />
     <ClInclude Include="base_enoding.h" />
     <ClInclude Include="base_event_emitter.h" />
@@ -168,8 +169,8 @@
     <ClInclude Include="lib_net_handle.h" />
     <ClInclude Include="lib_net_server.h" />
     <ClInclude Include="lib_net_socket.h" />
-    <ClInclude Include="lib_stream.h" />
-    <ClInclude Include="lib_types.h" />
+    <ClInclude Include="base_stream.h" />
+    <ClInclude Include="base_types.h" />
     <ClInclude Include="load_library.h" />
     <ClInclude Include="load_library_posix.h" />
     <ClInclude Include="load_library_windows.h" />
@@ -186,6 +187,7 @@
     <ClCompile Include="base_encoding.cpp" />
     <ClCompile Include="base_error.cpp" />
     <ClCompile Include="base_event_emitter.cpp" />
+    <ClCompile Include="base_stream.cpp" />
     <ClCompile Include="lib_http_chunk.cpp" />
     <ClCompile Include="lib_http_server_response.cpp" />
     <ClCompile Include="lib_http_client_request.cpp" />

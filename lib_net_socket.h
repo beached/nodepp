@@ -6,16 +6,14 @@
 
 #include "base_enoding.h"
 #include "base_event_emitter.h"
+#include "base_types.h"
 #include "lib_net_address.h"
 #include "lib_net_handle.h"
-#include "lib_types.h"
 
 namespace daw {
 	namespace nodepp {
 		namespace lib {
 			namespace net {
-
-
 				class NetSocket: public Handle, public daw::nodepp::base::EventEmitter {
 				protected:
 					virtual bool event_is_valid( std::string const & event ) const override;
@@ -52,6 +50,7 @@ namespace daw {
 
 					size_t& buffer_size( );
 					size_t const & buffer_size( ) const;
+
 					NetSocket& set_encoding( daw::nodepp::base::Encoding encoding );
 
 					bool write( data_t data, daw::nodepp::base::Encoding const & encoding = daw::nodepp::base::Encoding{ } );					
@@ -86,12 +85,12 @@ namespace daw {
 					NetSocket& unref( );
 					NetSocket& ref( );
 
-					std::string remote_address( ) const;
-					
+					daw::nodepp::lib::net::NetAddress const & remote_address( ) const;
+					daw::nodepp::lib::net::NetAddress const & local_address( ) const;
+					uint16_t remote_port( ) const;	
 					uint16_t local_port( ) const;
 					
 					size_t bytes_read( ) const;
-
 					size_t bytes_written( ) const;
 
 

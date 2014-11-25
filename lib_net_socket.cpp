@@ -1,11 +1,11 @@
-
+#include <boost/asio.hpp>
 #include <cstdint>
 #include <string>
 
 #include "base_enoding.h"
 #include "base_event_emitter.h"
+#include "base_types.h"
 #include "lib_net_handle.h"
-#include "lib_types.h"
 #include "lib_net_socket.h"
 #include "range_algorithm.h"
 
@@ -27,7 +27,7 @@ namespace daw {
 				}
 
 				bool NetSocket::event_is_valid( std::string const & event ) const {
-					static std::vector<std::string> const valid_events = { "connect", "data", "end", "timeout", "drain", "error", "close", "newListener", "removeListener" };
+					static std::vector<std::string> const valid_events = { "connect", "data", "end", "timeout", "drain", "error", "close" };
 					return daw::algorithm::find( valid_events, event ) != valid_events.end( ) || EventEmitter::event_is_valid( event );
 				}
 
@@ -60,9 +60,11 @@ namespace daw {
 				NetSocket& NetSocket::unref( ) { throw std::runtime_error( "Method not implemented" ); }
 				NetSocket& NetSocket::ref( ) { throw std::runtime_error( "Method not implemented" ); }
 
-				std::string NetSocket::remote_address( ) const { throw std::runtime_error( "Method not implemented" ); }
-
+				daw::nodepp::lib::net::NetAddress const &  NetSocket::remote_address( ) const { throw std::runtime_error( "Method not implemented" ); }
+				daw::nodepp::lib::net::NetAddress const & NetSocket::local_address( ) const { throw std::runtime_error( "Method not implemented" ); }
+				uint16_t NetSocket::remote_port( ) const { throw std::runtime_error( "Method not implemented" ); }
 				uint16_t NetSocket::local_port( ) const { throw std::runtime_error( "Method not implemented" ); }
+				
 
 				size_t NetSocket::bytes_read( ) const { throw std::runtime_error( "Method not implemented" ); }
 

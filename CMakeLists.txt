@@ -1,44 +1,52 @@
 cmake_minimum_required(VERSION 2.8.4)
-project(NodePP)
+project(node__)
 
-find_package(Boost COMPONENTS system filesystem REQUIRED)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Weverything -Wno-c++98-compat -Wno-missing-prototypes -g")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -g")
-
-set(Boost_USE_STATIC_LIBS OFF)
-set(Boost_USE_MULTITHREADED ON)
-set(Boost_USE_STATIC_RUNTIME OFF)
-
-set( SOURCE_FILES
-    event_listener.h
-    lib_address.h
-    lib_error.h
+set(SOURCE_FILES
+    base_callback.cpp
+    base_callback.h
+    base_encoding.cpp
+    base_enoding.h
+    base_error.cpp
+    base_error.h
+    base_event_emitter.cpp
+    base_event_emitter.h
     lib_http.h
-    lib_http.cpp
+    lib_http_chunk.cpp
+    lib_http_chunk.h
+    lib_http_client_request.cpp
+    lib_http_client_request.h
+    lib_http_header.cpp
+    lib_http_headers.h
+    lib_http_server.cpp
+    lib_http_server.h
+    lib_http_server_response.cpp
+    lib_http_server_response.h
+    lib_http_statuscodes.cpp
     lib_net.h
+    lib_net_address.cpp
+    lib_net_address.h
+    lib_net_handle.cpp
     lib_net_handle.h
+    lib_net_server.cpp
     lib_net_server.h
+    lib_net_socket.cpp
     lib_net_socket.h
-    lib_net_socket.h
+    lib_stream.h
     lib_types.h
-    load_library.h
     load_library.cpp
-    load_library_posix.h
+    load_library.h
     load_library_posix.cpp
+    load_library_posix.h
+    load_plugin.cpp
+    load_plugin.h
     main.cpp
+    make_unique.h
     plugin_base.h
     range_algorithm.h
     ref_counted_value.h
+    string.h
     utility.h)
 
-#add_definitions( -DBOOST_ALL_NO_LIB )
-#add_definitions( -DBOOST_ALL_DYN_LINK )
-
-set( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR} )
-
-add_executable(NodePP ${SOURCE_FILES} )
-
-
-
-target_link_libraries(NodePP  ${CMAKE_DL_LIBS} ${Boost_LIBRARIES})
+add_executable(node__ ${SOURCE_FILES})
