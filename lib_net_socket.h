@@ -1,12 +1,13 @@
 #pragma once
 
 #include <cstdint>
-#include <string>
 #include <memory>
+#include <string>
 
+#include "base_enoding.h"
+#include "base_event_emitter.h"
 #include "lib_net_handle.h"
 #include "lib_types.h"
-#include "lib_event_emitter.h"
 
 namespace daw {
 	namespace nodepp {
@@ -18,8 +19,9 @@ namespace daw {
 
 				};
 
-				enum class SocketEvents { connect, data, end, timeout, drain, error, close, newListener, removeListener };
-				class Socket: public Handle, virtual public daw::nodepp::base::generic::EventEmitter<SocketEvents> {
+				class Socket: public Handle, public daw::nodepp::base::EventEmitter {
+				protected:
+					virtual bool event_is_valid( std::string const & event ) const override;
 				public:
 					using data_t = std::vector < uint8_t > ;
 					
@@ -30,6 +32,8 @@ namespace daw {
 					Socket( Socket&& other );
 					Socket& operator=(Socket&& rhs);
 					virtual ~Socket( );
+
+					
 
 					Socket& connect( uint16_t port, std::string host );
 
@@ -51,18 +55,18 @@ namespace daw {
 
 					size_t& buffer_size( );
 					size_t const & buffer_size( ) const;
-					Socket& set_encoding( encoding_t encoding );
+					Socket& set_encoding( daw::nodepp::base::Encoding encoding );
 
-					bool write( data_t data, encoding_t const & encoding = "" );
+					bool write( data_t data, daw::nodepp::base::Encoding const & encoding = daw::nodepp::base::Encoding{ } );					
 
 					template<typename Listener>
-					bool write( data_t data, encoding_t const & encoding, Listener listener ) {
+					bool write( data_t data, daw::nodepp::base::Encoding const & encoding, Listener listener ) {
 						return this->rollback_event_on_exception( SocketEvents::drain, listener, [&]( ) {
 							return write( data, encoding );
 						} );
 					}
 
-					Socket& end( data_t data, encoding_t const & encoding = "" );
+					Socket& end( data_t data, daw::nodepp::base::Encoding encoding = daw::nodepp::base::Encoding{ } );
 
 					Socket& destroy( );
 					Socket& pause( );
@@ -92,6 +96,19 @@ namespace daw {
 					size_t bytes_read( ) const;
 
 					size_t bytes_written( ) const;
+
+
+					template<typename Listener>
+					Socket& on( std::string event, Listener& listener ) {
+						add_listener( event, listener );
+						return *this;
+					}
+
+					template<typename Listener>
+					Socket& once( std::string event, Listener& listener ) {
+						add_listener( event, listener, true );
+						return *this;
+					}
 				};
 			}	// namespace net
 		}	// namespace lib

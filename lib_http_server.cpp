@@ -3,18 +3,18 @@
 #include <string>
 #include <utility>
 
-#include "lib_http.h"
+#include "base_event_emitter.h"
+#include "lib_http_server.h"
 #include "lib_net_server.h"
+#include "range_algorithm.h"
 
 namespace daw {
 	namespace nodepp {
 		namespace lib {
 			namespace http {
-				using namespace daw::nodepp::base::generic;
+				Server::Server( ) : daw::nodepp::lib::net::Server{ } { }
 
-				Server::Server( ) : EventEmitter < ServerEvents > { ServerEvents::newListener, ServerEvents::removeListener }  { }
-
-				Server::Server( Server&& other ) : EventEmitter < ServerEvents > { std::move( other ) } { }
+				Server::Server( Server&& other ) : daw::nodepp::lib::net::Server{ std::move( other ) } { }
 
 				Server& Server::operator=(Server&& rhs) { 
 					if( this != &rhs ) {
@@ -23,8 +23,12 @@ namespace daw {
 					return *this;
 				}
 				
-				Server::~Server( ) {  }
+				Server::~Server( ) {  }				
 
+				bool Server::event_is_valid( std::string const & event ) const {
+					static std::vector<std::string> const valid_events = { "request", "connection", "close", "checkContinue", "connect", "upgrade", "clientError", "listening", "newListener", "removeListener" };
+					return daw::algorithm::find( valid_events, event ) != valid_events.end( ) || daw::nodepp::lib::net::Server::event_is_valid( event );
+				}
 
 				Server& Server::listen( uint16_t port, std::string hostname, uint16_t backlog ) { throw std::runtime_error( "Method Not Implemented" ); }
 

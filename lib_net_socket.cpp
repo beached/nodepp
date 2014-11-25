@@ -2,26 +2,33 @@
 #include <cstdint>
 #include <string>
 
-#include "lib_event_emitter.h"
+#include "base_enoding.h"
+#include "base_event_emitter.h"
 #include "lib_net_handle.h"
 #include "lib_types.h"
 #include "lib_net_socket.h"
+#include "range_algorithm.h"
 
 namespace daw {
 	namespace nodepp {
 		namespace lib {
 			namespace net {
-				using namespace daw::nodepp::base::generic;
-				Socket::Socket( ) :Handle{ }, EventEmitter < SocketEvents > { SocketEvents::removeListener, SocketEvents::newListener } { }
+				using namespace daw::nodepp::base;
+				Socket::Socket( ) :Handle{ }, EventEmitter{ } { }
 				
-				Socket::Socket( options_t options ) : Handle{ }, EventEmitter < SocketEvents > { SocketEvents::removeListener, SocketEvents::newListener } { }
+				Socket::Socket( options_t options ) : Handle{ }, EventEmitter{ } { }
 
-				Socket::Socket( Socket&& other ) : Handle{ /*TODO*/ }, EventEmitter<SocketEvents>{ other } { }
+				Socket::Socket( Socket&& other ) : Handle{ std::move( other ) }, EventEmitter{ std::move( other ) } { }
 
 				Socket& Socket::operator=(Socket&& rhs) {
 					if( this != &rhs ) {
 					}
 					return *this;
+				}
+
+				bool Socket::event_is_valid( std::string const & event ) const {
+					static std::vector<std::string> const valid_events = { "connect", "data", "end", "timeout", "drain", "error", "close", "newListener", "removeListener" };
+					return daw::algorithm::find( valid_events, event ) != valid_events.end( ) || EventEmitter::event_is_valid( event );
 				}
 
 				Socket::~Socket( ) { }
@@ -34,11 +41,11 @@ namespace daw {
 
 				size_t const & Socket::buffer_size( ) const { throw std::runtime_error( "Method not implemented" ); }
 
-				Socket& Socket::set_encoding( encoding_t encoding ) { throw std::runtime_error( "Method not implemented" ); }
+				Socket& Socket::set_encoding( daw::nodepp::base::Encoding encoding ) { throw std::runtime_error( "Method not implemented" ); }
 
-				bool Socket::write( Socket::data_t data, encoding_t const & encoding ) { throw std::runtime_error( "Method not implemented" ); }
+				bool Socket::write( Socket::data_t data, daw::nodepp::base::Encoding const & encoding ) { throw std::runtime_error( "Method not implemented" ); }
 
-				Socket& Socket::end( data_t data, encoding_t const & encoding ) { throw std::runtime_error( "Method not implemented" ); }
+				Socket& Socket::end( data_t data, daw::nodepp::base::Encoding ) { throw std::runtime_error( "Method not implemented" ); }
 
 				Socket& Socket::destroy( ) { throw std::runtime_error( "Method not implemented" ); }
 				Socket& Socket::pause( ) { throw std::runtime_error( "Method not implemented" ); }

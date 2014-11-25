@@ -2,27 +2,43 @@
 
 #include <string>
 
-#include "lib_event_emitter.h"
+#include "base_enoding.h"
 
+#include "base_event_emitter.h"
+#include "lib_http_chunk.h"
 
 namespace daw {
 	namespace nodepp {
 		namespace lib {
 			namespace http {
+				
 				class Request { };
 				class IncomingMessage { };
-
-				enum class ClientRequestEvents { response, socket, connect, upgrade, continued, newListener, removeListener };
-				class ClientRequest: virtual public daw::nodepp::base::generic::EventEmitter<ClientRequestEvents> {
+				
+				class ClientRequest: public daw::nodepp::base::EventEmitter {
+				protected:
+					virtual bool event_is_valid( std::string const & event ) const override;
 				public:
-
-					bool write( std::string chunk, daw::nodepp::lib::encoding_t encoding = "" );
-					bool write( daw::nodepp::lib::net::Socket::data_t chunk );
+					ClientRequest( );
+					bool write( std::string chunk, daw::nodepp::base::Encoding const & encoding = daw::nodepp::base::Encoding{ } );
+					bool write( Chunk const & chunk );
 
 					void end( );
-					void end( std::string data, daw::nodepp::lib::encoding_t encoding = "" );
-					void end( daw::nodepp::lib::net::Socket::data_t data );
+					void end( std::string const & data, daw::nodepp::base::Encoding const & encoding = daw::nodepp::base::Encoding{ } );
+					void end( Chunk const & chunk );
 					void abort( );
+
+					template<typename Listener>
+					ClientRequest& on( std::string event, Listener& listener ) {
+						add_listener( event, listener );
+						return *this;
+					}
+
+					template<typename Listener>
+					ClientRequest& once( std::string event, Listener& listener ) {
+						add_listener( event, listener, true );
+						return *this;
+					}
 				};
 
 			}	// namespace http

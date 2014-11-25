@@ -1,14 +1,17 @@
 #pragma once
 
-#include <boost/any.hpp>
-#include <map>
 #include <string>
+
+#include "base_event_emitter.h"
 
 namespace daw {
 	namespace nodepp {
 		namespace lib {
-			using options_t = std::map < std::string, boost::any > ;
+			namespace stream {				
+				class Stream : public daw::nodepp::base::EventEmitter {
 
+				};
+			}	// namespace stream
 		}	// namespace lib
 	}	// namespace nodepp
 }	// namespace daw

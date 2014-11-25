@@ -14,6 +14,7 @@
 #include "utility.h"
 
 #include "lib_http.h"
+#include "lib_http_server.h"
 
 #include <iostream>
 

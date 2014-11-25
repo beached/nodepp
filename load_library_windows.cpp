@@ -6,6 +6,7 @@
 #include <windows.h>
 
 #include "load_library_windows.h"
+#include <cstdint>
 #include <utility>
 
 namespace daw {
@@ -21,14 +22,15 @@ namespace daw {
 				if( errorMessageID == 0 ) {
 					return "No error message has been recorded";
 				}
-				LPSTR messageBuffer = nullptr;
-				auto size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-					NULL, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
+				auto buffer = std::vector<char>( 64, 0 );
+				auto const flags = FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS;
+				auto const lang_id = MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT );
+				auto size = FormatMessageA( flags, nullptr, errorMessageID, lang_id,(LPSTR)buffer.data(), 64, nullptr);
 
-				std::string message{ messageBuffer, size };
-
-				//Free the buffer.
-				LocalFree(messageBuffer);
+				if( 0 == size ) {
+					return "No message";
+				}
+				std::string message{ buffer.data( ), size };
 
 				return message;
 			}

@@ -1,28 +1,33 @@
-
-#include "lib_net_server.h"
-#include "lib_event_emitter.h"
-#include "lib_net_handle.h"
-#include "lib_types.h"
-
 #include <memory>
 #include <utility>
+
+#include "lib_net_server.h"
+#include "base_event_emitter.h"
+#include "lib_net_handle.h"
+#include "lib_types.h"
+#include "range_algorithm.h"
 
 namespace daw {
 	namespace nodepp {
 		namespace lib {
 			namespace net {
-				using namespace daw::nodepp::base::generic;
-				Server::Server( ) :Handle{ }, EventEmitter < ServerEvents > { ServerEvents::remvoeListener, ServerEvents::newListener } { }
-				Server::Server( options_t options ) : Handle{ }, EventEmitter < ServerEvents > { ServerEvents::remvoeListener, ServerEvents::newListener } { }
+				using namespace daw::nodepp::base;
+				Server::Server( ) :Handle{ }, EventEmitter{ } { }
+				Server::Server( options_t options ) : Handle{ }, EventEmitter{ } { }
 				Server::~Server( ) { }
 
-				Server::Server( Server&& other ) : Handle{ /*TODO*/ }, EventEmitter < ServerEvents > { other } { }
+				Server::Server( Server&& other ) : Handle{ std::move( other ) }, EventEmitter{ std::move( other ) } { }
 
 				Server& Server::operator=(Server&& rhs) {
 					if( this != &rhs ) {
 						
 					}
 					return *this;
+				}
+				
+				bool Server::event_is_valid( std::string const & event ) const {
+					static std::vector<std::string> const valid_events = { "listening", "connection", "close", "error", "newListener", "remvoeListener" };
+					return daw::algorithm::find( valid_events, event ) != valid_events.end( ) || EventEmitter::event_is_valid( event );
 				}
 
 				Server& Server::listen( uint16_t port, std::string hostname, uint16_t backlog ) { throw std::runtime_error( "Method Not Implemented" ); }

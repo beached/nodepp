@@ -153,18 +153,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="base_callback.h" />
     <ClInclude Include="lib_address.h" />
+    <ClInclude Include="base_enoding.h" />
     <ClInclude Include="lib_error.h" />
-    <ClInclude Include="lib_event_emitter.h" />
+    <ClInclude Include="base_event_emitter.h" />
     <ClInclude Include="lib_http.h" />
     <ClInclude Include="lib_http_chunk.h" />
     <ClInclude Include="lib_http_client_request.h" />
     <ClInclude Include="lib_http_headers.h" />
+    <ClInclude Include="lib_http_server.h" />
     <ClInclude Include="lib_http_server_response.h" />
     <ClInclude Include="lib_net.h" />
     <ClInclude Include="lib_net_handle.h" />
     <ClInclude Include="lib_net_server.h" />
     <ClInclude Include="lib_net_socket.h" />
+    <ClInclude Include="lib_stream.h" />
     <ClInclude Include="lib_types.h" />
     <ClInclude Include="load_library.h" />
     <ClInclude Include="load_library_posix.h" />
@@ -178,10 +182,16 @@
     <ClInclude Include="utility.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="lib_event_emitter.cpp" />
-    <ClCompile Include="lib_http.cpp" />
+    <ClCompile Include="base_callback.cpp" />
+    <ClCompile Include="base_encoding.cpp" />
+    <ClCompile Include="base_event_emitter.cpp" />
+    <ClCompile Include="lib_http_chunk.cpp" />
+    <ClCompile Include="lib_http_server_response.cpp" />
+    <ClCompile Include="lib_http_client_request.cpp" />
+    <ClCompile Include="lib_http_server.cpp" />
     <ClCompile Include="lib_http_header.cpp" />
     <ClCompile Include="lib_http_statuscodes.cpp" />
+    <ClCompile Include="lib_net_handle.cpp" />
     <ClCompile Include="lib_net_server.cpp" />
     <ClCompile Include="lib_net_socket.cpp" />
     <ClCompile Include="load_library.cpp">

@@ -14,11 +14,11 @@ namespace daw {
 	public:
 		
 		template<typename... Args>
-		ReferenceCountedValue( Args&&... args ) : m_value{ new(std::nothrow) T( std::forward<Args&&>( args )... ) }, m_counter{ new(std::nothrow) counter_t( ) }, m_cleaner{ nullptr } {
+		ReferenceCountedValue( Args&&... args ) : m_value{ new T( std::forward<Args&&>( args )... ) }, m_counter{ new counter_t( ) }, m_cleaner{ nullptr } {
 			*m_counter = 1;
 		}
 
-		explicit ReferenceCountedValue( T&& value ) : m_value{ new(std::nothrow) T( std::forward<T>( value ) ) }, m_counter{ new(std::nothrow) counter_t( ) }, m_cleaner{ nullptr } {
+		explicit ReferenceCountedValue( T&& value ) : m_value{ new T( std::forward<T>( value ) ) }, m_counter{ new counter_t( ) }, m_cleaner{ nullptr } {			
 			*m_counter = 1;
 		}
 
