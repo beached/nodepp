@@ -1,5 +1,6 @@
 
 #include <boost/filesystem.hpp>
+#include <iostream>
 #include <memory>
 #include <string>
 #include <sstream>

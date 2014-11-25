@@ -22,11 +22,11 @@ namespace daw {
 			*m_counter = 1;
 		}
 
-		explicit ReferenceCountedValue( const ReferenceCountedValue& other ) : m_value{ other.m_value }, m_counter{ other.m_counter }, m_cleaner{ other.m_cleaner } {
+		ReferenceCountedValue( ReferenceCountedValue const& other ) : m_value{ other.m_value }, m_counter{ other.m_counter }, m_cleaner{ other.m_cleaner } {
 			++(*other.m_counter);
 		}
 
-		ReferenceCountedValue& operator=(const ReferenceCountedValue& rhs) {
+		ReferenceCountedValue& operator=(ReferenceCountedValue const& rhs) {
 			if( this != &rhs ) {
 				m_value = rhs.m_value;
 				m_counter = rhs.m_counter;
@@ -35,6 +35,21 @@ namespace daw {
 			}
 			return *this;
 		}
+
+		ReferenceCountedValue( ReferenceCountedValue && other ) : m_value{ std::move( other.m_value ) }, m_counter{ std::move( other.m_counter ) }, m_cleaner{ std::move( other.m_cleaner ) } {
+			++(*other.m_counter);
+		}
+
+		ReferenceCountedValue& operator=( ReferenceCountedValue && rhs) {
+			if( this != &rhs ) {
+				m_value = std::move( rhs.m_value );
+				m_counter = std::move( rhs.m_counter );
+				++(*rhs.m_counter);
+				m_cleaner = std::move( rhs.m_cleaner );
+			}
+			return *this;
+		}
+
 
 		void set_cleaner( std::function<void( T* )> cleaner ) {
 			m_cleaner = cleaner;
