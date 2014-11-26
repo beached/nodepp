@@ -10,12 +10,13 @@ namespace daw {
 	namespace nodepp {
 		namespace lib {
 			namespace http {
+				using namespace daw::nodepp;
 				//////////////////////////////////////////////////////////////////////////
 				// Summary:		
 				// Requires:	base::EventEmitter, lib::http::HttpHeader,
 				//				lib::http::HttpHeaders, lib::http::HttpChunk,
 				//				base::Encodingn
-				class HttpServerResponse: public daw::nodepp::base::EventEmitter {
+				class HttpServerResponse: public base::EventEmitter {
 					HttpServerResponse( );
 					friend class HttpServer;
 				public:
@@ -43,14 +44,14 @@ namespace daw {
 					HttpHeader const & get_header( std::string name ) const;
 					HttpServerResponse& remove_header( std::string name );
 
-					bool write_chunk( std::string const & chunk, daw::nodepp::base::Encoding encoding = daw::nodepp::base::Encoding{ } );
+					bool write_chunk( std::string const & chunk, base::Encoding encoding = base::Encoding{ } );
 					bool write_chunk( HttpChunk const & chunk );
 
 					bool add_trailers( Headers headers );
 
 					void end( );
 					void end( HttpChunk chunk );
-					void end( std::string const & chunk, daw::nodepp::base::Encoding encoding = daw::nodepp::base::Encoding{ } );
+					void end( std::string const & chunk, base::Encoding encoding = base::Encoding{ } );
 
 					template<typename Listener>
 					HttpServerResponse& on( std::string event, Listener& listener ) {

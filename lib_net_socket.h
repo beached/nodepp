@@ -1,5 +1,5 @@
 #pragma once
-
+#include <boost/asio/ip/tcp.hpp>
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -15,17 +15,20 @@ namespace daw {
 	namespace nodepp {
 		namespace lib {
 			namespace net {
-				class NetSocket: public daw::nodepp::base::stream::Stream {
+				using namespace daw::nodepp;
+
+				class NetSocket: public base::stream::Stream {
+					std::shared_ptr<boost::asio::ip::tcp::socket> m_socket;
+					std::shared_ptr<boost::asio::ip::tcp::endpoint> m_endpoint;
 				public:
-					using data_t = std::vector < uint8_t > ;
 					
 					NetSocket( );
-					NetSocket( daw::nodepp::base::options_t options );
+					NetSocket( base::options_t options );
 					NetSocket( NetSocket const & ) = default;
 					NetSocket& operator=(NetSocket const &) = default;
 					NetSocket( NetSocket&& other );
 					NetSocket& operator=(NetSocket&& rhs);
-					virtual ~NetSocket( );
+					~NetSocket( );
 
 					
 
@@ -50,18 +53,18 @@ namespace daw {
 					size_t& buffer_size( );
 					size_t const & buffer_size( ) const;
 
-					NetSocket& set_encoding( daw::nodepp::base::Encoding encoding );
+					NetSocket& set_encoding( base::Encoding encoding );
 
-					bool write( data_t data, daw::nodepp::base::Encoding const & encoding = daw::nodepp::base::Encoding{ } );					
+					bool write( base::data_t data, base::Encoding const & encoding = base::Encoding{ } );					
 
 					template<typename Listener>
-					bool write( data_t data, daw::nodepp::base::Encoding const & encoding, Listener listener ) {
+					bool write( data_t data, base::Encoding const & encoding, Listener listener ) {
 						return this->rollback_event_on_exception( SocketEvents::drain, listener, [&]( ) {
 							return write( data, encoding );
 						} );
 					}
 
-					NetSocket& end( data_t data, daw::nodepp::base::Encoding encoding = daw::nodepp::base::Encoding{ } );
+					NetSocket& end( base::data_t data, base::Encoding encoding = :base::Encoding{ } );
 
 					NetSocket& destroy( );
 					NetSocket& pause( );
@@ -79,13 +82,13 @@ namespace daw {
 					NetSocket& set_no_delay( bool noDelay = true );
 					NetSocket& set_keep_alive( bool keep_alive = false, int32_t initial_delay = 0 );
 		
-					daw::nodepp::lib::net::NetAddress const & address( ) const;	
+					lib::net::NetAddress const & address( ) const;	
 
 					NetSocket& unref( );
 					NetSocket& ref( );
 
-					daw::nodepp::lib::net::NetAddress const & remote_address( ) const;
-					daw::nodepp::lib::net::NetAddress const & local_address( ) const;
+					lib::net::NetAddress const & remote_address( ) const;
+					lib::net::NetAddress const & local_address( ) const;
 					uint16_t remote_port( ) const;	
 					uint16_t local_port( ) const;
 					

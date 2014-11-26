@@ -24,7 +24,7 @@ namespace daw {
 				
 				explicit operator std::string( ) const {
 					is_string( );
-					return convert_to < std::string( m_data );
+				//	return convert_to < std::string( m_data );
 				}
 
 				explicit operator std::wstring( ) const {

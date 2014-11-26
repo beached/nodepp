@@ -17,6 +17,7 @@ namespace daw {
 	namespace nodepp {
 		namespace lib {			
 			namespace http {
+				using namespace daw::nodepp;
 				static std::map<int16_t, std::string> const STATUS_CODES;
 
 				using head_t = std::vector < uint8_t > ;
@@ -26,7 +27,7 @@ namespace daw {
 					size_t& max_sockets( );
 					size_t const & max_sockets( ) const;
 
-					std::vector<daw::nodepp::lib::net::NetSocket> const & sockets( ) const;
+					std::vector<lib::net::NetSocket> const & sockets( ) const;
 					std::vector<HttpClientRequest> const & requests( ) const;
 				};
 

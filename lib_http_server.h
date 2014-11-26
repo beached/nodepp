@@ -6,10 +6,11 @@ namespace daw {
 	namespace nodepp {
 		namespace lib {
 			namespace http {
+				using namespace daw::nodepp;
 				//////////////////////////////////////////////////////////////////////////
 				// Summary:		An HTTP Server class 
 				// Requires:	lib::net::NetServer
-				class HttpServer: public daw::nodepp::lib::net::NetServer {
+				class HttpServer: public lib::net::NetServer {
 				public:
 					HttpServer( );
 
@@ -37,9 +38,9 @@ namespace daw {
 						} );
 					}
 
-					HttpServer& listen( daw::nodepp::lib::net::NetHandle& handle );
+					HttpServer& listen( lib::net::NetHandle& handle );
 					template<typename Listener>
-					HttpServer& listen( daw::nodepp::lib::net::NetHandle& handle, Listener listener ) {
+					HttpServer& listen( lib::net::NetHandle& handle, Listener listener ) {
 						return this->rollback_event_on_exception( "listening", listener, [&]( ) {
 							return listen( handle );
 						} );

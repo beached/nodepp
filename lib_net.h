@@ -9,8 +9,21 @@ namespace daw {
 	namespace nodepp {
 		namespace lib {
 			namespace net {
-				NetServer create_server( options_t options = options_t{ }, NetServer::events_t::callback_t_connection callback = NetServer::events_t::callback_t_connection{ } );
-				NetSocket create_connection( options_t options, NetSocket::events_t::callback_t_connect callback = NetSocket::events_t::callback_t_connect{ } );
+				using namespace daw::nodepp;
+
+				NetServer create_server( base::options_t options = base::options_t{ } );
+				template<typename Listener>
+				NetServer create_server( base::options_t options, Listener listener ) {
+					return create_server( options ).on( "connection", listener );
+					
+				}
+
+				NetSocket create_connection( base::options_t options );
+				template<typename Listener>
+				NetServer create_connection( base::options_t options, Listener listener ) {
+					return create_connection( options ).on( "connect", listener );
+
+				}
 				NetSocket create_connection( uint16_t port, std::string host = "", NetSocket::events_t::callback_t_connect callback = NetSocket::events_t::callback_t_connect{ } );
 
 				uint8_t is_ip( std::string ip_address );

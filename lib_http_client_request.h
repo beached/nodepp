@@ -11,20 +11,21 @@ namespace daw {
 	namespace nodepp {
 		namespace lib {
 			namespace http {
+				using namespace daw::nodepp;
 				//////////////////////////////////////////////////////////////////////////
 				// Summary:
 				// Requires:	base::EventEmitter
-				class HttpClientRequest: public daw::nodepp::base::EventEmitter {
+				class HttpClientRequest: public base::EventEmitter {
 				public:
 					HttpClientRequest( );
 
 					std::vector<std::string> const & valid_events( ) const override;
 
-					bool write( std::string chunk, daw::nodepp::base::Encoding const & encoding = daw::nodepp::base::Encoding{ } );
+					bool write( std::string chunk, base::Encoding const & encoding = base::Encoding{ } );
 					bool write( HttpChunk const & chunk );
 
 					void end( );
-					void end( std::string const & data, daw::nodepp::base::Encoding const & encoding = daw::nodepp::base::Encoding{ } );
+					void end( std::string const & data, base::Encoding const & encoding = base::Encoding{ } );
 					void end( HttpChunk const & chunk );
 					void abort( );
 
