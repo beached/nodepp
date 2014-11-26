@@ -36,8 +36,6 @@ namespace daw {
 				using listener_list_t = std::vector < std::pair<bool, Callback> > ;
 				std::unordered_map<std::string, listener_list_t> m_listeners;
 				size_t m_max_listeners;
-				static char const * const c_new_listener_event;
-				static char const * const c_remove_listener_event;
 
 				bool at_max_listeners( std::string event );
 			protected:
@@ -57,7 +55,7 @@ namespace daw {
 					if( !at_max_listeners( event ) ) {
 						auto callback = Callback( listener );
 						m_listeners[event].emplace_back( run_once, callback );
-						emit( c_new_listener_event, event, callback );
+						emit( "newListener", event, callback );
 						return callback.id( );
 					} else {
 						// TODO: implement logging to fail gracefully.  For now throw
@@ -66,13 +64,13 @@ namespace daw {
 				}
 
 				template<typename Listener>
-				EventEmitter& on( std::string event, Listener& listener ) {
+				EventEmitter& on( std::string event, Listener listener ) {
 					add_listener( event, listener );
 					return *this;
 				}
 
 				template<typename Listener>
-				EventEmitter& once( std::string event, Listener& listener ) {
+				EventEmitter& once( std::string event, Listener listener ) {
 					add_listener( event, listener, true );
 					return *this;
 				}

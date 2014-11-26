@@ -55,13 +55,13 @@ namespace daw {
 					}
 
 					template<typename Listener>
-					HttpServer& on( std::string event, Listener& listener ) {
+					HttpServer& on( std::string event, Listener listener ) {
 						add_listener( event, listener );
 						return *this;
 					}
 
 					template<typename Listener>
-					HttpServer& once( std::string event, Listener& listener ) {
+					HttpServer& once( std::string event, Listener listener ) {
 						add_listener( event, listener, true );
 						return *this;
 					}

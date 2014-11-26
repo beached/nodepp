@@ -15,7 +15,8 @@ namespace daw {
 				std::string m_encoding;
 				static std::vector<std::string> const &	valid_enodings( );
 			public:
-				explicit Encoding( std::string encoding = "utf8" );	
+				Encoding( );
+				explicit Encoding( std::string encoding );	
 				Encoding( Encoding const & ) = default;
 				Encoding& operator=(Encoding const &) = default;
 				Encoding& operator=(std::string const & rhs);

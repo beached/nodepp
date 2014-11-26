@@ -28,7 +28,7 @@ namespace daw {
 					NetSocket& operator=(NetSocket const &) = default;
 					NetSocket( NetSocket&& other );
 					NetSocket& operator=(NetSocket&& rhs);
-					~NetSocket( );
+					virtual ~NetSocket( );
 
 					
 
@@ -53,22 +53,7 @@ namespace daw {
 					size_t& buffer_size( );
 					size_t const & buffer_size( ) const;
 
-					NetSocket& set_encoding( base::Encoding encoding );
-
-					bool write( base::data_t data, base::Encoding const & encoding = base::Encoding{ } );					
-
-					template<typename Listener>
-					bool write( data_t data, base::Encoding const & encoding, Listener listener ) {
-						return this->rollback_event_on_exception( SocketEvents::drain, listener, [&]( ) {
-							return write( data, encoding );
-						} );
-					}
-
-					NetSocket& end( base::data_t data, base::Encoding encoding = :base::Encoding{ } );
-
 					NetSocket& destroy( );
-					NetSocket& pause( );
-					NetSocket& resume( );
 
 					NetSocket& set_timeout( int32_t value );
 
@@ -107,6 +92,24 @@ namespace daw {
 						add_listener( event, listener, true );
 						return *this;
 					}
+
+
+					// StreamReadable Interface
+					virtual base::data_t read( ) override;
+					virtual base::data_t read( size_t bytes ) override;
+
+					virtual NetSocket& set_encoding( base::Encoding encoding ) override;
+					virtual NetSocket& resume( ) override;
+					virtual NetSocket& pause( ) override;
+					virtual StreamWritable& pipe( StreamWritable& destination ) override;
+					virtual StreamWritable& pipe( StreamWritable& destination, base::options_t options ) override;
+					virtual NetSocket& unpipe( StreamWritable& destination ) override;
+					virtual NetSocket& unshift( base::data_t&& chunk ) override;
+
+					// StreamWritable Interface
+					virtual bool write( base::data_t&& chunk, base::Encoding encoding = base::Encoding{ } ) override;
+					virtual NetSocket& end( ) override;
+					virtual NetSocket& end( base::data_t&& chunk, base::Encoding encoding = base::Encoding{ } ) override;
 				};
 			}	// namespace net
 		}	// namespace lib

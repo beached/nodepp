@@ -24,7 +24,13 @@ namespace daw {
 					return create_connection( options ).on( "connect", listener );
 
 				}
-				NetSocket create_connection( uint16_t port, std::string host = "", NetSocket::events_t::callback_t_connect callback = NetSocket::events_t::callback_t_connect{ } );
+
+				NetSocket create_connection( uint16_t port, std::string host = "" );
+				template<typename Listener>
+				NetServer create_connection( uint16_t port, std::string host = "" ) {
+					return create_connection( options ).on( "connect", port, host );
+
+				}
 
 				uint8_t is_ip( std::string ip_address );
 				bool is_ipv4( std::string ip_address );

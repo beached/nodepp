@@ -11,7 +11,9 @@ namespace daw {
 				return result;
 			}
 
-			Encoding::Encoding( std::string encoding ) { }
+			Encoding::Encoding( ) : m_encoding( "utf8" ) { }
+
+			Encoding::Encoding( std::string encoding ) : m_encoding( encoding ) { }
 
 			Encoding& Encoding::operator = (std::string const & rhs) {
 				if( !is_valid_encoding( rhs ) ) {

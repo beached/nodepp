@@ -8,11 +8,9 @@
 namespace daw {
 	namespace nodepp {
 		namespace base {			
-			char const * const EventEmitter::c_new_listener_event = "newListener";
-			char const * const EventEmitter::c_remove_listener_event = "removeListener";
 
 			std::vector<std::string> const & EventEmitter::valid_events( ) const {
-				static auto const result = std::vector < std::string > { c_new_listener_event, c_remove_listener_event };
+				static auto const result = std::vector < std::string > { "newListener", "removeListener" };
 				return result;
 			}
 

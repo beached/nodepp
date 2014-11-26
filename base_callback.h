@@ -63,16 +63,18 @@ namespace daw {
 				void exec( Args&&... args ) {
 					switch( m_callback_type ) {
 					case callback_type::funcptr: {
-						auto callback = (daw::function_pointer_t<void, Args...>)(boost::any_cast<void*>(m_callback));
+						//auto callback{ (daw::function_pointer_t<void, Args...>)(boost::any_cast<void*>(m_callback)) };
+						auto callback{ static_cast<daw::function_pointer_t<void, Args...>>(boost::any_cast<void*>(m_callback)) };
+
 						callback( std::forward<Args>( args )... );
 					}
-												 break;
+					break;
 					case callback_type::stdfunction: {
 						using callback_t = std::function < void( Args... ) > ;
-						auto& callback = boost::any_cast<callback_t>(m_callback);
+						auto callback{ boost::any_cast<callback_t>(m_callback) };
 						callback( std::forward<Args>( args )... );
 					}
-													 break;
+					break;
 					case callback_type::none:
 						throw std::runtime_error( "Attempt to execute a empty callback" );
 					default:
