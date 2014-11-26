@@ -18,8 +18,8 @@ namespace daw {
 				using namespace daw::nodepp;
 
 				class NetSocket: public base::stream::Stream {
-					std::shared_ptr<boost::asio::ip::tcp::socket> m_socket;
-					std::shared_ptr<boost::asio::ip::tcp::endpoint> m_endpoint;
+// 					std::shared_ptr<boost::asio::ip::tcp::socket> m_socket;
+// 					std::shared_ptr<boost::asio::ip::tcp::endpoint> m_endpoint;
 				public:
 					
 					NetSocket( );
@@ -104,12 +104,12 @@ namespace daw {
 					virtual StreamWritable& pipe( StreamWritable& destination ) override;
 					virtual StreamWritable& pipe( StreamWritable& destination, base::options_t options ) override;
 					virtual NetSocket& unpipe( StreamWritable& destination ) override;
-					virtual NetSocket& unshift( base::data_t&& chunk ) override;
+					virtual NetSocket& unshift( base::data_t chunk ) override;
 
 					// StreamWritable Interface
-					virtual bool write( base::data_t&& chunk, base::Encoding encoding = base::Encoding{ } ) override;
+					virtual bool write( base::data_t chunk, base::Encoding encoding = base::Encoding( ) ) override;
 					virtual NetSocket& end( ) override;
-					virtual NetSocket& end( base::data_t&& chunk, base::Encoding encoding = base::Encoding{ } ) override;
+					virtual NetSocket& end( base::data_t chunk, base::Encoding encoding = base::Encoding( ) ) override;
 				};
 			}	// namespace net
 		}	// namespace lib

@@ -29,7 +29,7 @@ namespace daw {
 					virtual StreamWritable& pipe( StreamWritable& destination ) = 0;
 					virtual StreamWritable& pipe( StreamWritable& destination, base::options_t options ) = 0;
 					virtual StreamReadable& unpipe( StreamWritable& destination ) = 0;
-					virtual StreamReadable& unshift( data_t&& chunk ) = 0;
+					virtual StreamReadable& unshift( data_t chunk ) = 0;
 				};	// class StreamReadable
 
 				//////////////////////////////////////////////////////////////////////////
@@ -38,21 +38,21 @@ namespace daw {
 				class StreamWritable: public daw::nodepp::base::EventEmitter {
 				public:
 					virtual std::vector<std::string> const & valid_events( ) const override;
-					virtual bool write( base::data_t&& chunk, base::Encoding encoding ) = 0;					
+					virtual bool write( base::data_t chunk, base::Encoding encoding ) = 0;					
 					virtual StreamWritable& end( ) = 0;
-					virtual StreamWritable& end( base::data_t&& chunk, base::Encoding encoding ) = 0;
+					virtual StreamWritable& end( base::data_t chunk, base::Encoding encoding ) = 0;
 					
 					template<typename Listener>
-					bool write( base::data_t&& chunk, base::Encoding encoding, Listener listener ) {
+					bool write( base::data_t chunk, base::Encoding encoding, Listener listener ) {
 						return this->rollback_event_on_exception( "drain", listener, [&]( ) {
-							return write( std::move( chunk ), encoding );
+							return write( chunk, encoding );
 						} );
 					}
 					
 					template<typename Listener>
-					bool end( base::data_t&& chunk, base::Encoding encoding, Listener listener ) {
+					bool end( base::data_t chunk, base::Encoding encoding, Listener listener ) {
 						return this->rollback_event_on_exception( "finish", listener, [&]( ) {
-							return end( std::move( chunk ), encoding );
+							return end( chunk, encoding );
 						} );
 					}
 					virtual ~StreamWritable( ) = default;
@@ -72,8 +72,8 @@ namespace daw {
 				// Requires:	Stream
 				class StreamTransform: public Stream {
 				public:
-					virtual StreamTransform& transform_read( std::function<void( base::data_t&& )> listener ) = 0;
-					virtual StreamTransform& transform_write( std::function<void( base::data_t&& )> listener ) = 0;
+					virtual StreamTransform& transform_read( std::function<void( base::data_t )> listener ) = 0;
+					virtual StreamTransform& transform_write( std::function<void( base::data_t )> listener ) = 0;
 				};
 			}	//namespace stream
 		}	// namespace base

@@ -22,10 +22,11 @@ namespace daw {
 			private:
 				enum class callback_type { none = 0, stdfunction, funcptr };
 				static std::atomic_uint_least64_t s_last_id;
-
+				using cb_storage_t = void*;
 				id_t m_id;
 				boost::any m_callback;
-				callback_type m_callback_type;
+				callback_type m_callback_type;				
+
 			public:
 				Callback( );
 				~Callback( ) = default;
@@ -34,7 +35,7 @@ namespace daw {
 				Callback& operator=(void* funcptr);
 
 				template<typename... Args>
-				Callback( std::function<void( Args... )> stdfunction ) : m_id( s_last_id++ ), m_callback( stdfunction ), m_callback_type{ callback_type::stdfunction } { }
+				Callback( std::function<void( Args... )> listener ) : m_id( s_last_id++ ), m_callback( listener ), m_callback_type( callback_type::stdfunction ) { }
 
 				template<typename... Args>
 				Callback& operator=(std::function<void( Args... )> stdfunction) {
@@ -63,15 +64,12 @@ namespace daw {
 				void exec( Args&&... args ) {
 					switch( m_callback_type ) {
 					case callback_type::funcptr: {
-						//auto callback{ (daw::function_pointer_t<void, Args...>)(boost::any_cast<void*>(m_callback)) };
-						auto callback{ static_cast<daw::function_pointer_t<void, Args...>>(boost::any_cast<void*>(m_callback)) };
-
+						auto callback = reinterpret_cast<daw::function_pointer_t<void, Args...>>(boost::any_cast<void*>(m_callback));
 						callback( std::forward<Args>( args )... );
 					}
 					break;
 					case callback_type::stdfunction: {
-						using callback_t = std::function < void( Args... ) > ;
-						auto callback{ boost::any_cast<callback_t>(m_callback) };
+						auto callback = boost::any_cast<std::function < void( Args... ) >>(m_callback);
 						callback( std::forward<Args>( args )... );
 					}
 					break;

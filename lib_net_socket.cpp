@@ -16,11 +16,11 @@ namespace daw {
 			namespace net {
 				using namespace daw::nodepp;
 
-				NetSocket::NetSocket( ): Stream{ } { }
+				NetSocket::NetSocket( ) { }
 				
-				NetSocket::NetSocket( base::options_t options ) : Stream{ } { }
+				NetSocket::NetSocket( base::options_t options ) { }
 
-				NetSocket::NetSocket( NetSocket&& other ) : Stream{ std::move( other ) } { }
+				NetSocket::NetSocket( NetSocket&& other ) { }
 
 				NetSocket& NetSocket::operator=(NetSocket&& rhs) {
 					if( this != &rhs ) {
@@ -39,9 +39,9 @@ namespace daw {
 				size_t const & NetSocket::buffer_size( ) const { throw std::runtime_error( "Method not implemented" ); }
 				
 				NetSocket& NetSocket::end( ) { throw std::runtime_error( "Method not implemented" ); }
-				NetSocket& NetSocket::end( base::data_t&& chunk, base::Encoding encoding ) { throw std::runtime_error( "Method not implemented" ); }
+				NetSocket& NetSocket::end( base::data_t chunk, base::Encoding encoding ) { throw std::runtime_error( "Method not implemented" ); }
 
-				bool NetSocket::write( base::data_t&& data, base::Encoding encoding ) { throw std::runtime_error( "Method not implemented" ); }
+				bool NetSocket::write( base::data_t data, base::Encoding encoding ) { throw std::runtime_error( "Method not implemented" ); }
 
 				NetSocket& NetSocket::destroy( ) { throw std::runtime_error( "Method not implemented" ); }
 				
@@ -79,7 +79,7 @@ namespace daw {
 				StreamWritable& NetSocket::pipe( StreamWritable& destination ) { throw std::runtime_error( "Method not implemented" ); }
 				StreamWritable& NetSocket::pipe( StreamWritable& destination, base::options_t options ) { throw std::runtime_error( "Method not implemented" ); }
 				NetSocket& NetSocket::unpipe( StreamWritable& destination ) { throw std::runtime_error( "Method not implemented" ); }
-				NetSocket& NetSocket::unshift( base::data_t&& chunk ) { throw std::runtime_error( "Method not implemented" ); }
+				NetSocket& NetSocket::unshift( base::data_t chunk ) { throw std::runtime_error( "Method not implemented" ); }
 				
 			}	// namespace net
 		}	// namespace lib
