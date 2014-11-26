@@ -14,21 +14,16 @@ namespace daw {
 		namespace lib {
 			namespace net {
 				using namespace daw::nodepp::base;
-				NetSocket::NetSocket( ) :Handle{ }, EventEmitter{ } { }
+				NetSocket::NetSocket( ): Stream{ } { }
 				
-				NetSocket::NetSocket( options_t options ) : Handle{ }, EventEmitter{ } { }
+				NetSocket::NetSocket( options_t options ) : Stream{ } { }
 
-				NetSocket::NetSocket( NetSocket&& other ) : Handle{ std::move( other ) }, EventEmitter{ std::move( other ) } { }
+				NetSocket::NetSocket( NetSocket&& other ) : Stream{ std::move( other ) } { }
 
 				NetSocket& NetSocket::operator=(NetSocket&& rhs) {
 					if( this != &rhs ) {
 					}
 					return *this;
-				}
-
-				bool NetSocket::event_is_valid( std::string const & event ) const {
-					static std::vector<std::string> const valid_events = { "connect", "data", "end", "timeout", "drain", "error", "close" };
-					return daw::algorithm::find( valid_events, event ) != valid_events.end( ) || EventEmitter::event_is_valid( event );
 				}
 
 				NetSocket::~NetSocket( ) { }

@@ -7,11 +7,32 @@
 namespace daw {
 	namespace nodepp {
 		namespace base {
-			bool ReadableStream::event_is_valid( std::string const & event ) const {
-				static std::vector<std::string> const valid_events = { "readable", "data", "end", "close", "error" };
-				return daw::algorithm::find( valid_events, event ) != valid_events.end( ) || daw::nodepp::base::EventEmitter::event_is_valid( event );
-			}
+			namespace stream {
+				using namespace daw::nodepp::base;
+				std::vector<std::string> const & StreamReadable::valid_events( ) const {
+					static auto const result = [&]( ) {
+						auto local = std::vector < std::string > { "readable", "data", "end", "close", "error" };
+						return impl::append_vector( local, EventEmitter::valid_events( ) );
+					}();
+					return result;
+				}
 
+				std::vector<std::string> const & StreamWritable::valid_events( ) const {
+					static auto const result = [&]( ) {
+						auto local = std::vector < std::string > { "drain", "finish", "pipe", "unpipe", "error" };
+						return impl::append_vector( local, EventEmitter::valid_events( ) );
+					}();
+					return result;
+				}
+
+				std::vector<std::string> const & Stream::valid_events( ) const {
+					static auto const result = [&]( ) {
+						auto local = StreamReadable::valid_events( );
+						return impl::append_vector( local, StreamWritable::valid_events( ) );
+					}();
+					return result;
+				}
+			}	// namespace stream
 		}	// namespace base
 	}	// namespace nodepp
 }	// namespace daw

@@ -7,23 +7,25 @@
 
 namespace daw {
 	namespace nodepp {
-		namespace base {
+		namespace base {			
+			char const * const EventEmitter::c_new_listener_event = "newListener";
+			char const * const EventEmitter::c_remove_listener_event = "removeListener";
+
+			std::vector<std::string> const & EventEmitter::valid_events( ) const {
+				static auto const result = std::vector < std::string > { c_new_listener_event, c_remove_listener_event };
+				return result;
+			}
+
 			bool EventEmitter::at_max_listeners( std::string event ) {
 				return 0 != m_max_listeners && m_listeners[event].size( ) >= m_max_listeners;
 			}
 
-			char const * const EventEmitter::c_new_listener_event = "newListener";
-			char const * const EventEmitter::c_remove_listener_event = "removeListener";
+
 
 			EventEmitter::EventEmitter( ) :m_listeners{ }, m_max_listeners{ 10 } { }
 
 			EventEmitter::~EventEmitter( ) { }
-
-			bool EventEmitter::event_is_valid( std::string const & event ) const {
-				static std::vector<std::string> const valid_events = { c_new_listener_event, c_remove_listener_event };
-				return daw::algorithm::find( valid_events, event ) != valid_events.end( );
-			}
-
+			
 			EventEmitter& EventEmitter::remove_listener( std::string event, callback_id_t id ) {
 				daw::algorithm::erase_remove_if( m_listeners[event], [&]( std::pair<bool, Callback> const & item ) {
 					if( item.second.id( ) == id ) {

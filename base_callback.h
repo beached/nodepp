@@ -11,6 +11,11 @@
 namespace daw {
 	namespace nodepp {
 		namespace base {
+			//////////////////////////////////////////////////////////////////////////
+			// Summary:		Callback wraps a std::function or a c-style function ptr.
+			//				This is needed because std::function are not comparable
+			//				to each other.
+			// Requires:
 			class Callback {
 			public:
 				using id_t = int64_t;

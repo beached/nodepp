@@ -1,15 +1,15 @@
 #pragma once
 
 #include "lib_net_server.h"
-#include "base_event_emitter.h"
 
 namespace daw {
 	namespace nodepp {
 		namespace lib {
 			namespace http {
+				//////////////////////////////////////////////////////////////////////////
+				// Summary:		An HTTP Server class 
+				// Requires:	lib::net::NetServer
 				class HttpServer: public daw::nodepp::lib::net::NetServer {
-				protected:
-					virtual bool event_is_valid( std::string const & event ) const override;
 				public:
 					HttpServer( );
 
@@ -18,6 +18,8 @@ namespace daw {
 					HttpServer( HttpServer const & ) = default;
 					HttpServer& operator=(HttpServer const &) = default;
 					virtual ~HttpServer( );					
+
+					virtual std::vector<std::string> const & valid_events( ) const override;
 
 					HttpServer& listen( uint16_t port, std::string hostname = "", uint16_t backlog = 511 );
 					template<typename Listener>
@@ -35,16 +37,13 @@ namespace daw {
 						} );
 					}
 
-					HttpServer& listen( daw::nodepp::lib::net::Handle& handle );
+					HttpServer& listen( daw::nodepp::lib::net::NetHandle& handle );
 					template<typename Listener>
-					HttpServer& listen( daw::nodepp::lib::net::Handle& handle, Listener listener ) {
+					HttpServer& listen( daw::nodepp::lib::net::NetHandle& handle, Listener listener ) {
 						return this->rollback_event_on_exception( "listening", listener, [&]( ) {
 							return listen( handle );
 						} );
 					}
-
-// 					template<typename Listener>
-// 					Server& on( std::string event, Listener listen )
 
 					size_t& max_header_count( );
 					size_t const & max_header_count( ) const;

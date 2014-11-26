@@ -6,6 +6,10 @@
 namespace daw {
 	namespace nodepp {
 		namespace base {
+			//////////////////////////////////////////////////////////////////////////
+			// Summary:		Contains key/value pairs describing an error condition.
+			//				Description is mandatory.
+			// Requires:
 			class Error {
 				std::unordered_map<std::string, std::string> m_keyvalues;
 				bool m_frozen;

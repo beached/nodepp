@@ -5,6 +5,7 @@
 #include <string>
 
 #include "base_enoding.h"
+#include "base_stream.h"
 #include "base_event_emitter.h"
 #include "base_types.h"
 #include "lib_net_address.h"
@@ -14,9 +15,7 @@ namespace daw {
 	namespace nodepp {
 		namespace lib {
 			namespace net {
-				class NetSocket: public Handle, public daw::nodepp::base::EventEmitter {
-				protected:
-					virtual bool event_is_valid( std::string const & event ) const override;
+				class NetSocket: public daw::nodepp::base::stream::Stream {
 				public:
 					using data_t = std::vector < uint8_t > ;
 					

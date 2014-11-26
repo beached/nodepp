@@ -13,11 +13,14 @@ namespace daw {
 		namespace lib {
 			namespace http {
 				using namespace daw::nodepp::base;
-				
-				
-				bool HttpServerResponse::event_is_valid( std::string const & event ) const {
-					static std::vector<std::string> const valid_events = { "close", "finish" };
-					return daw::algorithm::find( valid_events, event ) != valid_events.end( ) || EventEmitter::event_is_valid( event );
+
+				std::vector<std::string> const & HttpServerResponse::valid_events( ) const {
+					static auto const result = [&]( ) {
+						std::vector<std::string> local{ "request", "connection", "close", "checkContinue", "connect", "upgrade", "clientError", "listening" };
+						auto parent = EventEmitter::valid_events( );
+						return impl::append_vector( local, parent );
+					}();
+					return result;
 				}
 
 				HttpServerResponse::HttpServerResponse( ) : daw::nodepp::base::EventEmitter{ } { }

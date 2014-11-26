@@ -1,19 +1,21 @@
 #pragma once
 
-//#include <boost/asio.hpp>
+#include <boost/asio.hpp>
+#include <memory>
+
 
 namespace daw {
 	namespace nodepp {
 		namespace lib {
 			namespace net {
-				class Handle {
+				class NetHandle {
 				protected:	
-					//boost::asio::io_service m_io_service;
+					std::shared_ptr<boost::asio::io_service> m_io_service;
 				public:
-					Handle( ) = default;
-					Handle( Handle const & ) = default;
-					Handle& operator=( Handle const & ) = default;
-					virtual ~Handle( ) = default;
+					NetHandle( ) = default;
+					NetHandle( NetHandle const & ) = default;
+					NetHandle& operator=( NetHandle const & ) = default;
+					virtual ~NetHandle( ) = default;
 					//m_handle;
 				};	// class Handle
 			}	// namespace net

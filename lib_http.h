@@ -21,12 +21,6 @@ namespace daw {
 
 				using head_t = std::vector < uint8_t > ;
 
-// 				struct HttpServerException: public std::runtime_error {
-// 					uint32_t error_number;
-// 					template<typename StringType>
-// 					HttpServerException( const int32_t errorNumber, const StringType& msg ) : std::runtime_error( msg ), error_number( errorNumber ) { }
-// 				};
-
 				class Agent { 
 				public:
 					size_t& max_sockets( );

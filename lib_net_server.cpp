@@ -12,27 +12,32 @@ namespace daw {
 		namespace lib {
 			namespace net {
 				using namespace daw::nodepp::base;
-				NetServer::NetServer( ) :Handle{ }, EventEmitter{ } { }
-				NetServer::NetServer( options_t options ) : Handle{ }, EventEmitter{ } { }
+
+				std::vector<std::string> const & NetServer::valid_events( ) const {
+					static auto const result = [&]( ) {
+						std::vector<std::string> local{ "listening", "connection", "close", "error" };
+						auto parent = EventEmitter::valid_events( );
+						return impl::append_vector( local, parent );
+					}();
+					return result;
+				}
+
+				NetServer::NetServer( ): EventEmitter{ } { }
+				NetServer::NetServer( options_t options ): EventEmitter{ } { }
 				NetServer::~NetServer( ) { }
 
-				NetServer::NetServer( NetServer&& other ) : Handle{ std::move( other ) }, EventEmitter{ std::move( other ) } { }
+				NetServer::NetServer( NetServer&& other ) : EventEmitter{ std::move( other ) } { }
 
 				NetServer& NetServer::operator=(NetServer&& rhs) {
 					if( this != &rhs ) {
-						
+
 					}
 					return *this;
-				}
-				
-				bool NetServer::event_is_valid( std::string const & event ) const {
-					static std::vector<std::string> const valid_events = { "listening", "connection", "close", "error", "newListener", "remvoeListener" };
-					return daw::algorithm::find( valid_events, event ) != valid_events.end( ) || EventEmitter::event_is_valid( event );
 				}
 
 				NetServer& NetServer::listen( uint16_t port, std::string hostname, uint16_t backlog ) { throw std::runtime_error( "Method Not Implemented" ); }
 				NetServer& NetServer::listen( std::string socket_path ) { throw std::runtime_error( "Method Not Implemented" ); }
-				NetServer& NetServer::listen( Handle const & handle ) { throw std::runtime_error( "Method Not Implemented" ); }
+				NetServer& NetServer::listen( NetHandle const & handle ) { throw std::runtime_error( "Method Not Implemented" ); }
 				NetServer& NetServer::close( ) { throw std::runtime_error( "Method Not Implemented" ); }
 				daw::nodepp::lib::net::NetAddress const & NetServer::address( ) const { throw std::runtime_error( "Method Not Implemented" ); }
 				NetServer& NetServer::unref( ) { throw std::runtime_error( "Method Not Implemented" ); }

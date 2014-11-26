@@ -13,10 +13,11 @@ namespace daw {
 	namespace nodepp {
 		namespace lib {
 			namespace net {				
-				
-				class NetServer: public Handle, public daw::nodepp::base::EventEmitter {
-				protected:
-					virtual bool event_is_valid( std::string const & event ) const override;
+				//////////////////////////////////////////////////////////////////////////
+				// Summary:		A TCP Server class
+				// Requires:	base::EventEmitter, base::options_t,
+				//				lib::net::NetAddress, base::Error
+				class NetServer: public daw::nodepp::base::EventEmitter {
 				public:
 					NetServer( );
 					NetServer( daw::nodepp::base::options_t options );
@@ -26,6 +27,8 @@ namespace daw {
 					NetServer& operator=(NetServer&& rhs);
 					virtual ~NetServer( );
 					
+					virtual std::vector<std::string> const & valid_events( ) const override;
+
 					NetServer& listen( uint16_t port, std::string hostname = "", uint16_t backlog = 511 );
 					
 					template<typename Listener>
@@ -43,9 +46,9 @@ namespace daw {
 						} );
 					}
 
-					NetServer& listen( Handle const & handle );
+					NetServer& listen( NetHandle const & handle );
 					template<typename Listener>
-					NetServer& listen( Handle const & handle, Listener listener ) {
+					NetServer& listen( NetHandle const & handle, Listener listener ) {
 						return this->rollback_event_on_exception( "listening", listener, [&]( ) {
 							return listen( handle );
 						} );
@@ -54,7 +57,7 @@ namespace daw {
 					NetServer& close( );
 					template<typename Listener>
 					NetServer& close( Listener listen ) {
-						return this->rollback_event_on_exception( ServerEvents::close, listener, []( ) {
+						return this->rollback_event_on_exception( "close", listener, []( ) {
 							return close( );
 						} );
 					}

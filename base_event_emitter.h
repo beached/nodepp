@@ -16,9 +16,22 @@ namespace daw {
 				T const & make_const( T const & val ) {
 					return val;
 				}
+
+				template<typename T>
+				T append_vector( T v1, T const & v2 ) {
+					v1.reserve( v1.size( ) + v2.size( ) );
+					std::copy( std::begin( v2 ), std::end( v2 ), std::back_inserter( v1 ) );
+					return v1;
+				}
 			}
 
-			// Enum must have removeListener and newListener
+			//////////////////////////////////////////////////////////////////////////
+			/// Summary:	Allows for the dispatch of events to subscribed listeners
+			///				Callbacks can be be c-style function pointers or 
+			///				std::function with the correct signature.  Currently 
+			///				lambda's do not work without first being cast to a 
+			///				std::function explicitly.
+			///	Requires:	base::Callback
 			class EventEmitter {
 				using listener_list_t = std::vector < std::pair<bool, Callback> > ;
 				std::unordered_map<std::string, listener_list_t> m_listeners;
@@ -28,9 +41,11 @@ namespace daw {
 
 				bool at_max_listeners( std::string event );
 			protected:
-				virtual bool event_is_valid( std::string const & event ) const;
+				bool event_is_valid( std::string const & event ) const;
 
 			public:
+				virtual std::vector<std::string> const & valid_events( ) const;
+
 				using callback_id_t = Callback::id_t;
 
 				EventEmitter( );

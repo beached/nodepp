@@ -7,6 +7,10 @@
 namespace daw {
 	namespace nodepp {
 		namespace base {
+			//////////////////////////////////////////////////////////////////////////
+			// Summary:		Wraps around an string representing the encoding of
+			//				binary data (e.g. utf8, binary, hex)
+			// Requires:
 			class Encoding {
 				std::string m_encoding;
 				static std::vector<std::string> const &	valid_enodings( );

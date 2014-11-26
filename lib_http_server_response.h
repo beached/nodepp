@@ -3,17 +3,23 @@
 #include <string>
 #include "base_event_emitter.h"
 #include "lib_http_headers.h"
+#include "base_enoding.h"
 #include "lib_http_chunk.h"
 
 namespace daw {
 	namespace nodepp {
 		namespace lib {
-			namespace http {				
+			namespace http {
+				//////////////////////////////////////////////////////////////////////////
+				// Summary:		
+				// Requires:	base::EventEmitter, lib::http::HttpHeader,
+				//				lib::http::HttpHeaders, lib::http::HttpChunk,
+				//				base::Encodingn
 				class HttpServerResponse: public daw::nodepp::base::EventEmitter {
 					HttpServerResponse( );
 					friend class HttpServer;
-					virtual bool event_is_valid( std::string const & event ) const override;
 				public:
+					virtual std::vector<std::string> const & valid_events( ) const override;
 
 					HttpServerResponse& write_continue( );
 					HttpServerResponse& write_head( uint16_t status_code, std::string reason_phrase = "", Headers headers = Headers{ } );
