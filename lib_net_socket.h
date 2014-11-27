@@ -36,7 +36,7 @@ namespace daw {
 
 					template<typename Listener>
 					NetSocket& connect( uint16_t port, std::string host, Listener listener ) {
-						return this->rollback_event_on_exception( SocketEvents::connect, listener, [&]( ) {
+						return rollback_event_on_exception( SocketEvents::connect, listener, [&]( ) {
 							return connect( port, host );
 						} );
 					}
