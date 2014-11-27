@@ -12,6 +12,11 @@ namespace daw {
 				return dlopen(library_path.c_str(), RTLD_LAZY);
 			}
 
+			void* load_library( std::wstring library_path ) {
+				std::runtime_error( "Unsupported interface" );
+			}
+
+
 			void close_library(void* handle) {
 				if (nullptr != handle) {
 					dlclose(handle);
