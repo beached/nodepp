@@ -57,7 +57,7 @@ namespace daw {
 
 			template<typename ResultType, typename... Args>
 			ResultType call_function( std::string function_name, Args&&... function_args ) const {
-				auto function_ptr = impl::get_function_address<ResultType, Args...>( m_handle.get( ), std::move( function_name ) );
+				auto function_ptr = impl::get_function_address<ResultType, Args...>( m_handle( ), std::move( function_name ) );
 				return (*function_ptr)(std::forward<Args>( function_args )...);
 			}
 
