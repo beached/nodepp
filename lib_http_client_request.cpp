@@ -31,13 +31,13 @@ namespace daw {
 
 
 				HttpClientRequest::HttpClientRequest( ) : EventEmitter{ } { }
-				bool HttpClientRequest::write( std::string chunk, base::Encoding const & encoding ) { throw std::runtime_error( __func__"Method not implemented" ); }
-				bool HttpClientRequest::write( HttpChunk const & chunk ) { throw std::runtime_error( __func__"Method not implemented" ); }
+				bool HttpClientRequest::write( std::string chunk, base::Encoding const & encoding ) { throw std::runtime_error( "Method not implemented" ); }
+				bool HttpClientRequest::write( HttpChunk const & chunk ) { throw std::runtime_error( "Method not implemented" ); }
 
-				void HttpClientRequest::end( ) { throw std::runtime_error( __func__"Method not implemented" ); }
-				void HttpClientRequest::end( std::string const & data, base::Encoding const & encoding ) { throw std::runtime_error( __func__"Method not implemented" ); }
-				void HttpClientRequest::end( HttpChunk const & chunk ) { throw std::runtime_error( __func__"Method not implemented" ); }
-				void HttpClientRequest::abort( ) { throw std::runtime_error( __func__"Method not implemented" ); }
+				void HttpClientRequest::end( ) { throw std::runtime_error( "Method not implemented" ); }
+				void HttpClientRequest::end( std::string const & data, base::Encoding const & encoding ) { throw std::runtime_error( "Method not implemented" ); }
+				void HttpClientRequest::end( HttpChunk const & chunk ) { throw std::runtime_error( "Method not implemented" ); }
+				void HttpClientRequest::abort( ) { throw std::runtime_error( "Method not implemented" ); }
 
 			}	// namespace http
 		}	// namespace lib
