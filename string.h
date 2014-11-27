@@ -102,6 +102,27 @@ namespace daw {
 			return string_join( string_join( arg1, arg2 ), string_join( args... ) );
 		}
 
+		template < typename StringType >
+		struct ends_with_t {
+			ends_with_t( ) noexcept{ };
+			~ends_with_t( ) = default;
+			ends_with_t( ends_with_t const & ) noexcept{ };
+			ends_with_t( ends_with_t&& ) noexcept{ }
+			ends_with_t& operator=(ends_with_t) const noexcept{ return *this; }
+			bool operator==(ends_with_t const &) const noexcept{ return true; }
+			bool operator<(ends_with_t const &) const noexcept{ return false; }
+
+				bool operator()( StringType const & src, const char ending ) const noexcept{
+				return 0 < src.size( ) && ending == src[src.size( ) - 1];
+			}
+
+				bool operator()( StringType const & src, StringType const & ending ) const noexcept{
+				auto pos = src.find_last_of( ending );
+				return details::string_t::npos != pos && pos == src.size( ) - 1;
+			}
+		};
+
+
 		template<typename StringType, typename Ending>
 		bool ends_with( StringType const & src, Ending const & ending ) {
 			const static auto func = ends_with_t<StringType>( );
@@ -140,26 +161,6 @@ namespace daw {
 			ss << format;
 			return ss.str( );
 		}
-
-		template < typename StringType >
-		struct ends_with_t {
-			ends_with_t( ) noexcept{ };
-			~ends_with_t( ) = default;
-			ends_with_t( ends_with_t const & ) noexcept{ };
-			ends_with_t( ends_with_t&& ) noexcept{ }
-			ends_with_t& operator=(ends_with_t) const noexcept{ return *this; }
-			bool operator==(ends_with_t const &) const noexcept{ return true; }
-			bool operator<(ends_with_t const &) const noexcept{ return false; }
-
-				bool operator()( StringType const & src, const char ending ) const noexcept{
-				return 0 < src.size( ) && ending == src[src.size( ) - 1];
-			}
-
-				bool operator()( StringType const & src, StringType const & ending ) const noexcept{
-				auto pos = src.find_last_of( ending );
-				return details::string_t::npos != pos && pos == src.size( ) - 1;
-			}
-		};
 
 		template<typename StringType>
 		StringType trim_right_copy( StringType const & s, StringType const & delimiters = StringType( " \f\n\r\t\v\0" ) ) {
@@ -252,15 +253,12 @@ namespace daw {
 
 		template<class ValueType>
 		void convertToString( ValueType const & from, details::string_t& to, details::string_t const & locale_str ) {
-#pragma message( "Use non-locale version" )
+			#pragma message( "Use non-locale version" )
 			static std::stringstream ss;
 			clear( ss );
 			ss << from;
 			ss.imbue( std::locale( locale_str ) );
 			ss >> to;
 		}
-
-
-
 	}	// namespace string
 }	// namespace daw
