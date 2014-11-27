@@ -112,7 +112,7 @@ namespace daw {
 			const auto arguments = details::unknowns_to_string( arg, args... );
 			std::smatch sm;
 			while( std::regex_search( format, sm, reg ) ) {
-				auto& prefix = sm.prefix( ).str( );
+				auto const & prefix = sm.prefix( ).str( );
 				ss << prefix;
 				if( ends_with( prefix, "{" ) ) {
 					ss << sm[0].str( );
