@@ -251,14 +251,14 @@ namespace daw {
 			to = to_string( from );
 		}
 
-		template<class ValueType>
-		void convertToString( ValueType const & from, details::string_t& to, details::string_t const & locale_str ) {
-			#pragma message( "Use non-locale version" )
-			static std::stringstream ss;
-			clear( ss );
-			ss << from;
-			ss.imbue( std::locale( locale_str ) );
-			ss >> to;
-		}
+// 		template<class ValueType>
+// 		void convertToString( ValueType const & from, details::string_t& to, details::string_t const & locale_str ) {
+// 			#pragma message( "Use non-locale version" )
+// 			static std::stringstream ss;
+// 			clear( ss );
+// 			ss << from;
+// 			ss.imbue( std::locale( locale_str ) );
+// 			ss >> to;
+// 		}
 	}	// namespace string
 }	// namespace daw
