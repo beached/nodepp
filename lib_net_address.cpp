@@ -1,5 +1,3 @@
-#pragma once
-
 #include "lib_net_address.h"
 
 namespace daw {
