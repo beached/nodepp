@@ -25,31 +25,31 @@ namespace daw {
 
 				HttpServerResponse::HttpServerResponse( ) : daw::nodepp::base::EventEmitter{ } { }
 
-				HttpServerResponse& HttpServerResponse::write_continue( ) { throw std::runtime_error( "Method Not Implemented" ); }
-				HttpServerResponse& HttpServerResponse::write_head( uint16_t status_code, std::string reason_phrase, Headers headers ) { throw std::runtime_error( "Method Not Implemented" ); }
+				HttpServerResponse& HttpServerResponse::write_continue( ) { throw std::runtime_error( __FUNCTION__"Method not implemented" ); }
+				HttpServerResponse& HttpServerResponse::write_head( uint16_t status_code, std::string reason_phrase, Headers headers ) { throw std::runtime_error( __FUNCTION__"Method not implemented" ); }
 
 
-				uint16_t& HttpServerResponse::status_code( ) { throw std::runtime_error( "Method Not Implemented" ); }
-				uint16_t const & HttpServerResponse::status_code( ) const { throw std::runtime_error( "Method Not Implemented" ); }
+				uint16_t& HttpServerResponse::status_code( ) { throw std::runtime_error( __FUNCTION__"Method not implemented" ); }
+				uint16_t const & HttpServerResponse::status_code( ) const { throw std::runtime_error( __FUNCTION__"Method not implemented" ); }
 
-				void HttpServerResponse::set_header( std::string name, std::string value ) { throw std::runtime_error( "Method Not Implemented" ); }
-				void HttpServerResponse::set_header( Headers headers ) { throw std::runtime_error( "Method Not Implemented" ); }
+				void HttpServerResponse::set_header( std::string name, std::string value ) { throw std::runtime_error( __FUNCTION__"Method not implemented" ); }
+				void HttpServerResponse::set_header( Headers headers ) { throw std::runtime_error( __FUNCTION__"Method not implemented" ); }
 
-				bool HttpServerResponse::headers_sent( ) const { throw std::runtime_error( "Method Not Implemented" ); }
+				bool HttpServerResponse::headers_sent( ) const { throw std::runtime_error( __FUNCTION__"Method not implemented" ); }
 
-				bool& HttpServerResponse::send_date( ) { throw std::runtime_error( "Method Not Implemented" ); }
-				bool const& HttpServerResponse::send_date( ) const { throw std::runtime_error( "Method Not Implemented" ); }
+				bool& HttpServerResponse::send_date( ) { throw std::runtime_error( __FUNCTION__"Method not implemented" ); }
+				bool const& HttpServerResponse::send_date( ) const { throw std::runtime_error( __FUNCTION__"Method not implemented" ); }
 
-				HttpHeader const & HttpServerResponse::get_header( std::string name ) const { throw std::runtime_error( "Method Not Implemented" ); }
-				HttpServerResponse& HttpServerResponse::remove_header( std::string name ) { throw std::runtime_error( "Method Not Implemented" ); }
+				HttpHeader const & HttpServerResponse::get_header( std::string name ) const { throw std::runtime_error( __FUNCTION__"Method not implemented" ); }
+				HttpServerResponse& HttpServerResponse::remove_header( std::string name ) { throw std::runtime_error( __FUNCTION__"Method not implemented" ); }
 
-				bool HttpServerResponse::write_chunk( std::string const & chunk, base::Encoding encoding ) { throw std::runtime_error( "Method Not Implemented" ); }
-				bool HttpServerResponse::write_chunk( HttpChunk const & chunk ) { throw std::runtime_error( "Method Not Implemented" ); }
-				bool HttpServerResponse::add_trailers( Headers headers ) { throw std::runtime_error( "Method Not Implemented" ); }
+				bool HttpServerResponse::write_chunk( std::string const & chunk, base::Encoding encoding ) { throw std::runtime_error( __FUNCTION__"Method not implemented" ); }
+				bool HttpServerResponse::write_chunk( HttpChunk const & chunk ) { throw std::runtime_error( __FUNCTION__"Method not implemented" ); }
+				bool HttpServerResponse::add_trailers( Headers headers ) { throw std::runtime_error( __FUNCTION__"Method not implemented" ); }
 
-				void HttpServerResponse::end( ) { throw std::runtime_error( "Method Not Implemented" ); }
-				void HttpServerResponse::end( std::string const & chunk, base::Encoding encoding ) { throw std::runtime_error( "Method Not Implemented" ); }
-				void HttpServerResponse::end( HttpChunk chunk ) { throw std::runtime_error( "Method Not Implemented" ); }
+				void HttpServerResponse::end( ) { throw std::runtime_error( __FUNCTION__"Method not implemented" ); }
+				void HttpServerResponse::end( std::string const & chunk, base::Encoding encoding ) { throw std::runtime_error( __FUNCTION__"Method not implemented" ); }
+				void HttpServerResponse::end( HttpChunk chunk ) { throw std::runtime_error( __FUNCTION__"Method not implemented" ); }
 
 
 			}	// namespace http

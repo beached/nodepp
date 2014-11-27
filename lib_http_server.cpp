@@ -35,17 +35,17 @@ namespace daw {
 					return result;
 				}
 
-				HttpServer& HttpServer::listen( uint16_t port, std::string hostname, uint16_t backlog ) { throw std::runtime_error( "Method Not Implemented" ); }
+				HttpServer& HttpServer::listen( uint16_t port, std::string hostname, uint16_t backlog ) { throw std::runtime_error( __FUNCTION__"Method not implemented" ); }
 
-				HttpServer& HttpServer::listen( std::string path ) { throw std::runtime_error( "Method Not Implemented" ); }
+				HttpServer& HttpServer::listen( std::string path ) { throw std::runtime_error( __FUNCTION__"Method not implemented" ); }
 
-				HttpServer& HttpServer::listen( lib::net::NetHandle& handle ) { throw std::runtime_error( "Method Not Implemented" ); }
+				HttpServer& HttpServer::listen( lib::net::NetHandle& handle ) { throw std::runtime_error( __FUNCTION__"Method not implemented" ); }
 
 
-				size_t& HttpServer::max_header_count( ) { throw std::runtime_error( "Method Not Implemented" ); }
-				size_t const & HttpServer::max_header_count( ) const { throw std::runtime_error( "Method Not Implemented" ); }
+				size_t& HttpServer::max_header_count( ) { throw std::runtime_error( __FUNCTION__"Method not implemented" ); }
+				size_t const & HttpServer::max_header_count( ) const { throw std::runtime_error( __FUNCTION__"Method not implemented" ); }
 
-				size_t HttpServer::timeout( ) const { throw std::runtime_error( "Method Not Implemented" ); }
+				size_t HttpServer::timeout( ) const { throw std::runtime_error( __FUNCTION__"Method not implemented" ); }
 
 
 			}
