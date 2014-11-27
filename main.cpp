@@ -31,7 +31,8 @@ int main( int, char const ** ) {
 // 		response.write_head( 200, "", { { "Content-Type", "text/plain" } } );
 // 		response.write( "Hello World" );
 // 		response.end( );
-	} ).listen( 8080 );
+	} );
+	server.listen( 8080 );
 
 	while( true ) { }
 	system( "pause" );

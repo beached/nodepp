@@ -21,8 +21,8 @@ namespace daw {
 				public:
 					NetServer( );
 					NetServer( daw::nodepp::base::options_t options );
-					NetServer( NetServer const & ) = default;
-					NetServer& operator=(NetServer const &) = default;
+					NetServer( NetServer const & ) = delete;
+					NetServer& operator=(NetServer const &) = delete;
 					NetServer( NetServer&& other );
 					NetServer& operator=(NetServer&& rhs);
 					virtual ~NetServer( );
