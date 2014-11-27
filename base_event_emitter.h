@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "base_callback.h"
+#include "range_algorithm.h"
 
 namespace daw {
 	namespace nodepp {
