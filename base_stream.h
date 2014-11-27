@@ -44,14 +44,14 @@ namespace daw {
 					
 					template<typename Listener>
 					bool write( base::data_t chunk, base::Encoding encoding, Listener listener ) {
-						return this->rollback_event_on_exception( "drain", listener, [&]( ) {
+						return rollback_event_on_exception( this, "drain", listener, [&]( ) {
 							return write( chunk, encoding );
 						} );
 					}
 					
 					template<typename Listener>
 					bool end( base::data_t chunk, base::Encoding encoding, Listener listener ) {
-						return this->rollback_event_on_exception( "finish", listener, [&]( ) {
+						return rollback_event_on_exception( this, "finish", listener, [&]( ) {
 							return end( chunk, encoding );
 						} );
 					}

@@ -33,7 +33,7 @@ namespace daw {
 					
 					template<typename Listener>
 					NetServer& listen( uint16_t port, std::string hostname, uint16_t backlog, Listener listener ) {
-						return this->rollback_event_on_exception( "listening", listener, [&]( ) {
+						return rollback_event_on_exception( this, "listening", listener, [&]( ) {
 							return this->listen( port, hostname, backlog );
 						} );
 					}
@@ -41,7 +41,7 @@ namespace daw {
 					NetServer& listen( std::string socket_path );
 					template<typename Listener>
 					NetServer& listen( std::string socket_path, Listener listener ) {
-						return this->rollback_event_on_exception( "listening", listener, [&]( ) {
+						return rollback_event_on_exception( this, "listening", listener, [&]( ) {
 							return listen( socket_path );
 						} );
 					}
@@ -49,7 +49,7 @@ namespace daw {
 					NetServer& listen( NetHandle const & handle );
 					template<typename Listener>
 					NetServer& listen( NetHandle const & handle, Listener listener ) {
-						return this->rollback_event_on_exception( "listening", listener, [&]( ) {
+						return rollback_event_on_exception( this, "listening", listener, [&]( ) {
 							return listen( handle );
 						} );
 					}
@@ -57,7 +57,7 @@ namespace daw {
 					NetServer& close( );
 					template<typename Listener>
 					NetServer& close( Listener listener ) {
-						return this->rollback_event_on_exception( "close", listener, [&]( ) {
+						return rollback_event_on_exception( this, "close", listener, [&]( ) {
 							return close( );
 						} );
 					}

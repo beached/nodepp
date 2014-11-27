@@ -101,14 +101,14 @@ namespace daw {
 
 				static size_t listener_count( EventEmitter & emitter, std::string event );
 
-				template<typename Listener, typename Action>
-				auto rollback_event_on_exception( std::string event, Listener listener, Action action_to_try, bool run_listener_once = false ) -> decltype(action_to_try( )) {
-					auto cb_id = add_listener( event, listener, run_listener_once );
+				template<typename This, typename Listener, typename Action>
+				static auto rollback_event_on_exception( This me, std::string event, Listener listener, Action action_to_try, bool run_listener_once = false ) -> decltype(action_to_try( )) {
+					auto cb_id = me->add_listener( event, listener, run_listener_once );
 					try {
 						return action_to_try( );
 					} catch( ... ) {
 						// Rollback listener
-						remove_listener( event, cb_id );
+						me->remove_listener( event, cb_id );
 						std::rethrow_exception( std::current_exception( ) );
 					}
 				}
