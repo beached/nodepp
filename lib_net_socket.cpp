@@ -16,6 +16,15 @@ namespace daw {
 			namespace net {
 				using namespace daw::nodepp;
 
+				
+				std::vector<std::string> const & NetSocket::valid_events( ) const {
+					static auto const result = [&]( ) {
+						auto local = std::vector < std::string > { "connect", "data", "end", "timeout", "drain", "error", "close" };
+						return impl::append_vector( local, base::Stream::valid_events( ) );
+					}();
+					return result;
+				}
+
 				NetSocket::NetSocket( ) { }
 				
 				NetSocket::NetSocket( base::options_t options ) { }

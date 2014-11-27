@@ -21,7 +21,8 @@ namespace daw {
 // 					std::shared_ptr<boost::asio::ip::tcp::socket> m_socket;
 // 					std::shared_ptr<boost::asio::ip::tcp::endpoint> m_endpoint;
 				public:
-					
+					virtual std::vector<std::string> const & valid_events( ) const override;
+
 					NetSocket( );
 					NetSocket( base::options_t options );
 					NetSocket( NetSocket const & ) = default;
@@ -34,7 +35,7 @@ namespace daw {
 
 					template<typename Listener>
 					NetSocket& connect( uint16_t port, std::string host, Listener listener ) {
-						return base::rollback_event_on_exception( this, SocketEvents::connect, listener, [&]( ) {
+						return base::rollback_event_on_exception( this, "connect", listener, [&]( ) {
 							return connect( port, host );
 						} );
 					}
@@ -43,7 +44,7 @@ namespace daw {
 
 					template<typename Listener>
 					NetSocket& connect( std::string path, Listener listener ) {
-						return base::rollback_event_on_exception( this, SocketEvents::connect, listener, [&]( ) {
+						return base::rollback_event_on_exception( this, "connect", listener, [&]( ) {
 							return connect( path );
 						} );
 					}
@@ -57,7 +58,7 @@ namespace daw {
 
 					template<typename Listener>
 					NetSocket& set_timeout( int32_t value, Listener listener ) {
-						return base::rollback_event_on_exception( this, SocketEvents::timeout, listener, [&]( ) {
+						return base::rollback_event_on_exception( this, "timeout", listener, [&]( ) {
 							set_timeout( value );
 						} );
 					}
