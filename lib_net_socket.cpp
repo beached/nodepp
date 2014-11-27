@@ -19,7 +19,7 @@ namespace daw {
 				std::vector<std::string> const & NetSocket::valid_events( ) const {
 					static auto const result = [&]( ) {
 						auto local = std::vector < std::string > { "connect", "data", "end", "timeout", "drain", "error", "close" };
-						return base::impl::append_vector( local, stream::Stream::valid_events( ) );
+						return base::impl::append_vector( local, base::stream::Stream::valid_events( ) );
 					}();
 					return result;
 				}
