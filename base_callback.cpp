@@ -11,7 +11,7 @@
 namespace daw {
 	namespace nodepp {
 		namespace base {
-			std::atomic_uint_least64_t Callback::s_last_id{ 1 };
+			std::atomic_int_least64_t Callback::s_last_id{ 1 };
 
 			Callback::Callback( ) : m_id{ -1 }, m_callback{ 0 }, m_callback_type{ callback_type::none } { }
 

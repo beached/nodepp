@@ -21,7 +21,7 @@ namespace daw {
 				using id_t = int64_t;
 			private:
 				enum class callback_type { none = 0, stdfunction, funcptr };
-				static std::atomic_uint_least64_t s_last_id;
+				static std::atomic_int_least64_t s_last_id;
 				using cb_storage_t = void*;
 				id_t m_id;
 				boost::any m_callback;

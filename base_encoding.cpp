@@ -32,7 +32,7 @@ namespace daw {
 				m_encoding = encoding;
 			}
 
-			bool Encoding::is_valid_encoding( std::string encoding ) {
+			bool Encoding::is_valid_encoding( std::string  ) {
 				// TODO: validate the encoding
 				return true;
 			}

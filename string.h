@@ -104,9 +104,9 @@ namespace daw {
 
 		template < typename StringType >
 		struct ends_with_t {
-			ends_with_t( ) noexcept{ };
+			ends_with_t( ) noexcept{ }
 			~ends_with_t( ) = default;
-			ends_with_t( ends_with_t const & ) noexcept{ };
+			ends_with_t( ends_with_t const & ) noexcept{ }
 			ends_with_t( ends_with_t&& ) noexcept{ }
 			ends_with_t& operator=(ends_with_t) const noexcept{ return *this; }
 			bool operator==(ends_with_t const &) const noexcept{ return true; }
@@ -150,7 +150,7 @@ namespace daw {
 					} else if( 2 == delims.size( ) ) {
 						// Assumes the argument at pos is a double.  If not, will crash
 						size_t pos = boost::lexical_cast<size_t>(delims[0]);
-						size_t precision = boost::lexical_cast<size_t>(delims[1]);
+						int precision = boost::lexical_cast<int>(delims[1]);
 						ss << std::fixed << std::setprecision( precision ) << boost::lexical_cast<double>(arguments[pos]);
 					} else {
 						throw std::out_of_range( string_format( "Unknown string format.  Too many colons(", delims.size( ), "): ", sm[1].str( ) ) );

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.0)
 
 project(NodePP)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Weverything -Wno-c++98-compat  -Wfatal-errors")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Weverything -Wno-c++98-compat  -Wfatal-errors -Wno-covered-switch-default -Wno-padded -Wno-exit-time-destructors -Wno-c++98-compat-pedantic -Wno-unused-parameter -Wno-missing-noreturn")
 
 find_package(Boost 1.55.0 COMPONENTS system filesystem REQUIRED)
 
