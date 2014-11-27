@@ -59,4 +59,4 @@ namespace daw {
 // 	template<typename Func>
 // 	struct is_function: decltype(std::function( std::declval<Func( )> )) {};
 
-}	// namespace daw
+}	// namespace daw	
