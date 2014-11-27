@@ -17,7 +17,7 @@ namespace daw {
 			namespace net {
 				using namespace daw::nodepp;
 
-				class NetSocket: public base::stream::Stream {
+				class NetSocket: virtual public base::stream::Stream {
 // 					std::shared_ptr<boost::asio::ip::tcp::socket> m_socket;
 // 					std::shared_ptr<boost::asio::ip::tcp::endpoint> m_endpoint;
 				public:

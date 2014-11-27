@@ -48,7 +48,7 @@ namespace daw {
 			}
 
 			EventEmitter& EventEmitter::set_max_listeners( size_t max_listeners ) {
-				m_max_listeners = m_max_listeners;
+				m_max_listeners = max_listeners;
 				return *this;
 			}
 
