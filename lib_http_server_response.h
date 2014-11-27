@@ -46,7 +46,7 @@ namespace daw {
 					HttpServerResponse& remove_header( std::string name );
 
 					bool write_chunk( std::string const & chunk, base::Encoding encoding = base::Encoding{ } );
-					bool write_chunk( base::data_t const & chunk );
+					bool write_chunk( base::data_t const & chunk, base::Encoding encoding = base::Encoding{ } );
 
 					bool add_trailers( Headers headers );
 

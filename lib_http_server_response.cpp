@@ -44,7 +44,7 @@ namespace daw {
 				HttpServerResponse& HttpServerResponse::remove_header( std::string name ) { throw std::runtime_error( "Method not implemented" ); }
 
 				bool HttpServerResponse::write_chunk( std::string const & chunk, base::Encoding encoding ) { throw std::runtime_error( "Method not implemented" ); }
-				bool HttpServerResponse::write_chunk( base::data_t const & chunk ) { throw std::runtime_error( "Method not implemented" ); }
+				bool HttpServerResponse::write_chunk( base::data_t const & chunk, base::Encoding encoding ) { throw std::runtime_error( "Method not implemented" ); }
 				bool HttpServerResponse::add_trailers( Headers headers ) { throw std::runtime_error( "Method not implemented" ); }
 
 				HttpServerResponse& end( ) { throw std::runtime_error( "Method not implemented" ); }
