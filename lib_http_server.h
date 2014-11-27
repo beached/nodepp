@@ -16,8 +16,8 @@ namespace daw {
 
 					HttpServer( HttpServer&& other );
 					HttpServer& operator=(HttpServer&& rhs);
-					HttpServer( HttpServer const & ) = delete;
-					HttpServer& operator=(HttpServer const &) = delete;
+					HttpServer( HttpServer const & ) = default;
+					HttpServer& operator=(HttpServer const &) = default;
 					virtual ~HttpServer( );					
 
 					virtual std::vector<std::string> const & valid_events( ) const override;
@@ -71,9 +71,7 @@ namespace daw {
 
 				template<typename Listener>
 				HttpServer create_server( Listener listener ) {
-					auto result = HttpServer( );
-					result.on( "listening", listener );
-					return result;
+					return HttpServer( ).on( "listening", listener );
 				}
 			}	// namespace http
 		}	// namespace lib

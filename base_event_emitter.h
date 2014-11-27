@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
+#include <memory>
 #include <utility>
 #include <vector>
 
@@ -33,19 +34,24 @@ namespace daw {
 			///				lambda's do not work without first being cast to a 
 			///				std::function explicitly.
 			///	Requires:	base::Callback
-			class EventEmitter {
+			class EventEmitter {				
 				using listener_list_t = std::vector < std::pair<bool, Callback> > ;
-				std::unordered_map<std::string, listener_list_t> m_listeners;
+				using listeners_t = std::unordered_map < std::string, listener_list_t > ;
+
+				std::shared_ptr<std::unordered_map<std::string, listener_list_t>> m_listeners;
 				size_t m_max_listeners;
 
 				bool at_max_listeners( std::string event );
-			protected:
+				listeners_t & listeners( );
+				listeners_t const & listeners( ) const;
 				bool event_is_valid( std::string const & event ) const;
+			public:				
+				void swap( EventEmitter& rhs );
 
-			public:
 				virtual std::vector<std::string> const & valid_events( ) const;
-				EventEmitter( EventEmitter const & ) = delete;
-				EventEmitter& operator=( EventEmitter const & ) = delete;
+
+				EventEmitter( EventEmitter const & ) = default;
+				EventEmitter& operator=( EventEmitter const & ) = default;
 
 				EventEmitter( EventEmitter && other);
 				EventEmitter& operator=( EventEmitter && rhs );
@@ -60,7 +66,7 @@ namespace daw {
 				callback_id_t add_listener( std::string event, Listener listener, bool run_once = false ) {
 					if( !at_max_listeners( event ) ) {
 						auto callback = Callback( listener );
-						m_listeners[event].emplace_back( run_once, callback );
+						listeners( )[event].emplace_back( run_once, callback );
 						emit( "newListener", event, callback );
 						return callback.id( );
 					} else {
@@ -95,10 +101,10 @@ namespace daw {
 
 				template<typename... Args>
 				EventEmitter& emit( std::string event, Args&&... args ) {
-					for( auto& callback : m_listeners[event] ) {
+					for( auto& callback : listeners( )[event] ) {
 						callback.second.exec( std::forward<Args>( args )... );
 					}
-					daw::algorithm::erase_remove_if( m_listeners[event], []( std::pair<bool, Callback> const & item ) {
+					daw::algorithm::erase_remove_if( listeners( )[event], []( std::pair<bool, Callback> const & item ) {
 						return item.first;
 					} );
 					return *this;

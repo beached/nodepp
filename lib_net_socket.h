@@ -107,6 +107,7 @@ namespace daw {
 
 					// StreamWritable Interface
 					virtual bool write( base::data_t chunk, base::Encoding encoding = base::Encoding( ) ) override;
+
 					virtual NetSocket& end( ) override;
 					virtual NetSocket& end( base::data_t chunk, base::Encoding encoding = base::Encoding( ) ) override;
 				};
