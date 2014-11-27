@@ -2,7 +2,9 @@ cmake_minimum_required(VERSION 2.8.0)
 
 project(NodePP)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Weverything -Wno-c++98-compat  -Wfatal-errors")
+
+find_package(Boost 1.55.0 COMPONENTS system filesystem REQUIRED)
 
 set(SOURCE_FILES
 base_callback.cpp
@@ -53,4 +55,6 @@ string.h
 utility.h)
 
 add_executable(NodePP ${SOURCE_FILES})
+
+target_link_libraries(NodePP  ${CMAKE_DL_LIBS} ${Boost_LIBRARIES})
 
