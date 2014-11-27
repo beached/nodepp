@@ -56,8 +56,8 @@ namespace daw {
 
 					NetServer& close( );
 					template<typename Listener>
-					NetServer& close( Listener listen ) {
-						return this->rollback_event_on_exception( "close", listener, []( ) {
+					NetServer& close( Listener listener ) {
+						return this->rollback_event_on_exception( "close", listener, [&]( ) {
 							return close( );
 						} );
 					}
