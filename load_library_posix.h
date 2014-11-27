@@ -9,6 +9,11 @@ namespace daw {
 		namespace impl {
 			void* load_library(std::string library_path);
 
+			//////////////////////////////////////////////////////////////////////////
+			// Summary: Unsupported call needed to meet interface requirements
+			//			Use the std::string version on posix systems
+			void* load_library( std::wstring library_path );
+
 			void close_library(void* handle);
 
 			template<typename ResultType, typename... ArgTypes>
