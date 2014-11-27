@@ -28,9 +28,9 @@ int main( int, char const ** ) {
 	using namespace daw::nodepp;
 	using listen_t = std::function < void( lib::http::HttpClientRequest, lib::http::HttpServerResponse ) > ;
 	auto server = lib::http::create_server( static_cast<listen_t>( []( lib::http::HttpClientRequest request, lib::http::HttpServerResponse response ) {
-// 		response.write_head( 200, "", { { "Content-Type", "text/plain" } } );
-// 		response.write( "Hello World" );
-// 		response.end( );
+		response.write_head( 200, "", { { "Content-Type", "text/plain" } } );
+		response.write( "Hello World" );
+		response.end( );
 	}) ).listen( 8080 );
 
 	while( true ) { }

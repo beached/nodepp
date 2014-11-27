@@ -4,6 +4,7 @@
 #include "base_event_emitter.h"
 #include "lib_http_headers.h"
 #include "base_enoding.h"
+#include "base_stream.h"
 #include "lib_http_chunk.h"
 
 namespace daw {
@@ -16,7 +17,7 @@ namespace daw {
 				// Requires:	base::EventEmitter, lib::http::HttpHeader,
 				//				lib::http::HttpHeaders, lib::http::HttpChunk,
 				//				base::Encodingn
-				class HttpServerResponse: virtual public base::EventEmitter {
+				class HttpServerResponse: public base::stream::StreamWritable {
 					HttpServerResponse( );
 					friend class HttpServer;
 				public:
@@ -45,25 +46,15 @@ namespace daw {
 					HttpServerResponse& remove_header( std::string name );
 
 					bool write_chunk( std::string const & chunk, base::Encoding encoding = base::Encoding{ } );
-					bool write_chunk( HttpChunk const & chunk );
+					bool write_chunk( base::data_t const & chunk );
 
 					bool add_trailers( Headers headers );
 
-					void end( );
-					void end( HttpChunk chunk );
-					void end( std::string const & chunk, base::Encoding encoding = base::Encoding{ } );
+					virtual HttpServerResponse& end( ) override;
+					virtual HttpServerResponse& end( base::data_t chunk, base::Encoding encoding = base::Encoding( ) ) override;
+					HttpServerResponse& end( std::string const & chunk, base::Encoding encoding = base::Encoding( ) );
 
-					template<typename Listener>
-					HttpServerResponse& on( std::string event, Listener& listener ) {
-						add_listener( event, listener );
-						return *this;
-					}
-
-					template<typename Listener>
-					HttpServerResponse& once( std::string event, Listener& listener ) {
-						add_listener( event, listener, true );
-						return *this;
-					}
+					
 				};	// class ServerResponse			
 
 
