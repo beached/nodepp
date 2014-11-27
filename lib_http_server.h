@@ -51,7 +51,7 @@ namespace daw {
 
 					template<typename Listener>
 					HttpServer& set_timeout( size_t msecs, Listener listener ) {
-						throw std::runtime_error( __FUNCTION__"Method not implemented" );
+						throw std::runtime_error( __func__"Method not implemented" );
 					}
 
 					template<typename Listener>
