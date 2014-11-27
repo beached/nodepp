@@ -187,3 +187,5 @@ FakesAssemblies/
 *.suo
 *.vcxproj.filters
 *.npp
+CMakeFiles/*
+nbproject/*
