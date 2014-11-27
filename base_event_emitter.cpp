@@ -20,9 +20,9 @@ namespace daw {
 
 			EventEmitter::EventEmitter( ) :m_listeners{ }, m_max_listeners{ 10 } { }
 
-			EventEmitter( EventEmitter && other ): m_listeners( std::move( m_listeners ) ), m_max_listeners( std::move( other.m_max_listeners ) )  { }
+			EventEmitter::EventEmitter( EventEmitter && other ): m_listeners( std::move( m_listeners ) ), m_max_listeners( std::move( other.m_max_listeners ) )  { }
 
-			EventEmitter& operator=( EventEmitter && rhs ) {
+			EventEmitter& EventEmitter::operator=( EventEmitter && rhs ) {
 				m_listeners = std::move( rhs.m_listeners );
 				m_max_listeners = std::move( rhs.m_max_listeners );
 				return *this;
