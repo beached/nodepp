@@ -16,7 +16,7 @@ namespace daw {
 				// Summary:		Readable stream class.
 				// Requires:	base::EventEmitter, base::Encoding, data_t, options_t, 
 				//				base::stream::StreamWriteable
-				class StreamReadable: public base::EventEmitter {
+				class StreamReadable: virtual public base::EventEmitter {
 				public:
 					virtual std::vector<std::string> const & valid_events( ) const override;
 					virtual ~StreamReadable( ) = default;
@@ -35,7 +35,7 @@ namespace daw {
 				//////////////////////////////////////////////////////////////////////////
 				// Summary:		Writable stream class.
 				// Requires:	base::EventEmitter, data_t				 
-				class StreamWritable: public daw::nodepp::base::EventEmitter {
+				class StreamWritable: virtual public daw::nodepp::base::EventEmitter {
 				public:
 					virtual std::vector<std::string> const & valid_events( ) const override;
 					virtual bool write( base::data_t chunk, base::Encoding encoding ) = 0;					

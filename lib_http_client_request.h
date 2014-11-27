@@ -15,7 +15,7 @@ namespace daw {
 				//////////////////////////////////////////////////////////////////////////
 				// Summary:
 				// Requires:	base::EventEmitter
-				class HttpClientRequest: public base::EventEmitter {
+				class HttpClientRequest: virtual public base::EventEmitter {
 				public:
 					HttpClientRequest( );
 

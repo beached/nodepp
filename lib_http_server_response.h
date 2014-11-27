@@ -16,7 +16,7 @@ namespace daw {
 				// Requires:	base::EventEmitter, lib::http::HttpHeader,
 				//				lib::http::HttpHeaders, lib::http::HttpChunk,
 				//				base::Encodingn
-				class HttpServerResponse: public base::EventEmitter {
+				class HttpServerResponse: virtual public base::EventEmitter {
 					HttpServerResponse( );
 					friend class HttpServer;
 				public:
