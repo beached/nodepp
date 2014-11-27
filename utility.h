@@ -60,3 +60,4 @@ namespace daw {
 // 	struct is_function: decltype(std::function( std::declval<Func( )> )) {};
 
 }	// namespace daw	
+

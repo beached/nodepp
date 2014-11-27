@@ -90,7 +90,6 @@ namespace daw {
 			}
 		}
 
-	};
+	};	// class ReferencedCountedValue
+}	// namespace daw
 
-
-}

@@ -44,6 +44,11 @@ namespace daw {
 
 			public:
 				virtual std::vector<std::string> const & valid_events( ) const;
+				EventEmitter( EventEmitter const & ) = delete;
+				EventEmitter& operator=( EventEmitter const & ) = delete;
+
+				EventEmitter( EventEmitter && other);
+				EventEmitter& operator=( EventEmitter && rhs );
 
 				using callback_id_t = Callback::id_t;
 

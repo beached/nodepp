@@ -9,6 +9,7 @@ namespace daw {
 			struct IPlugin {
 				virtual std::string name( ) const = 0;
 				virtual int64_t version( ) const = 0;
+				virtual ~IPlugin( );
 			};	// struct IPlugin
 		}	// namespace plugins
 	}	// namespace nodepp
