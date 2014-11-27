@@ -25,7 +25,7 @@ namespace daw {
 					HttpServer& listen( uint16_t port, std::string hostname = "", uint16_t backlog = 511 );
 					template<typename Listener>
 					HttpServer& listen( uint16_t port, std::string hostname, uint16_t backlog, Listener listener ) {
-						return base::EventEmitter::rollback_event_on_exception( this, "listening", listener, [&]( ) {
+						return base::rollback_event_on_exception( this, "listening", listener, [&]( ) {
 							return listen( port, hostname, backlog );
 						} );
 					}
@@ -33,7 +33,7 @@ namespace daw {
 					HttpServer& listen( std::string path );
 					template<typename Listener>
 					HttpServer& listen( std::string path, Listener listener ) {
-						return base::EventEmitter::rollback_event_on_exception( this, "listening", listener, [&]( ) {
+						return base::rollback_event_on_exception( this, "listening", listener, [&]( ) {
 							return listen( path );
 						} );
 					}
@@ -41,7 +41,7 @@ namespace daw {
 					HttpServer& listen( lib::net::NetHandle& handle );
 					template<typename Listener>
 					HttpServer& listen( lib::net::NetHandle& handle, Listener listener ) {
-						return base::EventEmitter::rollback_event_on_exception( this, "listening", listener, [&]( ) {
+						return base::rollback_event_on_exception( this, "listening", listener, [&]( ) {
 							return listen( handle );
 						} );
 					}

@@ -34,7 +34,7 @@ namespace daw {
 
 					template<typename Listener>
 					NetSocket& connect( uint16_t port, std::string host, Listener listener ) {
-						return base::EventEmitter::rollback_event_on_exception( this, SocketEvents::connect, listener, [&]( ) {
+						return base::rollback_event_on_exception( this, SocketEvents::connect, listener, [&]( ) {
 							return connect( port, host );
 						} );
 					}
@@ -43,7 +43,7 @@ namespace daw {
 
 					template<typename Listener>
 					NetSocket& connect( std::string path, Listener listener ) {
-						return base::EventEmitter::rollback_event_on_exception( this, SocketEvents::connect, listener, [&]( ) {
+						return base::rollback_event_on_exception( this, SocketEvents::connect, listener, [&]( ) {
 							return connect( path );
 						} );
 					}
@@ -57,7 +57,7 @@ namespace daw {
 
 					template<typename Listener>
 					NetSocket& set_timeout( int32_t value, Listener listener ) {
-						return base::EventEmitter::rollback_event_on_exception( this, SocketEvents::timeout, listener, [&]( ) {
+						return base::rollback_event_on_exception( this, SocketEvents::timeout, listener, [&]( ) {
 							set_timeout( value );
 						} );
 					}
