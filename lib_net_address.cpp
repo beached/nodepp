@@ -1,3 +1,4 @@
+#include <stdexcept>
 #include "lib_net_address.h"
 
 namespace daw {
