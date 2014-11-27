@@ -12,9 +12,10 @@ namespace daw {
 	namespace nodepp {
 		namespace lib {
 			namespace http {
-				HttpServer::HttpServer( ) : daw::nodepp::lib::net::NetServer{ } { }
+				using namespace daw::nodepp;
+				HttpServer::HttpServer( ) : lib::net::NetServer{ } { }
 
-				HttpServer::HttpServer( HttpServer&& other ) : daw::nodepp::lib::net::NetServer{ std::move( other ) } { }
+				HttpServer::HttpServer( HttpServer&& other ) : lib::net::NetServer{ std::move( other ) } { }
 
 				HttpServer& HttpServer::operator=(HttpServer&& rhs) { 
 					if( this != &rhs ) {
@@ -28,8 +29,8 @@ namespace daw {
 				std::vector<std::string> const & HttpServer::valid_events( ) const {
 					static auto const result = [&]( ) {
 						std::vector<std::string> local{ "request", "connection", "close", "checkContinue", "connect", "upgrade", "clientError", "listening" };
-						auto parent = daw::nodepp::lib::net::NetServer::valid_events( );
-						return daw::nodepp::base::impl::append_vector( local, parent );
+						auto parent = lib::net::NetServer::valid_events( );
+						return base::impl::append_vector( local, parent );
 					}();
 					return result;
 				}
@@ -38,7 +39,7 @@ namespace daw {
 
 				HttpServer& HttpServer::listen( std::string path ) { throw std::runtime_error( "Method Not Implemented" ); }
 
-				HttpServer& HttpServer::listen( daw::nodepp::lib::net::NetHandle& handle ) { throw std::runtime_error( "Method Not Implemented" ); }
+				HttpServer& HttpServer::listen( lib::net::NetHandle& handle ) { throw std::runtime_error( "Method Not Implemented" ); }
 
 
 				size_t& HttpServer::max_header_count( ) { throw std::runtime_error( "Method Not Implemented" ); }

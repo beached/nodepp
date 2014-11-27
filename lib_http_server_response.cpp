@@ -43,12 +43,12 @@ namespace daw {
 				HttpHeader const & HttpServerResponse::get_header( std::string name ) const { throw std::runtime_error( "Method Not Implemented" ); }
 				HttpServerResponse& HttpServerResponse::remove_header( std::string name ) { throw std::runtime_error( "Method Not Implemented" ); }
 
-				bool HttpServerResponse::write_chunk( std::string const & chunk, daw::nodepp::base::Encoding encoding ) { throw std::runtime_error( "Method Not Implemented" ); }
+				bool HttpServerResponse::write_chunk( std::string const & chunk, base::Encoding encoding ) { throw std::runtime_error( "Method Not Implemented" ); }
 				bool HttpServerResponse::write_chunk( HttpChunk const & chunk ) { throw std::runtime_error( "Method Not Implemented" ); }
 				bool HttpServerResponse::add_trailers( Headers headers ) { throw std::runtime_error( "Method Not Implemented" ); }
 
 				void HttpServerResponse::end( ) { throw std::runtime_error( "Method Not Implemented" ); }
-				void HttpServerResponse::end( std::string const & chunk, daw::nodepp::base::Encoding encoding ) { throw std::runtime_error( "Method Not Implemented" ); }
+				void HttpServerResponse::end( std::string const & chunk, base::Encoding encoding ) { throw std::runtime_error( "Method Not Implemented" ); }
 				void HttpServerResponse::end( HttpChunk chunk ) { throw std::runtime_error( "Method Not Implemented" ); }
 
 

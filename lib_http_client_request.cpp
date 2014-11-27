@@ -12,13 +12,13 @@ namespace daw {
 	namespace nodepp {
 		namespace lib {
 			namespace http {
-				using namespace daw::nodepp::base;
+				using namespace daw::nodepp;
 
 				std::vector<std::string> const & HttpClientRequest::valid_events( ) const {
 					static auto const result = [&]( ) {
 						std::vector<std::string> local{ "request", "connection", "close", "checkContinue", "connect", "upgrade", "clientError", "listening" };
 						auto parent = EventEmitter::valid_events( );
-						return daw::nodepp::base::impl::append_vector( local, parent );
+						return base::impl::append_vector( local, parent );
 					}();
 					return result;
 				}
@@ -31,11 +31,11 @@ namespace daw {
 
 
 				HttpClientRequest::HttpClientRequest( ) : EventEmitter{ } { }
-				bool HttpClientRequest::write( std::string chunk, daw::nodepp::base::Encoding const & encoding ) { throw std::runtime_error( "Method Not Implemented" ); }
+				bool HttpClientRequest::write( std::string chunk, base::Encoding const & encoding ) { throw std::runtime_error( "Method Not Implemented" ); }
 				bool HttpClientRequest::write( HttpChunk const & chunk ) { throw std::runtime_error( "Method Not Implemented" ); }
 
 				void HttpClientRequest::end( ) { throw std::runtime_error( "Method Not Implemented" ); }
-				void HttpClientRequest::end( std::string const & data, daw::nodepp::base::Encoding const & encoding ) { throw std::runtime_error( "Method Not Implemented" ); }
+				void HttpClientRequest::end( std::string const & data, base::Encoding const & encoding ) { throw std::runtime_error( "Method Not Implemented" ); }
 				void HttpClientRequest::end( HttpChunk const & chunk ) { throw std::runtime_error( "Method Not Implemented" ); }
 				void HttpClientRequest::abort( ) { throw std::runtime_error( "Method Not Implemented" ); }
 

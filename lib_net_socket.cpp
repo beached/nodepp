@@ -4,10 +4,10 @@
 
 #include "base_enoding.h"
 #include "base_event_emitter.h"
+#include "base_stream.h"
 #include "base_types.h"
 #include "lib_net_handle.h"
 #include "lib_net_socket.h"
-#include "base_stream.h"
 #include "range_algorithm.h"
 
 namespace daw {
@@ -15,12 +15,11 @@ namespace daw {
 		namespace lib {
 			namespace net {
 				using namespace daw::nodepp;
-
 				
 				std::vector<std::string> const & NetSocket::valid_events( ) const {
 					static auto const result = [&]( ) {
 						auto local = std::vector < std::string > { "connect", "data", "end", "timeout", "drain", "error", "close" };
-						return impl::append_vector( local, base::Stream::valid_events( ) );
+						return base::impl::append_vector( local, stream::Stream::valid_events( ) );
 					}();
 					return result;
 				}
