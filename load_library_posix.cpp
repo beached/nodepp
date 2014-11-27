@@ -14,6 +14,7 @@ namespace daw {
 
 			void* load_library( std::wstring library_path ) {
 				std::runtime_error( "Unsupported interface" );
+				return nullptr;
 			}
 
 
