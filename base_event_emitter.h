@@ -30,12 +30,10 @@ namespace daw {
 
 			//////////////////////////////////////////////////////////////////////////
 			/// Summary:	Allows for the dispatch of events to subscribed listeners
-			///				Callbacks can be be c-style function pointers or 
-			///				std::function with the correct signature.  Currently 
-			///				lambda's do not work without first being cast to a 
-			///				std::function explicitly.
+			///				Callbacks can be be c-style function pointers, lambda's or 
+			///				std::function with the correct signature.
 			///	Requires:	base::Callback
-			class EventEmitter {				
+			class EventEmitter {
 				using listener_list_t = std::vector < std::pair<bool, Callback> > ;
 				using listeners_t = std::unordered_map < std::string, listener_list_t > ;
 
@@ -48,19 +46,19 @@ namespace daw {
 				bool event_is_valid( std::string const & event ) const;
 			protected:
 				std::shared_ptr<boost::asio::io_service> m_ioservice;
-			public:							
+			public:
 				virtual std::vector<std::string> const & valid_events( ) const;
 
 				EventEmitter( );
 				virtual ~EventEmitter( );
 				EventEmitter( EventEmitter const & ) = default;
-				EventEmitter& operator=( EventEmitter const & ) = default;
-				EventEmitter( EventEmitter && other);
-				EventEmitter& operator=( EventEmitter && rhs );
-				
+				EventEmitter& operator=(EventEmitter const &) = default;
+				EventEmitter( EventEmitter && other );
+				EventEmitter& operator=(EventEmitter && rhs);
+
 				void swap( EventEmitter& rhs );
-								
-				using callback_id_t = Callback::id_t;					
+
+				using callback_id_t = Callback::id_t;
 				template<typename Listener>
 				callback_id_t add_listener( std::string event, Listener listener, bool run_once = false ) {
 					if( !at_max_listeners( event ) ) {
