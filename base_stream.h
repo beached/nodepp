@@ -51,14 +51,14 @@ namespace daw {
 					template<typename Listener>
 					bool write( base::data_t const & chunk, Listener&& listener ) {
 						return base::rollback_event_on_exception( this, "drain", std::forward<Listener>( listener ), [&]( ) {
-							return write( std::forward<base::data_t>( chunk ) );
+							return write( chunk );
 						} );
 					}
 
 					template<typename Listener>
 					bool end( base::data_t const & chunk, Listener&& listener ) {
 						return base::rollback_event_on_exception( this, "finish", std::forward<Listener>( listener ), [&]( ) {
-							return end( std::forward<base::data_t>( chunk ) );
+							return end( chunk );
 						} );
 					}
 					
