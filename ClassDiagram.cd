@@ -81,7 +81,7 @@
     <Position X="12" Y="2.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAgIAAQAAAAAAAAAAAAAAAAAAAAAgAAAAAAA=</HashCode>
-      <FileName>lib_net_handle.h</FileName>
+      <FileName>base_handle.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="daw::nodepp::lib::net::NetServer" Collapsed="true">

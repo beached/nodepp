@@ -32,7 +32,7 @@ namespace daw {
 				//Callback( void* listener );
 
 				template<typename Listener>
-				Callback( Listener listener ) : m_id( s_last_id++ ), m_callback( daw::make_function( listener ) ) { }
+				Callback( Listener&& listener ) : m_id( s_last_id++ ), m_callback( daw::make_function( std::forward<Listener>( listener ) ) ) { }
 
 				Callback( Callback const & ) = default;
 

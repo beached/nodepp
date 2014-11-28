@@ -27,7 +27,7 @@ namespace daw {
 					HttpServerResponse& write_head( uint16_t status_code, std::string reason_phrase = "", Headers headers = Headers{ } );
 					
 					template<typename Listener>
-					HttpServerResponse& set_timeout( size_t msecs, Listener listener ) {
+					HttpServerResponse& set_timeout( size_t msecs, Listener&& listener ) {
 						throw std::runtime_error( "Method not implemented" );
 					}
 					

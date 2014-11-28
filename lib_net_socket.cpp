@@ -6,7 +6,7 @@
 #include "base_event_emitter.h"
 #include "base_stream.h"
 #include "base_types.h"
-#include "lib_net_handle.h"
+#include "base_handle.h"
 #include "lib_net_socket.h"
 #include "range_algorithm.h"
 
@@ -24,14 +24,16 @@ namespace daw {
 					return result;
 				}
 
-				NetSocket::NetSocket( ) { }
+				NetSocket::NetSocket( ): base::stream::Stream( ), m_socket( ), m_endpoint( ) { }
 				
-				NetSocket::NetSocket( base::options_t options ) { }
+				NetSocket::NetSocket( base::Handle handle ) : m_handle( std::move( handle ) ) { }
 
-				NetSocket::NetSocket( NetSocket&& other ) { }
+				NetSocket::NetSocket( NetSocket&& other ) : base::stream::Stream( std::move( other ) ), m_socket( std::move( other.m_socket ) ), m_endpoint( std::move( other.m_endpoint ) ) { }
 
 				NetSocket& NetSocket::operator=(NetSocket&& rhs) {
 					if( this != &rhs ) {
+						m_socket = std::move( rhs.m_socket );
+						m_endpoint = std::move( rhs.m_endpoint );
 					}
 					return *this;
 				}

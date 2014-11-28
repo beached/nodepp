@@ -189,3 +189,5 @@ FakesAssemblies/
 *.npp
 CMakeFiles/*
 nbproject/*
+*.cd
+*.cd

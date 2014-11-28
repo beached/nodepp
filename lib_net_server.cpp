@@ -3,7 +3,7 @@
 
 #include "base_event_emitter.h"
 #include "base_types.h"
-#include "lib_net_handle.h"
+#include "base_handle.h"
 #include "lib_net_server.h"
 #include "range_algorithm.h"
 
@@ -37,7 +37,7 @@ namespace daw {
 
 				NetServer& NetServer::listen( uint16_t port, std::string hostname, uint16_t backlog ) { throw std::runtime_error( "Method not implemented" ); }
 				NetServer& NetServer::listen( std::string socket_path ) { throw std::runtime_error( "Method not implemented" ); }
-				NetServer& NetServer::listen( NetHandle const & handle ) { throw std::runtime_error( "Method not implemented" ); }
+				NetServer& NetServer::listen( base::Handle handle ) { throw std::runtime_error( "Method not implemented" ); }
 				NetServer& NetServer::close( ) { throw std::runtime_error( "Method not implemented" ); }
 				daw::nodepp::lib::net::NetAddress const & NetServer::address( ) const { throw std::runtime_error( "Method not implemented" ); }
 				NetServer& NetServer::unref( ) { throw std::runtime_error( "Method not implemented" ); }

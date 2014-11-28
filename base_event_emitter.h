@@ -6,7 +6,6 @@
 #include <memory>
 #include <utility>
 #include <vector>
-#include <boost/asio/io_service.hpp>
 
 #include "base_callback.h"
 #include "range_algorithm.h"
@@ -44,8 +43,6 @@ namespace daw {
 				listeners_t & listeners( );
 				listeners_t const & listeners( ) const;
 				bool event_is_valid( std::string const & event ) const;
-			protected:
-				std::shared_ptr<boost::asio::io_service> m_ioservice;
 			public:
 				virtual std::vector<std::string> const & valid_events( ) const;
 
@@ -60,9 +57,9 @@ namespace daw {
 
 				using callback_id_t = Callback::id_t;
 				template<typename Listener>
-				callback_id_t add_listener( std::string event, Listener listener, bool run_once = false ) {
+				callback_id_t add_listener( std::string event, Listener&& listener, bool run_once = false ) {
 					if( !at_max_listeners( event ) ) {
-						auto callback = Callback( listener );
+						auto callback = Callback( std::forward<Listener>( listener ) );
 						listeners( )[event].emplace_back( run_once, callback );
 						emit( "newListener", event, callback );
 						return callback.id( );
@@ -73,14 +70,14 @@ namespace daw {
 				}
 
 				template<typename Listener>
-				EventEmitter& on( std::string event, Listener listener ) {
-					add_listener( event, listener );
+				EventEmitter& on( std::string event, Listener&& listener ) {
+					add_listener( event, std::forward<Listener>( listener ) );
 					return *this;
 				}
 
 				template<typename Listener>
-				EventEmitter& once( std::string event, Listener listener ) {
-					add_listener( event, listener, true );
+				EventEmitter& once( std::string event, Listener&& listener ) {
+					add_listener( event, std::forward<Listener>( listener ), true );
 					return *this;
 				}
 
@@ -112,8 +109,8 @@ namespace daw {
 			};	// class EventEmitter
 
 			template<typename This, typename Listener, typename Action>
-			static auto rollback_event_on_exception( This me, std::string event, Listener listener, Action action_to_try, bool run_listener_once = false ) -> decltype(action_to_try( )) {
-				auto cb_id = me->add_listener( event, listener, run_listener_once );
+			static auto rollback_event_on_exception( This me, std::string event, Listener&& listener, Action action_to_try, bool run_listener_once = false ) -> decltype(action_to_try( )) {
+				auto cb_id = me->add_listener( event, std::forward<Listener>( listener ), run_listener_once );
 				try {
 					return action_to_try( );
 				} catch( ... ) {

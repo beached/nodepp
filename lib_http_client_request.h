@@ -30,14 +30,14 @@ namespace daw {
 					void abort( );
 
 					template<typename Listener>
-					HttpClientRequest& on( std::string event, Listener& listener ) {
-						add_listener( event, listener );
+					HttpClientRequest& on( std::string event, Listener&& listener ) {
+						add_listener( event, std::forward<Listener>( listener ) );
 						return *this;
 					}
 
 					template<typename Listener>
-					HttpClientRequest& once( std::string event, Listener& listener ) {
-						add_listener( event, listener, true );
+					HttpClientRequest& once( std::string event, Listener&& listener ) {
+						add_listener( event, std::forward<Listener>( listener ), true );
 						return *this;
 					}
 				};	// class HttpClientRequest

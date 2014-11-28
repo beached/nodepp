@@ -170,7 +170,7 @@
     <ClInclude Include="lib_http_server_response.h" />
     <ClInclude Include="lib_net.h" />
     <ClInclude Include="lib_net_address.h" />
-    <ClInclude Include="lib_net_handle.h" />
+    <ClInclude Include="base_handle.h" />
     <ClInclude Include="lib_net_server.h" />
     <ClInclude Include="lib_net_socket.h" />
     <ClInclude Include="base_stream.h" />
@@ -199,7 +199,7 @@
     <ClCompile Include="lib_http_header.cpp" />
     <ClCompile Include="lib_http_statuscodes.cpp" />
     <ClCompile Include="lib_net_address.cpp" />
-    <ClCompile Include="lib_net_handle.cpp" />
+    <ClCompile Include="base_handle.cpp" />
     <ClCompile Include="lib_net_server.cpp" />
     <ClCompile Include="lib_net_socket.cpp" />
     <ClCompile Include="load_library.cpp">

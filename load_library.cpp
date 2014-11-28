@@ -22,7 +22,7 @@ namespace daw {
 
 			OSLibraryHandle::OSLibraryHandle( OSLibraryHandle && other ): m_handle( std::move( other.m_handle ) ) { }
 
-			OSLibraryHandle& OSLibraryHandle::operator=(OSLibraryHandle rhs) {
+			OSLibraryHandle OSLibraryHandle::operator=(OSLibraryHandle rhs) {
 				m_handle = std::move( rhs.m_handle );
 				return *this;
 			}
@@ -38,9 +38,9 @@ namespace daw {
 			OSLibraryHandle::~OSLibraryHandle( ) { }
 		} // namespace impl
 
-// 		LibraryHandle::LibraryHandle( LibraryHandle && other ): m_handle( std::move( other.m_handle ) ) { }
+// 		LibraryHandle::LibraryHandle( LibraryHandle other ): m_handle( std::move( other.m_handle ) ) { }
 // 
-// 		LibraryHandle& LibraryHandle::operator=(LibraryHandle rhs) {
+// 		LibraryHandle LibraryHandle::operator=(LibraryHandle rhs) {
 // 			m_handle = std::move( rhs.m_handle );
 // 			return *this;
 // 		}

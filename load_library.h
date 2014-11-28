@@ -26,7 +26,7 @@ namespace daw {
 
 				OSLibraryHandle( OSLibraryHandle const & other );
 				OSLibraryHandle( OSLibraryHandle && other );
-				OSLibraryHandle& operator=(OSLibraryHandle rhs);
+				OSLibraryHandle operator=(OSLibraryHandle rhs);
 				handle_t& get( );
 				handle_t const& get( ) const;
 					
@@ -52,7 +52,7 @@ namespace daw {
 
 			LibraryHandle( LibraryHandle const & ) = default;
 // 			LibraryHandle( LibraryHandle && other );
-// 			LibraryHandle& operator=(LibraryHandle rhs);
+// 			LibraryHandle operator=(LibraryHandle rhs);
 			~LibraryHandle( ) = default;
 
 			template<typename ResultType, typename... Args>
