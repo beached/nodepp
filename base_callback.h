@@ -31,7 +31,7 @@ namespace daw {
 
 				//Callback( void* listener );
 
-				template<typename Listener>
+				template<typename Listener, typename = std::enable_if<!std::is_same<Listener, Callback>::value>::type>
 				Callback( Listener&& listener ) : m_id( s_last_id++ ), m_callback( daw::make_function( std::forward<Listener>( listener ) ) ) { }
 
 				Callback( Callback const & ) = default;
