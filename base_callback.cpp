@@ -13,17 +13,17 @@ namespace daw {
 		namespace base {
 			std::atomic_int_least64_t Callback::s_last_id{ 1 };
 
-			Callback::Callback( ) : m_id{ -1 }, m_callback{ 0 }, m_callback_type{ callback_type::none } { }
+			Callback::Callback( ) : m_id{ -1 }, m_callback{ 0 }, m_Callbackype{ Callbackype::none } { }
 
-			Callback::Callback( void* funcptr ) : m_id( s_last_id++ ), m_callback( funcptr ), m_callback_type{ callback_type::funcptr } { }
+			Callback::Callback( void* funcptr ) : m_id( s_last_id++ ), m_callback( funcptr ), m_Callbackype{ Callbackype::funcptr } { }
 
-			Callback::Callback( Callback && other ) : m_id{ std::move( other.m_id ) }, m_callback{ std::move( other.m_callback ) }, m_callback_type{ std::move( other.m_callback_type ) } { }
+			Callback::Callback( Callback && other ) : m_id{ std::move( other.m_id ) }, m_callback{ std::move( other.m_callback ) }, m_Callbackype{ std::move( other.m_Callbackype ) } { }
 
 			Callback& Callback::operator=(Callback && rhs) {
 				if( this != &rhs ) {
 					m_id = std::move( rhs.m_id );
 					m_callback = std::move( rhs.m_callback );
-					m_callback_type = std::move( rhs.m_callback_type );
+					m_Callbackype = std::move( rhs.m_Callbackype );
 				}
 				return *this;
 			}
@@ -33,7 +33,7 @@ namespace daw {
 			}
 
 			bool Callback::empty( ) const {
-				return m_callback_type == callback_type::none;
+				return m_Callbackype == Callbackype::none;
 			}
 
 			bool Callback::operator==(Callback const & rhs) const {
@@ -44,7 +44,7 @@ namespace daw {
 				using std::swap;
 				swap( m_id, rhs.m_id );
 				swap( m_callback, rhs.m_callback );
-				swap( m_callback_type, rhs.m_callback_type );
+				swap( m_Callbackype, rhs.m_Callbackype );
 			}
 		}	// namespace base
 	}	// namespace nodepp

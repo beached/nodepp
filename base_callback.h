@@ -12,37 +12,30 @@ namespace daw {
 	namespace nodepp {
 		namespace base {
 			//////////////////////////////////////////////////////////////////////////
-			// Summary:		Callback wraps a std::function or a c-style function ptr.
+			// Summary:		CallbackImpl wraps a std::function or a c-style function ptr.
 			//				This is needed because std::function are not comparable
-			//				to each other.
+			//				to each other.  Must explicitly convert lambda's to
+			//				std::functions
 			// Requires:
 			class Callback {
 			public:
 				using id_t = int64_t;
 			private:
-				enum class callback_type { none = 0, stdfunction, funcptr };
+				enum class Callbackype { none = 0, stdfunction, funcptr };
 				static std::atomic_int_least64_t s_last_id;
 				using cb_storage_t = void*;
 				id_t m_id;
 				boost::any m_callback;
-				callback_type m_callback_type;				
+				Callbackype m_Callbackype;
 
 			public:
 				Callback( );
 				~Callback( ) = default;
 
-				Callback( void* funcptr );
-				Callback& operator=(void* funcptr);
+				Callback( void* listener );
 
 				template<typename... Args>
-				Callback( std::function<void( Args... )> listener ) : m_id( s_last_id++ ), m_callback( listener ), m_callback_type( callback_type::stdfunction ) { }
-
-				template<typename... Args>
-				Callback& operator=(std::function<void( Args... )> stdfunction) {
-					auto tmp = Callback( stdfunction );
-					tmp.swap( *this );
-					return *this;
-				}
+				Callback( std::function<void( Args... )> listener ) : m_id( s_last_id++ ), m_callback( listener ), m_Callbackype( Callbackype::stdfunction ) { }
 
 				Callback( Callback const & ) = default;
 
@@ -62,18 +55,18 @@ namespace daw {
 
 				template<typename... Args>
 				void exec( Args&&... args ) {
-					switch( m_callback_type ) {
-					case callback_type::funcptr: {
+					switch( m_Callbackype ) {
+					case Callbackype::funcptr: {
 						auto callback = reinterpret_cast<daw::function_pointer_t<void, Args...>>(boost::any_cast<void*>(m_callback));
 						callback( std::forward<Args>( args )... );
 					}
-					break;
-					case callback_type::stdfunction: {
+												 break;
+					case Callbackype::stdfunction: {
 						auto callback = boost::any_cast<std::function < void( Args... ) >>(m_callback);
 						callback( std::forward<Args>( args )... );
 					}
-					break;
-					case callback_type::none:
+													 break;
+					case Callbackype::none:
 						throw std::runtime_error( "Attempt to execute a empty callback" );
 					default:
 						throw std::runtime_error( "Unexpected callback type" );
@@ -81,6 +74,7 @@ namespace daw {
 				}
 
 			};
+
 		}	// namespace base
 	}	// namespace nodepp
 }	// namespace daw

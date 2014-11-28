@@ -74,32 +74,6 @@ namespace daw {
 					}
 				}
 
-				template<typename... Args>
-				callback_id_t add_listener( std::string event, std::function<void( Args... )> listener, bool run_once = false ) {
-					if( !at_max_listeners( event ) ) {
-						auto callback = Callback( listener );
-						listeners( )[event].emplace_back( run_once, callback );
-						emit( "newListener", event, callback );
-						return callback.id( );
-					} else {
-						// TODO: implement logging to fail gracefully.  For now throw
-						throw std::runtime_error( "Max listeners reached for event" );
-					}
-				}
-
-				template<typename... Args>
-				callback_id_t add_listener( std::string event, std::function<void( Args... )> listener, bool run_once = false ) {
-					if( !at_max_listeners( event ) ) {
-						auto callback = Callback( listener );
-						listeners( )[event].emplace_back( run_once, callback );
-						emit( "newListener", event, callback );
-						return callback.id( );
-					} else {
-						// TODO: implement logging to fail gracefully.  For now throw
-						throw std::runtime_error( "Max listeners reached for event" );
-					}
-				}
-
 				template<typename Listener>
 				EventEmitter& on( std::string event, Listener listener ) {
 					add_listener( event, listener );
