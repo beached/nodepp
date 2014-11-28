@@ -35,8 +35,18 @@ namespace daw {
 		}
 
 		template<typename Container, typename UnaryPredicate>
-		auto erase_remove_if( Container& container, UnaryPredicate const & pred ) -> decltype(container.erase( end( container ), end( container ) )) {
+		auto erase_remove_if( Container& container, UnaryPredicate pred ) -> decltype(container.erase( end( container ), end( container ) )) {
 			return container.erase( std::remove_if( begin( container ), end( container ), pred ), end( container ) );
+		}
+
+		template<typename Container, typename UnaryPredicate>
+		auto partition( Container& container, UnaryPredicate pred ) -> decltype(begin( container )) {
+			return std::partition( begin( container ), end( container ), pred );
+		}
+
+		template<typename Container, typename UnaryPredicate>
+		auto stable_partition( Container& container, UnaryPredicate pred ) -> decltype(begin( container )) {
+			return std::stable_partition( begin( container ), end( container ), pred );
 		}
 
         template<typename Container, typename Value>

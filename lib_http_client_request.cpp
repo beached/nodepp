@@ -35,8 +35,8 @@ namespace daw {
 				bool HttpClientRequest::write( HttpChunk const & chunk ) { throw std::runtime_error( "Method not implemented" ); }
 
 				void HttpClientRequest::end( ) { throw std::runtime_error( "Method not implemented" ); }
-				void HttpClientRequest::end( std::string const & data, base::Encoding const & encoding ) { throw std::runtime_error( "Method not implemented" ); }
-				void HttpClientRequest::end( HttpChunk const & chunk ) { throw std::runtime_error( "Method not implemented" ); }
+				void HttpClientRequest::end( std::string data, base::Encoding const & encoding ) { throw std::runtime_error( "Method not implemented" ); }
+				void HttpClientRequest::end( HttpChunk chunk ) { throw std::runtime_error( "Method not implemented" ); }
 				void HttpClientRequest::abort( ) { throw std::runtime_error( "Method not implemented" ); }
 
 			}	// namespace http

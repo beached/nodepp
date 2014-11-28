@@ -16,7 +16,7 @@ namespace daw {
 
 				std::vector<std::string> const & HttpServerResponse::valid_events( ) const {
 					static auto const result = [&]( ) {
-						std::vector<std::string> local{ "request", "connection", "close", "checkContinue", "connect", "upgrade", "clientError", "listening" };
+						static std::vector<std::string> const local{ "request", "connection", "close", "checkContinue", "connect", "upgrade", "clientError", "listening" };
 						auto parent = base::stream::StreamWritable::valid_events( );
 						return base::impl::append_vector( local, parent );
 					}();
@@ -43,13 +43,17 @@ namespace daw {
 				HttpHeader const & HttpServerResponse::get_header( std::string name ) const { throw std::runtime_error( "Method not implemented" ); }
 				HttpServerResponse& HttpServerResponse::remove_header( std::string name ) { throw std::runtime_error( "Method not implemented" ); }
 
-				bool HttpServerResponse::write_chunk( std::string const & chunk, base::Encoding encoding ) { throw std::runtime_error( "Method not implemented" ); }
-				bool HttpServerResponse::write_chunk( base::data_t const & chunk, base::Encoding encoding ) { throw std::runtime_error( "Method not implemented" ); }
+				bool HttpServerResponse::write_chunk( std::string const & chunk, base::Encoding const & encoding ) { throw std::runtime_error( "Method not implemented" ); }
+				bool HttpServerResponse::write_chunk( base::data_t const & chunk, base::Encoding const & encoding ) { throw std::runtime_error( "Method not implemented" ); }
 				bool HttpServerResponse::add_trailers( Headers headers ) { throw std::runtime_error( "Method not implemented" ); }
 
-				HttpServerResponse& end( ) { throw std::runtime_error( "Method not implemented" ); }
-				HttpServerResponse& end( base::data_t chunk, base::Encoding encoding = base::Encoding( ) ) { throw std::runtime_error( "Method not implemented" ); }
-				HttpServerResponse& end( std::string const & chunk, base::Encoding encoding = base::Encoding{ } ) { throw std::runtime_error( "Method not implemented" ); }
+
+				bool HttpServerResponse::write( base::data_t const & chunk ) { throw std::runtime_error( "Method not implemented" ); }
+				bool HttpServerResponse::write( std::string chunk, base::Encoding const & encoding ) { throw std::runtime_error( "Method not implemented" ); }
+
+				HttpServerResponse& HttpServerResponse::end( ) { throw std::runtime_error( "Method not implemented" ); }
+				HttpServerResponse& HttpServerResponse::end( base::data_t const & chunk ) { throw std::runtime_error( "Method not implemented" ); }
+				HttpServerResponse& HttpServerResponse::end( std::string chunk, base::Encoding const & encoding ) { throw std::runtime_error( "Method not implemented" ); }
 			}	// namespace http
 		}	// namespace lib
 	}	// namespace nodepp

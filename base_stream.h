@@ -19,17 +19,18 @@ namespace daw {
 				class StreamReadable: virtual public base::EventEmitter {
 				public:
 					virtual std::vector<std::string> const & valid_events( ) const override;
+					StreamReadable( ) = default;
 					virtual ~StreamReadable( ) = default;
 					virtual base::data_t read( ) = 0;
 					virtual base::data_t read( size_t bytes ) = 0;
 
-					virtual StreamReadable& set_encoding( base::Encoding encoding ) = 0;
+					virtual StreamReadable& set_encoding( base::Encoding const & encoding ) = 0;
 					virtual StreamReadable& resume( ) = 0;
 					virtual StreamReadable& pause( ) = 0;
 					virtual StreamWritable& pipe( StreamWritable& destination ) = 0;
 					virtual StreamWritable& pipe( StreamWritable& destination, base::options_t options ) = 0;
 					virtual StreamReadable& unpipe( StreamWritable& destination ) = 0;
-					virtual StreamReadable& unshift( data_t chunk ) = 0;
+					virtual StreamReadable& unshift( data_t const & chunk ) = 0;
 				};	// class StreamReadable
 
 				//////////////////////////////////////////////////////////////////////////
@@ -37,25 +38,30 @@ namespace daw {
 				// Requires:	base::EventEmitter, data_t				 
 				class StreamWritable: virtual public daw::nodepp::base::EventEmitter {
 				public:
+					StreamWritable( ) = default;
+					virtual ~StreamWritable( ) = default;
+
 					virtual std::vector<std::string> const & valid_events( ) const override;
-					virtual bool write( base::data_t chunk, base::Encoding encoding ) = 0;					
+					virtual bool write( base::data_t const & chunk ) = 0;
+					virtual bool write( std::string chunk, base::Encoding const & encoding ) = 0;
 					virtual StreamWritable& end( ) = 0;
-					virtual StreamWritable& end( base::data_t chunk, base::Encoding encoding ) = 0;
+					virtual StreamWritable& end( base::data_t const & chunk ) = 0;
+					virtual StreamWritable& end( std::string chunk, base::Encoding const & encoding ) = 0;
 					
 					template<typename Listener>
-					bool write( base::data_t chunk, base::Encoding encoding, Listener listener ) {
+					bool write( base::data_t const & chunk, base::Encoding const & encoding, Listener listener ) {
 						return base::rollback_event_on_exception( this, "drain", listener, [&]( ) {
 							return write( chunk, encoding );
 						} );
 					}
-					
+
 					template<typename Listener>
-					bool end( base::data_t chunk, base::Encoding encoding, Listener listener ) {
+					bool end( base::data_t const & chunk, base::Encoding const & encoding, Listener listener ) {
 						return base::rollback_event_on_exception( this, "finish", listener, [&]( ) {
 							return end( chunk, encoding );
 						} );
 					}
-					virtual ~StreamWritable( ) = default;
+					
 				};	// class StreamWriteable
 
 				//////////////////////////////////////////////////////////////////////////

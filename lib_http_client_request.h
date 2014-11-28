@@ -25,8 +25,8 @@ namespace daw {
 					bool write( HttpChunk const & chunk );
 
 					void end( );
-					void end( std::string const & data, base::Encoding const & encoding = base::Encoding{ } );
-					void end( HttpChunk const & chunk );
+					void end( std::string data, base::Encoding const & encoding = base::Encoding{ } );
+					void end( HttpChunk chunk );
 					void abort( );
 
 					template<typename Listener>

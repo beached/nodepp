@@ -21,7 +21,7 @@ namespace daw {
 					HttpServerResponse( );
 					friend class HttpServer;
 				public:
-					virtual std::vector<std::string> const & valid_events( ) const override;
+					
 
 					HttpServerResponse& write_continue( );
 					HttpServerResponse& write_head( uint16_t status_code, std::string reason_phrase = "", Headers headers = Headers{ } );
@@ -45,16 +45,18 @@ namespace daw {
 					HttpHeader const & get_header( std::string name ) const;
 					HttpServerResponse& remove_header( std::string name );
 
-					bool write_chunk( std::string const & chunk, base::Encoding encoding = base::Encoding{ } );
-					bool write_chunk( base::data_t const & chunk, base::Encoding encoding = base::Encoding{ } );
+					bool write_chunk( std::string const & chunk, base::Encoding const & encoding = base::Encoding{ } );
+					bool write_chunk( base::data_t const & chunk, base::Encoding const & encoding = base::Encoding{ } );
 
 					bool add_trailers( Headers headers );
 
+					// StreamWriteable overrides
+					virtual std::vector<std::string> const & valid_events( ) const override;
+					virtual bool write( base::data_t const & chunk ) override;
+					virtual bool write( std::string chunk, base::Encoding const & encoding = base::Encoding( ) ) override;
 					virtual HttpServerResponse& end( ) override;
-					virtual HttpServerResponse& end( base::data_t chunk, base::Encoding encoding = base::Encoding( ) ) override;
-					HttpServerResponse& end( std::string const & chunk, base::Encoding encoding = base::Encoding( ) );
-
-					
+					virtual HttpServerResponse& end( base::data_t const & chunk ) override;
+					virtual HttpServerResponse& end( std::string chunk, base::Encoding const & encoding = base::Encoding( ) ) override;
 				};	// class ServerResponse			
 
 

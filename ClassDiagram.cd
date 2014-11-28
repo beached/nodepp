@@ -1,0 +1,214 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="daw::nodepp::base::Callback" Collapsed="true">
+    <Position X="13.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAAAAgAAAAAAQCCAAAAAAQAAQAwAAAAQgA=</HashCode>
+      <FileName>base_callback.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="daw::nodepp::base::Data" Collapsed="true">
+    <Position X="15.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAQAAAAAAAIAkAAQIAAAAAAAIAAAAAAAAAAA=</HashCode>
+      <FileName>base_data.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="daw::nodepp::base::Error" Collapsed="true">
+    <Position X="12" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAQAAQAAAAgAAAAAAAAAAAAAAAAgAgACAAA=</HashCode>
+      <FileName>base_error.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="daw::nodepp::base::Encoding" Collapsed="true">
+    <Position X="17.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAIAAAAAAAAAAAAEAQgAAAIgAAAAAAAAAAgAAAAAAA=</HashCode>
+      <FileName>base_enoding.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="daw::nodepp::base::EventEmitter" Collapsed="true">
+    <Position X="3.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAAAiADgAABAAAAAEAAEBAAAAIAgIAEAAQAgAAAAIAA=</HashCode>
+      <FileName>base_event_emitter.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="daw::nodepp::lib::http::Agent" Collapsed="true">
+    <Position X="12" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAACACEAAAAAAAAAA=</HashCode>
+      <FileName>lib_http.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="daw::nodepp::lib::http::HttpChunk" Collapsed="true">
+    <Position X="13.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAQAAAAAAAAAAAAAAAQAAAAAAAAAAAgAAAAAAA=</HashCode>
+      <FileName>lib_http_chunk.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="daw::nodepp::lib::http::HttpClientRequest" Collapsed="true">
+    <Position X="0.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAgAACAAAAAAAAAAAgBAAAAAAgAAAAAQQAAAAAAAA=</HashCode>
+      <FileName>lib_http_client_request.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="daw::nodepp::lib::http::HttpServer" Collapsed="true">
+    <Position X="2.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAgAAAQAAAAIAAAAAABAEAQAAgAAAAAAAigAAAAAA=</HashCode>
+      <FileName>lib_http_server.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="daw::nodepp::lib::http::HttpServerResponse" Collapsed="true">
+    <Position X="9.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAACAACAACAAAAAAABAIAAAQAAoBAAAAQAAAAgEAAI=</HashCode>
+      <FileName>lib_http_server_response.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="daw::nodepp::lib::net::NetAddress" Collapsed="true">
+    <Position X="17.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAABAAAAAAAAQAAAEIAAAAAAAAAAAEAAAAAgAAAAAAA=</HashCode>
+      <FileName>lib_net_address.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="daw::nodepp::lib::net::NetHandle" Collapsed="true">
+    <Position X="12" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAgIAAQAAAAAAAAAAAAAAAAAAAAAgAAAAAAA=</HashCode>
+      <FileName>lib_net_handle.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="daw::nodepp::lib::net::NetServer" Collapsed="true">
+    <Position X="2.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEACgAAAQAAAAAAAAAIABABAAAIgAAAAAIAgAAAEIAA=</HashCode>
+      <FileName>lib_net_server.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="daw::nodepp::lib::net::NetSocket" Collapsed="true">
+    <Position X="7.25" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CAiCgAAGAAAAIAAQgCIABGAQQAKhAAAAIQogAEAEMAA=</HashCode>
+      <FileName>lib_net_socket.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="daw::nodepp::base::stream::StreamWritable" Collapsed="true">
+    <Position X="5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAABAACAAAAAAAIAAAAAAAAAAAgAAAAAQAAAAAAAAA=</HashCode>
+      <FileName>base_stream.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="daw::nodepp::base::stream::StreamReadable" Collapsed="true">
+    <Position X="7.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CAAAAAAEAAAAAAAAACAAAAAQAEAhAAAAAAIQAAAAIAA=</HashCode>
+      <FileName>base_stream.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="daw::nodepp::base::stream::Stream" Collapsed="true">
+    <Position X="6" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>base_stream.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="daw::nodepp::base::stream::StreamTransform" Collapsed="true">
+    <Position X="5" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAABAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>base_stream.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="daw::system::impl::OSLibraryHandle" Collapsed="true">
+    <Position X="13.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAgAAAAAAAAAAAAAQEAAAAAAAAAIAAAgAAAAAAA=</HashCode>
+      <FileName>load_library.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="daw::system::LibraryHandle" Collapsed="true">
+    <Position X="15.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAAAAAAAAAAEAAAAAAAAEAACgAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>load_library.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="daw::ReferenceCountedValue&lt;T&gt;" Collapsed="true">
+    <Position X="15.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAABCAAEAAAAAAAFAAAAIASAAQAAAAEAAAgAAAAAAA=</HashCode>
+      <FileName>ref_counted_value.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Struct Name="daw::nodepp::lib::http::HttpHeader" Collapsed="true">
+    <Position X="15.5" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAgAAAAACAAAEACAAIAAAAAAAAAA=</HashCode>
+      <FileName>lib_http_headers.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="daw::nodepp::lib::http::Headers" Collapsed="true">
+    <Position X="13.75" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAIAAAACAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>lib_http_headers.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="daw::nodepp::plugins::IPlugin" Collapsed="true">
+    <Position X="17.25" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAACAAAAAAgAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>plugin_base.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="daw::string::ends_with_t&lt;StringType&gt;" Collapsed="true">
+    <Position X="12" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAACAAAAAAAAEAAAAwAAAAAAAAAAAAAgAAAAAAA=</HashCode>
+      <FileName>string.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="daw::impl::make_function_pointer_impl&lt;ResultType, ...ArgTypes&gt;" Collapsed="true">
+    <Position X="12" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>utility.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="daw::impl::make_pointer_to_member_function_impl&lt;ResultType, ClassType, ...ArgTypes&gt;" Collapsed="true">
+    <Position X="17.25" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>utility.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="daw::impl::make_pointer_to_volatile_member_function_impl&lt;ResultType, ClassType, ...ArgTypes&gt;" Collapsed="true">
+    <Position X="12" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>utility.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="daw::impl::make_pointer_to_const_member_function_impl&lt;ResultType, ClassType, ...ArgTypes&gt;" Collapsed="true">
+    <Position X="13.75" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>utility.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="daw::impl::make_pointer_to_const_volatile_member_function_impl&lt;ResultType, ClassType, ...ArgTypes&gt;" Collapsed="true">
+    <Position X="15.5" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>utility.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

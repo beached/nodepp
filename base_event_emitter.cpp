@@ -27,13 +27,14 @@ namespace daw {
 				return 0 != m_max_listeners && listeners( )[event].size( ) >= m_max_listeners;
 			}
 
-			EventEmitter::EventEmitter( ) :m_listeners( std::make_shared<listeners_t>( ) ), m_max_listeners{ 10 } { }
+			EventEmitter::EventEmitter( ) :m_listeners( std::make_shared<listeners_t>( ) ), m_max_listeners{ 10 }, m_ioservice( std::make_shared<boost::asio::io_service>( ) ) { }
 
-			EventEmitter::EventEmitter( EventEmitter && other ): m_listeners( std::move( other.m_listeners ) ), m_max_listeners( std::move( other.m_max_listeners ) )  { }
+			EventEmitter::EventEmitter( EventEmitter && other ): m_listeners( std::move( other.m_listeners ) ), m_max_listeners( std::move( other.m_max_listeners ) ), m_ioservice( std::move( other.m_ioservice ) )  { }
 
 			EventEmitter& EventEmitter::operator=( EventEmitter && rhs ) {
 				m_listeners = std::move( rhs.m_listeners );
 				m_max_listeners = std::move( rhs.m_max_listeners );
+				m_ioservice = std::move( rhs.m_ioservice );
 				return *this;
 			}
 
@@ -41,6 +42,7 @@ namespace daw {
 				using std::swap;
 				swap( m_listeners, rhs.m_listeners );
 				swap( m_max_listeners, rhs.m_max_listeners );
+				swap( m_ioservice, rhs.m_ioservice );
 			}
 
 			EventEmitter::~EventEmitter( ) { }

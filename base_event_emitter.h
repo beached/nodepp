@@ -6,6 +6,7 @@
 #include <memory>
 #include <utility>
 #include <vector>
+#include <boost/asio/io_service.hpp>
 
 #include "base_callback.h"
 #include "range_algorithm.h"
@@ -45,25 +46,49 @@ namespace daw {
 				listeners_t & listeners( );
 				listeners_t const & listeners( ) const;
 				bool event_is_valid( std::string const & event ) const;
-			public:				
-				void swap( EventEmitter& rhs );
-
+			protected:
+				std::shared_ptr<boost::asio::io_service> m_ioservice;
+			public:							
 				virtual std::vector<std::string> const & valid_events( ) const;
 
+				EventEmitter( );
+				virtual ~EventEmitter( );
 				EventEmitter( EventEmitter const & ) = default;
 				EventEmitter& operator=( EventEmitter const & ) = default;
-
 				EventEmitter( EventEmitter && other);
 				EventEmitter& operator=( EventEmitter && rhs );
-
-				using callback_id_t = Callback::id_t;
-
-				EventEmitter( );
-
-				virtual ~EventEmitter( );
-					
+				
+				void swap( EventEmitter& rhs );
+								
+				using callback_id_t = Callback::id_t;					
 				template<typename Listener>
 				callback_id_t add_listener( std::string event, Listener listener, bool run_once = false ) {
+					if( !at_max_listeners( event ) ) {
+						auto callback = Callback( listener );
+						listeners( )[event].emplace_back( run_once, callback );
+						emit( "newListener", event, callback );
+						return callback.id( );
+					} else {
+						// TODO: implement logging to fail gracefully.  For now throw
+						throw std::runtime_error( "Max listeners reached for event" );
+					}
+				}
+
+				template<typename... Args>
+				callback_id_t add_listener( std::string event, std::function<void( Args... )> listener, bool run_once = false ) {
+					if( !at_max_listeners( event ) ) {
+						auto callback = Callback( listener );
+						listeners( )[event].emplace_back( run_once, callback );
+						emit( "newListener", event, callback );
+						return callback.id( );
+					} else {
+						// TODO: implement logging to fail gracefully.  For now throw
+						throw std::runtime_error( "Max listeners reached for event" );
+					}
+				}
+
+				template<typename... Args>
+				callback_id_t add_listener( std::string event, std::function<void( Args... )> listener, bool run_once = false ) {
 					if( !at_max_listeners( event ) ) {
 						auto callback = Callback( listener );
 						listeners( )[event].emplace_back( run_once, callback );
