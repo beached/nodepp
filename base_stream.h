@@ -49,16 +49,16 @@ namespace daw {
 					virtual StreamWritable& end( std::string chunk, base::Encoding const & encoding ) = 0;
 					
 					template<typename Listener>
-					bool write( base::data_t const & chunk, base::Encoding const & encoding, Listener&& listener ) {
+					bool write( base::data_t const & chunk, Listener&& listener ) {
 						return base::rollback_event_on_exception( this, "drain", std::forward<Listener>( listener ), [&]( ) {
-							return write( chunk, encoding );
+							return write( std::forward<base::data_t>( chunk ) );
 						} );
 					}
 
 					template<typename Listener>
-					bool end( base::data_t const & chunk, base::Encoding const & encoding, Listener&& listener ) {
+					bool end( base::data_t const & chunk, Listener&& listener ) {
 						return base::rollback_event_on_exception( this, "finish", std::forward<Listener>( listener ), [&]( ) {
-							return end( chunk, encoding );
+							return end( std::forward<base::data_t>( chunk ) );
 						} );
 					}
 					
