@@ -20,6 +20,8 @@ namespace daw {
 				public:
 					virtual std::vector<std::string> const & valid_events( ) const override;
 					StreamReadable( ) = default;
+					StreamReadable( StreamReadable const & ) = default;
+					StreamReadable& operator=( StreamReadable const & ) = default;
 					virtual ~StreamReadable( ) = default;
 					virtual base::data_t read( ) = 0;
 					virtual base::data_t read( size_t bytes ) = 0;
@@ -39,6 +41,8 @@ namespace daw {
 				class StreamWritable: virtual public daw::nodepp::base::EventEmitter {
 				public:
 					StreamWritable( ) = default;
+					StreamWritable( StreamWritable const & ) = default;
+					StreamWritable& operator=( StreamWritable const & ) = default;
 					virtual ~StreamWritable( ) = default;
 
 					virtual std::vector<std::string> const & valid_events( ) const override;

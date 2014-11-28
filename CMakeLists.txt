@@ -16,6 +16,8 @@ base_error.cpp
 base_error.h
 base_event_emitter.cpp
 base_event_emitter.h
+base_handle.cpp
+base_handle.h
 base_stream.cpp
 base_stream.h
 base_types.h
@@ -34,8 +36,6 @@ lib_http_statuscodes.cpp
 lib_net_address.cpp
 lib_net_address.h
 lib_net.h
-lib_net_handle.cpp
-lib_net_handle.h
 lib_net_server.cpp
 lib_net_server.h
 lib_net_socket.cpp

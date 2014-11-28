@@ -16,7 +16,6 @@ namespace daw {
 				~Handle( ) = default;
 	
 				boost::asio::io_service& get( );
-				boost::asio::io_service const & get( ) const;
 
 			};	// class Handle
 		}	// namespace base
