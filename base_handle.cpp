@@ -5,14 +5,17 @@
 namespace daw {
 	namespace nodepp {
 		namespace base {
-			boost::asio::io_service Handle::s_io_service;
+			boost::asio::io_service& handle( ) {
+				static boost::asio::io_service result;
+				return result;
+			}
 
 			boost::asio::io_service& Handle::get( ) {
-				return s_io_service;
+				return handle( );
 			}
 
 			boost::asio::io_service const & Handle::get( ) const {
-				return s_io_service;
+				return handle( );
 			}
 		}	// namespace base
 	}	// namespace nodepp

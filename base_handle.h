@@ -8,7 +8,7 @@ namespace daw {
 	namespace nodepp {
 		namespace base {
 			class Handle {
-				static boost::asio::io_service s_io_service;
+				boost::asio::io_service& handle( );
 			public:
 				Handle( ) = default;
 				Handle( Handle const & ) = default;
