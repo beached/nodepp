@@ -34,7 +34,7 @@ namespace daw {
 				NetDns& NetDns::resolve( std::string const & address ) { 
 					auto query = tcp::resolver::query( address, "" );
 					m_resolver->async_resolve( query, [&]( boost::system::error_code err, boost::asio::ip::tcp::resolver::iterator it ) {
-						this->emit<std::decay<boost::system::error_code>::type, std::decay<boost::asio::ip::tcp::resolver::iterator>::type>( "resolved", err, it );
+						this->emit<std::decay<boost::system::error_code>::type, std::decay<boost::asio::ip::tcp::resolver::iterator>::type>( "resolved", std::move( err ), std::move( it ) );
 					} );
 					return *this;
 				}
