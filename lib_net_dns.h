@@ -17,7 +17,6 @@ namespace daw {
 					using handler_type = std::function < void( const boost::system::error_code&, boost::asio::ip::tcp::resolver::iterator ) >;
 				private:
 					std::unique_ptr<boost::asio::ip::tcp::resolver> m_resolver;					
-					NetDns& do_lookup( std::string address, handler_type handler );
 				public:
 
 					virtual std::vector<std::string> const & valid_events( ) const override;
@@ -30,13 +29,12 @@ namespace daw {
 					NetDns( NetDns&& other );
 					NetDns& operator=(NetDns && rhs);
 
+					
+
 					//////////////////////////////////////////////////////////////////////////
 					// Summary: resolve name or ip address and call callback of form
-					// void(boost::system::error_code const &, boost::asio::ip::tcp::resolver::iterator)
-					template<typename Handler>
-					NetDns& resolve( std::string const& address, Handler const & handler ) {
-						return do_lookup( address, daw::make_function( handler ) );
-					}
+					// void(boost::system::error_code, boost::asio::ip::tcp::resolver::iterator)
+					NetDns& resolve( std::string const& address );
 
 					template<typename Listener>
 					NetDns& on( std::string event, Listener && listener ) {
@@ -50,13 +48,11 @@ namespace daw {
 						return *this;
 					}
 
-
-					NetDns& resolve( std::string const& address );
-					NetDns& resolve_mx( std::string address, handler_type handler );
-					NetDns& resolve_txt( std::string address, handler_type handler );
-					NetDns& resolve_srv( std::string address, handler_type handler );
-					NetDns& resolve_ns( std::string address, handler_type handler );
-					NetDns& resolve_cname( std::string address, handler_type handler );
+					NetDns& resolve_mx( std::string address );
+					NetDns& resolve_txt( std::string address );
+					NetDns& resolve_srv( std::string address );
+					NetDns& resolve_ns( std::string address );
+					NetDns& resolve_cname( std::string address );
 				};	// class NetDns
 			}	// namespace net
 		}	// namespace lib

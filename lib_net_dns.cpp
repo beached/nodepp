@@ -15,7 +15,7 @@ namespace daw {
 				
 				std::vector<std::string> const & NetDns::valid_events( ) const {
 					static auto const result = [&]( ) {
-						auto local = std::vector < std::string > { "resolved", "error" };
+						auto local = std::vector < std::string > { "resolved" };
 						return base::impl::append_vector( local, base::EventEmitter::valid_events( ) );
 					}();
 					return result;
@@ -31,17 +31,19 @@ namespace daw {
 					return *this;
 				}
 
-				NetDns& NetDns::do_lookup( std::string address, handler_type handler ) { 
+				NetDns& NetDns::resolve( std::string const & address ) { 
 					auto query = tcp::resolver::query( address, "" );
-					m_resolver->async_resolve( query, handler );
+					m_resolver->async_resolve( query, [&]( boost::system::error_code err, boost::asio::ip::tcp::resolver::iterator it ) {
+						this->emit( "resolved", err, it );
+					} );
 					return *this;
 				}
 
-				NetDns& NetDns::resolve_mx( std::string address, handler_type handler ) { throw std::runtime_error( "Method Not Implemented" ); }
-				NetDns& NetDns::resolve_txt( std::string address, handler_type handler ) { throw std::runtime_error( "Method Not Implemented" ); }
-				NetDns& NetDns::resolve_srv( std::string address, handler_type handler ) { throw std::runtime_error( "Method Not Implemented" ); }
-				NetDns& NetDns::resolve_ns( std::string address, handler_type handler ) { throw std::runtime_error( "Method Not Implemented" ); }
-				NetDns& NetDns::resolve_cname( std::string address, handler_type handler ) { throw std::runtime_error( "Method Not Implemented" ); }
+				NetDns& NetDns::resolve_mx( std::string address ) { throw std::runtime_error( "Method Not Implemented" ); }
+				NetDns& NetDns::resolve_txt( std::string address ) { throw std::runtime_error( "Method Not Implemented" ); }
+				NetDns& NetDns::resolve_srv( std::string address ) { throw std::runtime_error( "Method Not Implemented" ); }
+				NetDns& NetDns::resolve_ns( std::string address ) { throw std::runtime_error( "Method Not Implemented" ); }
+				NetDns& NetDns::resolve_cname( std::string address ) { throw std::runtime_error( "Method Not Implemented" ); }
 
 			}	// namespace net
 		}	// namespace lib

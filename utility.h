@@ -166,12 +166,11 @@ namespace daw {
 		using type = std::function < ReturnType( Args... ) > ;
 		using result_type = ReturnType;
 	};
-	template<typename Func>
-	using function_type = typename function_traits<Func>::type;
 
-	template <typename Func>
-	static function_type<Func> make_function( Func func ) {
-		return static_cast<function_type<Func>>(func);
+	template <typename L>
+	static typename function_traits<L>::type make_function( L l ) {
+		return static_cast<typename function_traits<L>::type>(l);
+		//return (typename function_traits<L>::type)(l);
 	}
 
 	//handles bind & multiple function call operator()'s
