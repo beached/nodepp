@@ -18,19 +18,33 @@
 #include "range_algorithm.h"
 #include "range_algorithm.h"
 #include "utility.h"
-#include "utility.h"
-
+#include "lib_net_dns.h"
+#include <thread>
 
 int main( int, char const ** ) {
 	using namespace daw::nodepp;
-	using listen_t = std::function < void( lib::http::HttpClientRequest, lib::http::HttpServerResponse ) > ;
-	auto server = lib::http::create_server( []( lib::http::HttpClientRequest request, lib::http::HttpServerResponse response ) {
-		response.write_head( 200, "", { { "Content-Type", "text/plain" } } );
-		response.write( "Hello World" );
-		response.end( );
-	} ).listen( 8080 );
+// 	using listen_t = std::function < void( lib::http::HttpClientRequest, lib::http::HttpServerResponse ) > ;
+// 	auto server = lib::http::create_server( []( lib::http::HttpClientRequest request, lib::http::HttpServerResponse response ) {
+// 		response.write_head( 200, "", { { "Content-Type", "text/plain" } } );
+// 		response.write( "Hello World" );
+// 		response.end( );
+// 	} ).listen( 8080 );
 
-	while( true ) { }
+	auto dns = lib::net::NetDns( );
+	bool keep_working = true;
+	dns.resolve( "www.dawdevel.ca", [&keep_working]( boost::system::error_code const & err, boost::asio::ip::tcp::resolver::iterator it ) {
+		boost::asio::ip::tcp::resolver::iterator end;
+		for( ; it != end; ++it ) {
+			boost::asio::ip::tcp::endpoint endpoint = *it;
+			std::cout << endpoint << std::endl;
+		}
+		keep_working = false;
+	} );
+
+
+	while( keep_working ) {				
+		Sleep( 100 );
+	}
 	system( "pause" );
 	return EXIT_SUCCESS;
 }

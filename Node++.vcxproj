@@ -201,6 +201,7 @@
     <ClCompile Include="lib_http_statuscodes.cpp" />
     <ClCompile Include="lib_net_address.cpp" />
     <ClCompile Include="base_handle.cpp" />
+    <ClCompile Include="lib_net_dns.cpp" />
     <ClCompile Include="lib_net_server.cpp" />
     <ClCompile Include="lib_net_socket.cpp" />
     <ClCompile Include="load_library.cpp">
