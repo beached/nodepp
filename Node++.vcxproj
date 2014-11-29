@@ -171,6 +171,7 @@
     <ClInclude Include="lib_net.h" />
     <ClInclude Include="lib_net_address.h" />
     <ClInclude Include="base_handle.h" />
+    <ClInclude Include="lib_net_dns.h" />
     <ClInclude Include="lib_net_server.h" />
     <ClInclude Include="lib_net_socket.h" />
     <ClInclude Include="base_stream.h" />

@@ -24,10 +24,8 @@ namespace daw {
 					return result;
 				}
 
-				NetSocket::NetSocket( ): base::stream::Stream( ), m_socket( ), m_endpoint( ) { }
+				NetSocket::NetSocket( ) : base::stream::Stream( ), m_socket( std::make_shared<boost::asio::ip::tcp::socket>( base::Handle::get( ) ) ), m_endpoint( ) { }
 				
-				NetSocket::NetSocket( base::Handle handle ) : m_handle( std::move( handle ) ) { }
-
 				NetSocket::NetSocket( NetSocket&& other ) : base::stream::Stream( std::move( other ) ), m_socket( std::move( other.m_socket ) ), m_endpoint( std::move( other.m_endpoint ) ) { }
 
 				NetSocket& NetSocket::operator=(NetSocket&& rhs) {
