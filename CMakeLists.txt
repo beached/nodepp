@@ -35,6 +35,7 @@ lib_http_server_response.h
 lib_http_statuscodes.cpp
 lib_net_address.cpp
 lib_net_address.h
+lib_net_dns.h
 lib_net.h
 lib_net_server.cpp
 lib_net_server.h
@@ -52,7 +53,8 @@ plugin_base.h
 range_algorithm.h
 ref_counted_value.h
 string.h
-utility.h)
+utility.h
+)
 
 add_executable(NodePP ${SOURCE_FILES})
 
