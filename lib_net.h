@@ -13,22 +13,22 @@ namespace daw {
 
 				NetServer create_server( base::options_t options = base::options_t{ } );
 				template<typename Listener>
-				NetServer create_server( base::options_t options, Listener&& listener ) {
-					return create_server( options ).on( "connection", std::forward<Listener>( listener ) );
+				NetServer create_server( base::options_t options, Listener listener ) {
+					return create_server( options ).on( "connection", listener );
 					
 				}
 
 				NetSocket create_connection( base::options_t options );
 				template<typename Listener>
-				NetServer create_connection( base::options_t options, Listener&& listener ) {
-					return create_connection( options ).on( "connect", std::forward<Listener>( listener ) );
+				NetServer create_connection( base::options_t options, Listener listener ) {
+					return create_connection( options ).on( "connect", listener );
 
 				}
 
 				NetSocket create_connection( uint16_t port, std::string host = "" );
 				
 				template<typename Listener>
-				NetServer create_connection( uint16_t port, std::string host = "", Listener&& listener ) {
+				NetServer create_connection( uint16_t port, std::string host = "", Listener listener ) {
 					return create_connection( options ).on( "connect", port, host );
 
 				}

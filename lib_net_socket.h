@@ -34,8 +34,8 @@ namespace daw {
 					NetSocket& connect( uint16_t port, std::string host );
 
 					template<typename Listener>
-					NetSocket& connect( uint16_t port, std::string host, Listener&& listener ) {
-						return base::rollback_event_on_exception( this, "connect", std::forward<Listener>( listener ), [&]( ) {
+					NetSocket& connect( uint16_t port, std::string host, Listener listener ) {
+						return base::rollback_event_on_exception( this, "connect", listener, [&]( ) {
 							return connect( port, host );
 						} );
 					}
@@ -43,8 +43,8 @@ namespace daw {
 					NetSocket& connect( std::string path );
 
 					template<typename Listener>
-					NetSocket& connect( std::string path, Listener&& listener ) {
-						return base::rollback_event_on_exception( this, "connect", std::forward<Listener>( listener ), [&]( ) {
+					NetSocket& connect( std::string path, Listener listener ) {
+						return base::rollback_event_on_exception( this, "connect", listener, [&]( ) {
 							return connect( path );
 						} );
 					}
@@ -57,8 +57,8 @@ namespace daw {
 					NetSocket& set_timeout( int32_t value );
 
 					template<typename Listener>
-					NetSocket& set_timeout( int32_t value, Listener&& listener ) {
-						return base::rollback_event_on_exception( this, "timeout", std::forward<Listener>( listener ), [&]( ) {
+					NetSocket& set_timeout( int32_t value, Listener listener ) {
+						return base::rollback_event_on_exception( this, "timeout", listener, [&]( ) {
 							set_timeout( value );
 						} );
 					}
@@ -81,14 +81,14 @@ namespace daw {
 
 
 					template<typename Listener>
-					NetSocket& on( std::string event, Listener && listener ) {
-						add_listener( event, std::forward<Listener>( listener ) );
+					NetSocket& on( std::string event, Listener listener ) {
+						add_listener( event, listener );
 						return *this;
 					}
 
 					template<typename Listener>
-					NetSocket& once( std::string event, Listener && listener ) {
-						add_listener( event, std::forward<Listener>( listener ), true );
+					NetSocket& once( std::string event, Listener listener ) {
+						add_listener( event, listener, true );
 						return *this;
 					}
 

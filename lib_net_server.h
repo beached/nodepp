@@ -71,14 +71,14 @@ namespace daw {
 
 
 					template<typename Listener>
-					NetServer& on( std::string event, Listener&& listener ) {
-						add_listener( event, std::forward<Listener>( listener ) );
+					NetServer& on( std::string event, Listener listener ) {
+						add_listener( event, listener );
 						return *this;
 					}
 
 					template<typename Listener>
-					NetServer& once( std::string event, Listener&& listener ) {
-						add_listener( event, std::forward<Listener>( listener ), true );
+					NetServer& once( std::string event, Listener listener ) {
+						add_listener( event, listener, true );
 						return *this;
 					}
 				};	// class server

@@ -24,24 +24,24 @@ namespace daw {
 
 					HttpServer& listen( uint16_t port, std::string hostname = "", uint16_t backlog = 511 );
 					template<typename Listener>
-					HttpServer& listen( uint16_t port, std::string hostname, uint16_t backlog, Listener&& listener ) {
-						return base::rollback_event_on_exception( this, "listening", std::forward<Listener>( listener ), [&]( ) {
+					HttpServer& listen( uint16_t port, std::string hostname, uint16_t backlog, Listener listener ) {
+						return base::rollback_event_on_exception( this, "listening", listener, [&]( ) {
 							return listen( port, hostname, backlog );
 						} );
 					}
 
 					HttpServer& listen( std::string path );
 					template<typename Listener>
-					HttpServer& listen( std::string path, Listener&& listener ) {
-						return base::rollback_event_on_exception( this, "listening", std::forward<Listener>( listener ), [&]( ) {
+					HttpServer& listen( std::string path, Listener listener ) {
+						return base::rollback_event_on_exception( this, "listening", listener, [&]( ) {
 							return listen( path );
 						} );
 					}
 
 					HttpServer& listen( base::Handle handle );
 					template<typename Listener>
-					HttpServer& listen( base::Handle handle, Listener&& listener ) {
-						return base::rollback_event_on_exception( this, "listening", std::forward<Listener>( listener ), [&]( ) {
+					HttpServer& listen( base::Handle handle, Listener listener ) {
+						return base::rollback_event_on_exception( this, "listening", listener, [&]( ) {
 							return listen( std::move( handle ) );
 						} );
 					}
@@ -50,19 +50,19 @@ namespace daw {
 					size_t const & max_header_count( ) const;
 
 					template<typename Listener>
-					HttpServer& set_timeout( size_t msecs, Listener&& listener ) {
+					HttpServer& set_timeout( size_t msecs, Listener listener ) {
 						throw std::runtime_error( "Method not implemented" );
 					}
 
 					template<typename Listener>
-					HttpServer& on( std::string event, Listener&& listener ) {
-						add_listener( event, std::forward<Listener>( listener ) );
+					HttpServer& on( std::string event, Listener listener ) {
+						add_listener( event, listener );
 						return *this;
 					}
 
 					template<typename Listener>
-					HttpServer& once( std::string event, Listener&& listener ) {
-						add_listener( event, std::forward<Listener>( listener ), true );
+					HttpServer& once( std::string event, Listener listener ) {
+						add_listener( event, listener, true );
 						return *this;
 					}
 
@@ -70,8 +70,8 @@ namespace daw {
 				};	// class Server
 
 				template<typename Listener>
-				HttpServer create_server( Listener&& listener ) {
-					return HttpServer( ).on( "listening", std::forward<Listener>( listener ) );
+				HttpServer create_server( Listener listener ) {
+					return HttpServer( ).on( "listening", listener );
 				}
 			}	// namespace http
 		}	// namespace lib

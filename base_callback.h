@@ -21,15 +21,12 @@ namespace daw {
 				using id_t = int64_t;
 			private:
 				static std::atomic_int_least64_t s_last_id;
-				//using cb_storage_t = void*;
 
 				id_t m_id;
 				boost::any m_callback;
 			public:
 				Callback( );
 				~Callback( ) = default;
-
-				//Callback( void* listener );
 
 				template<typename Listener, typename = typename std::enable_if<!std::is_same<Listener, Callback>::value>::type>
 				Callback( Listener listener ) : m_id( s_last_id++ ), m_callback( daw::make_function( listener ) ) { }

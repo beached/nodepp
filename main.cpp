@@ -32,13 +32,13 @@ int main( int, char const ** ) {
 // 	} ).listen( 8080 );
 
 	auto dns = lib::net::NetDns( );
-	dns.on( "resolved", std::function<void(boost::system::error_code err, boost::asio::ip::tcp::resolver::iterator it)>( []( boost::system::error_code err, boost::asio::ip::tcp::resolver::iterator it ) {
+	dns.on( "resolved", []( boost::system::error_code err, boost::asio::ip::tcp::resolver::iterator it ) -> void {
 		boost::asio::ip::tcp::resolver::iterator end;
 		for( ; it != end; ++it ) {
 			boost::asio::ip::tcp::endpoint endpoint = *it;
 			std::cout << endpoint << std::endl;
 		}
-	} ) ).resolve( "www.google.ca" );
+	} ).resolve( "www.google.ca" );
 
 	
 	base::Handle::get( ).run( );

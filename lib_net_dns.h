@@ -37,14 +37,14 @@ namespace daw {
 					NetDns& resolve( std::string const& address );
 
 					template<typename Listener>
-					NetDns& on( std::string event, Listener && listener ) {
-						add_listener( event, std::forward<Listener>( listener ) );
+					NetDns& on( std::string event, Listener listener ) {
+						add_listener( event, listener );
 						return *this;
 					}
 
 					template<typename Listener>
-					NetDns& once( std::string event, Listener && listener ) {
-						add_listener( event, std::forward<Listener>( listener ), true );
+					NetDns& once( std::string event, Listener listener ) {
+						add_listener( event, listener, true );
 						return *this;
 					}
 
