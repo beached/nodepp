@@ -37,6 +37,21 @@ namespace daw {
 					NetDns& resolve( std::string const& address, Handler const & handler ) {
 						return do_lookup( address, daw::make_function( handler ) );
 					}
+
+					template<typename Listener>
+					NetDns& on( std::string event, Listener && listener ) {
+						add_listener( event, std::forward<Listener>( listener ) );
+						return *this;
+					}
+
+					template<typename Listener>
+					NetDns& once( std::string event, Listener && listener ) {
+						add_listener( event, std::forward<Listener>( listener ), true );
+						return *this;
+					}
+
+
+					NetDns& resolve( std::string const& address );
 					NetDns& resolve_mx( std::string address, handler_type handler );
 					NetDns& resolve_txt( std::string address, handler_type handler );
 					NetDns& resolve_srv( std::string address, handler_type handler );

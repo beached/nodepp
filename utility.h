@@ -9,27 +9,27 @@ namespace daw {
 	namespace impl {
 		template<typename ResultType, typename... ArgTypes>
 		struct make_function_pointer_impl {
-			using type = typename std::add_pointer<ResultType(ArgTypes...)>::type;
+			using type = typename std::add_pointer<ResultType( ArgTypes... )>::type;
 		};
 
 		template<typename ResultType, typename ClassType, typename... ArgTypes>
 		struct make_pointer_to_member_function_impl {
-			using type = ResultType(ClassType::*)(ArgTypes...);
+			using type = ResultType( ClassType::* )(ArgTypes...);
 		};
 
 		template<typename ResultType, typename ClassType, typename... ArgTypes>
 		struct make_pointer_to_volatile_member_function_impl {
-			using type = ResultType(ClassType::*)(ArgTypes...) volatile;
+			using type = ResultType( ClassType::* )(ArgTypes...) volatile;
 		};
 
 		template<typename ResultType, typename ClassType, typename... ArgTypes>
 		struct make_pointer_to_const_member_function_impl {
-			using type = ResultType(ClassType::*)(ArgTypes...) const;
+			using type = ResultType( ClassType::* )(ArgTypes...) const;
 		};
 
 		template<typename ResultType, typename ClassType, typename... ArgTypes>
 		struct make_pointer_to_const_volatile_member_function_impl {
-			using type = ResultType(ClassType::*)(ArgTypes...) const volatile;
+			using type = ResultType( ClassType::* )(ArgTypes...) const volatile;
 		};
 	}	// namespace impl
 
@@ -49,15 +49,15 @@ namespace daw {
 	using pointer_to_const_volatile_member_function_t = typename impl::make_pointer_to_const_volatile_member_function_impl<ResultType, ClassType, ArgTypes...>::type;
 
 
-// 	namespace details {
-// 		template<typename Func>
-// 		std::false_type is_function( Func );
-// 
-// 		template<typename Func>
-// 		auto is_function( Func ) -> typename std::is_convertible< Func, std::function< void( ) > >::type;
-// 	}	// namespace details
-// 	template<typename Func>
-// 	struct is_function: decltype(std::function( std::declval<Func( )> )) {};
+	// 	namespace details {
+	// 		template<typename Func>
+	// 		std::false_type is_function( Func );
+	// 
+	// 		template<typename Func>
+	// 		auto is_function( Func ) -> typename std::is_convertible< Func, std::function< void( ) > >::type;
+	// 	}	// namespace details
+	// 	template<typename Func>
+	// 	struct is_function: decltype(std::function( std::declval<Func( )> )) {};
 
 	namespace impl {
 		template<typename T>
@@ -80,7 +80,7 @@ namespace daw {
 				return m_value == value;
 			}
 		};	// class EqualToImpl
-	
+
 	}	// namespace impl
 	template<typename T>
 	impl::EqualToImpl<T> equal_to( T value ) {
@@ -112,7 +112,7 @@ namespace daw {
 	};	// class equal_to_last
 
 	namespace impl {
-	template<typename Function>
+		template<typename Function>
 		class NotImpl {
 			Function m_function;
 		public:
@@ -126,13 +126,13 @@ namespace daw {
 				}
 				return *this;
 			}
-			
-			template<typename...Args>		
+
+			template<typename...Args>
 			bool operator()( Args&&... args ) {
 				return !m_function( std::forward<Args>( args )... );
 			}
 		};	// class NotImpl
-}	// namespace impl
+	}	// namespace impl
 
 	template<typename Function>
 	impl::NotImpl<Function> Not( Function func ) {
@@ -141,13 +141,13 @@ namespace daw {
 
 	// For generic types that are functors, delegate to its 'operator()'
 	template <typename T>
-	struct function_traits: public function_traits< decltype(&T::operator()) > { };
+	struct function_traits: public function_traits < decltype(&T::operator()) > { };
 
-	// for pointers to member function
+	// for pointers to member function(const version)
 	template <typename ClassType, typename ReturnType, typename... Args>
 	struct function_traits < ReturnType( ClassType::* )(Args...) const > {
 		enum { arity = sizeof...(Args) };
-		using type = std::function<ReturnType( Args... )>;
+		using type = std::function < ReturnType( Args... ) > ;
 		using result_type = ReturnType;
 	};
 
@@ -161,16 +161,17 @@ namespace daw {
 
 	// for function pointers
 	template <typename ReturnType, typename... Args>
-	struct function_traits < ReturnType( *)(Args...) > {
+	struct function_traits < ReturnType(*)(Args...) > {
 		enum { arity = sizeof...(Args) };
 		using type = std::function < ReturnType( Args... ) > ;
 		using result_type = ReturnType;
 	};
+	template<typename Func>
+	using function_type = typename function_traits<Func>::type;
 
-	template <typename L>
-	static typename function_traits<L>::type make_function( L l ) {
-		return static_cast<typename function_traits<L>::type>(l);
-		//return (typename function_traits<L>::type)(l);
+	template <typename Func>
+	static function_type<Func> make_function( Func func ) {
+		return static_cast<function_type<Func>>(func);
 	}
 
 	//handles bind & multiple function call operator()'s

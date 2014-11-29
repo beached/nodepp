@@ -32,7 +32,7 @@ int main( int, char const ** ) {
 // 	} ).listen( 8080 );
 
 	auto dns = lib::net::NetDns( );
-	dns.resolve( "www.dawdevel.ca", []( boost::system::error_code const & err, boost::asio::ip::tcp::resolver::iterator it ) {
+	dns.resolve( "www.google.ca", []( boost::system::error_code const & err, boost::asio::ip::tcp::resolver::iterator it ) {
 		boost::asio::ip::tcp::resolver::iterator end;
 		for( ; it != end; ++it ) {
 			boost::asio::ip::tcp::endpoint endpoint = *it;
