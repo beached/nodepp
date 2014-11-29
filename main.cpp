@@ -13,6 +13,7 @@
 #include <vector>
 
 #include "base_event_emitter.h"
+#include "base_handle.h"
 #include "lib_http.h"
 #include "lib_http_server.h"
 #include "range_algorithm.h"
@@ -31,20 +32,19 @@ int main( int, char const ** ) {
 // 	} ).listen( 8080 );
 
 	auto dns = lib::net::NetDns( );
-	bool keep_working = true;
-	dns.resolve( "www.dawdevel.ca", [&keep_working]( boost::system::error_code const & err, boost::asio::ip::tcp::resolver::iterator it ) {
+	dns.resolve( "www.dawdevel.ca", []( boost::system::error_code const & err, boost::asio::ip::tcp::resolver::iterator it ) {
 		boost::asio::ip::tcp::resolver::iterator end;
 		for( ; it != end; ++it ) {
 			boost::asio::ip::tcp::endpoint endpoint = *it;
 			std::cout << endpoint << std::endl;
 		}
-		keep_working = false;
 	} );
 
 
-	while( keep_working ) {				
-		Sleep( 100 );
-	}
+	auto& handle = base::Handle::get( );
+
+	handle.run( );
+
 	system( "pause" );
 	return EXIT_SUCCESS;
 }

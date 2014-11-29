@@ -5,6 +5,7 @@ project(NodePP)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Weverything -Wno-c++98-compat  -Wfatal-errors -Wno-covered-switch-default -Wno-padded -Wno-exit-time-destructors -Wno-c++98-compat-pedantic -Wno-unused-parameter -Wno-missing-noreturn")
 
 find_package(Boost 1.55.0 COMPONENTS system filesystem REQUIRED)
+find_package(Threads REQUIRED)
 
 set(SOURCE_FILES
 base_callback.cpp
@@ -35,6 +36,7 @@ lib_http_server_response.h
 lib_http_statuscodes.cpp
 lib_net_address.cpp
 lib_net_address.h
+lib_net_dns.cpp
 lib_net_dns.h
 lib_net.h
 lib_net_server.cpp
@@ -58,5 +60,5 @@ utility.h
 
 add_executable(NodePP ${SOURCE_FILES})
 
-target_link_libraries(NodePP  ${CMAKE_DL_LIBS} ${Boost_LIBRARIES})
+target_link_libraries(NodePP  ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 

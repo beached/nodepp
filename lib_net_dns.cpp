@@ -4,7 +4,7 @@
 #include "base_event_emitter.h"
 #include "base_handle.h"
 #include "lib_net_dns.h"
-
+#include "make_unique.h"
 
 namespace daw {
 	namespace nodepp {
@@ -22,7 +22,7 @@ namespace daw {
 				}
 
 
-				NetDns::NetDns( ) : m_resolver( base::Handle::get( ) ) { }
+				NetDns::NetDns( ) : m_resolver( daw::make_unique<boost::asio::ip::tcp::resolver>( base::Handle::get( ) ) ) { }
 				NetDns::NetDns( NetDns&& other ): m_resolver( std::move( other.m_resolver ) ) { }
 				NetDns& NetDns::operator=(NetDns && rhs) { 
 					if( this != &rhs ) {
@@ -33,7 +33,7 @@ namespace daw {
 
 				NetDns& NetDns::do_lookup( std::string address, handler_type handler ) { 
 					auto query = tcp::resolver::query( address, "" );
-					m_resolver.async_resolve( query, handler );
+					m_resolver->async_resolve( query, handler );
 					return *this;
 				}
 

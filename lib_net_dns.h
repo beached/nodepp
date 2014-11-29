@@ -16,14 +16,13 @@ namespace daw {
 				public:
 					using handler_type = std::function < void( const boost::system::error_code&, boost::asio::ip::tcp::resolver::iterator ) >;
 				private:
-					boost::asio::ip::tcp::resolver m_resolver;					
+					std::unique_ptr<boost::asio::ip::tcp::resolver> m_resolver;					
 					NetDns& do_lookup( std::string address, handler_type handler );
 				public:
-					using handler_type = std::function < void( boost::system::error_code const &, boost::asio::ip::tcp::resolver::iterator ) > ;
 
 					virtual std::vector<std::string> const & valid_events( ) const override;
 
-					~NetDns( ) = default;
+					virtual ~NetDns( ) = default;
 					NetDns( NetDns const & ) = delete;
 					NetDns& operator=(NetDns const & rhs) = delete;
 					
