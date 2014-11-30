@@ -39,20 +39,17 @@ int main( int, char const ** ) {
 		std::cerr << "Error connecting" << std::endl << error << std::endl;
 		exit( EXIT_FAILURE );
 	} ).on( "connect", [&]( ) {
-		auto const & server = socket.remote_address( );
-		auto path = "/";
+		auto const & server_address = socket.remote_address( );
+		auto requested_page = "/";
 		std::cout << "Connected to " << socket.remote_address( ) << ":" << socket.remote_port( ) << std::endl;
 		std::stringstream request_stream;
-		request_stream << "GET " << path << " HTTP/1.0\r\n";
-		request_stream << "Host: " << server << "\r\n";
+		request_stream << "GET " << requested_page << " HTTP/1.0\r\n";
+		request_stream << "Host: " << server_address << "\r\n";
 		request_stream << "Accept: */*\r\n";
 		request_stream << "Connection: close\r\n\r\n";
 		socket.write( request_stream.str( ) );
 		socket.end( );
-	} ).on(  )
-		
-		
-	socket.connect( "dynoweb.private", 80 );
+	} ).connect( "dynoweb.private", 80 );
 	
 	base::Handle::get( ).run( );
 

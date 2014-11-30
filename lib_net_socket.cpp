@@ -29,14 +29,15 @@ namespace daw {
 					return result;
 				}
 
-				NetSocket::NetSocket( ) : base::stream::Stream( ), m_socket( std::make_shared<boost::asio::ip::tcp::socket>( base::Handle::get( ) ) ), m_endpoint( ) { }
+				NetSocket::NetSocket( ) : base::stream::Stream( ), m_socket( std::make_shared<boost::asio::ip::tcp::socket>( base::Handle::get( ) ) ), m_endpoint( ), m_request_buffer( ), m_response_buffer( ) { }
 				
-				NetSocket::NetSocket( NetSocket&& other ) : base::stream::Stream( std::move( other ) ), m_socket( std::move( other.m_socket ) ), m_endpoint( std::move( other.m_endpoint ) ) { }
+				NetSocket::NetSocket( NetSocket&& other ) : base::stream::Stream( std::move( other ) ), m_socket( std::move( other.m_socket ) ), m_endpoint( std::move( other.m_endpoint ) ), m_request_buffer( std::move( other.m_request_buffer ) ), m_response_buffer( std::move( other.m_response_buffer ) ) { }
 
 				NetSocket& NetSocket::operator=(NetSocket&& rhs) {
 					if( this != &rhs ) {
 						m_socket = std::move( rhs.m_socket );
 						m_endpoint = std::move( rhs.m_endpoint );
+						m_endpoint
 					}
 					return *this;
 				}
@@ -45,33 +46,26 @@ namespace daw {
 
 
 				namespace {
-					void connect_handler( NetSocket* const net_socket, boost::system::error_code const & err, tcp::resolver::iterator ) {
+					void connect_handler( NetSocket* const net_socket, boost::system::error_code const & err, tcp::resolver::iterator it ) {
 						if( !err ) {
-							net_socket->emit( "connect" );
+							base::Handle::get( ).post( [net_socket]( ) {
+								net_socket->emit( "connect" );
+							} );							
 						} else {
 							auto error = base::Error( err );
-							error.add( "where", "NetSocket::connect" );							
-							net_socket->emit( "error", error );
+							error.add( "where", "NetSocket::connect" );
+							base::Handle::get( ).post( [net_socket, error]( ) {																
+								net_socket->emit( "error", error );
+							} );
 						}
 					}
 				}
 
 
 				NetSocket& NetSocket::connect( std::string host, uint16_t port ) {
-// 					auto dns = NetDns( );
-// 					dns.on( "error", [&]( base::Error const & dns_error ) {
-// 						auto error = base::Error( "see child" );
-// 						error.set_child( dns_error );
-// 						error.add( "where", "NetSocket::connect" );
-// 						emit( "error", error );
-// 					} ).once( "resolved", [&]( tcp::resolver::iterator it ) {
-// 						auto handler = boost::bind( connect_handler, this, boost::asio::placeholders::error, boost::asio::placeholders::iterator );
-// 						boost::asio::async_connect( *m_socket, it, handler );
-// 					} );
 					auto resolver = tcp::resolver( base::Handle::get( ) );
 					auto handler = boost::bind( connect_handler, this, boost::asio::placeholders::error, boost::asio::placeholders::iterator );
 					boost::asio::async_connect( *m_socket, resolver.resolve( { host, boost::lexical_cast<std::string>(port) } ), handler );
-
 					return *this;
 				}
 
@@ -84,6 +78,16 @@ namespace daw {
 				NetSocket& NetSocket::end( ) { throw std::runtime_error( "Method not implemented" ); }
 				NetSocket& NetSocket::end( base::data_t const & chunk ) { throw std::runtime_error( "Method not implemented" ); }
 				NetSocket& NetSocket::end( std::string chunk, base::Encoding const & encoding ) { throw std::runtime_error( "Method not implemented" ); }
+
+				void handle_write( const boost::system::error_code& err ) {
+					if( !err ) {
+						auto error = base::Error( err );
+						error.add( "where", "NetSocket::connect" );
+						base::Handle::get( ).post( [net_socket, error]( ) {
+							net_socket->emit( "error", error );
+						} );
+					}
+				}
 
 				bool NetSocket::write( base::data_t const & chunk ) { throw std::runtime_error( "Method not implemented" ); }
 				bool NetSocket::write( std::string data, base::Encoding const & encoding ) { throw std::runtime_error( "Method not implemented" ); }

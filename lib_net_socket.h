@@ -19,7 +19,9 @@ namespace daw {
 
 				class NetSocket: public base::stream::Stream {
 					std::shared_ptr<boost::asio::ip::tcp::socket> m_socket;
-					std::shared_ptr<boost::asio::ip::tcp::endpoint> m_endpoint;					
+					//std::shared_ptr<boost::asio::ip::tcp::endpoint> m_endpoint;	
+					boost::asio::streambuf m_request_buffer;
+					boost::asio::streambuf m_response_buffer;
 				public:
 					virtual std::vector<std::string> const & valid_events( ) const override;
 
