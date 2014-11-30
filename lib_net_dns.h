@@ -16,7 +16,8 @@ namespace daw {
 				using namespace daw::nodepp;
 				class NetDns: public base::EventEmitter  {
 				public:
-					using handler_type = std::function < void( const boost::system::error_code&, boost::asio::ip::tcp::resolver::iterator ) >;
+					/*using handler_type = std::function < void( const boost::system::error_code&, boost::asio::ip::tcp::resolver::iterator ) >;*/
+					using handler_argument_t = boost::asio::ip::tcp::resolver::iterator;
 				private:
 					std::unique_ptr<boost::asio::ip::tcp::resolver> m_resolver;					
 				public:

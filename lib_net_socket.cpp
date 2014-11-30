@@ -1,4 +1,5 @@
 #include <boost/asio.hpp>
+#include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
 #include <cstdint>
 #include <string>
@@ -42,26 +43,31 @@ namespace daw {
 
 				NetSocket::~NetSocket( ) { }
 
-				NetSocket& NetSocket::connect( uint16_t port, std::string host ) { 
-					auto dns = NetDns( );					
-					dns.once( "resolved", [&]( boost::system::error_code const & err, tcp::resolver::iterator it ) {
+
+				namespace {
+					void connect_handler( NetSocket* const net_socket, boost::system::error_code const & err, tcp::resolver::iterator ) {
 						boost::asio::ip::tcp::resolver::iterator end;
-						if( !err && it != end ) {							
-							m_socket->async_connect( *m_endpoint, [&]( boost::system::error_code const & err, tcp::resolver::iterator it ) {
-								boost::asio::ip::tcp::resolver::iterator end;
-								if( !err && it != end ) {									
-									emit( "connect" );
-								} else {
-									auto error = base::Error( err );
-									error.add( "where", "async_connect" );
-									emit( "error", error );
-								}
-							} );
+						if( !err ) {
+							net_socket->emit( "connect" );
 						} else {
 							auto error = base::Error( err );
-							error.add( "where", "async_resolve" );
-							emit( "error", error );
+							error.add( "where", "NetSocket::connect" );							
+							net_socket->emit( "error", error );
 						}
+					}
+				}
+
+
+				NetSocket& NetSocket::connect( uint16_t port, std::string host ) { 
+					auto dns = NetDns( );
+					dns.on( "error", [&]( base::Error const & dns_error ) {
+						auto error = base::Error( "see child" );
+						error.set_child( dns_error );
+						error.add( "where", "NetSocket::connect" );
+						emit( "error", error )
+					} ).once( "resolved", [&]( tcp::resolver::iterator it ) {
+						auto handler = boost::bind( connect_handler, this, boost::asio::placeholders::error, boost::asio::placeholders::iterator );
+						boost::asio::async_connect( *m_socket, it, handler );
 					} );
 					return *this;
 				}

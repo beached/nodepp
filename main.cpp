@@ -6,21 +6,24 @@
 
 #include <boost/any.hpp>
 #include <cstdint>
+#include <cstdlib>
 #include <functional>
 #include <iostream>
+#include <thread>
 #include <type_traits>
 #include <unordered_map>
 #include <vector>
 
+#include "base_error.h"
 #include "base_event_emitter.h"
 #include "base_handle.h"
 #include "lib_http.h"
 #include "lib_http_server.h"
+#include "lib_net_dns.h"
+#include "lib_net_socket.h"
 #include "range_algorithm.h"
 #include "range_algorithm.h"
 #include "utility.h"
-#include "lib_net_dns.h"
-#include <thread>
 
 int main( int, char const ** ) {
 	using namespace daw::nodepp;
@@ -31,15 +34,13 @@ int main( int, char const ** ) {
 // 		response.end( );
 // 	} ).listen( 8080 );
 
-	auto dns = lib::net::NetDns( );
-	dns.on( "resolved", []( boost::system::error_code err, boost::asio::ip::tcp::resolver::iterator it ) -> void {
-		boost::asio::ip::tcp::resolver::iterator end;
-		for( ; it != end; ++it ) {
-			boost::asio::ip::tcp::endpoint endpoint = *it;
-			std::cout << it->host_name( ) << std::endl;
-		}
-	} ).resolve( "192.168.254.69" );
+	auto socket = lib::net::NetSocket( );
+	socket.on( "error", []( base::Error const & error ) {
+		std::cerr << "Error connecting" << std::endl << error << std::endl;
+		exit( EXIT_FAILURE );
+	} ).on( "connect", [&]( ) {
 
+	} ).connect( "dawdevel.ca", 80 );
 	
 	base::Handle::get( ).run( );
 

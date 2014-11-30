@@ -19,7 +19,7 @@ namespace daw {
 			}
 
 			std::vector<std::string> const & EventEmitter::valid_events( ) const {
-				static auto const result = std::vector < std::string > { "newListener", "removeListener" };
+				static auto const result = std::vector < std::string > { "newListener", "removeListener", "error" };
 				return result;
 			}
 

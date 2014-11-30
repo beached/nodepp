@@ -1,8 +1,12 @@
+first
+first
+first
 #include <boost/lexical_cast.hpp>
 #include <boost/system/error_code.hpp>
 #include <stdexcept>
 #include <string>
 #include "base_error.h"
+#include "make_unique.h"
 
 namespace daw {
 	namespace nodepp {
@@ -37,6 +41,48 @@ namespace daw {
 
 			void Error::freeze( ) {
 				m_frozen = true;
+			}
+
+			Error const & Error::get_child( ) const {
+				return *m_child.get( );
+			}
+
+			bool Error::has_child( ) const {
+				if( m_child ) {
+					return true;
+				}
+				return false;
+			}
+
+			Error& Error::clear_child( ) {
+				m_child.reset( nullptr );
+				return *this;
+			}
+
+			Error& Error::set_child( Error const & child ) {
+				m_child = daw::make_unique<Error>( child );
+				m_child->freeze( );
+				return *this;
+			}
+
+			std::string Error::to_string( std::string prefix = "" ) const {
+				std::stringstream ss;
+				ss << "Description: " << m_keyvalues["description"] << "\n";
+				for( auto & const row : m_keyvalues ) {
+					if( row.first.compare( "description" ) != 0 ) {
+						ss << prefix << "'" << row.first << "',	'" << row.second << "'\n";
+					}
+				}
+				if( m_child ) {
+					ss << m_child->to_string( prefix + "	" );
+				}
+				ss << "\n";
+				return ss.str( );
+			}
+
+			std::ostream& operator<<(std::ostream& os, Error const & error) {
+				os << error.to_string( );
+				return os;
 			}
 	}	// namespace base
 }	// namespace nodepp
