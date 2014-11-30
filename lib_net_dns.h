@@ -1,6 +1,8 @@
 #pragma once
 
 #include <boost/asio/ip/tcp.hpp>
+#include <boost/lexical_cast.hpp>
+#include <cstdint>
 #include <functional>
 
 #include "base_event_emitter.h"
@@ -30,12 +32,11 @@ namespace daw {
 					NetDns& operator=(NetDns && rhs);
 
 					
-
 					//////////////////////////////////////////////////////////////////////////
 					// Summary: resolve name or ip address and call callback of form
 					// void(boost::system::error_code, boost::asio::ip::tcp::resolver::iterator)
 					NetDns& resolve( std::string const& address );
-
+					NetDns& resolve( std::string const& address, uint16_t port );
 					template<typename Listener>
 					NetDns& on( std::string event, Listener listener ) {
 						add_listener( event, listener );
@@ -48,11 +49,6 @@ namespace daw {
 						return *this;
 					}
 
-					NetDns& resolve_mx( std::string address );
-					NetDns& resolve_txt( std::string address );
-					NetDns& resolve_srv( std::string address );
-					NetDns& resolve_ns( std::string address );
-					NetDns& resolve_cname( std::string address );
 				};	// class NetDns
 			}	// namespace net
 		}	// namespace lib

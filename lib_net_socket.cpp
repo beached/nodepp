@@ -1,12 +1,15 @@
-//#include <boost/asio.hpp>
+#include <boost/asio.hpp>
+#include <boost/lexical_cast.hpp>
 #include <cstdint>
 #include <string>
 
 #include "base_enoding.h"
 #include "base_event_emitter.h"
+#include "base_error.h"
 #include "base_stream.h"
 #include "base_types.h"
 #include "base_handle.h"
+#include "lib_net_dns.h"
 #include "lib_net_socket.h"
 #include "range_algorithm.h"
 
@@ -15,7 +18,8 @@ namespace daw {
 		namespace lib {
 			namespace net {
 				using namespace daw::nodepp;
-				
+				using namespace boost::asio::ip;
+
 				std::vector<std::string> const & NetSocket::valid_events( ) const {
 					static auto const result = [&]( ) {
 						auto local = std::vector < std::string > { "connect", "data", "end", "timeout", "drain", "error", "close" };
@@ -38,7 +42,29 @@ namespace daw {
 
 				NetSocket::~NetSocket( ) { }
 
-				NetSocket& NetSocket::connect( uint16_t port, std::string host ) { throw std::runtime_error( "Method not implemented" ); }
+				NetSocket& NetSocket::connect( uint16_t port, std::string host ) { 
+					auto dns = NetDns( );					
+					dns.once( "resolved", [&]( boost::system::error_code const & err, tcp::resolver::iterator it ) {
+						boost::asio::ip::tcp::resolver::iterator end;
+						if( !err && it != end ) {							
+							m_socket->async_connect( *m_endpoint, [&]( boost::system::error_code const & err, tcp::resolver::iterator it ) {
+								boost::asio::ip::tcp::resolver::iterator end;
+								if( !err && it != end ) {									
+									emit( "connect" );
+								} else {
+									auto error = base::Error( err );
+									error.add( "where", "async_connect" );
+									emit( "error", error );
+								}
+							} );
+						} else {
+							auto error = base::Error( err );
+							error.add( "where", "async_resolve" );
+							emit( "error", error );
+						}
+					} );
+					return *this;
+				}
 
 				NetSocket& NetSocket::connect( std::string path ) { throw std::runtime_error( "Method not implemented" ); }
 
@@ -65,12 +91,22 @@ namespace daw {
 				NetSocket& NetSocket::unref( ) { throw std::runtime_error( "Method not implemented" ); }
 				NetSocket& NetSocket::ref( ) { throw std::runtime_error( "Method not implemented" ); }
 
-				lib::net::NetAddress const &  NetSocket::remote_address( ) const { throw std::runtime_error( "Method not implemented" ); }
-				lib::net::NetAddress const & NetSocket::local_address( ) const { throw std::runtime_error( "Method not implemented" ); }
-				uint16_t NetSocket::remote_port( ) const { throw std::runtime_error( "Method not implemented" ); }
-				uint16_t NetSocket::local_port( ) const { throw std::runtime_error( "Method not implemented" ); }
-				
+				std::string const & NetSocket::remote_address( ) const {
+					return m_socket->remote_endpoint( ).address( ).to_string( );
+				}
 
+				std::string const & NetSocket::local_address( ) const { 
+					return m_socket->local_endpoint( ).address( ).to_string( );
+				}
+				
+				uint16_t NetSocket::remote_port( ) const { 
+					return m_socket->remote_endpoint( ).port( );
+				}
+
+				uint16_t NetSocket::local_port( ) const { 
+					return m_socket->local_endpoint( ).port( );
+				}
+				
 				size_t NetSocket::bytes_read( ) const { throw std::runtime_error( "Method not implemented" ); }
 
 				size_t NetSocket::bytes_written( ) const { throw std::runtime_error( "Method not implemented" ); }

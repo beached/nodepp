@@ -36,9 +36,9 @@ int main( int, char const ** ) {
 		boost::asio::ip::tcp::resolver::iterator end;
 		for( ; it != end; ++it ) {
 			boost::asio::ip::tcp::endpoint endpoint = *it;
-			std::cout << endpoint << std::endl;
+			std::cout << it->host_name( ) << std::endl;
 		}
-	} ).resolve( "www.google.ca" );
+	} ).resolve( "192.168.254.69" );
 
 	
 	base::Handle::get( ).run( );

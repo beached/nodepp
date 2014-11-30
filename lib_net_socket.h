@@ -71,8 +71,8 @@ namespace daw {
 					NetSocket& unref( );
 					NetSocket& ref( );
 
-					lib::net::NetAddress const & remote_address( ) const;
-					lib::net::NetAddress const & local_address( ) const;
+					std::string const & remote_address( ) const;
+					std::string const & local_address( ) const;
 					uint16_t remote_port( ) const;	
 					uint16_t local_port( ) const;
 					

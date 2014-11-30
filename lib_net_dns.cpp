@@ -1,4 +1,6 @@
 #include <boost/asio/ip/tcp.hpp>
+#include <boost/lexical_cast.hpp>
+#include <cstdint>
 #include <functional>
 
 #include "base_event_emitter.h"
@@ -32,18 +34,20 @@ namespace daw {
 				}
 
 				NetDns& NetDns::resolve( std::string const & address ) { 
-					auto query = tcp::resolver::query( address, "" );
-					m_resolver->async_resolve( query, [&]( boost::system::error_code err, boost::asio::ip::tcp::resolver::iterator it ) {
-						this->emit<std::decay<boost::system::error_code>::type, std::decay<boost::asio::ip::tcp::resolver::iterator>::type>( "resolved", std::move( err ), std::move( it ) );
+					auto query = tcp::resolver::query( address, "", boost::asio::ip::resolver_query_base::numeric_host );
+					m_resolver->async_resolve( query, [&]( boost::system::error_code const & err, boost::asio::ip::tcp::resolver::iterator it ) {
+						this->emit( "resolved", std::move( err ), std::move( it ) );
 					} );
 					return *this;
 				}
 
-				NetDns& NetDns::resolve_mx( std::string address ) { throw std::runtime_error( "Method Not Implemented" ); }
-				NetDns& NetDns::resolve_txt( std::string address ) { throw std::runtime_error( "Method Not Implemented" ); }
-				NetDns& NetDns::resolve_srv( std::string address ) { throw std::runtime_error( "Method Not Implemented" ); }
-				NetDns& NetDns::resolve_ns( std::string address ) { throw std::runtime_error( "Method Not Implemented" ); }
-				NetDns& NetDns::resolve_cname( std::string address ) { throw std::runtime_error( "Method Not Implemented" ); }
+				NetDns& NetDns::resolve( std::string const & address, uint16_t port ) {
+					auto query = tcp::resolver::query( address, boost::lexical_cast<std::string>( port ), boost::asio::ip::resolver_query_base::numeric_host );
+					m_resolver->async_resolve( query, [&]( boost::system::error_code const & err, boost::asio::ip::tcp::resolver::iterator it ) {
+						this->emit( "resolved", std::move( err ), std::move( it ) );
+					} );
+					return *this;
+				}
 
 			}	// namespace net
 		}	// namespace lib

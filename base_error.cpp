@@ -1,3 +1,5 @@
+#include <boost/lexical_cast.hpp>
+#include <boost/system/error_code.hpp>
 #include <stdexcept>
 #include <string>
 #include "base_error.h"
@@ -8,6 +10,12 @@ namespace daw {
 			Error::Error( std::string description ) : m_keyvalues{ }, m_frozen{ false } { 
 				m_keyvalues.emplace( "description", description );
 			}
+
+			Error::Error( boost::system::error_code const & err ) : m_keyvalues{ }, m_frozen{ false } {
+				m_keyvalues.emplace( "description", err.message( ) );
+				m_keyvalues.emplace( "category", boost::lexical_cast<std::string>(err.category( ).name( )) );
+				m_keyvalues.emplace( "error_code", boost::lexical_cast<std::string>(err.value( )) );
+ 			}
 
 			Error::Error( Error && other ) : m_keyvalues( std::move( other.m_keyvalues ) ), m_frozen{ std::move( other.m_frozen ) } { }
 

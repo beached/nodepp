@@ -1,5 +1,5 @@
 #pragma once
-
+#include <boost/system/error_code.hpp>
 #include <string>
 #include <unordered_map>
 
@@ -19,6 +19,7 @@ namespace daw {
 				Error& operator=(Error const &) = default;
 
 				Error( std::string description );
+				Error( boost::system::error_code const & err );
 				Error( Error && );
 				Error& operator=(Error &&);
 				Error& add( std::string name, std::string value );
