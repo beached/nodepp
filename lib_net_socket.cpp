@@ -50,7 +50,7 @@ namespace daw {
 						if( !err ) {
 							net_socket->emit( "connect" );
 						} else 							
-							auto error = base::Error( err );
+							base::Error error( err );
 							error.add( "where", "NetSocket::connect" );							
 							net_socket->emit( "error", error );
 						}

@@ -112,7 +112,7 @@ namespace daw {
 			static auto rollback_event_on_exception( This me, std::string event, Listener listener, Action action_to_try, bool run_listener_once = false ) -> decltype(action_to_try( )) {
 				auto cb_id = me->add_listener( event, listener, run_listener_once );
 				try {
-					return action_to_try( )
+					return action_to_try( );
 				} catch( ... ) {
 					// Rollback listener
 					me->remove_listener( event, cb_id );
