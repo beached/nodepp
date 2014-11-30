@@ -49,7 +49,7 @@ namespace daw {
 						boost::asio::ip::tcp::resolver::iterator end;
 						if( !err ) {
 							net_socket->emit( "connect" );
-						} else {
+						} else 							
 							auto error = base::Error( err );
 							error.add( "where", "NetSocket::connect" );							
 							net_socket->emit( "error", error );

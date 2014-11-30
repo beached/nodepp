@@ -61,7 +61,7 @@ namespace daw {
 			}
 
 			Error& Error::clear_child( ) {
-				m_child.reset( nullptr );
+				m_child.reset( );
 				return *this;
 			}
 
