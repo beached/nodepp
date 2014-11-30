@@ -46,11 +46,10 @@ namespace daw {
 
 				namespace {
 					void connect_handler( NetSocket* const net_socket, boost::system::error_code const & err, tcp::resolver::iterator ) {
-						boost::asio::ip::tcp::resolver::iterator end;
 						if( !err ) {
 							net_socket->emit( "connect" );
-						} else 							
-							base::Error error( err );
+						} else {
+							auto error = base::Error( err );
 							error.add( "where", "NetSocket::connect" );							
 							net_socket->emit( "error", error );
 						}
@@ -58,17 +57,21 @@ namespace daw {
 				}
 
 
-				NetSocket& NetSocket::connect( uint16_t port, std::string host ) { 
-					auto dns = NetDns( );
-					dns.on( "error", [&]( base::Error const & dns_error ) {
-						auto error = base::Error( "see child" );
-						error.set_child( dns_error );
-						error.add( "where", "NetSocket::connect" );
-						emit( "error", error )
-					} ).once( "resolved", [&]( tcp::resolver::iterator it ) {
-						auto handler = boost::bind( connect_handler, this, boost::asio::placeholders::error, boost::asio::placeholders::iterator );
-						boost::asio::async_connect( *m_socket, it, handler );
-					} );
+				NetSocket& NetSocket::connect( std::string host, uint16_t port ) {
+// 					auto dns = NetDns( );
+// 					dns.on( "error", [&]( base::Error const & dns_error ) {
+// 						auto error = base::Error( "see child" );
+// 						error.set_child( dns_error );
+// 						error.add( "where", "NetSocket::connect" );
+// 						emit( "error", error );
+// 					} ).once( "resolved", [&]( tcp::resolver::iterator it ) {
+// 						auto handler = boost::bind( connect_handler, this, boost::asio::placeholders::error, boost::asio::placeholders::iterator );
+// 						boost::asio::async_connect( *m_socket, it, handler );
+// 					} );
+					auto resolver = tcp::resolver( base::Handle::get( ) );
+					auto handler = boost::bind( connect_handler, this, boost::asio::placeholders::error, boost::asio::placeholders::iterator );
+					boost::asio::async_connect( *m_socket, resolver.resolve( { host, boost::lexical_cast<std::string>(port) } ), handler );
+
 					return *this;
 				}
 

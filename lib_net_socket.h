@@ -31,23 +31,8 @@ namespace daw {
 					NetSocket& operator=(NetSocket&& rhs);
 					virtual ~NetSocket( );
 
-					NetSocket& connect( uint16_t port, std::string host );
-
-					template<typename Listener>
-					NetSocket& connect( uint16_t port, std::string host, Listener listener ) {
-						return base::rollback_event_on_exception( this, "connect", listener, [&]( ) -> NetSocket& {
-							return connect( port, host );
-						} );
-					}
-
+					NetSocket& connect( std::string host, uint16_t port );
 					NetSocket& connect( std::string path );
-
-					template<typename Listener>
-					NetSocket& connect( std::string path, Listener listener ) {
-						return base::rollback_event_on_exception( this, "connect", listener, [&]( ) -> NetSocket& {
-							return connect( path );
-						} );
-					}
 
 					size_t& buffer_size( );
 					size_t const & buffer_size( ) const;
