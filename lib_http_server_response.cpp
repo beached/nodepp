@@ -48,12 +48,12 @@ namespace daw {
 				bool HttpServerResponse::add_trailers( Headers headers ) { throw std::runtime_error( "Method not implemented" ); }
 
 
-				bool HttpServerResponse::write( base::data_t const & chunk ) { throw std::runtime_error( "Method not implemented" ); }
-				bool HttpServerResponse::write( std::string chunk, base::Encoding const & encoding ) { throw std::runtime_error( "Method not implemented" ); }
+				HttpServerResponse& HttpServerResponse::write( base::data_t const & chunk ) { throw std::runtime_error( "Method not implemented" ); }
+				HttpServerResponse& HttpServerResponse::write( std::string const & chunk, base::Encoding const & encoding ) { throw std::runtime_error( "Method not implemented" ); }
 
 				HttpServerResponse& HttpServerResponse::end( ) { throw std::runtime_error( "Method not implemented" ); }
 				HttpServerResponse& HttpServerResponse::end( base::data_t const & chunk ) { throw std::runtime_error( "Method not implemented" ); }
-				HttpServerResponse& HttpServerResponse::end( std::string chunk, base::Encoding const & encoding ) { throw std::runtime_error( "Method not implemented" ); }
+				HttpServerResponse& HttpServerResponse::end( std::string const & chunk, base::Encoding const & encoding ) { throw std::runtime_error( "Method not implemented" ); }
 			}	// namespace http
 		}	// namespace lib
 	}	// namespace nodepp

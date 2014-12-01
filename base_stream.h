@@ -46,11 +46,11 @@ namespace daw {
 					virtual ~StreamWritable( ) = default;
 
 					virtual std::vector<std::string> const & valid_events( ) const override;
-					virtual bool write( base::data_t const & chunk ) = 0;
-					virtual bool write( std::string chunk, base::Encoding const & encoding ) = 0;
+					virtual StreamWritable& write( base::data_t const & chunk ) = 0;
+					virtual StreamWritable& write( std::string const & chunk, base::Encoding const & encoding ) = 0;
 					virtual StreamWritable& end( ) = 0;
 					virtual StreamWritable& end( base::data_t const & chunk ) = 0;
-					virtual StreamWritable& end( std::string chunk, base::Encoding const & encoding ) = 0;
+					virtual StreamWritable& end( std::string const & chunk, base::Encoding const & encoding ) = 0;
 					
 					template<typename Listener>
 					bool write( base::data_t const & chunk, Listener listener ) {

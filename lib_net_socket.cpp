@@ -21,6 +21,13 @@ namespace daw {
 				using namespace daw::nodepp;
 				using namespace boost::asio::ip;
 
+				namespace {
+					template<typename Container>
+					auto to_bbuffer( Container& container ) -> decltype(boost::asio::buffer( container.data( ), container.size( ) )) {
+						return boost::asio::buffer( container.data( ), container.size( ) );
+					}
+				}
+
 				std::vector<std::string> const & NetSocket::valid_events( ) const {
 					static auto const result = [&]( ) {
 						auto local = std::vector < std::string > { "connect", "data", "end", "timeout", "drain", "error", "close" };
@@ -31,8 +38,6 @@ namespace daw {
 
 				NetSocket::NetSocket( ):	base::stream::Stream( ), 
 											m_socket( std::make_shared<boost::asio::ip::tcp::socket>( base::Handle::get( ) ) ), 
-											m_request_buffer( 1024, 0 ), 
-											m_request_buffers( ), 
 											m_response_buffer( 1024, 0 ), 
 											m_response_buffers( ), 
 											m_bytes_read( 0 ),
@@ -40,18 +45,14 @@ namespace daw {
 				
 				NetSocket::NetSocket( NetSocket&& other ):	base::stream::Stream( std::move( other ) ),
 															m_socket( std::move( other.m_socket ) ), 
-															m_request_buffer( std::move( other.m_request_buffer ) ),
-															m_request_buffers( std::move( other.m_request_buffers ) ), 
 															m_response_buffer( std::move( other.m_response_buffer ) ), 
-															m_response_buffers( std::move( other.m_request_buffers ) ),
+															m_response_buffers( std::move( other.m_response_buffers ) ),
 															m_bytes_read( std::move( other.m_bytes_read ) ),
 															m_bytes_written( std::move( other.m_bytes_written ) ) { }
 
 				NetSocket& NetSocket::operator=(NetSocket&& rhs) {
 					if( this != &rhs ) {
 						m_socket = std::move( rhs.m_socket );						
-						m_request_buffer = std::move( rhs.m_request_buffer );
-						m_request_buffers = std::move( rhs.m_request_buffers );
 						m_response_buffer = std::move( rhs.m_response_buffer );
 						m_response_buffers = std::move( rhs.m_response_buffers );
 						m_bytes_read = std::move( rhs.m_bytes_read );
@@ -62,18 +63,35 @@ namespace daw {
 
 				NetSocket::~NetSocket( ) { }
 
+				void NetSocket::do_async_read( NetSocket* const net_socket ) {
+					auto handler = boost::bind( &NetSocket::handle_read, net_socket, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred );
+					boost::asio::async_read( *net_socket->m_socket, to_bbuffer( net_socket->m_response_buffer ), handler );
+				}
+
 				namespace {
+
+					void emit_error( NetSocket* const net_socket, boost::system::error_code const & err, std::string where ) {
+						auto error = base::Error( err );
+						error.add( "where", where );
+						base::Handle::get( ).post( [net_socket, error]( ) {
+							net_socket->emit( "error", error );
+						} );
+					}
+
+					void emit_data( NetSocket* const net_socket, base::data_t const & buffer, size_t num_items ) {
+						auto data_param = daw::copy_vector( buffer, num_items );
+						base::Handle::get( ).post( [net_socket, data_param]( ) {
+							net_socket->emit( "data", std::move( data_param ) );
+						} );						
+					}
+
 					void connect_handler( NetSocket* const net_socket, boost::system::error_code const & err, tcp::resolver::iterator it ) {
 						if( !err ) {
 							base::Handle::get( ).post( [net_socket]( ) {
 								net_socket->emit( "connect" );
 							} );							
 						} else {
-							auto error = base::Error( err );
-							error.add( "where", "NetSocket::connect" );
-							base::Handle::get( ).post( [net_socket, error]( ) {																
-								net_socket->emit( "error", error );
-							} );
+							emit_error( net_socket, err, "NetSocket::connect" );
 						}
 					}
 				}
@@ -93,56 +111,73 @@ namespace daw {
 				
 				NetSocket& NetSocket::end( ) { throw std::runtime_error( "Method not implemented" ); }
 				NetSocket& NetSocket::end( base::data_t const & chunk ) { throw std::runtime_error( "Method not implemented" ); }
-				NetSocket& NetSocket::end( std::string chunk, base::Encoding const & encoding ) { throw std::runtime_error( "Method not implemented" ); }
+				NetSocket& NetSocket::end( std::string const & chunk, base::Encoding const & encoding ) { throw std::runtime_error( "Method not implemented" ); }
 				
 				void NetSocket::handle_read( boost::system::error_code const & err, size_t bytes_transfered ) {
 					auto net_socket = this;
 					if( 0 < listener_count( "data" ) ) {
-						auto data_param = daw::copy_vector( m_response_buffer, bytes_transfered );
-						base::Handle::get( ).post( [net_socket, data_param]( ) {								
-							net_socket->emit( "data", std::move( data_param ) );
-						} );
+						emit_data( this, m_response_buffer, bytes_transfered );
 					} else {
-						daw::move_vector_to_end( m_response_buffer, m_response_buffers, static_cast<typename base::data_t::value_type>( 0 ) );
+						daw::move_vector_to_end( m_response_buffer, m_response_buffers, static_cast<base::data_t::value_type>( 0 ) );
 					}
 					m_bytes_read += bytes_transfered;
 
 					if( !err ) {
-						auto handler = boost::bind( &NetSocket::handle_read, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred );
-						boost::asio::async_read( *m_socket, boost::asio::buffer( m_response_buffer.data( ), m_response_buffer.size( ) ), handler );						
+						do_async_read( this );
 					} else {
-						auto error = base::Error( err );
-						error.add( "where", "NetSocket::read" );
-						base::Handle::get( ).post( [net_socket, error]( ) {
-							net_socket->emit( "error", error );
-						} );
-
+						emit_data( this, m_response_buffers, m_response_buffers.size( ) );
 						base::Handle::get( ).post( [net_socket]( ) {
 							net_socket->emit( "end" );
 						} );
+						emit_error( this, err, "NetSocket::read" );
 					}
 				}
 
-				void NetSocket::handle_write( boost::system::error_code const & err ) {
-					auto net_socket = this;
-					if( !err ) {
-						auto handler = boost::bind( &NetSocket::handle_read, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred );
-						boost::asio::async_read( *m_socket, boost::asio::buffer( m_response_buffer.data( ), m_response_buffer.size( ) ), handler );
-					} else {
-						auto error = base::Error( err );
-						error.add( "where", "NetSocket::write" );
-						base::Handle::get( ).post( [net_socket, error]( ) {
-							net_socket->emit( "error", error );
-						} );
-					}											
+				namespace {
+					struct write_buffer {
+						std::shared_ptr<base::data_t> buff;
+
+						template<typename Iterator>						
+						write_buffer( Iterator first, Iterator last ) : buff( std::make_shared<base::data_t>( first, last ) ) { }
+						
+						write_buffer( base::data_t const & source ) : buff( std::make_shared<base::data_t>( source ) ) { }
+						
+						write_buffer( std::string const & source ) : buff( std::make_shared<base::data_t>( source.begin( ), source.end( ) ) ) { }
+
+						size_t size( ) const {
+							return buff->size( );
+						}
+
+						boost::asio::mutable_buffers_1 asio_buff( ) const {
+							return boost::asio::buffer( buff->data( ), buff->size( ) );
+						}
+					};
 				}
 
-				bool NetSocket::write( base::data_t const & chunk ) { throw std::runtime_error( "Method not implemented" ); }
-				bool NetSocket::write( std::string data, base::Encoding const & encoding ) { throw std::runtime_error( "Method not implemented" ); }
+				void handle_write( NetSocket* net_socket, std::shared_ptr<boost::asio::ip::tcp::socket> socket, write_buffer buff, boost::system::error_code const & err ) {
+					if( !err ) {
+						NetSocket::do_async_read( net_socket );
+					} else {
+						emit_error( net_socket, err, "NetSocket::write" );
+					}
+				}
+
+				NetSocket& NetSocket::write( base::data_t const & chunk ) { 
+					auto buff = write_buffer( chunk );
+					auto handler = boost::bind( handle_write, this, m_socket, buff, boost::asio::placeholders::error );
+					boost::asio::async_write( *m_socket, buff.asio_buff( ), handler );
+					return *this;
+				}
+				
+				NetSocket& NetSocket::write( std::string const & chunk, base::Encoding const & encoding ) { 
+					auto buff = write_buffer( chunk );
+					auto handler = boost::bind( handle_write, this, m_socket, buff, boost::asio::placeholders::error );
+					boost::asio::async_write( *m_socket, buff.asio_buff( ), handler );
+					return *this;
+				}
 
 				NetSocket& NetSocket::destroy( ) { throw std::runtime_error( "Method not implemented" ); }
 				
-
 				NetSocket& NetSocket::set_timeout( int32_t value ) { throw std::runtime_error( "Method not implemented" ); }
 				NetSocket& NetSocket::set_no_delay( bool no_delay ) { throw std::runtime_error( "Method not implemented" ); }
 				NetSocket& NetSocket::set_keep_alive( bool keep_alive, int32_t initial_delay ) { throw std::runtime_error( "Method not implemented" ); }

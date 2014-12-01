@@ -21,17 +21,15 @@ namespace daw {
 
 				class NetSocket: public base::stream::Stream {
 					std::shared_ptr<boost::asio::ip::tcp::socket> m_socket;
-					base::data_t m_request_buffer;
-					base::data_t m_request_buffers;
 					base::data_t m_response_buffer;
 					base::data_t m_response_buffers;
 					size_t m_bytes_read;
 					size_t m_bytes_written;
 
-					void handle_write( boost::system::error_code const & err );
 					void handle_read( boost::system::error_code const & err, size_t bytes_transfered );
 
 				public:
+					static void do_async_read( NetSocket* const socket );
 					virtual std::vector<std::string> const & valid_events( ) const override;
 
 					NetSocket( );
@@ -102,12 +100,12 @@ namespace daw {
 					virtual NetSocket& unshift( base::data_t const & chunk ) override;
 
 					// StreamWritable Interface
-					virtual bool write( base::data_t const & chunk ) override;
-					virtual bool write( std::string chunk, base::Encoding const & encoding = base::Encoding( ) ) override;
+					virtual NetSocket& write( base::data_t const & chunk ) override;
+					virtual NetSocket& write( std::string const & chunk, base::Encoding const & encoding = base::Encoding( ) ) override;
 
 					virtual NetSocket& end( ) override;
 					virtual NetSocket& end( base::data_t const & chunk ) override;
-					virtual NetSocket& end( std::string chunk, base::Encoding const & encoding = base::Encoding( ) ) override;
+					virtual NetSocket& end( std::string const & chunk, base::Encoding const & encoding = base::Encoding( ) ) override;
 				};
 			}	// namespace net
 		}	// namespace lib

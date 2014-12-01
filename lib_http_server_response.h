@@ -52,11 +52,11 @@ namespace daw {
 
 					// StreamWriteable overrides
 					virtual std::vector<std::string> const & valid_events( ) const override;
-					virtual bool write( base::data_t const & chunk ) override;
-					virtual bool write( std::string chunk, base::Encoding const & encoding = base::Encoding( ) ) override;
+					virtual HttpServerResponse& write( base::data_t const & chunk ) override;
+					virtual HttpServerResponse& write( std::string const & chunk, base::Encoding const & encoding = base::Encoding( ) ) override;
 					virtual HttpServerResponse& end( ) override;
 					virtual HttpServerResponse& end( base::data_t const & chunk ) override;
-					virtual HttpServerResponse& end( std::string chunk, base::Encoding const & encoding = base::Encoding( ) ) override;
+					virtual HttpServerResponse& end( std::string const & chunk, base::Encoding const & encoding = base::Encoding( ) ) override;
 				};	// class ServerResponse			
 
 
