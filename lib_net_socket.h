@@ -27,7 +27,7 @@ namespace daw {
 					size_t m_bytes_read;
 					size_t m_bytes_written;
 					std::mutex m_response_buffers_mutex;
-					void handle_read( boost::system::error_code const & err, size_t bytes_transfered );
+					void handle_read( boost::system::error_code const & err, size_t bytes_transfered );					
 
 				public:
 					static void do_async_read( NetSocket* const socket );

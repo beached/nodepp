@@ -43,6 +43,7 @@ namespace daw {
 				listeners_t & listeners( );
 				listeners_t const & listeners( ) const;
 				bool event_is_valid( std::string const & event ) const;
+
 			public:
 				virtual std::vector<std::string> const & valid_events( ) const;
 

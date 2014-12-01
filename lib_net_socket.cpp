@@ -71,6 +71,13 @@ namespace daw {
 					boost::asio::async_read( *net_socket->m_socket, to_bbuffer( net_socket->m_response_buffer ), handler );
 				}
 
+				base::data_t get_clear_buffer( base::data_t * buffer ) {
+					base::data_t result( buffer->size( ) );
+					using std::swap;
+					swap( result, *buffer );
+					return result;
+				}
+
 				namespace {
 
 					void emit_error( NetSocket* const net_socket, boost::system::error_code const & err, std::string where ) {
@@ -115,10 +122,7 @@ namespace daw {
 				void NetSocket::handle_read( boost::system::error_code const & err, size_t bytes_transfered ) {
 					auto net_socket = this;
 					if( 0 < listener_count( "data" ) ) {
-						base::data_t emit_buffer;
-						using std::swap;
-						swap( emit_buffer, m_response_buffer );
-						emit_data( this, std::move( emit_buffer ), bytes_transfered );
+						emit_data( this, get_clear_buffer( &m_response_buffer ), bytes_transfered );
 					} else {	// Queue up for a 
 						std::lock_guard<std::mutex> scoped_lock( m_response_buffers_mutex );
 						daw::copy_vect_and_set( m_response_buffer, m_response_buffers, bytes_transfered, static_cast<base::data_t::value_type>(0) );
@@ -244,13 +248,8 @@ namespace daw {
 
 				// StreamReadable Interface
 				base::data_t NetSocket::read( ) { 
-					base::data_t result;
-					{
-						std::lock_guard<std::mutex> scoped_lock( m_response_buffers_mutex );
-						using std::swap;
-						swap( result, m_response_buffers );
-					}
-					return result;
+					std::lock_guard<std::mutex> scoped_lock( m_response_buffers_mutex );
+					return get_clear_buffer( &m_response_buffers );
 				}
 
 				base::data_t  NetSocket::read( size_t bytes ) { throw std::runtime_error( "Method not implemented" ); }
