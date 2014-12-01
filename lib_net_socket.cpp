@@ -145,9 +145,17 @@ namespace daw {
 						size_t size( ) const {
 							return buff->size( );
 						}
+						
+						auto data( ) -> decltype( buff->data( ) ) {
+							return buff->data( );
+						}
+
+						auto data( ) const -> decltype( buff->data( ) ) {
+							return buff->data( );
+						}
 
 						boost::asio::mutable_buffers_1 asio_buff( ) const {
-							return boost::asio::buffer( buff->data( ), buff->size( ) );
+							return boost::asio::buffer( data( ), size( ) );
 						}
 					};
 				}

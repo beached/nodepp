@@ -56,8 +56,6 @@ int main( int, char const ** ) {
 	
 	base::Handle::get( ).run( );
 
-	while( true ) { }
-
-	system( "pause" );
+//	system( "pause" );
 	return EXIT_SUCCESS;
 }
