@@ -108,7 +108,7 @@ namespace daw {
 					m_bytes_read += bytes_transfered;
 
 					if( !err ) {
-						auto handler = boost::bind( &NetSocket::handle_read, this, boost::asio::placeholders::error );
+						auto handler = boost::bind( &NetSocket::handle_read, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred );
 						boost::asio::async_read( *m_socket, boost::asio::buffer( m_response_buffer.data( ), m_response_buffer.size( ) ), handler );						
 					} else {
 						auto error = base::Error( err );
@@ -119,7 +119,7 @@ namespace daw {
 
 						base::Handle::get( ).post( [net_socket]( ) {
 							net_socket->emit( "end" );
-						} )
+						} );
 					}
 				}
 

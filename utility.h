@@ -48,17 +48,6 @@ namespace daw {
 	template<typename ResultType, typename ClassType, typename... ArgTypes>
 	using pointer_to_const_volatile_member_function_t = typename impl::make_pointer_to_const_volatile_member_function_impl<ResultType, ClassType, ArgTypes...>::type;
 
-
-	// 	namespace details {
-	// 		template<typename Func>
-	// 		std::false_type is_function( Func );
-	// 
-	// 		template<typename Func>
-	// 		auto is_function( Func ) -> typename std::is_convertible< Func, std::function< void( ) > >::type;
-	// 	}	// namespace details
-	// 	template<typename Func>
-	// 	struct is_function: decltype(std::function( std::declval<Func( )> )) {};
-
 	namespace impl {
 		template<typename T>
 		class EqualToImpl {
@@ -197,17 +186,17 @@ namespace daw {
 	}
 
 	template<typename T>
-	T copy_vector( std::vector<T> const & container, size_t num_items ) {
+	std::vector<T> copy_vector( std::vector<T> const & container, size_t num_items ) {
 		assert( num_items <= container.size( ) );
 		std::vector<T> result( num_items );
 		auto first = std::begin( container );
-		std::copy( first, first + num_items, std::begin( result ) );
+		std::copy( first, first + static_cast<typename std::vector<T>::difference_type>( num_items ), std::begin( result ) );
 		return result;
 	}
 
 	template<typename T>
 	void move_vector_to_end( std::vector<T> & source, std::vector<T> & destination, T const & replacement_value ) {
-		for( auto it = std::begin( source ); it != std::end( souce ); ++it ) {
+		for( auto it = std::begin( source ); it != std::end( source ); ++it ) {
 			destination.push_back( *it );
 			*it = replacement_value;
 		}
