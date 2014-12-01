@@ -77,7 +77,7 @@ namespace daw {
 				}
 
 				NetSocket& NetSocket::connect( std::string host, uint16_t port ) {
-					auto resolver = tcp::resolver( base::Handle::get( ) );
+					tcp::resolver resolver( base::Handle::get( ) );
 					auto handler = boost::bind( connect_handler, this, boost::asio::placeholders::error, boost::asio::placeholders::iterator );
 					boost::asio::async_connect( *m_socket, resolver.resolve( { host, boost::lexical_cast<std::string>(port) } ), handler );
 					return *this;
