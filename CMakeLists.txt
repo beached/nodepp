@@ -17,9 +17,8 @@ base_error.cpp
 base_error.h
 base_event_emitter.cpp
 base_event_emitter.h
-base_handle.cpp
-base_handle.h
-base_stream.cpp
+base_service_handle.cpp
+base_service_handle.h
 base_stream.h
 base_types.h
 lib_http_chunk.cpp
@@ -43,6 +42,8 @@ lib_net_server.cpp
 lib_net_server.h
 lib_net_socket.cpp
 lib_net_socket.h
+lib_net_socket_handle.cpp
+lib_net_socket_handle.h
 load_library.cpp
 load_library.h
 load_library_posix.cpp

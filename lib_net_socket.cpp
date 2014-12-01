@@ -178,7 +178,7 @@ namespace daw {
 					};
 				}
 
-				void handle_write( NetSocket* net_socket, std::shared_ptr<boost::asio::ip::tcp::socket> socket, write_buffer buff, boost::system::error_code const & err ) {
+				void handle_write( NetSocket* net_socket, write_buffer buff, boost::system::error_code const & err ) {
 					if( !err ) {
 						NetSocket::do_async_read( net_socket );
 					} else {
@@ -189,7 +189,7 @@ namespace daw {
 				NetSocket& NetSocket::write( base::data_t const & chunk ) { 
 					auto buff = write_buffer( chunk );
 					m_bytes_written += buff.size( );
-					auto handler = boost::bind( handle_write, this, m_socket2, buff, boost::asio::placeholders::error );
+					auto handler = boost::bind( handle_write, this, buff, boost::asio::placeholders::error );
 					boost::asio::async_write( *m_socket2, buff.asio_buff( ), handler );
 					return *this;
 				}
@@ -197,7 +197,7 @@ namespace daw {
 				NetSocket& NetSocket::write( std::string const & chunk, base::Encoding const & encoding ) { 
 					auto buff = write_buffer( chunk );
 					m_bytes_written += buff.size( );
-					auto handler = boost::bind( handle_write, this, m_socket2, buff, boost::asio::placeholders::error );
+					auto handler = boost::bind( handle_write, this, buff, boost::asio::placeholders::error );
 					boost::asio::async_write( *m_socket2, buff.asio_buff( ), handler );
 					return *this;
 				}
