@@ -92,6 +92,8 @@ namespace daw {
 				EventEmitter& set_max_listeners( size_t max_listeners );
 
 				listener_list_t listeners( std::string event );
+				listener_list_t const listeners( std::string event ) const;
+				size_t listener_count( std::string event ) const;
 
 				template<typename... Args>
 				EventEmitter& emit( std::string event, Args&&... args ) {
@@ -102,9 +104,7 @@ namespace daw {
 						return item.first;
 					} );
 					return *this;
-				}
-
-				static size_t listener_count( EventEmitter & emitter, std::string event );
+				}				
 
 			};	// class EventEmitter
 

@@ -79,9 +79,12 @@ namespace daw {
 				return listeners( )[event];
 			}
 
+			EventEmitter::listener_list_t const EventEmitter::listeners( std::string event ) const {
+				return listeners( ).at( event );
+			}
 
-			size_t EventEmitter::listener_count( EventEmitter& emitter, std::string event ) {
-				return emitter.listeners( event ).size( );
+			size_t EventEmitter::listener_count( std::string event ) const {
+				return listeners( event ).size( );
 			}
 
 

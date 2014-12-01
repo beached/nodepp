@@ -1,15 +1,17 @@
 #pragma once
 #include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/streambuf.hpp>
+#include <boost/system/error_code.hpp>
 #include <cstdint>
 #include <memory>
 #include <string>
 
 #include "base_enoding.h"
-#include "base_stream.h"
 #include "base_event_emitter.h"
+#include "base_handle.h"
+#include "base_stream.h"
 #include "base_types.h"
 #include "lib_net_address.h"
-#include "base_handle.h"
 
 namespace daw {
 	namespace nodepp {
@@ -19,9 +21,18 @@ namespace daw {
 
 				class NetSocket: public base::stream::Stream {
 					std::shared_ptr<boost::asio::ip::tcp::socket> m_socket;
-					//std::shared_ptr<boost::asio::ip::tcp::endpoint> m_endpoint;	
-					boost::asio::streambuf m_request_buffer;
-					boost::asio::streambuf m_response_buffer;
+					std::shared_ptr<boost::asio::streambuf> m_request_buffer;
+					std::shared_ptr<boost::asio::streambuf> m_response_buffer;
+
+					void handle_write( boost::system::error_code const & err );
+					void handle_read( boost::system::error_code const & err );
+
+					boost::asio::streambuf & request_buffer( );
+					boost::asio::streambuf const & request_buffer( ) const;
+
+					boost::asio::streambuf & response_buffer( );
+					boost::asio::streambuf const & response_buffer( ) const;
+
 				public:
 					virtual std::vector<std::string> const & valid_events( ) const override;
 
@@ -58,8 +69,8 @@ namespace daw {
 					NetSocket& unref( );
 					NetSocket& ref( );
 
-					std::string const & remote_address( ) const;
-					std::string const & local_address( ) const;
+					std::string remote_address( ) const;
+					std::string local_address( ) const;
 					uint16_t remote_port( ) const;	
 					uint16_t local_port( ) const;
 					
