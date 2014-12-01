@@ -4,6 +4,7 @@
 #include <boost/system/error_code.hpp>
 #include <cstdint>
 #include <memory>
+#include <mutex>
 #include <string>
 
 #include "base_enoding.h"
@@ -25,7 +26,7 @@ namespace daw {
 					base::data_t m_response_buffers;
 					size_t m_bytes_read;
 					size_t m_bytes_written;
-
+					std::mutex m_response_buffers_mutex;
 					void handle_read( boost::system::error_code const & err, size_t bytes_transfered );
 
 				public:
@@ -58,8 +59,6 @@ namespace daw {
 					NetSocket& set_no_delay( bool noDelay = true );
 					NetSocket& set_keep_alive( bool keep_alive = false, int32_t initial_delay = 0 );
 		
-					lib::net::NetAddress const & address( ) const;	
-
 					NetSocket& unref( );
 					NetSocket& ref( );
 
@@ -70,7 +69,6 @@ namespace daw {
 					
 					size_t bytes_read( ) const;
 					size_t bytes_written( ) const;
-
 
 					template<typename Listener>
 					NetSocket& on( std::string event, Listener listener ) {
@@ -83,7 +81,6 @@ namespace daw {
 						add_listener( event, listener, true );
 						return *this;
 					}
-
 
 					// StreamReadable Interface
 					virtual base::data_t read( ) override;

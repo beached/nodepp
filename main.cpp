@@ -27,18 +27,19 @@
 
 int main( int, char const ** ) {
 	using namespace daw::nodepp;
-// 	using listen_t = std::function < void( lib::http::HttpClientRequest, lib::http::HttpServerResponse ) > ;
-// 	auto server = lib::http::create_server( []( lib::http::HttpClientRequest request, lib::http::HttpServerResponse response ) {
-// 		response.write_head( 200, "", { { "Content-Type", "text/plain" } } );
-// 		response.write( "Hello World" );
-// 		response.end( );
-// 	} ).listen( 8080 );
+	// 	using listen_t = std::function < void( lib::http::HttpClientRequest, lib::http::HttpServerResponse ) > ;
+	// 	auto server = lib::http::create_server( []( lib::http::HttpClientRequest request, lib::http::HttpServerResponse response ) {
+	// 		response.write_head( 200, "", { { "Content-Type", "text/plain" } } );
+	// 		response.write( "Hello World" );
+	// 		response.end( );
+	// 	} ).listen( 8080 );
 
 	auto socket = lib::net::NetSocket( );
-	socket.on( "error", []( base::Error const & error ) {
+	socket.on( "error", [&socket]( base::Error const & error ) {
 		std::cerr << "Error connecting" << std::endl << error << std::endl;
+		socket.destroy( );
 		exit( EXIT_FAILURE );
-	} ).on( "connect", [&]( ) {
+	} ).on( "connect", [&socket]( ) {
 		auto const & server_address = socket.remote_address( );
 		auto requested_page = "/";
 		std::cout << "Connected to " << socket.remote_address( ) << ":" << socket.remote_port( ) << std::endl;
@@ -52,10 +53,15 @@ int main( int, char const ** ) {
 	} ).on( "data", []( base::data_t data_buffer ) {
 		std::string buff( data_buffer.begin( ), data_buffer.end( ) );
 		std::cout << buff;
+	} ).on( "end", [&socket]( ) {
+		auto buff( socket.read( ) );
+		buff.emplace_back( 0 );
+		std::cout << reinterpret_cast<char*>(buff.data( )) << std::endl;
 	} ).connect( "dynoweb.private", 80 );
-	
 	base::Handle::get( ).run( );
 
-//	system( "pause" );
+
+	std::cout << "\n\nRead " << socket.bytes_read( ) << "bytes	Wrote: " << socket.bytes_written( ) << "bytes\n";
+	//	system( "pause" );
 	return EXIT_SUCCESS;
 }

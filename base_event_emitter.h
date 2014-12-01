@@ -93,7 +93,7 @@ namespace daw {
 
 				listener_list_t listeners( std::string event );
 				listener_list_t const listeners( std::string event ) const;
-				size_t listener_count( std::string event ) const;
+				size_t listener_count( std::string event );
 
 				template<typename... Args>
 				EventEmitter& emit( std::string event, Args&&... args ) {

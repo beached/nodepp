@@ -2,6 +2,7 @@
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
 #include <cstdint>
+#include <mutex>
 #include <string>
 
 #include "base_enoding.h"
@@ -41,14 +42,16 @@ namespace daw {
 											m_response_buffer( 1024, 0 ), 
 											m_response_buffers( ), 
 											m_bytes_read( 0 ),
-											m_bytes_written( 0 ) { }
+											m_bytes_written( 0 ),
+											m_response_buffers_mutex( ) { }
 				
 				NetSocket::NetSocket( NetSocket&& other ):	base::stream::Stream( std::move( other ) ),
 															m_socket( std::move( other.m_socket ) ), 
 															m_response_buffer( std::move( other.m_response_buffer ) ), 
 															m_response_buffers( std::move( other.m_response_buffers ) ),
 															m_bytes_read( std::move( other.m_bytes_read ) ),
-															m_bytes_written( std::move( other.m_bytes_written ) ) { }
+															m_bytes_written( std::move( other.m_bytes_written ) ),
+															m_response_buffers_mutex( ) { }
 
 				NetSocket& NetSocket::operator=(NetSocket&& rhs) {
 					if( this != &rhs ) {
@@ -112,16 +115,19 @@ namespace daw {
 				void NetSocket::handle_read( boost::system::error_code const & err, size_t bytes_transfered ) {
 					auto net_socket = this;
 					if( 0 < listener_count( "data" ) ) {
-						emit_data( this, m_response_buffer, bytes_transfered );
-					} else {
-						daw::move_vector_to_end( m_response_buffer, m_response_buffers, static_cast<base::data_t::value_type>( 0 ) );
+						base::data_t emit_buffer;
+						using std::swap;
+						swap( emit_buffer, m_response_buffer );
+						emit_data( this, std::move( emit_buffer ), bytes_transfered );
+					} else {	// Queue up for a 
+						std::lock_guard<std::mutex> scoped_lock( m_response_buffers_mutex );
+						daw::copy_vect_and_set( m_response_buffer, m_response_buffers, bytes_transfered, static_cast<base::data_t::value_type>(0) );
 					}
 					m_bytes_read += bytes_transfered;
 
 					if( !err ) {
 						do_async_read( this );
 					} else {
-						emit_data( this, m_response_buffers, m_response_buffers.size( ) );
 						base::Handle::get( ).post( [net_socket]( ) {
 							net_socket->emit( "end" );
 						} );
@@ -170,6 +176,7 @@ namespace daw {
 
 				NetSocket& NetSocket::write( base::data_t const & chunk ) { 
 					auto buff = write_buffer( chunk );
+					m_bytes_written += buff.size( );
 					auto handler = boost::bind( handle_write, this, m_socket, buff, boost::asio::placeholders::error );
 					boost::asio::async_write( *m_socket, buff.asio_buff( ), handler );
 					return *this;
@@ -177,6 +184,7 @@ namespace daw {
 				
 				NetSocket& NetSocket::write( std::string const & chunk, base::Encoding const & encoding ) { 
 					auto buff = write_buffer( chunk );
+					m_bytes_written += buff.size( );
 					auto handler = boost::bind( handle_write, this, m_socket, buff, boost::asio::placeholders::error );
 					boost::asio::async_write( *m_socket, buff.asio_buff( ), handler );
 					return *this;
@@ -207,8 +215,6 @@ namespace daw {
 				NetSocket& NetSocket::set_no_delay( bool no_delay ) { throw std::runtime_error( "Method not implemented" ); }
 				NetSocket& NetSocket::set_keep_alive( bool keep_alive, int32_t initial_delay ) { throw std::runtime_error( "Method not implemented" ); }
 
-				lib::net::NetAddress const & NetSocket::address( ) const { throw std::runtime_error( "Method not implemented" ); }
-
 				NetSocket& NetSocket::unref( ) { throw std::runtime_error( "Method not implemented" ); }
 				NetSocket& NetSocket::ref( ) { throw std::runtime_error( "Method not implemented" ); }
 
@@ -237,7 +243,16 @@ namespace daw {
 				}
 
 				// StreamReadable Interface
-				base::data_t  NetSocket::read( ) { throw std::runtime_error( "Method not implemented" ); }
+				base::data_t NetSocket::read( ) { 
+					base::data_t result;
+					{
+						std::lock_guard<std::mutex> scoped_lock( m_response_buffers_mutex );
+						using std::swap;
+						swap( result, m_response_buffers );
+					}
+					return result;
+				}
+
 				base::data_t  NetSocket::read( size_t bytes ) { throw std::runtime_error( "Method not implemented" ); }
 				NetSocket& NetSocket::set_encoding( base::Encoding const & encoding ) { throw std::runtime_error( "Method not implemented" ); }
 				

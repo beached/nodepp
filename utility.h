@@ -194,9 +194,16 @@ namespace daw {
 		return result;
 	}
 
-	template<typename T>
-	void move_vector_to_end( std::vector<T> & source, std::vector<T> & destination, T const & replacement_value ) {
-		for( auto it = std::begin( source ); it != std::end( source ); ++it ) {
+	template<typename T> 
+	void copy_vect_and_set( std::vector<T> & source, std::vector<T> & destination, typename std::vector<T>::difference_type num_items, T const & replacement_value ) {
+		auto first = std::begin( source );
+		auto last = std::end( source );
+		auto max_dist = std::distance( first, last );
+		if( num_items < max_dist ) {
+			last = first + num_items;
+		}
+
+		for( auto it = first; it != last; ++it ) {
 			destination.push_back( *it );
 			*it = replacement_value;
 		}
