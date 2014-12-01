@@ -44,9 +44,7 @@ namespace daw {
 					NetSocket& connect( std::string path );
 
 					size_t& buffer_size( );
-					size_t const & buffer_size( ) const;
-
-					NetSocket& destroy( );
+					size_t const & buffer_size( ) const;					
 
 					NetSocket& set_timeout( int32_t value );
 
@@ -106,6 +104,8 @@ namespace daw {
 					virtual NetSocket& end( ) override;
 					virtual NetSocket& end( base::data_t const & chunk ) override;
 					virtual NetSocket& end( std::string const & chunk, base::Encoding const & encoding = base::Encoding( ) ) override;
+
+					NetSocket& destroy( );
 				};
 			}	// namespace net
 		}	// namespace lib

@@ -109,10 +109,6 @@ namespace daw {
 
 				size_t const & NetSocket::buffer_size( ) const { throw std::runtime_error( "Method not implemented" ); }
 				
-				NetSocket& NetSocket::end( ) { throw std::runtime_error( "Method not implemented" ); }
-				NetSocket& NetSocket::end( base::data_t const & chunk ) { throw std::runtime_error( "Method not implemented" ); }
-				NetSocket& NetSocket::end( std::string const & chunk, base::Encoding const & encoding ) { throw std::runtime_error( "Method not implemented" ); }
-				
 				void NetSocket::handle_read( boost::system::error_code const & err, size_t bytes_transfered ) {
 					auto net_socket = this;
 					if( 0 < listener_count( "data" ) ) {
@@ -129,7 +125,9 @@ namespace daw {
 						base::Handle::get( ).post( [net_socket]( ) {
 							net_socket->emit( "end" );
 						} );
-						emit_error( this, err, "NetSocket::read" );
+						if( 2 != err.value( ) ) {	// Do not catch end of file error
+							emit_error( this, err, "NetSocket::read" );
+						}
 					}
 				}
 
@@ -176,7 +174,26 @@ namespace daw {
 					return *this;
 				}
 
-				NetSocket& NetSocket::destroy( ) { throw std::runtime_error( "Method not implemented" ); }
+				NetSocket& NetSocket::end( ) { 
+					//m_socket = std::make_shared<boost::asio::ip::tcp::socket>( base::Handle::get( ) );
+					m_socket->shutdown( boost::asio::ip::tcp::socket::shutdown_send );
+					return *this;
+				}
+
+				NetSocket& NetSocket::end( base::data_t const & chunk ) { 
+					write( chunk );
+					return end( );
+				}
+
+				NetSocket& NetSocket::end( std::string const & chunk, base::Encoding const & encoding ) {
+					write( chunk, encoding );
+					return end( );
+				}
+
+				NetSocket& NetSocket::destroy( ) {
+					m_socket->close( );
+					return *this;
+				}
 				
 				NetSocket& NetSocket::set_timeout( int32_t value ) { throw std::runtime_error( "Method not implemented" ); }
 				NetSocket& NetSocket::set_no_delay( bool no_delay ) { throw std::runtime_error( "Method not implemented" ); }
