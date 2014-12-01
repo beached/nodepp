@@ -49,6 +49,9 @@ int main( int, char const ** ) {
 		request_stream << "Connection: close\r\n\r\n";
 		socket.write( request_stream.str( ) );
 		socket.end( );
+	} ).on( "data", []( base::data_t data_buffer ) {
+		std::string buff( data_buffer.begin( ), data_buffer.end( ) );
+		std::cout << buff;
 	} ).connect( "dynoweb.private", 80 );
 	
 	base::Handle::get( ).run( );

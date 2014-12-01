@@ -11,9 +11,13 @@ namespace daw {
 	namespace nodepp {
 		namespace base {
 			class Data {
+				using storage_t = std::vector < uint8_t > ;
+				using iterator_t = storage_t::iterator;
 				std::vector<uint8_t> m_data;
-				Encoding m_encoding;
+				iterator_t first;				
 			public:
+
+
 				template<typename T>
 				static T convert_to( std::vector<uint8_t> const & ) {
 					return T{ };	// TODO

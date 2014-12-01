@@ -21,17 +21,15 @@ namespace daw {
 
 				class NetSocket: public base::stream::Stream {
 					std::shared_ptr<boost::asio::ip::tcp::socket> m_socket;
-					std::shared_ptr<boost::asio::streambuf> m_request_buffer;
-					std::shared_ptr<boost::asio::streambuf> m_response_buffer;
+					base::data_t m_request_buffer;
+					base::data_t m_request_buffers;
+					base::data_t m_response_buffer;
+					base::data_t m_response_buffers;
+					size_t m_bytes_read;
+					size_t m_bytes_written;
 
 					void handle_write( boost::system::error_code const & err );
-					void handle_read( boost::system::error_code const & err );
-
-					boost::asio::streambuf & request_buffer( );
-					boost::asio::streambuf const & request_buffer( ) const;
-
-					boost::asio::streambuf & response_buffer( );
-					boost::asio::streambuf const & response_buffer( ) const;
+					void handle_read( boost::system::error_code const & err, size_t bytes_transfered );
 
 				public:
 					virtual std::vector<std::string> const & valid_events( ) const override;

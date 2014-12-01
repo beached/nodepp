@@ -29,31 +29,33 @@ namespace daw {
 					return result;
 				}
 
-				boost::asio::streambuf & NetSocket::request_buffer( ) {
-					return *m_request_buffer;
-				}
-
-				boost::asio::streambuf const & NetSocket::request_buffer( ) const {
-					return *m_request_buffer;
-				}
-
-				boost::asio::streambuf & NetSocket::response_buffer( ) {
-					return *m_response_buffer;
-				}
-
-				boost::asio::streambuf const & NetSocket::response_buffer( ) const {
-					return *m_response_buffer	;
-				}
-
-				NetSocket::NetSocket( ) : base::stream::Stream( ), m_socket( std::make_shared<boost::asio::ip::tcp::socket>( base::Handle::get( ) ) ), m_request_buffer( std::make_shared<boost::asio::streambuf>( ) ), m_response_buffer( std::make_shared<boost::asio::streambuf>( ) ) { }
+				NetSocket::NetSocket( ):	base::stream::Stream( ), 
+											m_socket( std::make_shared<boost::asio::ip::tcp::socket>( base::Handle::get( ) ) ), 
+											m_request_buffer( 1024, 0 ), 
+											m_request_buffers( ), 
+											m_response_buffer( 1024, 0 ), 
+											m_response_buffers( ), 
+											m_bytes_read( 0 ),
+											m_bytes_written( 0 ) { }
 				
-				NetSocket::NetSocket( NetSocket&& other ) : base::stream::Stream( std::move( other ) ), m_socket( std::move( other.m_socket ) ), m_request_buffer( std::move( other.m_request_buffer ) ), m_response_buffer( std::move( other.m_response_buffer ) ) { }
+				NetSocket::NetSocket( NetSocket&& other ):	base::stream::Stream( std::move( other ) ),
+															m_socket( std::move( other.m_socket ) ), 
+															m_request_buffer( std::move( other.m_request_buffer ) ),
+															m_request_buffers( std::move( other.m_request_buffers ) ), 
+															m_response_buffer( std::move( other.m_response_buffer ) ), 
+															m_response_buffers( std::move( other.m_request_buffers ) ),
+															m_bytes_read( std::move( other.m_bytes_read ) ),
+															m_bytes_written( std::move( other.m_bytes_written ) ) { }
 
 				NetSocket& NetSocket::operator=(NetSocket&& rhs) {
 					if( this != &rhs ) {
 						m_socket = std::move( rhs.m_socket );						
 						m_request_buffer = std::move( rhs.m_request_buffer );
+						m_request_buffers = std::move( rhs.m_request_buffers );
 						m_response_buffer = std::move( rhs.m_response_buffer );
+						m_response_buffers = std::move( rhs.m_response_buffers );
+						m_bytes_read = std::move( rhs.m_bytes_read );
+						m_bytes_written = std::move( rhs.m_bytes_written );
 					}
 					return *this;
 				}
@@ -93,29 +95,39 @@ namespace daw {
 				NetSocket& NetSocket::end( base::data_t const & chunk ) { throw std::runtime_error( "Method not implemented" ); }
 				NetSocket& NetSocket::end( std::string chunk, base::Encoding const & encoding ) { throw std::runtime_error( "Method not implemented" ); }
 				
-				void NetSocket::handle_read( boost::system::error_code const & err ) {
+				void NetSocket::handle_read( boost::system::error_code const & err, size_t bytes_transfered ) {
 					auto net_socket = this;
-					if( !err ) {
-						std::istream response_stream( m_response_buffer.get( ) );
-						if( 0 < listener_count( "data" ) ) {
-							
-						} else {	// buffer until close
+					if( 0 < listener_count( "data" ) ) {
+						auto data_param = daw::copy_vector( m_response_buffer, bytes_transfered );
+						base::Handle::get( ).post( [net_socket, data_param]( ) {								
+							net_socket->emit( "data", std::move( data_param ) );
+						} );
+					} else {
+						daw::move_vector_to_end( m_response_buffer, m_response_buffers, static_cast<typename base::data_t::value_type>( 0 ) );
+					}
+					m_bytes_read += bytes_transfered;
 
-						}
+					if( !err ) {
+						auto handler = boost::bind( &NetSocket::handle_read, this, boost::asio::placeholders::error );
+						boost::asio::async_read( *m_socket, boost::asio::buffer( m_response_buffer.data( ), m_response_buffer.size( ) ), handler );						
 					} else {
 						auto error = base::Error( err );
 						error.add( "where", "NetSocket::read" );
 						base::Handle::get( ).post( [net_socket, error]( ) {
 							net_socket->emit( "error", error );
 						} );
+
+						base::Handle::get( ).post( [net_socket]( ) {
+							net_socket->emit( "end" );
+						} )
 					}
 				}
 
 				void NetSocket::handle_write( boost::system::error_code const & err ) {
 					auto net_socket = this;
 					if( !err ) {
-						auto handler = boost::bind( &NetSocket::handle_read, this, boost::asio::placeholders::error );
-						boost::asio::async_read( *m_socket, response_buffer( ), handler );
+						auto handler = boost::bind( &NetSocket::handle_read, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred );
+						boost::asio::async_read( *m_socket, boost::asio::buffer( m_response_buffer.data( ), m_response_buffer.size( ) ), handler );
 					} else {
 						auto error = base::Error( err );
 						error.add( "where", "NetSocket::write" );
@@ -156,9 +168,13 @@ namespace daw {
 					return m_socket->local_endpoint( ).port( );
 				}
 				
-				size_t NetSocket::bytes_read( ) const { throw std::runtime_error( "Method not implemented" ); }
+				size_t NetSocket::bytes_read( ) const {
+					return m_bytes_read;
+				}
 
-				size_t NetSocket::bytes_written( ) const { throw std::runtime_error( "Method not implemented" ); }
+				size_t NetSocket::bytes_written( ) const {
+					return m_bytes_written;
+				}
 
 				// StreamReadable Interface
 				base::data_t  NetSocket::read( ) { throw std::runtime_error( "Method not implemented" ); }

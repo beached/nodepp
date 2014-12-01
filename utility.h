@@ -190,6 +190,27 @@ namespace daw {
 	auto make_function( ReturnType( ClassType::*p )(Args...) )	-> std::function < ReturnType( Args... ) > {
 		return{ p };
 	}
+
+	template<typename T>
+	T copy( T const & value ) {
+		return value;
+	}
+
+	template<typename T>
+	T copy_vector( std::vector<T> const & container, size_t num_items ) {
+		assert( num_items <= container.size( ) );
+		std::vector<T> result( num_items );
+		auto first = std::begin( container );
+		std::copy( first, first + num_items, std::begin( result ) );
+		return result;
+	}
+
+	template<typename T>
+	void move_vector_to_end( std::vector<T> & source, std::vector<T> & destination, T const & replacement_value ) {
+		for( auto it = std::begin( source ); it != std::end( souce ); ++it ) {
+			destination.push_back( *it );
+			*it = replacement_value;
+		}
+	}
+
 }	// namespace daw	
-
-
