@@ -16,7 +16,7 @@
 
 #include "base_error.h"
 #include "base_event_emitter.h"
-#include "base_handle.h"
+#include "base_service_handle.h"
 #include "lib_http.h"
 #include "lib_http_server.h"
 #include "lib_net_dns.h"
@@ -58,7 +58,7 @@ int main( int, char const ** ) {
 		buff.emplace_back( 0 );
 		std::cout << reinterpret_cast<char*>(buff.data( )) << std::endl;
 	} ).connect( "dynoweb.private", 80 );
-	base::Handle::get( ).run( );
+	base::ServiceHandle::get( ).run( );
 
 
 	std::cout << "\n\nRead " << socket.bytes_read( ) << "bytes	Wrote: " << socket.bytes_written( ) << "bytes\n";

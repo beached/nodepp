@@ -10,7 +10,7 @@
 #include "base_error.h"
 #include "base_stream.h"
 #include "base_types.h"
-#include "base_handle.h"
+#include "base_service_handle.h"
 #include "lib_net_dns.h"
 #include "lib_net_socket.h"
 #include "range_algorithm.h"
@@ -38,15 +38,23 @@ namespace daw {
 				}
 
 				NetSocket::NetSocket( ):	base::stream::Stream( ), 
-											m_socket( std::make_shared<boost::asio::ip::tcp::socket>( base::Handle::get( ) ) ), 
+											m_socket2( ), 
 											m_response_buffer( 1024, 0 ), 
 											m_response_buffers( ), 
 											m_bytes_read( 0 ),
 											m_bytes_written( 0 ),
 											m_response_buffers_mutex( ) { }
 				
+				NetSocket::NetSocket( SocketHandle&& handle ) : base::stream::Stream( ),
+																m_socket2( std::move( handle ) ),
+																m_response_buffer( 1024, 0 ),
+																m_response_buffers( ),
+																m_bytes_read( 0 ),
+																m_bytes_written( 0 ),
+																m_response_buffers_mutex( ) { }
+
 				NetSocket::NetSocket( NetSocket&& other ):	base::stream::Stream( std::move( other ) ),
-															m_socket( std::move( other.m_socket ) ), 
+															m_socket2( std::move( other.m_socket2 ) ), 
 															m_response_buffer( std::move( other.m_response_buffer ) ), 
 															m_response_buffers( std::move( other.m_response_buffers ) ),
 															m_bytes_read( std::move( other.m_bytes_read ) ),
@@ -55,7 +63,7 @@ namespace daw {
 
 				NetSocket& NetSocket::operator=(NetSocket&& rhs) {
 					if( this != &rhs ) {
-						m_socket = std::move( rhs.m_socket );						
+						m_socket2 = std::move( rhs.m_socket2 );						
 						m_response_buffer = std::move( rhs.m_response_buffer );
 						m_response_buffers = std::move( rhs.m_response_buffers );
 						m_bytes_read = std::move( rhs.m_bytes_read );
@@ -68,7 +76,7 @@ namespace daw {
 
 				void NetSocket::do_async_read( NetSocket* const net_socket ) {
 					auto handler = boost::bind( &NetSocket::handle_read, net_socket, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred );
-					boost::asio::async_read( *net_socket->m_socket, to_bbuffer( net_socket->m_response_buffer ), handler );
+					boost::asio::async_read( net_socket->m_socket2.get( ), to_bbuffer( net_socket->m_response_buffer ), handler );
 				}
 
 				base::data_t get_clear_buffer( base::data_t * buffer ) {
@@ -83,21 +91,21 @@ namespace daw {
 					void emit_error( NetSocket* const net_socket, boost::system::error_code const & err, std::string where ) {
 						auto error = base::Error( err );
 						error.add( "where", where );
-						base::Handle::get( ).post( [net_socket, error]( ) {
+						base::ServiceHandle::get( ).post( [net_socket, error]( ) {
 							net_socket->emit( "error", error );
 						} );
 					}
 
 					void emit_data( NetSocket* const net_socket, base::data_t const & buffer, size_t num_items ) {
 						auto data_param = daw::copy_vector( buffer, num_items );
-						base::Handle::get( ).post( [net_socket, data_param]( ) {
+						base::ServiceHandle::get( ).post( [net_socket, data_param]( ) {
 							net_socket->emit( "data", std::move( data_param ) );
 						} );						
 					}
 
 					void connect_handler( NetSocket* const net_socket, boost::system::error_code const & err, tcp::resolver::iterator it ) {
 						if( !err ) {
-							base::Handle::get( ).post( [net_socket]( ) {
+							base::ServiceHandle::get( ).post( [net_socket]( ) {
 								net_socket->emit( "connect" );
 							} );							
 						} else {
@@ -107,9 +115,9 @@ namespace daw {
 				}
 
 				NetSocket& NetSocket::connect( std::string host, uint16_t port ) {
-					tcp::resolver resolver( base::Handle::get( ) );
+					tcp::resolver resolver( base::ServiceHandle::get( ) );
 					auto handler = boost::bind( connect_handler, this, boost::asio::placeholders::error, boost::asio::placeholders::iterator );
-					boost::asio::async_connect( *m_socket, resolver.resolve( { host, boost::lexical_cast<std::string>(port) } ), handler );
+					boost::asio::async_connect( m_socket2.get( ), resolver.resolve( { host, boost::lexical_cast<std::string>(port) } ), handler );
 					return *this;
 				}
 
@@ -132,7 +140,7 @@ namespace daw {
 					if( !err ) {
 						do_async_read( this );
 					} else {
-						base::Handle::get( ).post( [net_socket]( ) {
+						base::ServiceHandle::get( ).post( [net_socket]( ) {
 							net_socket->emit( "end" );
 						} );
 						if( 2 != err.value( ) ) {	// Do not catch end of file error
@@ -181,22 +189,22 @@ namespace daw {
 				NetSocket& NetSocket::write( base::data_t const & chunk ) { 
 					auto buff = write_buffer( chunk );
 					m_bytes_written += buff.size( );
-					auto handler = boost::bind( handle_write, this, m_socket, buff, boost::asio::placeholders::error );
-					boost::asio::async_write( *m_socket, buff.asio_buff( ), handler );
+					auto handler = boost::bind( handle_write, this, m_socket2, buff, boost::asio::placeholders::error );
+					boost::asio::async_write( *m_socket2, buff.asio_buff( ), handler );
 					return *this;
 				}
 				
 				NetSocket& NetSocket::write( std::string const & chunk, base::Encoding const & encoding ) { 
 					auto buff = write_buffer( chunk );
 					m_bytes_written += buff.size( );
-					auto handler = boost::bind( handle_write, this, m_socket, buff, boost::asio::placeholders::error );
-					boost::asio::async_write( *m_socket, buff.asio_buff( ), handler );
+					auto handler = boost::bind( handle_write, this, m_socket2, buff, boost::asio::placeholders::error );
+					boost::asio::async_write( *m_socket2, buff.asio_buff( ), handler );
 					return *this;
 				}
 
 				NetSocket& NetSocket::end( ) { 
-					//m_socket = std::make_shared<boost::asio::ip::tcp::socket>( base::Handle::get( ) );
-					m_socket->shutdown( boost::asio::ip::tcp::socket::shutdown_send );
+					//m_socket = std::make_shared<boost::asio::ip::tcp::socket>( base::ServiceHandle::get( ) );
+					m_socket2->shutdown( boost::asio::ip::tcp::socket::shutdown_send );
 					return *this;
 				}
 
@@ -211,7 +219,7 @@ namespace daw {
 				}
 
 				NetSocket& NetSocket::destroy( ) {
-					m_socket->close( );
+					m_socket2->close( );
 					return *this;
 				}
 				
@@ -223,19 +231,19 @@ namespace daw {
 				NetSocket& NetSocket::ref( ) { throw std::runtime_error( "Method not implemented" ); }
 
 				std::string NetSocket::remote_address( ) const {
-					return m_socket->remote_endpoint( ).address( ).to_string( );
+					return m_socket2->remote_endpoint( ).address( ).to_string( );
 				}
 
 				std::string NetSocket::local_address( ) const { 
-					return m_socket->local_endpoint( ).address( ).to_string( );
+					return m_socket2->local_endpoint( ).address( ).to_string( );
 				}
 				
 				uint16_t NetSocket::remote_port( ) const { 
-					return m_socket->remote_endpoint( ).port( );
+					return m_socket2->remote_endpoint( ).port( );
 				}
 
 				uint16_t NetSocket::local_port( ) const { 
-					return m_socket->local_endpoint( ).port( );
+					return m_socket2->local_endpoint( ).port( );
 				}
 				
 				size_t NetSocket::bytes_read( ) const {

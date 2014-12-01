@@ -6,7 +6,7 @@
 
 #include "base_event_emitter.h"
 #include "base_error.h"
-#include "base_handle.h"
+#include "base_service_handle.h"
 #include "lib_net_dns.h"
 #include "make_unique.h"
 
@@ -26,7 +26,7 @@ namespace daw {
 				}
 
 
-				NetDns::NetDns( ) : m_resolver( daw::make_unique<boost::asio::ip::tcp::resolver>( base::Handle::get( ) ) ) { }
+				NetDns::NetDns( ) : m_resolver( daw::make_unique<boost::asio::ip::tcp::resolver>( base::ServiceHandle::get( ) ) ) { }
 				NetDns::NetDns( NetDns&& other ): m_resolver( std::move( other.m_resolver ) ) { }
 				NetDns& NetDns::operator=(NetDns && rhs) { 
 					if( this != &rhs ) {

@@ -6,7 +6,7 @@
 #include <functional>
 
 #include "base_event_emitter.h"
-#include "base_handle.h"
+#include "base_service_handle.h"
 #include "utility.h"
 
 namespace daw {

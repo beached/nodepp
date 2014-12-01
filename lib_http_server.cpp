@@ -39,7 +39,7 @@ namespace daw {
 
 				HttpServer& HttpServer::listen( std::string path ) { throw std::runtime_error( "Method not implemented" ); }
 
-				HttpServer& HttpServer::listen( base::Handle handle ) { throw std::runtime_error( "Method not implemented" ); }
+				HttpServer& HttpServer::listen( base::ServiceHandle handle ) { throw std::runtime_error( "Method not implemented" ); }
 
 
 				size_t& HttpServer::max_header_count( ) { throw std::runtime_error( "Method not implemented" ); }

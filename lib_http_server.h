@@ -38,9 +38,9 @@ namespace daw {
 						} );
 					}
 
-					HttpServer& listen( base::Handle handle );
+					HttpServer& listen( base::ServiceHandle handle );
 					template<typename Listener>
-					HttpServer& listen( base::Handle handle, Listener listener ) {
+					HttpServer& listen( base::ServiceHandle handle, Listener listener ) {
 						return base::rollback_event_on_exception( this, "listening", listener, [&]( ) {
 							return listen( std::move( handle ) );
 						} );

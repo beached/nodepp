@@ -9,10 +9,11 @@
 
 #include "base_enoding.h"
 #include "base_event_emitter.h"
-#include "base_handle.h"
+#include "base_service_handle.h"
 #include "base_stream.h"
 #include "base_types.h"
 #include "lib_net_address.h"
+#include "lib_net_socket_handle.h"
 
 namespace daw {
 	namespace nodepp {
@@ -21,7 +22,7 @@ namespace daw {
 				using namespace daw::nodepp;
 
 				class NetSocket: public base::stream::Stream {
-					std::shared_ptr<boost::asio::ip::tcp::socket> m_socket;
+					SocketHandle m_socket2;
 					base::data_t m_response_buffer;
 					base::data_t m_response_buffers;
 					size_t m_bytes_read;
@@ -34,7 +35,7 @@ namespace daw {
 					virtual std::vector<std::string> const & valid_events( ) const override;
 
 					NetSocket( );
-					NetSocket( base::Handle handle );
+					NetSocket( SocketHandle&& handle );
 					NetSocket( NetSocket const & ) = delete;
 					NetSocket& operator=(NetSocket const &) = delete;
 					NetSocket( NetSocket&& other );

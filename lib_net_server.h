@@ -7,7 +7,7 @@
 #include "base_event_emitter.h"
 #include "base_types.h"
 #include "lib_net_address.h"
-#include "base_handle.h"
+#include "base_service_handle.h"
 
 namespace daw {
 	namespace nodepp {
@@ -46,9 +46,9 @@ namespace daw {
 						} );
 					}
 
-					NetServer& listen( base::Handle handle );
+					NetServer& listen( base::ServiceHandle handle );
 					template<typename Listener>
-					NetServer& listen( base::Handle handle, Listener listener ) {
+					NetServer& listen( base::ServiceHandle handle, Listener listener ) {
 						return base::rollback_event_on_exception( this, "listening", listener, [&]( ) {
 							return listen( handle );
 						} );

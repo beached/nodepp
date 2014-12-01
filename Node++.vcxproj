@@ -170,12 +170,13 @@
     <ClInclude Include="lib_http_server_response.h" />
     <ClInclude Include="lib_net.h" />
     <ClInclude Include="lib_net_address.h" />
-    <ClInclude Include="base_handle.h" />
+    <ClInclude Include="base_service_handle.h" />
     <ClInclude Include="lib_net_dns.h" />
     <ClInclude Include="lib_net_server.h" />
     <ClInclude Include="lib_net_socket.h" />
     <ClInclude Include="base_stream.h" />
     <ClInclude Include="base_types.h" />
+    <ClInclude Include="lib_net_socket_handle.h" />
     <ClInclude Include="load_library.h" />
     <ClInclude Include="load_library_posix.h" />
     <ClInclude Include="load_library_windows.h" />
@@ -200,10 +201,11 @@
     <ClCompile Include="lib_http_header.cpp" />
     <ClCompile Include="lib_http_statuscodes.cpp" />
     <ClCompile Include="lib_net_address.cpp" />
-    <ClCompile Include="base_handle.cpp" />
+    <ClCompile Include="base_service_handle.cpp" />
     <ClCompile Include="lib_net_dns.cpp" />
     <ClCompile Include="lib_net_server.cpp" />
     <ClCompile Include="lib_net_socket.cpp" />
+    <ClCompile Include="lib_net_socket_handle.cpp" />
     <ClCompile Include="load_library.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>

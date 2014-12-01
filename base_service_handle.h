@@ -7,10 +7,10 @@
 namespace daw {
 	namespace nodepp {
 		namespace base {
-			class Handle {
+			class ServiceHandle {
 			public:
 				static boost::asio::io_service& get( );
-			};	// class Handle
+			};	// class ServiceHandle
 		}	// namespace base
 	}	// namespace nodepp
 }	// namespace daw
