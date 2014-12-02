@@ -21,11 +21,10 @@ namespace daw {
 				// Requires:	base::EventEmitter, base::options_t,
 				//				lib::net::NetAddress, base::Error
 				class NetServer: public daw::nodepp::base::EventEmitter {
-					boost::asio::ip::tcp::acceptor m_acceptor;
+					std::shared_ptr<boost::asio::ip::tcp::acceptor> m_acceptor;
 					void handle_accept( SocketHandle socket, boost::system::error_code const & err );
 				public:
 					NetServer( );
-					NetServer( daw::nodepp::base::options_t options );
 					NetServer( NetServer const & ) = default;
 					NetServer& operator=(NetServer const &) = default;
 					NetServer( NetServer&& other );

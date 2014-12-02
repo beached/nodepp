@@ -26,15 +26,14 @@ namespace daw {
 					return result;
 				}
 
-				NetServer::NetServer( ): EventEmitter{ } { }
-				NetServer::NetServer( options_t options ): EventEmitter{ } { }
+				NetServer::NetServer( ): EventEmitter{ }, m_acceptor( std::make_shared<boost::asio::ip::tcp::acceptor>( ) ) { }
 				NetServer::~NetServer( ) { }
 
-				NetServer::NetServer( NetServer&& other ) : EventEmitter{ std::move( other ) } { }
+				NetServer::NetServer( NetServer&& other ) : EventEmitter{ std::move( other ) }, m_acceptor( std::move( other.m_acceptor ) ) { }
 
 				NetServer& NetServer::operator=(NetServer&& rhs) {
 					if( this != &rhs ) {
-
+						m_acceptor = std::move( rhs.m_acceptor );
 					}
 					return *this;
 				}
@@ -51,14 +50,15 @@ namespace daw {
 
 				void NetServer::handle_accept( SocketHandle socket, boost::system::error_code const & err ) {
 					if( !err ) {
-						auto emit_param = NetSocket( *socket );
+						auto emit_param = NetSocket{ *socket };
 						emit( "connection", emit_param );
 					} else {
 						emit_error( this, err, "NetServer::listen" );
 					}
 				}				
 
-				NetServer& NetServer::listen( uint16_t port ): m_acceptor( base::ServiceHandle::get( ), tcp::endpoint( tcp::v4(), port ) ) {
+				NetServer& NetServer::listen( uint16_t port ) {
+					m_acceptor = std::make_shared<boost::asio::ip::tcp::acceptor>( base::ServiceHandle::get( ), tcp::endpoint( tcp::v4(), port ) );
 					SocketHandle socket( m_acceptor.get_io_service( ) );
 					auto handle = boost::bind( &NetServer::handle_accept, this, socket, boost::asio::placeholders::error );
 					m_acceptor.async_accept( *socket, handle );

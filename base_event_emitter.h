@@ -98,7 +98,7 @@ namespace daw {
 				template<typename... Args>
 				EventEmitter& emit( std::string event, Args&&... args ) {
 					for( auto& callback : listeners( )[event] ) {
-						if( !callback.second.empty( ) ) {type
+						if( !callback.second.empty( ) ) {
 							callback.second.exec( std::forward<Args>( args )... );
 						}
 					}
