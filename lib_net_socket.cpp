@@ -256,8 +256,12 @@ namespace daw {
 
 				// StreamReadable Interface
 				base::data_t NetSocket::read( ) { 
-					std::lock_guard<std::mutex> scoped_lock( m_response_buffers_mutex );
-					return get_clear_buffer( m_response_buffers, m_response_buffers->size( ) );
+					std::shared_ptr<base::data_t> result;
+					{
+						std::lock_guard<std::mutex> scoped_lock( m_response_buffers_mutex );
+						result = get_clear_buffer( m_response_buffers, m_response_buffers->size( ) );
+					}
+					return *result;
 				}
 
 				base::data_t  NetSocket::read( size_t bytes ) { throw std::runtime_error( "Method not implemented" ); }
