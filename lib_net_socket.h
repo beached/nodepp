@@ -35,6 +35,7 @@ namespace daw {
 					virtual std::vector<std::string> const & valid_events( ) const override;
 
 					NetSocket( );
+					NetSocket( boost::asio::io_service& io_service );
 					NetSocket( SocketHandle&& handle );
 					NetSocket( NetSocket const & ) = delete;
 					NetSocket& operator=(NetSocket const &) = delete;
@@ -78,6 +79,9 @@ namespace daw {
 					}
 
 					NetSocket& on_data( std::function<void( std::shared_ptr<base::data_t> )> listener );
+					NetSocket& on_connect( std::function<void( )> listener );
+					NetSocket& on_error( std::function<void(base::Error)> listener );
+					NetSocket& on_end( std::function<void( )> listener );
 
 					template<typename Listener>
 					NetSocket& once( std::string event, Listener listener ) {

@@ -33,6 +33,10 @@ namespace daw {
 				return id( ) == rhs.id( );
 			}
 
+			bool Callback::empty( ) const {
+				return -1 == m_id;
+			}
+
 			void Callback::swap( Callback& rhs ) {
 				using std::swap;
 				swap( m_id, rhs.m_id );

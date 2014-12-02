@@ -6,7 +6,6 @@
 #include <memory>
 #include <utility>
 #include <vector>
-
 #include "base_callback.h"
 #include "range_algorithm.h"
 
@@ -99,7 +98,9 @@ namespace daw {
 				template<typename... Args>
 				EventEmitter& emit( std::string event, Args&&... args ) {
 					for( auto& callback : listeners( )[event] ) {
-						callback.second.exec( std::forward<Args>( args )... );
+						if( !callback.second.empty( ) ) {type
+							callback.second.exec( std::forward<Args>( args )... );
+						}
 					}
 					daw::algorithm::erase_remove_if( listeners( )[event], []( std::pair<bool, Callback> const & item ) {
 						return item.first;

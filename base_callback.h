@@ -45,9 +45,12 @@ namespace daw {
 
 				bool operator==(Callback const & rhs) const;
 
+				bool empty( ) const;
+
 				template<typename... Args>
-				void exec( Args&&... args ) {
-					auto callback = boost::any_cast<std::function < void( Args... ) >>(m_callback);
+				void exec( Args&&... args ) {					
+					using cb_type = std::remove_const<std::function < void( typename std::remove_reference<Args>::type... ) >>::type;
+					auto callback = boost::any_cast<cb_type>(m_callback);
 					callback( std::forward<Args>( args )... );
 				}
 

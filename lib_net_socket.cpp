@@ -44,6 +44,14 @@ namespace daw {
 											m_bytes_read( 0 ),
 											m_bytes_written( 0 ),
 											m_response_buffers_mutex( ) { }
+
+				NetSocket::NetSocket( boost::asio::io_service& io_service ) : base::stream::Stream( ),
+																m_socket( io_service ),
+																m_response_buffer( std::make_shared<base::data_t>( 1024, 0 ) ),
+																m_response_buffers( std::make_shared<base::data_t>( ) ),
+																m_bytes_read( 0 ),
+																m_bytes_written( 0 ),
+																m_response_buffers_mutex( ) { }
 				
 				NetSocket::NetSocket( SocketHandle&& handle ) : base::stream::Stream( ),
 																m_socket( std::move( handle ) ),
@@ -98,7 +106,7 @@ namespace daw {
 					}
 
 					void emit_data( NetSocket* const net_socket, std::shared_ptr<base::data_t> buffer ) {
-						base::ServiceHandle::get( ).post( [net_socket, buffer]( ) {
+						base::ServiceHandle::get( ).post( [net_socket, buffer]( ) mutable {
 							net_socket->emit( "data", buffer );
 						} );						
 					}
@@ -118,6 +126,22 @@ namespace daw {
 					add_listener( "data", listener );
 					return *this;
 				}
+
+				NetSocket& NetSocket::on_connect( std::function<void( )> listener ) {
+					add_listener( "connect", listener );
+					return *this;
+				}
+
+				NetSocket& NetSocket::on_error( std::function<void(base::Error )> listener ) {
+					add_listener( "error", listener );
+					return *this;
+				}
+
+				NetSocket& NetSocket::on_end( std::function<void( )> listener ) {
+					add_listener( "end", listener );
+					return *this;
+				}
+
 
 				NetSocket& NetSocket::connect( std::string host, uint16_t port ) {
 					tcp::resolver resolver( base::ServiceHandle::get( ) );

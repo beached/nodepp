@@ -1,5 +1,5 @@
 #pragma once
-
+#include <boost/asio/ip/tcp.hpp>
 #include <memory>
 #include <string>
 
@@ -7,18 +7,22 @@
 #include "base_event_emitter.h"
 #include "base_types.h"
 #include "lib_net_address.h"
+#include "lib_net_socket.h"
 #include "lib_net_socket_handle.h"
 #include "base_service_handle.h"
 
 namespace daw {
 	namespace nodepp {
 		namespace lib {
-			namespace net {				
+			namespace net {		
+				using namespace daw::nodepp;
 				//////////////////////////////////////////////////////////////////////////
 				// Summary:		A TCP Server class
 				// Requires:	base::EventEmitter, base::options_t,
 				//				lib::net::NetAddress, base::Error
 				class NetServer: public daw::nodepp::base::EventEmitter {
+					boost::asio::ip::tcp::acceptor m_acceptor;
+					void handle_accept( SocketHandle socket, boost::system::error_code const & err );
 				public:
 					NetServer( );
 					NetServer( daw::nodepp::base::options_t options );
@@ -30,38 +34,12 @@ namespace daw {
 					
 					virtual std::vector<std::string> const & valid_events( ) const override;
 
-					NetServer& listen( uint16_t port, std::string hostname = "", uint16_t backlog = 511 );
-					
-					template<typename Listener>
-					NetServer& listen( uint16_t port, std::string hostname, uint16_t backlog, Listener listener ) {
-						return base::rollback_event_on_exception( this, "listening", listener, [&]( ) {
-							return this->listen( port, hostname, backlog );
-						} );
-					}
-
-					NetServer& listen( std::string socket_path );
-					template<typename Listener>
-					NetServer& listen( std::string socket_path, Listener listener ) {
-						return base::rollback_event_on_exception( this, "listening", listener, [&]( ) {
-							return listen( socket_path );
-						} );
-					}
-
-					NetServer& listen( SocketHandle handle );
-					template<typename Listener>
-					NetServer& listen( SocketHandle handle, Listener listener ) {
-						return base::rollback_event_on_exception( this, "listening", listener, [&]( ) {
-							return listen( handle );
-						} );
-					}
-
+					NetServer& listen( uint16_t port );
+					NetServer& listen( uint16_t port, std::string hostname, uint16_t backlog = 511 );										
+					NetServer& listen( std::string socket_path );					
+					NetServer& listen( SocketHandle handle );				
 					NetServer& close( );
-					template<typename Listener>
-					NetServer& close( Listener listener ) {
-						return base::rollback_event_on_exception( this, "close", listener, [&]( ) {
-							return close( );
-						} );
-					}
+					
 
 					daw::nodepp::lib::net::NetAddress const& address( ) const;
 					NetServer& unref( );
@@ -70,12 +48,14 @@ namespace daw {
 
 					NetServer& get_connections( std::function<void( daw::nodepp::base::Error err, uint16_t count )> callback );
 
-
 					template<typename Listener>
 					NetServer& on( std::string event, Listener listener ) {
 						add_listener( event, listener );
 						return *this;
 					}
+
+					NetServer& on_connection( std::function<void( NetSocket socket )> listener );					
+					NetServer& on_error( std::function<void( base::Error )> listener );
 
 					template<typename Listener>
 					NetServer& once( std::string event, Listener listener ) {

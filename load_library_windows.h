@@ -20,7 +20,8 @@ namespace daw {
 				auto function_ptr = reinterpret_cast<function_ptr_t>(GetProcAddress(handle, function_name.c_str()));
 				if (!function_ptr) {
 					auto err = GetLastError();
-					throw std::runtime_error("Could not load function in library");
+					std::string msg = "Could not load function in library err : " + err;
+					throw std::runtime_error( msg );
 				}
 				return function_ptr;
 			}
