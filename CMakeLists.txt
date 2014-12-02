@@ -19,6 +19,7 @@ base_event_emitter.cpp
 base_event_emitter.h
 base_service_handle.cpp
 base_service_handle.h
+base_stream.cpp
 base_stream.h
 base_types.h
 lib_http_chunk.cpp

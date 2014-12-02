@@ -25,6 +25,8 @@ namespace daw {
 					return result;
 				}
 
+//				StreamWritable::~StreamWritable( ) { }
+
 				std::vector<std::string> const & Stream::valid_events( ) const {
 					static auto const result = [&]( ) {
 						auto local = StreamReadable::valid_events( );
