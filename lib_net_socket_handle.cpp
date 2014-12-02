@@ -8,6 +8,7 @@ namespace daw {
 		namespace lib {
 			namespace net {
 				SocketHandle::SocketHandle( ) : m_socket( std::make_shared<boost::asio::ip::tcp::socket>( base::ServiceHandle::get( ) )	) { }
+				SocketHandle::SocketHandle( boost::asio::io_service & io_service ) : m_socket( std::make_shared<boost::asio::ip::tcp::socket>( io_service ) ) { }
 				SocketHandle::SocketHandle( SocketHandle && other ): m_socket( std::move( other.m_socket ) ) { }
 
 				SocketHandle& SocketHandle::operator=(SocketHandle && rhs) {

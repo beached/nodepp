@@ -35,8 +35,8 @@ namespace daw {
 					virtual std::vector<std::string> const & valid_events( ) const override;
 
 					NetSocket( );
-					NetSocket( boost::asio::io_service& io_service );
-					NetSocket( SocketHandle&& handle );
+					explicit NetSocket( boost::asio::io_service& io_service );
+					explicit NetSocket( SocketHandle&& handle );
 					NetSocket( NetSocket const & ) = delete;
 					NetSocket& operator=(NetSocket const &) = delete;
 					NetSocket( NetSocket&& other );

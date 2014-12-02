@@ -26,7 +26,7 @@ namespace daw {
 					return result;
 				}
 
-				NetServer::NetServer( ): EventEmitter{ }, m_acceptor( std::make_shared<boost::asio::ip::tcp::acceptor>( ) ) { }
+				NetServer::NetServer( ): EventEmitter{ }, m_acceptor( ) { }
 				NetServer::~NetServer( ) { }
 
 				NetServer::NetServer( NetServer&& other ) : EventEmitter{ std::move( other ) }, m_acceptor( std::move( other.m_acceptor ) ) { }
@@ -49,9 +49,8 @@ namespace daw {
 				}
 
 				void NetServer::handle_accept( SocketHandle socket, boost::system::error_code const & err ) {
-					if( !err ) {
-						auto emit_param = NetSocket{ *socket };
-						emit( "connection", emit_param );
+					if( !err ) {						
+						emit( "connection", NetSocket( std::move( socket ) ) );
 					} else {
 						emit_error( this, err, "NetServer::listen" );
 					}
@@ -59,9 +58,10 @@ namespace daw {
 
 				NetServer& NetServer::listen( uint16_t port ) {
 					m_acceptor = std::make_shared<boost::asio::ip::tcp::acceptor>( base::ServiceHandle::get( ), tcp::endpoint( tcp::v4(), port ) );
-					SocketHandle socket( m_acceptor.get_io_service( ) );
+					SocketHandle socket( m_acceptor->get_io_service( ) );
 					auto handle = boost::bind( &NetServer::handle_accept, this, socket, boost::asio::placeholders::error );
-					m_acceptor.async_accept( *socket, handle );
+					m_acceptor->async_accept( *socket, handle );
+					return *this;
 				}
 				NetServer& NetServer::listen( uint16_t port, std::string hostname, uint16_t backlog ) { throw std::runtime_error( "Method not implemented" ); }
 				NetServer& NetServer::listen( std::string socket_path ) { throw std::runtime_error( "Method not implemented" ); }

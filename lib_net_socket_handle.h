@@ -11,6 +11,7 @@ namespace daw {
 					std::shared_ptr<boost::asio::ip::tcp::socket> m_socket;
 				public:
 					SocketHandle( );
+					explicit SocketHandle( boost::asio::io_service & io_service );
 					SocketHandle( SocketHandle const & ) = default;
 					SocketHandle( SocketHandle && other );
 
