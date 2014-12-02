@@ -2,6 +2,7 @@
 
 #include <functional>
 #include <limits>
+#include <memory>
 #include <string>
 #include <type_traits>
 #include <vector>
@@ -198,7 +199,7 @@ namespace daw {
 	template<typename T> 
 	void copy_vect_and_set( std::vector<T> & source, std::vector<T> & destination, size_t num_items, T const & replacement_value ) {
 		using item_size_t = typename std::vector<T>::difference_type;
-		assert( num_items < std::numeric_limits<item_size_t>::max( ) );
+		assert( num_items < static_cast<size_t>( std::numeric_limits<item_size_t>::max( ) ) );
 		auto first = std::begin( source );
 		auto last = std::end( source );
 		auto max_dist = std::distance( first, last );
@@ -212,5 +213,24 @@ namespace daw {
 			*it = replacement_value;
 		}
 	}
+
+	template<typename T>
+	void copy_vect_and_set( std::shared_ptr<std::vector<T>> & source, std::shared_ptr<std::vector<T>> & destination, size_t num_items, T const & replacement_value ) {
+		using item_size_t = typename std::vector<T>::difference_type;
+		assert( num_items < static_cast<size_t>(std::numeric_limits<item_size_t>::max( )) );
+		auto first = std::begin( *source );
+		auto last = std::end( *source );
+		auto max_dist = std::distance( first, last );
+		auto items = static_cast<item_size_t>(num_items);
+		if( items < max_dist ) {
+			last = first + items;
+		}
+
+		for( auto it = first; it != last; ++it ) {
+			destination->push_back( *it );
+			*it = replacement_value;
+		}
+	}
+
 
 }	// namespace daw	

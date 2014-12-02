@@ -22,9 +22,9 @@ namespace daw {
 				using namespace daw::nodepp;
 
 				class NetSocket: public base::stream::Stream {
-					SocketHandle m_socket2;
-					base::data_t m_response_buffer;
-					base::data_t m_response_buffers;
+					SocketHandle m_socket;
+					std::shared_ptr<base::data_t> m_response_buffer;
+					std::shared_ptr<base::data_t> m_response_buffers;
 					size_t m_bytes_read;
 					size_t m_bytes_written;
 					std::mutex m_response_buffers_mutex;

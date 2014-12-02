@@ -37,7 +37,7 @@ namespace daw {
 
 				NetServer& NetServer::listen( uint16_t port, std::string hostname, uint16_t backlog ) { throw std::runtime_error( "Method not implemented" ); }
 				NetServer& NetServer::listen( std::string socket_path ) { throw std::runtime_error( "Method not implemented" ); }
-				NetServer& NetServer::listen( base::ServiceHandle handle ) { throw std::runtime_error( "Method not implemented" ); }
+				NetServer& NetServer::listen( SocketHandle handle ) { throw std::runtime_error( "Method not implemented" ); }
 				NetServer& NetServer::close( ) { throw std::runtime_error( "Method not implemented" ); }
 				daw::nodepp::lib::net::NetAddress const & NetServer::address( ) const { throw std::runtime_error( "Method not implemented" ); }
 				NetServer& NetServer::unref( ) { throw std::runtime_error( "Method not implemented" ); }

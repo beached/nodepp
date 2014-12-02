@@ -7,6 +7,7 @@
 #include "base_event_emitter.h"
 #include "base_types.h"
 #include "lib_net_address.h"
+#include "lib_net_socket_handle.h"
 #include "base_service_handle.h"
 
 namespace daw {
@@ -46,9 +47,9 @@ namespace daw {
 						} );
 					}
 
-					NetServer& listen( base::ServiceHandle handle );
+					NetServer& listen( SocketHandle handle );
 					template<typename Listener>
-					NetServer& listen( base::ServiceHandle handle, Listener listener ) {
+					NetServer& listen( SocketHandle handle, Listener listener ) {
 						return base::rollback_event_on_exception( this, "listening", listener, [&]( ) {
 							return listen( handle );
 						} );
