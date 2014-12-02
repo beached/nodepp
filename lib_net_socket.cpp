@@ -114,6 +114,11 @@ namespace daw {
 					}
 				}
 
+				NetSocket& NetSocket::on_data( std::function<void( std::shared_ptr<base::data_t> )> listener ) {
+					add_listener( "data", listener );
+					return *this;
+				}
+
 				NetSocket& NetSocket::connect( std::string host, uint16_t port ) {
 					tcp::resolver resolver( base::ServiceHandle::get( ) );
 					auto handler = boost::bind( connect_handler, this, boost::asio::placeholders::error, boost::asio::placeholders::iterator );

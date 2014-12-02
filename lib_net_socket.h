@@ -77,6 +77,8 @@ namespace daw {
 						return *this;
 					}
 
+					NetSocket& on_data( std::function<void( std::shared_ptr<base::data_t> )> listener );
+
 					template<typename Listener>
 					NetSocket& once( std::string event, Listener listener ) {
 						add_listener( event, listener, true );
