@@ -193,10 +193,6 @@ namespace daw {
 							return buff->size( );
 						}
 						
-						auto data( ) -> decltype( buff->data( ) ) {
-							return buff->data( );
-						}
-
 						auto data( ) const -> decltype( buff->data( ) ) {
 							return buff->data( );
 						}
