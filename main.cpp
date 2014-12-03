@@ -61,16 +61,21 @@ int main( int, char const ** ) {
 // 		std::cout << reinterpret_cast<char*>(buff.data( )) << std::endl;
 // 	} ).connect( "dynoweb.private", 80 );
 // 	
+	std::shared_ptr<lib::net::NetSocket> socket1;
 
 	auto server = lib::net::NetServer( );
 	server.on_error( [&]( base::Error error ) {
 		std::cerr << "Error connecting" << std::endl << error << std::endl;
 		exit( EXIT_FAILURE );
-	} ).on_connection( []( lib::net::NetSocket socket ) {
+	} ).on_connection( [&socket1]( lib::net::NetSocket socket ) {		
 		std::cout << "Connection from " << socket.remote_address( ) << std::endl;
-		socket.end( );
+		socket.end( "Go Away" );
+		socket1 = std::make_shared<lib::net::NetSocket>( std::move( socket ) );
 	} ).listen( 8080 );
-
+	if( socket1 ) {
+		socket1->remove_all_listeners( );
+		socket1->destroy( );
+	}
 	base::ServiceHandle::get( ).run( );
 
 
