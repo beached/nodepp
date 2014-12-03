@@ -36,7 +36,7 @@ namespace daw {
 
 					NetSocket( );
 					explicit NetSocket( boost::asio::io_service& io_service );
-					explicit NetSocket( SocketHandle&& handle );
+					explicit NetSocket( SocketHandle handle );
 					NetSocket( NetSocket const & ) = delete;
 					NetSocket& operator=(NetSocket const &) = delete;
 					NetSocket( NetSocket&& other );
@@ -79,7 +79,7 @@ namespace daw {
 					}
 
 					NetSocket& on_data( std::function<void( std::shared_ptr<base::data_t> )> listener );
-					NetSocket& on_connect( std::function<void( )> listener );
+					NetSocket& on_connect( std::function<void()> listener );
 					NetSocket& on_error( std::function<void(base::Error)> listener );
 					NetSocket& on_end( std::function<void( )> listener );
 

@@ -25,7 +25,11 @@ namespace daw {
 				namespace {
 					template<typename Container>
 					auto to_bbuffer( std::shared_ptr<Container>& container ) -> decltype(boost::asio::buffer( container->data( ), container->size( ) )) {
-						return boost::asio::buffer( container->data( ), container->size( ) );
+						if( container && !container->empty( ) ) {
+							return boost::asio::buffer( container->data( ), container->size( ) );
+						} else {
+
+						}
 					}
 				}
 
@@ -53,8 +57,8 @@ namespace daw {
 																m_bytes_written( 0 ),
 																m_response_buffers_mutex( ) { }
 				
-				NetSocket::NetSocket( SocketHandle&& handle ) : base::stream::Stream( ),
-																m_socket( std::move( handle ) ),
+				NetSocket::NetSocket( SocketHandle handle ) : base::stream::Stream( ),
+																m_socket( handle ),
 																m_response_buffer( std::make_shared<base::data_t>( 1024, 0 ) ),
 																m_response_buffers( std::make_shared<base::data_t>( ) ),
 																m_bytes_read( 0 ),
@@ -88,7 +92,7 @@ namespace daw {
 				}
 
 				std::shared_ptr<base::data_t> get_clear_buffer( std::shared_ptr<base::data_t>& buffer, size_t num_items ) {
-					std::shared_ptr<base::data_t> result( std::make_shared<base::data_t>( buffer->size( ) ) );
+					std::shared_ptr<base::data_t> result( std::make_shared<base::data_t>( 1024, 0 ) );
 					using std::swap;
 					swap( result, buffer );
 					result->resize( num_items );

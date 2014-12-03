@@ -1,5 +1,6 @@
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
+#include <boost/lexical_cast.hpp>
 #include <memory>
 #include <utility>
 
@@ -8,6 +9,7 @@
 #include "base_types.h"
 #include "lib_net_server.h"
 #include "lib_net_socket.h"
+#include "make_unique.h"
 #include "range_algorithm.h"
 
 namespace daw {
@@ -26,7 +28,7 @@ namespace daw {
 					return result;
 				}
 
-				NetServer::NetServer( ): EventEmitter{ }, m_acceptor( ) { }
+				NetServer::NetServer( ): EventEmitter{ }, m_acceptor( base::ServiceHandle::get( ) ) { }
 				NetServer::~NetServer( ) { }
 
 				NetServer::NetServer( NetServer&& other ) : EventEmitter{ std::move( other ) }, m_acceptor( std::move( other.m_acceptor ) ) { }
@@ -49,18 +51,29 @@ namespace daw {
 				}
 
 				void NetServer::handle_accept( SocketHandle socket, boost::system::error_code const & err ) {
-					if( !err ) {						
-						emit( "connection", NetSocket( std::move( socket ) ) );
+					if( !err ) {
+						emit( "connection", daw::make_unique<NetSocket>( socket ) );						
+						start_accept( );
 					} else {
 						emit_error( this, err, "NetServer::listen" );
 					}
-				}				
+				}	
+
+				void NetServer::start_accept( ) {
+					SocketHandle socket( base::ServiceHandle::get( ) );
+					auto handle = boost::bind( &NetServer::handle_accept, this, socket, boost::asio::placeholders::error );
+					m_acceptor.async_accept( *socket, handle );
+				}
 
 				NetServer& NetServer::listen( uint16_t port ) {
-					m_acceptor = std::make_shared<boost::asio::ip::tcp::acceptor>( base::ServiceHandle::get( ), tcp::endpoint( tcp::v4(), port ) );
-					SocketHandle socket( m_acceptor->get_io_service( ) );
-					auto handle = boost::bind( &NetServer::handle_accept, this, socket, boost::asio::placeholders::error );
-					m_acceptor->async_accept( *socket, handle );
+					boost::asio::ip::tcp::resolver resolver( m_acceptor.get_io_service( ) );
+					boost::asio::ip::tcp::resolver::query query( "", boost::lexical_cast<std::string>( port ) );
+					boost::asio::ip::tcp::endpoint endpoint = *resolver.resolve( query );					
+					m_acceptor.open( endpoint.protocol( ) );
+					m_acceptor.set_option( boost::asio::ip::tcp::acceptor::reuse_address( true ) );
+					m_acceptor.bind( endpoint );
+					m_acceptor.listen( );
+					start_accept( );
 					return *this;
 				}
 				NetServer& NetServer::listen( uint16_t port, std::string hostname, uint16_t backlog ) { throw std::runtime_error( "Method not implemented" ); }
@@ -73,7 +86,7 @@ namespace daw {
 				NetServer& NetServer::set_max_connections( uint16_t value ) { throw std::runtime_error( "Method not implemented" ); }
 				NetServer& NetServer::get_connections( std::function<void( Error err, uint16_t count )> callback ) { throw std::runtime_error( "Method not implemented" ); }
 
-				NetServer& NetServer::on_connection( std::function<void( NetSocket socket )> listener ) {
+				NetServer& NetServer::on_connection( std::function<void( std::unique_ptr<NetSocket> socket_ptr )> listener ) {
 					add_listener( "connection", listener );
 					return *this;
 				}

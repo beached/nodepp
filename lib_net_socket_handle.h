@@ -13,10 +13,8 @@ namespace daw {
 					SocketHandle( );
 					explicit SocketHandle( boost::asio::io_service & io_service );
 					SocketHandle( SocketHandle const & ) = default;
-					SocketHandle( SocketHandle && other );
-
 					SocketHandle& operator=(SocketHandle const &) = default;
-					SocketHandle& operator=(SocketHandle && rhs);
+					
 					~SocketHandle( ) = default;
 					boost::asio::ip::tcp::socket& get( );
 					boost::asio::ip::tcp::socket const & get( ) const;
