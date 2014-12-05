@@ -65,7 +65,7 @@ int main( int, char const ** ) {
 	server.on_error( [&]( base::Error error ) {
 		std::cerr << "Error connecting" << std::endl << error << std::endl;
 		exit( EXIT_FAILURE );
-	} ).on_connection( []( std::unique_ptr<lib::net::NetSocket> socket ) {		
+	} ).on_connection( []( std::shared_ptr<lib::net::NetSocket> socket ) {		
 		std::cout << "Connection from " << socket->remote_address( ) << std::endl;
 		socket->end( "Go Away\r\n\r\n" );
 	} ).listen( 8080 );

@@ -84,15 +84,17 @@ namespace daw {
 					return *this;
 				}
 
-				NetSocket::~NetSocket( ) { }
-
-				void NetSocket::do_async_read( NetSocket* const net_socket ) {
-					auto handler = boost::bind( &NetSocket::handle_read, net_socket, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred );
-					boost::asio::async_read( net_socket->m_socket.get( ), to_bbuffer( net_socket->m_response_buffer ), handler );
+				NetSocket::~NetSocket( ) {
+					std::cout << "Destructing socket" << std::endl;
 				}
 
-				std::shared_ptr<base::data_t> get_clear_buffer( std::shared_ptr<base::data_t>& buffer, size_t num_items ) {
-					std::shared_ptr<base::data_t> result( std::make_shared<base::data_t>( 1024, 0 ) );
+				void NetSocket::do_async_read( ) {
+					auto handler = boost::bind( &NetSocket::handle_read, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred );
+					boost::asio::async_read( *m_socket, to_bbuffer( m_response_buffer ), handler );
+				}
+
+				std::shared_ptr<base::data_t> get_clear_buffer( std::shared_ptr<base::data_t>& buffer, size_t num_items, size_t new_size = 1024 ) {
+					std::shared_ptr<base::data_t> result( std::make_shared<base::data_t>( new_size, 0 ) );
 					using std::swap;
 					swap( result, buffer );
 					result->resize( num_items );
@@ -161,17 +163,24 @@ namespace daw {
 				size_t const & NetSocket::buffer_size( ) const { throw std::runtime_error( "Method not implemented" ); }
 				
 				void NetSocket::handle_read( boost::system::error_code const & err, size_t bytes_transfered ) {
-					auto net_socket = this;
+					auto net_socket = this;					
 					if( 0 < listener_count( "data" ) ) {
+						{
+							// Handle when the emitter comes after the data starts pouring in.  This might be best placed in newEvent
+							// have not decided
+							std::lock_guard<std::mutex> scoped_lock( m_response_buffers_mutex );
+							if( !m_response_buffers->empty( ) ) {
+								emit_data( this, get_clear_buffer( m_response_buffers, m_response_buffers->size( ), 0 ) );
+							}
+						}
 						emit_data( this, get_clear_buffer( m_response_buffer, bytes_transfered ) );
-					} else {	// Queue up for a 
-						std::lock_guard<std::mutex> scoped_lock( m_response_buffers_mutex );
+					} else {	// Queue up for a 						
 						daw::copy_vect_and_set( m_response_buffer, m_response_buffers, bytes_transfered, static_cast<base::data_t::value_type>(0) );
 					}
 					m_bytes_read += bytes_transfered;
 
 					if( !err ) {
-						do_async_read( this );
+						do_async_read( );
 					} else {
 						base::ServiceHandle::get( ).post( [net_socket]( ) {
 							net_socket->emit( "end" );
@@ -182,57 +191,47 @@ namespace daw {
 					}
 				}
 
-				namespace {
-					struct write_buffer {
-						std::shared_ptr<base::data_t> buff;
-
-						template<typename Iterator>						
-						write_buffer( Iterator first, Iterator last ) : buff( std::make_shared<base::data_t>( first, last ) ) { }
-						
-						write_buffer( base::data_t const & source ) : buff( std::make_shared<base::data_t>( source ) ) { }
-						
-						write_buffer( std::string const & source ) : buff( std::make_shared<base::data_t>( source.begin( ), source.end( ) ) ) { }
-
-						size_t size( ) const {
-							return buff->size( );
-						}
-						
-						auto data( ) const -> decltype( buff->data( ) ) {
-							return buff->data( );
-						}
-
-						boost::asio::mutable_buffers_1 asio_buff( ) const {
-							return boost::asio::buffer( data( ), size( ) );
-						}
-					};
+				bool NetSocket::is_open( ) const {
+					return m_socket && m_socket->is_open( );
 				}
 
-				void handle_write( NetSocket* net_socket, write_buffer buff, boost::system::error_code const & err ) {
+				void NetSocket::handle_write( impl::write_buffer buff, boost::system::error_code const & err ) {
 					if( !err ) {
-						NetSocket::do_async_read( net_socket );
+						if( is_open( ) ) {
+							NetSocket::do_async_read( );
+						}
 					} else {
-						emit_error( net_socket, err, "NetSocket::write" );
+						emit_error( this, err, "NetSocket::write" );
 					}
+				} 
+
+				boost::asio::ip::tcp::socket & NetSocket::socket( ) {
+					return *m_socket;
+				}
+
+				boost::asio::ip::tcp::socket const & NetSocket::socket( ) const {
+					return *m_socket;
 				}
 
 				NetSocket& NetSocket::write( base::data_t const & chunk ) { 
-					auto buff = write_buffer( chunk );
+					auto buff = impl::write_buffer( chunk );
 					m_bytes_written += buff.size( );
-					auto handler = boost::bind( handle_write, this, buff, boost::asio::placeholders::error );
+					auto handler = boost::bind( &NetSocket::handle_write, this, buff, boost::asio::placeholders::error );
 					boost::asio::async_write( *m_socket, buff.asio_buff( ), handler );
 					return *this;
 				}
 				
 				NetSocket& NetSocket::write( std::string const & chunk, base::Encoding const & encoding ) { 
-					auto buff = write_buffer( chunk );
+					auto buff = impl::write_buffer( chunk );
 					m_bytes_written += buff.size( );
-					auto handler = boost::bind( handle_write, this, buff, boost::asio::placeholders::error );
+					auto handler = boost::bind( &NetSocket::handle_write, this, buff, boost::asio::placeholders::error );
 					boost::asio::async_write( *m_socket, buff.asio_buff( ), handler );
 					return *this;
 				}
 
 				NetSocket& NetSocket::end( ) { 
 					//m_socket = std::make_shared<boost::asio::ip::tcp::socket>( base::ServiceHandle::get( ) );
+
 					m_socket->shutdown( boost::asio::ip::tcp::socket::shutdown_send );
 					return *this;
 				}
@@ -288,7 +287,7 @@ namespace daw {
 					std::shared_ptr<base::data_t> result;
 					{
 						std::lock_guard<std::mutex> scoped_lock( m_response_buffers_mutex );
-						result = get_clear_buffer( m_response_buffers, m_response_buffers->size( ) );
+						result = get_clear_buffer( m_response_buffers, m_response_buffers->size( ), 0 );
 					}
 					return *result;
 				}

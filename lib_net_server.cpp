@@ -16,14 +16,14 @@ namespace daw {
 	namespace nodepp {
 		namespace lib {
 			namespace net {
-				using namespace daw::nodepp::base;
+				using namespace daw::nodepp;
 				using namespace boost::asio::ip;
 
 				std::vector<std::string> const & NetServer::valid_events( ) const {
 					static auto const result = [&]( ) {
 						std::vector<std::string> local{ "listening", "connection", "close", "error" };
 						auto parent = EventEmitter::valid_events( );
-						return impl::append_vector( local, parent );
+						return base::impl::append_vector( local, parent );
 					}();
 					return result;
 				}
@@ -48,21 +48,33 @@ namespace daw {
 							net_server->emit( "error", error );
 						} );
 					}
+
+					void emit_error( NetServer* const net_server, std::exception_ptr err, std::string where ) {
+						auto error = base::Error( "Exception Caught", err );
+						error.add( "where", where );
+						base::ServiceHandle::get( ).post( [net_server, error]( ) {
+							net_server->emit( "error", error );
+						} );
+					}
 				}
 
-				void NetServer::handle_accept( SocketHandle socket, boost::system::error_code const & err ) {
+				void NetServer::handle_accept( std::shared_ptr<NetSocket> socket_ptr, boost::system::error_code const & err ) {
 					if( !err ) {
-						emit( "connection", daw::make_unique<NetSocket>( socket ) );						
-						start_accept( );
+						try {
+							emit( "connection", socket_ptr );
+						} catch( ... ) {
+							emit_error( this, std::current_exception( ), "NetServer::listen" );
+						}
 					} else {
 						emit_error( this, err, "NetServer::listen" );
 					}
+					start_accept( );
 				}	
 
 				void NetServer::start_accept( ) {
-					SocketHandle socket( base::ServiceHandle::get( ) );
-					auto handle = boost::bind( &NetServer::handle_accept, this, socket, boost::asio::placeholders::error );
-					m_acceptor.async_accept( *socket, handle );
+					m_new_connection = std::make_shared<NetSocket>( base::ServiceHandle::get( ) );
+					auto handle = boost::bind( &NetServer::handle_accept, this, m_new_connection, boost::asio::placeholders::error );
+					m_acceptor.async_accept( m_new_connection->socket( ), handle );
 				}
 
 				NetServer& NetServer::listen( uint16_t port ) {
@@ -84,9 +96,9 @@ namespace daw {
 				NetServer& NetServer::unref( ) { throw std::runtime_error( "Method not implemented" ); }
 				NetServer& NetServer::ref( ) { throw std::runtime_error( "Method not implemented" ); }
 				NetServer& NetServer::set_max_connections( uint16_t value ) { throw std::runtime_error( "Method not implemented" ); }
-				NetServer& NetServer::get_connections( std::function<void( Error err, uint16_t count )> callback ) { throw std::runtime_error( "Method not implemented" ); }
+				NetServer& NetServer::get_connections( std::function<void( base::Error err, uint16_t count )> callback ) { throw std::runtime_error( "Method not implemented" ); }
 
-				NetServer& NetServer::on_connection( std::function<void( std::unique_ptr<NetSocket> socket_ptr )> listener ) {
+				NetServer& NetServer::on_connection( std::function<void( std::shared_ptr<NetSocket> socket_ptr )> listener ) {
 					add_listener( "connection", listener );
 					return *this;
 				}

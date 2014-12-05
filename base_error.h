@@ -17,9 +17,11 @@ namespace daw {
 				std::map<std::string, std::string> m_keyvalues;
 				bool m_frozen;
 				std::shared_ptr<Error> m_child;
+				std::exception_ptr m_exception;
 			public:
 				Error( ) = delete;
 				Error( Error const & ) = default;
+				Error( std::string description, std::exception_ptr ex_ptr );
 				Error& operator=(Error const &) = default;
 
 				Error( std::string description );
@@ -34,7 +36,7 @@ namespace daw {
 				Error& clear_child( );
 				Error& set_child( Error const & child );
 				void freeze( );
-
+				bool has_exception( ) const;
 				std::string to_string( std::string prefix = "" ) const;
 			};	// class Error
 			

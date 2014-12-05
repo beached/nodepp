@@ -22,8 +22,9 @@ namespace daw {
 				//				lib::net::NetAddress, base::Error
 				class NetServer: public daw::nodepp::base::EventEmitter {
 					boost::asio::ip::tcp::acceptor m_acceptor;
-					void handle_accept( SocketHandle socket, boost::system::error_code const & err );
+					void handle_accept( std::shared_ptr<NetSocket> socket, boost::system::error_code const & err );
 					void start_accept( );
+					std::shared_ptr<NetSocket> m_new_connection;
 				public:
 					NetServer( );
 					NetServer( NetServer const & ) = default;
@@ -54,7 +55,7 @@ namespace daw {
 						return *this;
 					}
 
-					NetServer& on_connection( std::function<void( std::unique_ptr<NetSocket> socket_ptr )> listener );					
+					NetServer& on_connection( std::function<void( std::shared_ptr<NetSocket> socket_ptr )> listener );					
 					NetServer& on_error( std::function<void( base::Error )> listener );
 
 					template<typename Listener>

@@ -20,6 +20,31 @@ namespace daw {
 		namespace lib {
 			namespace net {
 				using namespace daw::nodepp;
+				namespace impl {
+					struct write_buffer {
+						std::shared_ptr<base::data_t> buff;
+
+						template<typename Iterator>
+						write_buffer( Iterator first, Iterator last ) : buff( std::make_shared<base::data_t>( first, last ) ) { }
+
+						write_buffer( base::data_t const & source ) : buff( std::make_shared<base::data_t>( source ) ) { }
+
+						write_buffer( std::string const & source ) : buff( std::make_shared<base::data_t>( source.begin( ), source.end( ) ) ) { }
+
+						size_t size( ) const {
+							return buff->size( );
+						}
+
+						auto data( ) const -> decltype(buff->data( )) {
+							return buff->data( );
+						}
+
+						boost::asio::mutable_buffers_1 asio_buff( ) const {
+							return boost::asio::buffer( data( ), size( ) );
+						}
+					};
+				}
+
 
 				class NetSocket: public base::stream::Stream {
 					SocketHandle m_socket;
@@ -29,9 +54,9 @@ namespace daw {
 					size_t m_bytes_written;
 					std::mutex m_response_buffers_mutex;
 					void handle_read( boost::system::error_code const & err, size_t bytes_transfered );					
-
+					void handle_write( impl::write_buffer buff, boost::system::error_code const & err );
 				public:
-					static void do_async_read( NetSocket* const socket );
+					void do_async_read( );
 					virtual std::vector<std::string> const & valid_events( ) const override;
 
 					NetSocket( );
@@ -42,6 +67,9 @@ namespace daw {
 					NetSocket( NetSocket&& other );
 					NetSocket& operator=(NetSocket&& rhs);
 					virtual ~NetSocket( );
+
+					boost::asio::ip::tcp::socket & socket( );
+					boost::asio::ip::tcp::socket const & socket( ) const;
 
 					NetSocket& connect( std::string host, uint16_t port );
 					NetSocket& connect( std::string path );
@@ -71,6 +99,8 @@ namespace daw {
 					
 					size_t bytes_read( ) const;
 					size_t bytes_written( ) const;
+
+					bool is_open( ) const;
 
 					template<typename Listener>
 					NetSocket& on( std::string event, Listener listener ) {

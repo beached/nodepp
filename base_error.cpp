@@ -7,23 +7,28 @@
 namespace daw {
 	namespace nodepp {
 		namespace base {
-			Error::Error( std::string description ) : m_keyvalues{ }, m_frozen{ false }, m_child{ } { 
+			Error::Error( std::string description ) : m_keyvalues{ }, m_frozen{ false }, m_child{ }, m_exception{ } {
 				m_keyvalues.emplace( "description", description );
 			}
 
-			Error::Error( boost::system::error_code const & err ) : m_keyvalues{ }, m_frozen{ false }, m_child{ } {
+			Error::Error( boost::system::error_code const & err ) : m_keyvalues{ }, m_frozen{ false }, m_child{ }, m_exception{ } {
 				m_keyvalues.emplace( "description", err.message( ) );
 				m_keyvalues.emplace( "category", boost::lexical_cast<std::string>(err.category( ).name( )) );
 				m_keyvalues.emplace( "error_code", boost::lexical_cast<std::string>(err.value( )) );
  			}
 
-			Error::Error( Error && other ) : m_keyvalues( std::move( other.m_keyvalues ) ), m_frozen{ std::move( other.m_frozen ) }, m_child{ std::move( other.m_child ) } { }
+			Error::Error( std::string description, std::exception_ptr ex_ptr ) : m_keyvalues{ }, m_frozen{ false }, m_child{ }, m_exception{ ex_ptr } { 
+				m_keyvalues.emplace( "description", description );
+			}
+
+			Error::Error( Error && other ) : m_keyvalues( std::move( other.m_keyvalues ) ), m_frozen{ std::move( other.m_frozen ) }, m_child{ std::move( other.m_child ) }, m_exception{ std::move( other.m_exception ) } { }
 
 			Error& Error::operator=(Error && rhs) {
 				if( this != &rhs ) {
 					m_keyvalues = std::move( rhs.m_keyvalues );
 					m_frozen = std::move( rhs.m_frozen );
 					m_child = std::move( rhs.m_child );
+					m_exception = std::move( rhs.m_exception );
 				}
 				return *this;
 			}
@@ -58,6 +63,10 @@ namespace daw {
 					return true;
 				}
 				return false;
+			}
+
+			bool Error::has_exception( ) const {
+				return m_exception ? true : false;
 			}
 
 			Error& Error::clear_child( ) {

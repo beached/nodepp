@@ -29,6 +29,10 @@ namespace daw {
 					return m_socket.get( );
 				}
 
+				SocketHandle::operator bool( ) const {
+					return m_socket ? true : false;
+				}
+
 			}	// namespace net
 		}	// namespace lib
 	}	// namespace nodepp
