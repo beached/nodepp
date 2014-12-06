@@ -28,7 +28,7 @@ namespace daw {
 						if( container && !container->empty( ) ) {
 							return boost::asio::buffer( container->data( ), container->size( ) );
 						} else {
-
+							throw std::runtime_error( "Attempt to convert an empty or null buffer to a boost::asio::buffer" );
 						}
 					}
 				}
@@ -167,7 +167,6 @@ namespace daw {
 				size_t const & NetSocket::buffer_size( ) const { throw std::runtime_error( "Method not implemented" ); }
 				
 				void NetSocket::handle_read( boost::system::error_code const & err, size_t bytes_transfered ) {
-					auto net_socket = this;					
 					if( 0 < listener_count( "data" ) ) {
 						{
 							// Handle when the emitter comes after the data starts pouring in.  This might be best placed in newEvent
