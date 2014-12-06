@@ -35,19 +35,11 @@ namespace daw {
 
 				std::vector<std::string> const & NetSocket::valid_events( ) const {
 					static auto const result = [&]( ) {
-						auto local = std::vector < std::string > { "connect", "data", "end", "timeout", "drain", "error", "close" };
+						auto local = std::vector < std::string > { "connect", "data", "end", "timeout", "drain", "error", "close", "endOfFile" };
 						return base::impl::append_vector( local, base::stream::Stream::valid_events( ) );
 					}();
 					return result;
 				}
-
-				NetSocket::NetSocket( ):	base::stream::Stream( ), 
-											m_socket( ), 
-											m_response_buffer( std::make_shared<base::data_t>( 1024, 0 ) ), 
-											m_response_buffers( std::make_shared<base::data_t>( ) ),
-											m_bytes_read( 0 ),
-											m_bytes_written( 0 ),
-											m_response_buffers_mutex( ) { }
 
 				NetSocket::NetSocket( boost::asio::io_service& io_service ) : base::stream::Stream( ),
 																m_socket( io_service ),
@@ -55,7 +47,9 @@ namespace daw {
 																m_response_buffers( std::make_shared<base::data_t>( ) ),
 																m_bytes_read( 0 ),
 																m_bytes_written( 0 ),
-																m_response_buffers_mutex( ) { }
+																m_response_buffers_mutex( ) {
+					std::cout << "Constructing default NetSocket" << std::endl;
+				}
 				
 				NetSocket::NetSocket( SocketHandle handle ) : base::stream::Stream( ),
 																m_socket( handle ),
@@ -63,7 +57,9 @@ namespace daw {
 																m_response_buffers( std::make_shared<base::data_t>( ) ),
 																m_bytes_read( 0 ),
 																m_bytes_written( 0 ),
-																m_response_buffers_mutex( ) { }
+																m_response_buffers_mutex( ) {
+					std::cout << "Constructing NetSocket from SocketHandle" << std::endl;
+				}
 
 				NetSocket::NetSocket( NetSocket&& other ):	base::stream::Stream( std::move( other ) ),
 															m_socket( std::move( other.m_socket ) ), 
@@ -84,8 +80,44 @@ namespace daw {
 					return *this;
 				}
 
+				namespace {
+
+					void emit_error( NetSocket* const net_socket, boost::system::error_code const & err, std::string where ) {
+						auto error = base::Error( err );
+						error.add( "where", where );
+						base::ServiceHandle::get( ).post( [net_socket, error]( ) {
+							net_socket->emit( "error", error );
+						} );
+					}
+
+					void emit_end( NetSocket* const net_socket ) {
+						base::ServiceHandle::get( ).post( [net_socket]( ) {
+							net_socket->emit( "error" );
+						} );
+					}
+
+					void emit_data( NetSocket* const net_socket, std::shared_ptr<base::data_t> buffer, bool end_of_file ) {
+						base::ServiceHandle::get( ).post( [net_socket, buffer, end_of_file]( ) mutable {
+							net_socket->emit( "data", buffer, end_of_file );
+						} );
+					}
+
+					void connect_handler( NetSocket* const net_socket, boost::system::error_code const & err, tcp::resolver::iterator it ) {
+						if( !err ) {
+							base::ServiceHandle::get( ).post( [net_socket]( ) {
+								net_socket->emit( "connect" );
+							} );
+						} else {
+							emit_error( net_socket, err, "NetSocket::connect" );
+						}
+					}
+				}	// namespace end
+
 				NetSocket::~NetSocket( ) {
-					std::cout << "Destructing socket" << std::endl;
+					m_socket->close( );
+					emit_end( this );					
+					remove_all_listeners( );
+					std::cout << "Destructing socket @ " << std::hex << reinterpret_cast<uintptr_t>(this) << std::endl;
 				}
 
 				void NetSocket::do_async_read( ) {
@@ -101,34 +133,7 @@ namespace daw {
 					return result;
 				}
 
-				namespace {
-
-					void emit_error( NetSocket* const net_socket, boost::system::error_code const & err, std::string where ) {
-						auto error = base::Error( err );
-						error.add( "where", where );
-						base::ServiceHandle::get( ).post( [net_socket, error]( ) {
-							net_socket->emit( "error", error );
-						} );
-					}
-
-					void emit_data( NetSocket* const net_socket, std::shared_ptr<base::data_t> buffer ) {
-						base::ServiceHandle::get( ).post( [net_socket, buffer]( ) mutable {
-							net_socket->emit( "data", buffer );
-						} );						
-					}
-
-					void connect_handler( NetSocket* const net_socket, boost::system::error_code const & err, tcp::resolver::iterator it ) {
-						if( !err ) {
-							base::ServiceHandle::get( ).post( [net_socket]( ) {
-								net_socket->emit( "connect" );
-							} );							
-						} else {
-							emit_error( net_socket, err, "NetSocket::connect" );
-						}
-					}
-				}
-
-				NetSocket& NetSocket::on_data( std::function<void( std::shared_ptr<base::data_t> )> listener ) {
+				NetSocket& NetSocket::on_data( std::function<void( std::shared_ptr<base::data_t>, bool )> listener ) {
 					add_listener( "data", listener );
 					return *this;
 				}
@@ -147,7 +152,6 @@ namespace daw {
 					add_listener( "end", listener );
 					return *this;
 				}
-
 
 				NetSocket& NetSocket::connect( std::string host, uint16_t port ) {
 					tcp::resolver resolver( base::ServiceHandle::get( ) );
@@ -170,10 +174,11 @@ namespace daw {
 							// have not decided
 							std::lock_guard<std::mutex> scoped_lock( m_response_buffers_mutex );
 							if( !m_response_buffers->empty( ) ) {
-								emit_data( this, get_clear_buffer( m_response_buffers, m_response_buffers->size( ), 0 ) );
+								emit_data( this, get_clear_buffer( m_response_buffers, m_response_buffers->size( ), 0 ), false );
 							}
 						}
-						emit_data( this, get_clear_buffer( m_response_buffer, bytes_transfered ) );
+						bool end_of_file = err && 2 == err.value( );
+						emit_data( this, get_clear_buffer( m_response_buffer, bytes_transfered ), end_of_file );
 					} else {	// Queue up for a 						
 						daw::copy_vect_and_set( m_response_buffer, m_response_buffers, bytes_transfered, static_cast<base::data_t::value_type>(0) );
 					}
@@ -181,13 +186,8 @@ namespace daw {
 
 					if( !err ) {
 						do_async_read( );
-					} else {
-						base::ServiceHandle::get( ).post( [net_socket]( ) {
-							net_socket->emit( "end" );
-						} );
-						if( 2 != err.value( ) ) {	// Do not catch end of file error
-							emit_error( this, err, "NetSocket::read" );
-						}
+					} else if( 2 != err.value( ) ) {
+						emit_error( this, err, "NetSocket::read" );
 					}
 				}
 
@@ -231,7 +231,6 @@ namespace daw {
 
 				NetSocket& NetSocket::end( ) { 
 					//m_socket = std::make_shared<boost::asio::ip::tcp::socket>( base::ServiceHandle::get( ) );
-
 					m_socket->shutdown( boost::asio::ip::tcp::socket::shutdown_send );
 					return *this;
 				}

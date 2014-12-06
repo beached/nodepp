@@ -19,28 +19,7 @@ namespace daw {
 				using namespace daw::nodepp;
 				using namespace boost::asio::ip;
 
-				std::vector<std::string> const & NetServer::valid_events( ) const {
-					static auto const result = [&]( ) {
-						std::vector<std::string> local{ "listening", "connection", "close", "error" };
-						auto parent = EventEmitter::valid_events( );
-						return base::impl::append_vector( local, parent );
-					}();
-					return result;
-				}
-
-				NetServer::NetServer( ): EventEmitter{ }, m_acceptor( base::ServiceHandle::get( ) ) { }
-				NetServer::~NetServer( ) { }
-
-				NetServer::NetServer( NetServer&& other ) : EventEmitter{ std::move( other ) }, m_acceptor( std::move( other.m_acceptor ) ) { }
-
-				NetServer& NetServer::operator=(NetServer&& rhs) {
-					if( this != &rhs ) {
-						m_acceptor = std::move( rhs.m_acceptor );
-					}
-					return *this;
-				}
-
-				namespace { 
+				namespace {
 					void emit_error( NetServer* const net_server, boost::system::error_code const & err, std::string where ) {
 						auto error = base::Error( err );
 						error.add( "where", where );
@@ -56,6 +35,29 @@ namespace daw {
 							net_server->emit( "error", error );
 						} );
 					}
+				}	// namespace anonymous
+
+				std::vector<std::string> const & NetServer::valid_events( ) const {
+					static auto const result = [&]( ) {
+						std::vector<std::string> local{ "listening", "connection", "close", "error" };
+						auto parent = EventEmitter::valid_events( );
+						return base::impl::append_vector( local, parent );
+					}();
+					return result;
+				}
+
+				NetServer::NetServer( ): EventEmitter{ }, m_acceptor( base::ServiceHandle::get( ) ), m_current_connections( ) { }
+				
+				NetServer::~NetServer( ) { }
+
+				NetServer::NetServer( NetServer&& other ) : EventEmitter{ std::move( other ) }, m_acceptor( std::move( other.m_acceptor ) ), m_current_connections( std::move( other.m_current_connections ) ) { }
+
+				NetServer& NetServer::operator=(NetServer&& rhs) {
+					if( this != &rhs ) {
+						m_acceptor = std::move( rhs.m_acceptor );
+						m_current_connections = std::move( rhs.m_current_connections );
+					}
+					return *this;
 				}
 
 				void NetServer::handle_accept( std::shared_ptr<NetSocket> socket_ptr, boost::system::error_code const & err ) {
@@ -72,9 +74,13 @@ namespace daw {
 				}	
 
 				void NetServer::start_accept( ) {
-					m_new_connection = std::make_shared<NetSocket>( base::ServiceHandle::get( ) );
-					auto handle = boost::bind( &NetServer::handle_accept, this, m_new_connection, boost::asio::placeholders::error );
-					m_acceptor.async_accept( m_new_connection->socket( ), handle );
+					auto new_connection_it = m_current_connections.insert( std::end( m_current_connections ), std::make_shared<NetSocket>( base::ServiceHandle::get( ) ) );
+					auto& new_connection = *new_connection_it;
+					new_connection->on_end( [&, new_connection_it]( ) {
+						m_current_connections.erase( new_connection_it );
+					} );
+					auto handle = boost::bind( &NetServer::handle_accept, this, new_connection, boost::asio::placeholders::error );
+					m_acceptor.async_accept( new_connection->socket( ), handle );
 				}
 
 				NetServer& NetServer::listen( uint16_t port ) {

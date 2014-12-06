@@ -1,5 +1,6 @@
 #pragma once
 #include <boost/asio/ip/tcp.hpp>
+#include <list>
 #include <memory>
 #include <string>
 
@@ -24,7 +25,7 @@ namespace daw {
 					boost::asio::ip::tcp::acceptor m_acceptor;
 					void handle_accept( std::shared_ptr<NetSocket> socket, boost::system::error_code const & err );
 					void start_accept( );
-					std::shared_ptr<NetSocket> m_new_connection;
+					std::list<std::shared_ptr<NetSocket>> m_current_connections;
 				public:
 					NetServer( );
 					NetServer( NetServer const & ) = default;
