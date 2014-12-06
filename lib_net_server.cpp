@@ -84,9 +84,10 @@ namespace daw {
 				}
 
 				NetServer& NetServer::listen( uint16_t port ) {
-					boost::asio::ip::tcp::resolver resolver( m_acceptor.get_io_service( ) );
-					boost::asio::ip::tcp::resolver::query query( "", boost::lexical_cast<std::string>( port ) );
-					boost::asio::ip::tcp::endpoint endpoint = *resolver.resolve( query );					
+// 					boost::asio::ip::tcp::resolver resolver( m_acceptor.get_io_service( ) );
+// 					boost::asio::ip::tcp::resolver::query query( "", boost::lexical_cast<std::string>( port ) );
+// 					boost::asio::ip::tcp::endpoint endpoint = *resolver.resolve( query );
+					auto endpoint = boost::asio::ip::tcp::endpoint( boost::asio::ip::tcp::v4( ), port );
 					m_acceptor.open( endpoint.protocol( ) );
 					m_acceptor.set_option( boost::asio::ip::tcp::acceptor::reuse_address( true ) );
 					m_acceptor.bind( endpoint );
