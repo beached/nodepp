@@ -67,7 +67,13 @@ int main( int, char const ** ) {
 		exit( EXIT_FAILURE );
 	} ).on_connection( []( std::shared_ptr<lib::net::NetSocket> socket ) {		
 		std::cout << "Connection from " << socket->remote_address( ) << std::endl;
-		socket->end( "Go Away\r\n\r\n" );
+		socket->write( "Go Away\n\n" );
+		socket->on_data( []( std::shared_ptr<daw::nodepp::base::data_t> data_buffer, bool end_of_file ) {
+			std::string buff( data_buffer->begin( ), data_buffer->end( ) );
+			std::cout << buff;
+		} ).on_end( []( ) {
+			std::cout << "\n\n" << std::endl;
+		} );
 	} ).listen( 8080 );
 	
 	base::ServiceHandle::get( ).run( );
