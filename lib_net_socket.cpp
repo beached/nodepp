@@ -216,7 +216,7 @@ namespace daw {
 					if( 0 < bytes_transfered ) {
 						std::istream resp( m_response_buffer.get( ) );
 						auto new_data = std::make_shared<base::data_t>( bytes_transfered );
-						resp.read( static_cast<char*>( new_data->data( ) ), bytes_transfered );
+						resp.read( reinterpret_cast<char*>( new_data->data( ) ), static_cast<std::istream::streamsize>( bytes_transfered ) );
 						if( 0 < listener_count( "data" ) ) {
 
 							{
