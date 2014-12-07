@@ -17,11 +17,19 @@ namespace daw {
 					std::string to_string( ) const;
 					bool empty( ) const;
 				};
-				struct Headers {
+
+				struct HttpHeaders {
 					std::vector<HttpHeader> headers;
 
-					Headers( );
-					Headers( std::initializer_list<HttpHeader> values );
+					HttpHeaders( );
+					HttpHeaders( std::initializer_list<HttpHeader> values );
+
+
+					std::vector<HttpHeader>::iterator find( std::string const & name );
+
+					std::string const& operator[]( std::string const & name );
+
+					std::string const& at( std::string const & name );
 				};
 			}	// namespace http
 		}	// namespace lib

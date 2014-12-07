@@ -26,14 +26,14 @@ namespace daw {
 				HttpServerResponse::HttpServerResponse( ) : base::stream::StreamWritable( ) { }
 
 				HttpServerResponse& HttpServerResponse::write_continue( ) { throw std::runtime_error( "Method not implemented" ); }
-				HttpServerResponse& HttpServerResponse::write_head( uint16_t status_code, std::string reason_phrase, Headers headers ) { throw std::runtime_error( "Method not implemented" ); }
+				HttpServerResponse& HttpServerResponse::write_head( uint16_t status_code, std::string reason_phrase, HttpHeaders headers ) { throw std::runtime_error( "Method not implemented" ); }
 
 
 				uint16_t& HttpServerResponse::status_code( ) { throw std::runtime_error( "Method not implemented" ); }
 				uint16_t const & HttpServerResponse::status_code( ) const { throw std::runtime_error( "Method not implemented" ); }
 
 				void HttpServerResponse::set_header( std::string name, std::string value ) { throw std::runtime_error( "Method not implemented" ); }
-				void HttpServerResponse::set_header( Headers headers ) { throw std::runtime_error( "Method not implemented" ); }
+				void HttpServerResponse::set_header( HttpHeaders headers ) { throw std::runtime_error( "Method not implemented" ); }
 
 				bool HttpServerResponse::headers_sent( ) const { throw std::runtime_error( "Method not implemented" ); }
 
@@ -45,7 +45,7 @@ namespace daw {
 
 				bool HttpServerResponse::write_chunk( std::string const & chunk, base::Encoding const & encoding ) { throw std::runtime_error( "Method not implemented" ); }
 				bool HttpServerResponse::write_chunk( base::data_t const & chunk, base::Encoding const & encoding ) { throw std::runtime_error( "Method not implemented" ); }
-				bool HttpServerResponse::add_trailers( Headers headers ) { throw std::runtime_error( "Method not implemented" ); }
+				bool HttpServerResponse::add_trailers( HttpHeaders headers ) { throw std::runtime_error( "Method not implemented" ); }
 
 
 				HttpServerResponse& HttpServerResponse::write( base::data_t const & chunk ) { throw std::runtime_error( "Method not implemented" ); }

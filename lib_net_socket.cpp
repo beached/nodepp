@@ -2,6 +2,7 @@
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
 #include <cstdint>
+#include <iostream>
 #include <mutex>
 #include <string>
 
@@ -23,14 +24,14 @@ namespace daw {
 				using namespace boost::asio::ip;
 
 				namespace {
-					template<typename Container>
-					auto to_bbuffer( std::shared_ptr<Container>& container ) -> decltype(boost::asio::buffer( container->data( ), container->size( ) )) {
-						if( container && !container->empty( ) ) {
-							return boost::asio::buffer( container->data( ), container->size( ) );
-						} else {
-							throw std::runtime_error( "Attempt to convert an empty or null buffer to a boost::asio::buffer" );
-						}
-					}
+// 					template<typename Container>
+// 					auto to_bbuffer( std::shared_ptr<Container>& container ) -> decltype(boost::asio::buffer( container->data( ), container->size( ) )) {
+// 						if( container && !container->empty( ) ) {
+// 							return boost::asio::buffer( container->data( ), container->size( ) );
+// 						} else {
+// 							throw std::runtime_error( "Attempt to convert an empty or null buffer to a boost::asio::buffer" );
+// 						}
+// 					}
 				}
 
 				std::vector<std::string> const & NetSocket::valid_events( ) const {
@@ -43,23 +44,23 @@ namespace daw {
 
 				NetSocket::NetSocket( boost::asio::io_service& io_service ) : base::stream::Stream( ),
 																m_socket( io_service ),
-																m_response_buffer( std::make_shared<base::data_t>( 1024, 0 ) ),
+																m_response_buffer( std::make_shared<boost::asio::streambuf>( ) ),
 																m_response_buffers( std::make_shared<base::data_t>( ) ),
 																m_bytes_read( 0 ),
 																m_bytes_written( 0 ),
-																m_response_buffers_mutex( ) {
-					std::cout << "Constructing default NetSocket" << std::endl;
-				}
+																m_response_buffers_mutex( ),
+																m_read_mode( ReadUntil::newline ),
+																m_read_predicate( ) { }
 				
 				NetSocket::NetSocket( SocketHandle handle ) : base::stream::Stream( ),
 																m_socket( handle ),
-																m_response_buffer( std::make_shared<base::data_t>( 1024, 0 ) ),
+																m_response_buffer( std::make_shared<boost::asio::streambuf>( ) ),
 																m_response_buffers( std::make_shared<base::data_t>( ) ),
 																m_bytes_read( 0 ),
 																m_bytes_written( 0 ),
-																m_response_buffers_mutex( ) {
-					std::cout << "Constructing NetSocket from SocketHandle" << std::endl;
-				}
+																m_response_buffers_mutex( ),
+																m_read_mode( ReadUntil::newline ),
+																m_read_predicate( ) { }
 
 				NetSocket::NetSocket( NetSocket&& other ):	base::stream::Stream( std::move( other ) ),
 															m_socket( std::move( other.m_socket ) ), 
@@ -67,7 +68,9 @@ namespace daw {
 															m_response_buffers( std::move( other.m_response_buffers ) ),
 															m_bytes_read( std::move( other.m_bytes_read ) ),
 															m_bytes_written( std::move( other.m_bytes_written ) ),
-															m_response_buffers_mutex( ) { }
+															m_response_buffers_mutex( ),
+															m_read_mode( std::move( other.m_read_mode ) ),
+															m_read_predicate( std::move( other.m_read_predicate ) ) { }
 
 				NetSocket& NetSocket::operator=(NetSocket&& rhs) {
 					if( this != &rhs ) {
@@ -76,6 +79,8 @@ namespace daw {
 						m_response_buffers = std::move( rhs.m_response_buffers );
 						m_bytes_read = std::move( rhs.m_bytes_read );
 						m_bytes_written = std::move( rhs.m_bytes_written );
+						m_read_mode = std::move( rhs.m_read_mode );
+						m_read_predicate = std::move( rhs.m_read_predicate );
 					}
 					return *this;
 				}
@@ -122,7 +127,47 @@ namespace daw {
 
 				void NetSocket::do_async_read( ) {
 					auto handler = boost::bind( &NetSocket::handle_read, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred );
-					boost::asio::async_read( *m_socket, to_bbuffer( m_response_buffer ), handler );
+					
+					switch( m_read_mode ) {
+					case ReadUntil::next_byte:
+						throw std::runtime_error( "Read Until mode not implemented" );
+						//boost::asio::async_read( *m_socket, *m_response_buffer, boost::asio::transfer_exactly( 1 ), handler );
+					case ReadUntil::buffer_full:
+						boost::asio::async_read( *m_socket, *m_response_buffer, handler );
+						break;
+					case ReadUntil::newline:
+						boost::asio::async_read_until( *m_socket, *m_response_buffer, "\n", handler );
+						break;
+					case ReadUntil::predicate:
+						boost::asio::async_read_until( *m_socket, *m_response_buffer, *m_read_predicate, handler );
+						break;
+					default:
+						throw std::runtime_error( "read until method not implemented" );
+					}
+					
+				}
+
+				NetSocket& NetSocket::set_read_mode( ReadUntil mode ) {
+					m_read_mode = mode;
+					return *this;
+				}
+				
+				NetSocket::ReadUntil const& NetSocket::current_read_mode( ) const { 
+					return m_read_mode;
+				}
+
+				NetSocket& NetSocket::set_read_predicate( match_function_t read_predicate ) { 
+					m_read_predicate = std::make_shared<match_function_t>( read_predicate );
+					m_read_mode = ReadUntil::predicate;
+					return *this;
+				}
+				
+				NetSocket& NetSocket::clear_read_predicate( ) { 
+					if( ReadUntil::predicate == m_read_mode ) {
+						m_read_mode = ReadUntil::newline;
+					}
+					m_read_predicate.reset( );
+					return *this;
 				}
 
 				std::shared_ptr<base::data_t> get_clear_buffer( std::shared_ptr<base::data_t>& buffer, size_t num_items, size_t new_size = 1024 ) {
@@ -167,27 +212,35 @@ namespace daw {
 				size_t const & NetSocket::buffer_size( ) const { throw std::runtime_error( "Method not implemented" ); }
 				
 				void NetSocket::handle_read( boost::system::error_code const & err, size_t bytes_transfered ) {
-					if( 0 < listener_count( "data" ) ) {
-						{
-							// Handle when the emitter comes after the data starts pouring in.  This might be best placed in newEvent
-							// have not decided
-							std::lock_guard<std::mutex> scoped_lock( m_response_buffers_mutex );
-							if( !m_response_buffers->empty( ) ) {
-								emit_data( this, get_clear_buffer( m_response_buffers, m_response_buffers->size( ), 0 ), false );
+					
+					if( 0 < bytes_transfered ) {
+						std::istream resp( m_response_buffer.get( ) );
+						auto new_data = std::make_shared<base::data_t>( bytes_transfered );
+						resp.read( (char*)new_data->data( ), bytes_transfered );
+						if( 0 < listener_count( "data" ) ) {
+
+							{
+								// Handle when the emitter comes after the data starts pouring in.  This might be best placed in newEvent
+								// have not decided
+								std::lock_guard<std::mutex> scoped_lock( m_response_buffers_mutex );
+								if( !m_response_buffers->empty( ) ) {
+									emit_data( this, get_clear_buffer( m_response_buffers, m_response_buffers->size( ), 0 ), false );
+								}
 							}
+							bool end_of_file = err && 2 == err.value( );
+
+							emit_data( this, new_data, end_of_file );
+						} else {	// Queue up for a			
+							daw::copy_vect_and_set( new_data, m_response_buffers, bytes_transfered, static_cast<base::data_t::value_type>(0) );
 						}
-						bool end_of_file = err && 2 == err.value( );
-						emit_data( this, get_clear_buffer( m_response_buffer, bytes_transfered ), end_of_file );
-					} else {	// Queue up for a 						
-						daw::copy_vect_and_set( m_response_buffer, m_response_buffers, bytes_transfered, static_cast<base::data_t::value_type>(0) );
+						m_bytes_read += bytes_transfered;
 					}
-					m_bytes_read += bytes_transfered;
 
 					if( !err ) {
 						do_async_read( );
 					} else if( 2 != err.value( ) ) {
 						emit_error( this, err, "NetSocket::read" );
-					}
+					}					
 				}
 
 				bool NetSocket::is_open( ) const {

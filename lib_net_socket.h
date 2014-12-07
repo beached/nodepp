@@ -47,17 +47,31 @@ namespace daw {
 
 
 				class NetSocket: public base::stream::Stream {
+				public:
+					enum class ReadUntil { newline, buffer_full, predicate, next_byte };
+					using match_iterator_t = boost::asio::buffers_iterator < boost::asio::streambuf::const_buffers_type > ;
+					using match_function_t = std::function < std::pair<match_iterator_t, bool>( match_iterator_t begin, match_iterator_t end ) > ;
+				private:
 					SocketHandle m_socket;
-					std::shared_ptr<base::data_t> m_response_buffer;
+					//::shared_ptr<base::data_t> m_response_buffer;
+					std::shared_ptr<boost::asio::streambuf> m_response_buffer;
 					std::shared_ptr<base::data_t> m_response_buffers;
 					size_t m_bytes_read;
 					size_t m_bytes_written;
-					std::mutex m_response_buffers_mutex;
+					std::mutex m_response_buffers_mutex;					
+					ReadUntil m_read_mode;
+					std::shared_ptr<match_function_t> m_read_predicate;
+
 					void handle_read( boost::system::error_code const & err, size_t bytes_transfered );					
 					void handle_write( impl::write_buffer buff, boost::system::error_code const & err );
-				public:
 					void do_async_read( );
+				public:
 					virtual std::vector<std::string> const & valid_events( ) const override;
+
+					NetSocket& set_read_mode( ReadUntil mode );
+					ReadUntil const& current_read_mode( ) const;
+					NetSocket& set_read_predicate( match_function_t match_function );
+					NetSocket& clear_read_predicate( );
 
 					NetSocket( );
 					explicit NetSocket( boost::asio::io_service& io_service );
@@ -91,6 +105,8 @@ namespace daw {
 		
 					NetSocket& unref( );
 					NetSocket& ref( );
+
+					
 
 					std::string remote_address( ) const;
 					std::string local_address( ) const;

@@ -215,6 +215,35 @@ namespace daw {
 		}
 	}
 
+	template<class T, class U>
+	T round_to_nearest( const T& value, const U& rnd_by ) {
+		static_assert(std::is_arithmetic<T>::value, "First template parameter must be an arithmetic type");
+		static_assert(std::is_floating_point<U>::value, "Second template parameter must be a floating point type");
+		const auto rnd = round( static_cast<U>(value) / rnd_by );
+		const auto ret = rnd*rnd_by;
+		return static_cast<T>(ret);
+	}
+
+	template<class T, class U>
+	T floor_by( const T& value, const U& rnd_by ) {
+		static_assert(std::is_arithmetic<T>::value, "First template parameter must be an arithmetic type");
+		static_assert(std::is_floating_point<U>::value, "Second template parameter must be a floating point type");
+		const auto rnd = floor( static_cast<U>(value) / rnd_by );
+		const auto ret = rnd*rnd_by;
+		assert( ret <= value );// , __func__": Error, return value should always be less than or equal to value supplied" );
+		return static_cast<T>(ret);
+	}
+
+	template<class T, class U>
+	T ceil_by( const T& value, const U& rnd_by ) {
+		static_assert(std::is_arithmetic<T>::value, "First template parameter must be an arithmetic type");
+		static_assert(std::is_floating_point<U>::value, "Second template parameter must be a floating point type");
+		const auto rnd = ceil( static_cast<U>(value) / rnd_by );
+		const auto ret = rnd*rnd_by;
+		assert( ret >= value ); // , __func__": Error, return value should always be greater than or equal to value supplied" );
+		return static_cast<T>(ret);
+	}
+
 	template<typename T>
 	void copy_vect_and_set( std::shared_ptr<std::vector<T>> & source, std::shared_ptr<std::vector<T>> & destination, size_t num_items, T const & replacement_value ) {
 		using item_size_t = typename std::vector<T>::difference_type;

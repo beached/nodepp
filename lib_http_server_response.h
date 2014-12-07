@@ -24,7 +24,7 @@ namespace daw {
 					
 
 					HttpServerResponse& write_continue( );
-					HttpServerResponse& write_head( uint16_t status_code, std::string reason_phrase = "", Headers headers = Headers{ } );
+					HttpServerResponse& write_head( uint16_t status_code, std::string reason_phrase = "", HttpHeaders headers = HttpHeaders{ } );
 					
 					template<typename Listener>
 					HttpServerResponse& set_timeout( size_t msecs, Listener listener ) {
@@ -35,7 +35,7 @@ namespace daw {
 					uint16_t const & status_code( ) const;
 
 					void set_header( std::string name, std::string value );
-					void set_header( Headers headers );
+					void set_header( HttpHeaders headers );
 
 					bool headers_sent( ) const;
 
@@ -48,7 +48,7 @@ namespace daw {
 					bool write_chunk( std::string const & chunk, base::Encoding const & encoding = base::Encoding{ } );
 					bool write_chunk( base::data_t const & chunk, base::Encoding const & encoding = base::Encoding{ } );
 
-					bool add_trailers( Headers headers );
+					bool add_trailers( HttpHeaders headers );
 
 					// StreamWriteable overrides
 					virtual std::vector<std::string> const & valid_events( ) const override;

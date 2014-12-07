@@ -26,6 +26,7 @@
 #include "range_algorithm.h"
 #include "range_algorithm.h"
 #include "utility.h"
+#include "base_url.h"
 
 int main( int, char const ** ) {
 	using namespace daw::nodepp;
@@ -36,39 +37,21 @@ int main( int, char const ** ) {
 	// 		response.end( );
 	// 	} ).listen( 8080 );
 
-// 	auto socket = lib::net::NetSocket( );
-// 	socket.on_error( [&socket]( base::Error error ) {
-// 		std::cerr << "Error connecting" << std::endl << error << std::endl;
-// 		socket.destroy( );
-// 		exit( EXIT_FAILURE );
-// 	} ).on_connect( [&socket]( ) {
-// 		auto const & server_address = socket.remote_address( );
-// 		auto requested_page = "/";
-// 		std::cout << "Connected to " << socket.remote_address( ) << ":" << socket.remote_port( ) << std::endl;
-// 		std::stringstream request_stream;
-// 		request_stream << "GET " << requested_page << " HTTP/1.0\r\n";
-// 		request_stream << "Host: " << server_address << "\r\n";
-// 		request_stream << "Accept: */*\r\n";
-// 		request_stream << "Connection: close\r\n\r\n";
-// 		socket.write( request_stream.str( ) );
-// 		socket.end( );
-// 	} ).on_data( []( std::shared_ptr<base::data_t> data_buffer ) {
-// 		std::string buff( data_buffer->begin( ), data_buffer->end( ) );
-// 		std::cout << buff;
-// 	} ).on_end( [&socket]( ) {
-// 		auto buff( socket.read( ) );
-// 		buff.emplace_back( 0 );
-// 		std::cout << reinterpret_cast<char*>(buff.data( )) << std::endl;
-// 	} ).connect( "dynoweb.private", 80 );
-// 	
+	size_t count = 0;
+
+	auto pred = [&count]( lib::net::NetSocket::match_iterator_t first, lib::net::NetSocket::match_iterator_t last ) -> std::pair < lib::net::NetSocket::match_iterator_t, bool > {
+		return{ last, true };
+	};
+
 	auto server = lib::net::NetServer( );
 	server.on_error( [&]( base::Error error ) {
 		std::cerr << "Error connecting" << std::endl << error << std::endl;
 		exit( EXIT_FAILURE );
-	} ).on_connection( []( std::shared_ptr<lib::net::NetSocket> socket ) {		
+	} ).on_connection( [&pred]( std::shared_ptr<lib::net::NetSocket> socket ) {	
+		socket->set_read_predicate( pred );
 		std::cout << "Connection from " << socket->remote_address( ) << std::endl;
-		socket->write( "Go Away\n\n" );
-		socket->on_data( []( std::shared_ptr<daw::nodepp::base::data_t> data_buffer, bool end_of_file ) {
+		socket->write( "Go Away\r\n\r\n" );
+		socket->on_data( []( std::shared_ptr<daw::nodepp::base::data_t> data_buffer, bool ) {
 			std::string buff( data_buffer->begin( ), data_buffer->end( ) );
 			std::cout << buff;
 		} ).on_end( []( ) {

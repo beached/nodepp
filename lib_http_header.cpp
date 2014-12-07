@@ -20,8 +20,28 @@ namespace daw {
 					return name.empty( );
 				}
 				
-				Headers::Headers( ) : headers( ) { }
-				Headers::Headers( std::initializer_list<HttpHeader> values ) : headers( std::begin( values ), std::end( values ) ) { }
+				HttpHeaders::HttpHeaders( ) : headers( ) { }
+				HttpHeaders::HttpHeaders( std::initializer_list<HttpHeader> values ) : headers( std::begin( values ), std::end( values ) ) { }
+
+				std::vector<HttpHeader>::iterator HttpHeaders::find( std::string const & name ) {
+					auto it = std::find_if( std::begin( headers ), std::end( headers ), [&name]( HttpHeader const & item ) {
+						return 0 == name.compare( item.name );
+					} );					
+					return it;
+				}
+
+				std::string const& HttpHeaders::operator[]( std::string const & name ) {
+					return find( name )->value;
+				}
+
+				std::string const& HttpHeaders::at( std::string const& name ) {
+					auto it = HttpHeaders::find( name );
+					if( it != std::end( headers )  ) {
+						return it->value;						
+					}
+					throw std::out_of_range( name + " is not a valid header" );
+					
+				}
 
 			}	// namespace http
 		}	// namespace lib

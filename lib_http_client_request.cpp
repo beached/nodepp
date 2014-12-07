@@ -13,6 +13,9 @@ namespace daw {
 		namespace lib {
 			namespace http {
 				using namespace daw::nodepp;
+				HttpClientRequest::HttpClientRequest( ) : base::stream::Stream( ) { }
+
+
 
 				std::vector<std::string> const & HttpClientRequest::valid_events( ) const {
 					static auto const result = [&]( ) {
@@ -23,21 +26,24 @@ namespace daw {
 					return result;
 				}
 
-				// DAW
-// 				bool HttpClientRequest::event_is_valid( std::string const & event ) const {
-// 					static std::vector<std::string> const valid_events = { "response", "socket", "connect", "upgrade", "continued" };
-// 					return daw::algorithm::find( valid_events, event ) != valid_events.end( ) || EventEmitter::event_is_valid( event );
-// 				}
+				base::data_t HttpClientRequest::read( ) { throw std::runtime_error( "Method not implemented" ); }
+				base::data_t HttpClientRequest::read( size_t bytes ) { throw std::runtime_error( "Method not implemented" ); }
 
+				HttpClientRequest& HttpClientRequest::set_encoding( base::Encoding const & encoding ) { throw std::runtime_error( "Method not implemented" ); }
+				HttpClientRequest& HttpClientRequest::resume( ) { throw std::runtime_error( "Method not implemented" ); }
+				HttpClientRequest& HttpClientRequest::pause( ) { throw std::runtime_error( "Method not implemented" ); }
+				base::stream::StreamWritable& HttpClientRequest::pipe( base::stream::StreamWritable& destination ) { throw std::runtime_error( "Method not implemented" ); }
+				base::stream::StreamWritable& HttpClientRequest::pipe( base::stream::StreamWritable& destination, base::options_t options ) { throw std::runtime_error( "Method not implemented" ); }
+				HttpClientRequest& HttpClientRequest::unpipe( StreamWritable& destination ) { throw std::runtime_error( "Method not implemented" ); }
+				HttpClientRequest& HttpClientRequest::unshift( base::data_t const & chunk ) { throw std::runtime_error( "Method not implemented" ); }
 
-				HttpClientRequest::HttpClientRequest( ) : EventEmitter{ } { }
-				bool HttpClientRequest::write( std::string chunk, base::Encoding const & encoding ) { throw std::runtime_error( "Method not implemented" ); }
-				bool HttpClientRequest::write( HttpChunk const & chunk ) { throw std::runtime_error( "Method not implemented" ); }
+				// StreamWritable Interface
+				HttpClientRequest& HttpClientRequest::write( base::data_t const & chunk ) { throw std::runtime_error( "Method not implemented" ); }
+				HttpClientRequest& HttpClientRequest::write( std::string const & chunk, base::Encoding const & encoding ) { throw std::runtime_error( "Method not implemented" ); }
 
-				void HttpClientRequest::end( ) { throw std::runtime_error( "Method not implemented" ); }
-				void HttpClientRequest::end( std::string data, base::Encoding const & encoding ) { throw std::runtime_error( "Method not implemented" ); }
-				void HttpClientRequest::end( HttpChunk chunk ) { throw std::runtime_error( "Method not implemented" ); }
-				void HttpClientRequest::abort( ) { throw std::runtime_error( "Method not implemented" ); }
+				HttpClientRequest& HttpClientRequest::end( ) { throw std::runtime_error( "Method not implemented" ); }
+				HttpClientRequest& HttpClientRequest::end( base::data_t const & chunk ) { throw std::runtime_error( "Method not implemented" ); }
+				HttpClientRequest& HttpClientRequest::end( std::string const & chunk, base::Encoding const & encoding ) { throw std::runtime_error( "Method not implemented" ); }
 
 			}	// namespace http
 		}	// namespace lib

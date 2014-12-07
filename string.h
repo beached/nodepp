@@ -202,7 +202,7 @@ namespace daw {
 		}
 
 		template<typename StringType>
-		bool conertTo( StringType const & from, int& to ) {
+		bool convertTo( StringType const & from, int& to ) {
 			auto it = from.begin( );
 			using namespace boost::spirit;
 			if( !qi::parse( it, from.end( ), qi::int_, to ) ) {
@@ -260,5 +260,11 @@ namespace daw {
 // 			ss.imbue( std::locale( locale_str ) );
 // 			ss >> to;
 // 		}
+// 		
+
+		template<typename StringType>
+		bool contains( StringType str, StringType match ) {
+			return str.find( match ) != std::string::npos;
+		}
 	}	// namespace string
 }	// namespace daw
