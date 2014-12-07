@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.0)
 
 project(NodePP)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Weverything -Wno-c++98-compat  -Wfatal-errors -Wno-covered-switch-default -Wno-padded -Wno-exit-time-destructors -Wno-c++98-compat-pedantic -Wno-unused-parameter -Wno-missing-noreturn")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Weverything -Wno-c++98-compat  -Wfatal-errors -Wno-covered-switch-default -Wno-padded -Wno-exit-time-destructors -Wno-c++98-compat-pedantic -Wno-unused-parameter -Wno-missing-noreturn -Wno-missing-prototypes")
 
 find_package(Boost 1.55.0 COMPONENTS system filesystem REQUIRED)
 find_package(Threads REQUIRED)
@@ -22,6 +22,8 @@ base_service_handle.h
 base_stream.cpp
 base_stream.h
 base_types.h
+base_url.cpp
+base_url.h
 lib_http_chunk.cpp
 lib_http_chunk.h
 lib_http_client_request.cpp
@@ -29,11 +31,15 @@ lib_http_client_request.h
 lib_http.h
 lib_http_header.cpp
 lib_http_headers.h
+lib_http_incoming_request.cpp
+lib_http_incoming_request.h
 lib_http_server.cpp
 lib_http_server.h
 lib_http_server_response.cpp
 lib_http_server_response.h
 lib_http_statuscodes.cpp
+lib_http_version.cpp
+lib_http_version.h
 lib_net_address.cpp
 lib_net_address.h
 lib_net_dns.cpp
