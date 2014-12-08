@@ -46,7 +46,7 @@ namespace daw {
 					return result;
 				}
 
-				NetServer::NetServer( ): EventEmitter{ }, m_acceptor( base::ServiceHandle::get( ) ), m_current_connections( ) { }
+				NetServer::NetServer( ): EventEmitter{ }, m_acceptor( std::make_shared<boost::asio::ip::tcp::acceptor>( base::ServiceHandle::get( ) ) ), m_current_connections( ) { }
 				
 				NetServer::~NetServer( ) { }
 
@@ -80,7 +80,7 @@ namespace daw {
 						m_current_connections.erase( new_connection_it );
 					} );
 					auto handle = boost::bind( &NetServer::handle_accept, this, new_connection, boost::asio::placeholders::error );
-					m_acceptor.async_accept( new_connection->socket( ), handle );
+					m_acceptor->async_accept( new_connection->socket( ), handle );
 				}
 
 				NetServer& NetServer::listen( uint16_t port ) {
@@ -88,10 +88,10 @@ namespace daw {
 // 					boost::asio::ip::tcp::resolver::query query( "", boost::lexical_cast<std::string>( port ) );
 // 					boost::asio::ip::tcp::endpoint endpoint = *resolver.resolve( query );
 					auto endpoint = boost::asio::ip::tcp::endpoint( boost::asio::ip::tcp::v4( ), port );
-					m_acceptor.open( endpoint.protocol( ) );
-					m_acceptor.set_option( boost::asio::ip::tcp::acceptor::reuse_address( true ) );
-					m_acceptor.bind( endpoint );
-					m_acceptor.listen( );
+					m_acceptor->open( endpoint.protocol( ) );
+					m_acceptor->set_option( boost::asio::ip::tcp::acceptor::reuse_address( true ) );
+					m_acceptor->bind( endpoint );
+					m_acceptor->listen( );
 					start_accept( );
 					return *this;
 				}
