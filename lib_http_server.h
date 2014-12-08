@@ -1,6 +1,9 @@
 #pragma once
 
 #include "lib_net_server.h"
+#include "lib_http_client_request.h"
+#include "lib_http_server_response.h"
+#include <memory>
 
 namespace daw {
 	namespace nodepp {
@@ -10,7 +13,11 @@ namespace daw {
 				//////////////////////////////////////////////////////////////////////////
 				// Summary:		An HTTP Server class 
 				// Requires:	lib::net::NetServer
-				class HttpServer: public lib::net::NetServer {
+				class HttpServer: public base::EventEmitter {
+					lib::net::NetServer m_netserver;
+
+					void handle_connection( std::shared_ptr<lib::net::NetSocket> socket_ptr );
+					void handle_error( base::Error error );
 				public:
 					HttpServer( );
 
@@ -22,7 +29,10 @@ namespace daw {
 
 					virtual std::vector<std::string> const & valid_events( ) const override;
 
-					HttpServer& listen( uint16_t port, std::string hostname = "", uint16_t backlog = 511 );
+					HttpServer& listen( uint16_t port );
+
+					HttpServer& listen( uint16_t port, std::string hostname, uint16_t backlog = 511 );
+					
 					template<typename Listener>
 					HttpServer& listen( uint16_t port, std::string hostname, uint16_t backlog, Listener listener ) {
 						return base::rollback_event_on_exception( this, "listening", listener, [&]( ) {
@@ -31,6 +41,7 @@ namespace daw {
 					}
 
 					HttpServer& listen( std::string path );
+					
 					template<typename Listener>
 					HttpServer& listen( std::string path, Listener listener ) {
 						return base::rollback_event_on_exception( this, "listening", listener, [&]( ) {
@@ -39,6 +50,7 @@ namespace daw {
 					}
 
 					HttpServer& listen( base::ServiceHandle handle );
+					
 					template<typename Listener>
 					HttpServer& listen( base::ServiceHandle handle, Listener listener ) {
 						return base::rollback_event_on_exception( this, "listening", listener, [&]( ) {
@@ -52,7 +64,7 @@ namespace daw {
 					template<typename Listener>
 					HttpServer& set_timeout( size_t msecs, Listener listener ) {
 						throw std::runtime_error( "Method not implemented" );
-					}
+					}					
 
 					template<typename Listener>
 					HttpServer& on( std::string event, Listener listener ) {
@@ -66,13 +78,13 @@ namespace daw {
 						return *this;
 					}
 
+					HttpServer& on_listening( std::function<void( HttpClientRequest, HttpServerResponse )> listener );
+					HttpServer& once_listening( std::function<void( HttpClientRequest, HttpServerResponse )> listener );
+
 					size_t timeout( ) const;
 				};	// class Server
 
-				template<typename Listener>
-				HttpServer create_server( Listener listener ) {
-					return HttpServer( ).on( "listening", listener );
-				}
+				HttpServer& create_server( std::function<void( HttpClientRequest, HttpServerResponse )> listener );
 			}	// namespace http
 		}	// namespace lib
 	}	// namespace nodepp

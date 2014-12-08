@@ -12,16 +12,7 @@ namespace daw {
 			namespace http {
 				using namespace daw::nodepp;
 
-				enum class HttpRequestMethod {
-					Get,
-					Head,
-					Post,
-					Put,
-					Delete,
-					Connect,
-					Options,
-					Trace
-				};
+				enum class HttpRequestMethod { Get, Head, Post, Put, Delete, Connect, Options, Trace };
 
 				class HttpIncomingRequest: public base::stream::StreamReadable {					
 					HttpHeaders m_headers;

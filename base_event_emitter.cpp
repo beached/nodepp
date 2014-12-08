@@ -24,10 +24,12 @@ namespace daw {
 			}
 
 			bool EventEmitter::at_max_listeners( std::string event ) {
-				return 0 != m_max_listeners && listeners( )[event].size( ) >= m_max_listeners;
+				auto result = 0 != m_max_listeners;
+				result &= listeners( )[event].size( ) >= m_max_listeners;
+				return result;				
 			}
 
-			EventEmitter::EventEmitter( ) :m_listeners( std::make_shared<listeners_t>( ) ), m_max_listeners{ 10 } { }
+			EventEmitter::EventEmitter( ) :m_listeners( std::make_shared<listeners_t>( ) ), m_max_listeners( 10 ) { }
 
 			EventEmitter::EventEmitter( EventEmitter && other ): m_listeners( std::move( other.m_listeners ) ), m_max_listeners( std::move( other.m_max_listeners ) ) { }
 
