@@ -18,7 +18,7 @@ namespace daw {
 		namespace lib {			
 			namespace http {
 				using namespace daw::nodepp;
-				std::map<int16_t, std::string> const & status_codes( );
+				std::map<uint16_t, std::string> const & status_codes( );
 
 				using head_t = std::vector < uint8_t > ;
 

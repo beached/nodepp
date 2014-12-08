@@ -8,6 +8,7 @@
 #include <string>
 
 #include "base_enoding.h"
+#include "base_error.h"
 #include "base_event_emitter.h"
 #include "base_service_handle.h"
 #include "base_stream.h"

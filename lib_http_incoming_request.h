@@ -1,7 +1,10 @@
 #pragma once
 
 #include "base_stream.h"
+#include "base_url.h"
 #include "lib_http_headers.h"
+#include "lib_net_socket.h"
+#include "lib_http_version.h"
 
 namespace daw {
 	namespace nodepp {
@@ -9,36 +12,31 @@ namespace daw {
 			namespace http {
 				using namespace daw::nodepp;
 
-				enum class HttpRequestMethod { GET, HEAD, POST, PUT, DELETE, CONNECT, OPTIONS, TRACE };
-
-				class HttpVersion {
-					std::pair<uint8_t, uint8_t> m_version;
-				public:
-					uint8_t const & major( ) const;
-					uint8_t & major( );
-					uint8_t const & minor( ) const;
-					uint8_t & minor( );
-
-					HttpVersion( HttpVersion const & ) = default;
-					HttpVersion& operator=( HttpVersion const & ) = default;
-					~HttpVersion( ) = default;
-
-					HttpVersion( );
-					HttpVersion( uint8_t const & Major, uint8_t const & Minor );
-					HttpVersion( std::string const & version );
-					HttpVersion& operator=(std::string const & version);
-					std::string to_string( ) const;
-					operator std::string( ) const;
+				enum class HttpRequestMethod {
+					Get,
+					Head,
+					Post,
+					Put,
+					Delete,
+					Connect,
+					Options,
+					Trace
 				};
 
-				class HttpIncomingRequest: public base::stream::StreamReadable {
-					
+				class HttpIncomingRequest: public base::stream::StreamReadable {					
 					HttpHeaders m_headers;
-					HttpRequestMethod m_request_method;
-					uint8_t m_http_version_major;
-					uint8_t m_http_version_minor;
-
+					HttpHeaders m_trailers;
+					HttpRequestMethod m_method;					
+					HttpVersion m_version;
+					base::Url m_url;
+					uint16_t m_status_code;
+					std::shared_ptr<lib::net::NetSocket> m_socket;
 				public:
+					HttpIncomingRequest( ) = default;
+					~HttpIncomingRequest( ) = default;
+					HttpIncomingRequest( HttpIncomingRequest const & ) = default;
+					HttpIncomingRequest& operator=(HttpIncomingRequest const &) = default;
+
 					HttpHeaders const & headers( ) const;
 					HttpHeaders & headers( );
 
@@ -50,6 +48,15 @@ namespace daw {
 
 					HttpVersion const & version( ) const;
 					HttpVersion & version( );
+
+					base::Url const & url( ) const;
+					base::Url & url( );
+
+					uint16_t& status( );
+					uint16_t const & status( ) const;
+
+					std::shared_ptr<lib::net::NetSocket> & socket( );
+					std::shared_ptr<lib::net::NetSocket> const & socket( ) const;
 
 					// StreamReadable interface
 					std::vector<std::string> const & valid_events( ) const override;

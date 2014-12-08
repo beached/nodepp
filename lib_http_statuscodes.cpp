@@ -8,8 +8,8 @@ namespace daw {
 	namespace nodepp {
 		namespace lib {
 			namespace http {
-				std::map<int16_t, std::string> const & status_codes( ) {
-					static std::map<int16_t, std::string> const result = {	
+				std::map<uint16_t, std::string> const & status_codes( ) {
+					static std::map<uint16_t, std::string> const result = {	
 							{ 100, "Continue" },
 							{ 101, "Switching Protocols" },
 							{ 102, "Processing" },
