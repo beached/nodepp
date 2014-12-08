@@ -30,34 +30,13 @@
 
 int main( int, char const ** ) {
 	using namespace daw::nodepp;
-	// 	using listen_t = std::function < void( lib::http::HttpClientRequest, lib::http::HttpServerResponse ) > ;
-	// 	auto server = lib::http::create_server( []( lib::http::HttpClientRequest request, lib::http::HttpServerResponse response ) {
-	// 		response.write_head( 200, "", { { "Content-Type", "text/plain" } } );
-	// 		response.write( "Hello World" );
-	// 		response.end( );
-	// 	} ).listen( 8080 );
-
-	size_t count = 0;
-
-	auto pred = [&count]( lib::net::NetSocket::match_iterator_t first, lib::net::NetSocket::match_iterator_t last ) -> std::pair < lib::net::NetSocket::match_iterator_t, bool > {
-		return{ last, true };
-	};
-
-	auto server = lib::net::NetServer( );
-	server.on_error( [&]( base::Error error ) {
-		std::cerr << "Error connecting" << std::endl << error << std::endl;
-		exit( EXIT_FAILURE );
-	} ).on_connection( [&pred]( std::shared_ptr<lib::net::NetSocket> socket ) {	
-		socket->set_read_predicate( pred );
-		std::cout << "Connection from " << socket->remote_address( ) << std::endl;
-		socket->write( "Go Away\r\n\r\n" );
-		socket->on_data( []( std::shared_ptr<daw::nodepp::base::data_t> data_buffer, bool ) {
-			std::string buff( data_buffer->begin( ), data_buffer->end( ) );
-			std::cout << buff;
-		} ).on_end( []( ) {
-			std::cout << "\n\n" << std::endl;
-		} );
+	using listen_t = std::function < void( lib::http::HttpClientRequest, lib::http::HttpServerResponse ) > ;
+	auto server = lib::http::create_server( []( lib::http::HttpClientRequest request, lib::http::HttpServerResponse response ) {
+		response.write_head( 200, "", { { "Content-Type", "text/plain" } } );
+		response.end( "Hello World" );
 	} ).listen( 8080 );
+
+
 	
 	base::ServiceHandle::get( ).run( );
 
