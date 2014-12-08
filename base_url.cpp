@@ -38,6 +38,11 @@ namespace daw {
 				from_string( url );
 			}
 
+			Url& Url::operator=(std::string const & url) {
+				from_string( url );
+				return *this;
+			}
+
 			Url::Url( std::string protocol, std::string host_port, std::string request_path ) {
 				from_string( protocol + "://" + host_port + request_path );
 			}

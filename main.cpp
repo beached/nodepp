@@ -30,11 +30,15 @@
 
 int main( int, char const ** ) {
 	using namespace daw::nodepp;
-	using listen_t = std::function < void( lib::http::HttpClientRequest, lib::http::HttpServerResponse ) > ;
-	auto server = lib::http::create_server( [&]( lib::http::HttpClientRequest request, lib::http::HttpServerResponse response ) {
+	
+	auto server = lib::http::HttpServer( );
+	
+	server.on_listening( [&]( lib::http::HttpClientRequest request, lib::http::HttpServerResponse response ) {
 		response.write_head( 200, "", { { "Content-Type", "text/plain" } } );
 		response.end( "Hello World" );
-	} ).listen( 8080 );
+	} );
+	
+	server.listen( 8080 );
 
 
 	

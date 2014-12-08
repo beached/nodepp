@@ -21,6 +21,7 @@ namespace daw {
 					Url( ) = default;
 					Url( Url const & ) = default;
 					Url& operator=(Url const &) = default;
+					Url& operator=(std::string const & url);
 					~Url( ) = default;
 
 					Url( std::string const & uri );

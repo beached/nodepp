@@ -2,16 +2,15 @@
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
 #include <cstdint>
-#include <iostream>
 #include <mutex>
 #include <string>
 
 #include "base_enoding.h"
-#include "base_event_emitter.h"
 #include "base_error.h"
+#include "base_event_emitter.h"
+#include "base_service_handle.h"
 #include "base_stream.h"
 #include "base_types.h"
-#include "base_service_handle.h"
 #include "lib_net_dns.h"
 #include "lib_net_socket.h"
 #include "range_algorithm.h"
@@ -22,17 +21,6 @@ namespace daw {
 			namespace net {
 				using namespace daw::nodepp;
 				using namespace boost::asio::ip;
-
-				namespace {
-// 					template<typename Container>
-// 					auto to_bbuffer( std::shared_ptr<Container>& container ) -> decltype(boost::asio::buffer( container->data( ), container->size( ) )) {
-// 						if( container && !container->empty( ) ) {
-// 							return boost::asio::buffer( container->data( ), container->size( ) );
-// 						} else {
-// 							throw std::runtime_error( "Attempt to convert an empty or null buffer to a boost::asio::buffer" );
-// 						}
-// 					}
-				}
 
 				std::vector<std::string> const & NetSocket::valid_events( ) const {
 					static auto const result = [&]( ) {
@@ -122,7 +110,6 @@ namespace daw {
 					m_socket->close( );
 					emit_end( this );					
 					remove_all_listeners( );
-					std::cout << "Destructing socket @ " << std::hex << reinterpret_cast<uintptr_t>(this) << std::endl;
 				}
 
 				void NetSocket::do_async_read( ) {
