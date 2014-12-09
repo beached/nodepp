@@ -62,7 +62,7 @@ namespace daw {
 					std::mutex m_response_buffers_mutex;					
 					ReadUntil m_read_mode;
 					std::shared_ptr<match_function_t> m_read_predicate;
-					std::atomic_int_least32_t m_outstanding_writes;
+					std::shared_ptr<std::atomic_int_least32_t> m_outstanding_writes;
 					bool m_end;
 					void inc_outstanding_writes( );
 					bool dec_outstanding_writes( );

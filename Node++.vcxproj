@@ -203,7 +203,6 @@
     <ClCompile Include="lib_http_connection.cpp" />
     <ClCompile Include="lib_http_incoming_request.cpp" />
     <ClCompile Include="lib_http_server_response.cpp" />
-    <ClCompile Include="lib_http_client_request.cpp" />
     <ClCompile Include="lib_http_server.cpp" />
     <ClCompile Include="lib_http_header.cpp" />
     <ClCompile Include="lib_http_statuscodes.cpp" />

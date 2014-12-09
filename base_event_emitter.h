@@ -107,7 +107,8 @@ namespace daw {
 				size_t listener_count( std::string event );
 
 				template<typename... Args>
-				EventEmitter& emit( std::string event, Args&&... args ) {
+				void emit( std::string event, Args&&... args ) {
+					assert( daw::algorithm::contains( this->valid_events( ), event ) );
 					for( auto& callback : listeners( )[event] ) {
 						if( !callback.second.empty( ) ) {
 							callback.second.exec( std::forward<Args>( args )... );
@@ -116,7 +117,6 @@ namespace daw {
 					daw::algorithm::erase_remove_if( listeners( )[event], []( std::pair<bool, Callback> const & item ) {
 						return item.first;
 					} );
-					return *this;
 				}				
 
 			};	// class EventEmitter

@@ -39,7 +39,7 @@ namespace daw {
 																m_response_buffers_mutex( ),
 																m_read_mode( ReadUntil::newline ),
 																m_read_predicate( ),
-																m_outstanding_writes( 0 ),
+																m_outstanding_writes( std::make_shared<std::atomic_int_least32_t>( 0 ) ),
 																m_end( false ) { }
 				
 				NetSocket::NetSocket( SocketHandle handle ) : base::stream::Stream( ),
@@ -51,7 +51,7 @@ namespace daw {
 																m_response_buffers_mutex( ),
 																m_read_mode( ReadUntil::newline ),
 																m_read_predicate( ),
-																m_outstanding_writes( 0 ),
+																m_outstanding_writes( std::make_shared<std::atomic_int_least32_t>( 0 ) ),
 																m_end( false ) { }
 
 				NetSocket::NetSocket( NetSocket&& other ):	base::stream::Stream( std::move( other ) ),
@@ -116,10 +116,10 @@ namespace daw {
 				}
 
 				void NetSocket::inc_outstanding_writes( ) {
-					m_outstanding_writes++;
+					(*m_outstanding_writes)++;
 				}
 				bool NetSocket::dec_outstanding_writes( ) {
-					return 0 == --m_outstanding_writes;
+					return 0 == --(*m_outstanding_writes);
 				}
 
 				void NetSocket::do_async_read( ) {
@@ -204,6 +204,7 @@ namespace daw {
 
 				NetSocket& NetSocket::on_finish( std::function<void( )> listener ) { 
 					add_listener( "finish", listener );
+					return *this;
 				}
 
 				NetSocket& NetSocket::on_pipe( std::function<void( StreamReadable& )> listener ) { throw std::runtime_error( "Method not implemented" ); }
@@ -237,6 +238,7 @@ namespace daw {
 
 				NetSocket& NetSocket::once_finish( std::function<void( )> listener ) {
 					add_listener( "finish", listener, true );
+					return *this;
 				}
 
 				NetSocket& NetSocket::once_pipe( std::function<void( StreamReadable& )> listener ) { throw std::runtime_error( "Method not implemented" ); }
@@ -321,11 +323,11 @@ namespace daw {
 				}
 
 				NetSocket& NetSocket::write( base::data_t const & chunk ) { 
-					write( impl::write_buffer( chunk ) );
+					return write( impl::write_buffer( chunk ) );
 				}
 				
 				NetSocket& NetSocket::write( std::string const & chunk, base::Encoding const & encoding ) { 
-					write( impl::write_buffer( chunk ) );
+					return write( impl::write_buffer( chunk ) );
 				}
 
 				void NetSocket::end( ) { 

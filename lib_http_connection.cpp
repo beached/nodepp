@@ -33,36 +33,26 @@ namespace daw {
 					return result;
 				}
 
-				HttpConnection& HttpConnection::on_newListener( std::function<void( std::string, base::Callback )> listener ) {
-					add_listener( "newListener", listener );
-					return *this;
-				}
+				// Event callbacks
 
-				HttpConnection& HttpConnection::on_removeListener( std::function<void( std::string, base::Callback )> listener ) {
-					add_listener( "removeListener", listener );
-					return *this;
-				}
-
+				//////////////////////////////////////////////////////////////////////////
+				/// Summary: Event emitted when an error occurs
+				/// Inherited from EventEmitter
 				HttpConnection& HttpConnection::on_error( std::function<void( base::Error )> listener ) {
 					add_listener( "error", listener );
 					return *this;
 				}
 
-				HttpConnection& HttpConnection::once_newListener( std::function<void( std::string, base::Callback )> listener ) {
-					add_listener( "newListener", listener, true );
-					return *this;
-				}
-
-				HttpConnection& HttpConnection::once_removeListener( std::function<void( std::string, base::Callback )> listener ) {
-					add_listener( "removeListener", listener, true );
-					return *this;
-				}
-
+				//////////////////////////////////////////////////////////////////////////
+				/// Summary: Event emitted when an error occurs
+				/// Inherited from EventEmitter
 				HttpConnection& HttpConnection::once_error( std::function<void( base::Error )> listener ) {
 					add_listener( "error", listener, true );
 					return *this;
 				}
 
+				//////////////////////////////////////////////////////////////////////////
+				/// Summary: Event emitted when the connection is closed
 				HttpConnection& HttpConnection::once_close( std::function<void( )> listener ) {
 					add_listener( "close", listener, true );
 					return *this;

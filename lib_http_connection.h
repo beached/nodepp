@@ -23,12 +23,8 @@ namespace daw {
 					virtual std::vector<std::string> const & valid_events( ) const override;
 
 					// Event callbacks
-					virtual HttpConnection& on_newListener( std::function<void( std::string, base::Callback )> listener ) override;
-					virtual HttpConnection& on_removeListener( std::function<void( std::string, base::Callback )> listener ) override;
 					virtual HttpConnection& on_error( std::function<void( base::Error )> listener ) override;
 
-					virtual HttpConnection& once_newListener( std::function<void( std::string, base::Callback )> listener ) override;
-					virtual HttpConnection& once_removeListener( std::function<void( std::string, base::Callback )> listener ) override;
 					virtual HttpConnection& once_error( std::function<void( base::Error )> listener ) override;
 
 					HttpConnection& once_close( std::function<void( )> listener );					

@@ -17,7 +17,13 @@ namespace daw {
 					return result;
 				}
 
-				StreamReadable& StreamReadable::on_close( std::function<void( )> listener ) { return *this; }
+				StreamReadable& StreamReadable::on_close( std::function<void( )> listener ) { 
+					throw std::runtime_error( "Method not implemented in child" ); 
+				}
+				
+				StreamReadable& StreamReadable::once_close( std::function<void( )> listener ) { 
+					throw std::runtime_error( "Method not implemented in child" );
+				}
 
 				std::vector<std::string> const & StreamWritable::valid_events( ) const {
 					static auto const result = [&]( ) {

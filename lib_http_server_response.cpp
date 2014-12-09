@@ -16,7 +16,7 @@ namespace daw {
 
 				std::vector<std::string> const & HttpServerResponse::valid_events( ) const {
 					static auto const result = [&]( ) {
-						static std::vector<std::string> const local{ "request", "connection", "close", "checkContinue", "connect", "upgrade", "clientError", "listening" };
+						static std::vector<std::string> const local{ "close" };
 						auto parent = base::stream::StreamWritable::valid_events( );
 						return base::impl::append_vector( local, parent );
 					}();
@@ -51,9 +51,48 @@ namespace daw {
 				HttpServerResponse& HttpServerResponse::write( base::data_t const & chunk ) { throw std::runtime_error( "Method not implemented" ); }
 				HttpServerResponse& HttpServerResponse::write( std::string const & chunk, base::Encoding const & encoding ) { throw std::runtime_error( "Method not implemented" ); }
 
-				HttpServerResponse& HttpServerResponse::end( ) { throw std::runtime_error( "Method not implemented" ); }
-				HttpServerResponse& HttpServerResponse::end( base::data_t const & chunk ) { throw std::runtime_error( "Method not implemented" ); }
-				HttpServerResponse& HttpServerResponse::end( std::string const & chunk, base::Encoding const & encoding ) { throw std::runtime_error( "Method not implemented" ); }
+				void HttpServerResponse::end( ) { throw std::runtime_error( "Method not implemented" ); }
+				void HttpServerResponse::end( base::data_t const & chunk ) { throw std::runtime_error( "Method not implemented" ); }
+				void HttpServerResponse::end( std::string const & chunk, base::Encoding const & encoding ) { throw std::runtime_error( "Method not implemented" ); }
+
+				// Event callbacks
+				HttpServerResponse& HttpServerResponse::on_close( std::function<void( )> listener ) {
+					add_listener( "close", listener );
+					return *this;
+				}
+
+				HttpServerResponse& HttpServerResponse::on_error( std::function<void( base::Error )> listener ) {
+					add_listener( "error", listener );
+					return *this;
+				}
+
+				HttpServerResponse& HttpServerResponse::on_finish( std::function<void( )> listener ) {
+					add_listener( "finish", listener );
+					return *this;
+				}
+
+				HttpServerResponse& HttpServerResponse::on_pipe( std::function<void( base::stream::StreamReadable& )> listener ) { throw std::runtime_error( "Method not implemented" ); }
+				HttpServerResponse& HttpServerResponse::on_unpipe( std::function<void( base::stream::StreamReadable& )> listener ) { throw std::runtime_error( "Method not implemented" ); }
+
+				HttpServerResponse& HttpServerResponse::once_close( std::function<void( )> listener ) {
+					add_listener( "close", listener, true );
+					return *this;
+				}
+
+				HttpServerResponse& HttpServerResponse::once_error( std::function<void( base::Error )> listener ) {
+					add_listener( "error", listener, true );
+					return *this;
+				}
+
+				HttpServerResponse& HttpServerResponse::once_finish( std::function<void( )> listener ) {
+					add_listener( "finish", listener, true );
+					return *this;
+				}
+
+				HttpServerResponse& HttpServerResponse::once_pipe( std::function<void( base::stream::StreamReadable& )> listener ) { throw std::runtime_error( "Method not implemented" ); }
+				HttpServerResponse& HttpServerResponse::once_unpipe( std::function<void( base::stream::StreamReadable& )> listener ) { throw std::runtime_error( "Method not implemented" ); }
+
+
 			}	// namespace http
 		}	// namespace lib
 	}	// namespace nodepp

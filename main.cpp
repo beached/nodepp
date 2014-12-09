@@ -18,15 +18,17 @@
 #include "base_event_emitter.h"
 #include "base_service_handle.h"
 #include "base_types.h"
+#include "base_url.h"
 #include "lib_http.h"
+#include "lib_http_client_request.h"
 #include "lib_http_server.h"
+#include "lib_http_server_response.h"
 #include "lib_net_dns.h"
-#include "lib_net_socket.h"
 #include "lib_net_server.h"
+#include "lib_net_socket.h"
 #include "range_algorithm.h"
 #include "range_algorithm.h"
 #include "utility.h"
-#include "base_url.h"
 
 int main( int, char const ** ) {
 	using namespace daw::nodepp;
@@ -39,7 +41,7 @@ int main( int, char const ** ) {
 	} );
 	
 	server.listen( 8080 );
-s	
+
 	base::ServiceHandle::get( ).run( );
 
 

@@ -54,9 +54,71 @@ namespace daw {
 					virtual std::vector<std::string> const & valid_events( ) const override;
 					virtual HttpServerResponse& write( base::data_t const & chunk ) override;
 					virtual HttpServerResponse& write( std::string const & chunk, base::Encoding const & encoding = base::Encoding( ) ) override;
-					virtual HttpServerResponse& end( ) override;
-					virtual HttpServerResponse& end( base::data_t const & chunk ) override;
-					virtual HttpServerResponse& end( std::string const & chunk, base::Encoding const & encoding = base::Encoding( ) ) override;
+					virtual void end( ) override;
+					virtual void end( base::data_t const & chunk ) override;
+					virtual void end( std::string const & chunk, base::Encoding const & encoding = base::Encoding( ) ) override;
+
+					// Event callbacks
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when the stream is closed before end( ) was
+					/// called or able to flush
+					HttpServerResponse& on_close( std::function<void( )> listener );
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when an error occurs
+					/// Inherited from EventEmitter
+					virtual HttpServerResponse& on_error( std::function<void( base::Error )> listener ) override;
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when the headers and message has been sent
+					/// over the wire.  The data may/may not have been received yet.  This
+					/// is the last event emitted on this object
+					/// Inherited from StreamWritable
+					HttpServerResponse& on_finish( std::function<void( )> listener );
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted whenever this StreamWritable is passed to 
+					/// pipe( ) on a StreamReadable
+					/// Inherited from StreamWritable (Not implemented yet)
+					virtual HttpServerResponse& on_pipe( std::function<void( base::stream::StreamReadable& )> listener ) override;
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted whenever this StreamWritable is passed to 
+					/// unpipe( ) on a StreamReadable
+					/// Inherited from StreamWritable (Not implemented yet)
+					virtual HttpServerResponse& on_unpipe( std::function<void( base::stream::StreamReadable& )> listener ) override;
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when the stream is closed before end( ) was
+					/// called or able to flush
+					HttpServerResponse& once_close( std::function<void( )> listener );
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when an error occurs
+					/// Inherited from EventEmitter
+					virtual HttpServerResponse& once_error( std::function<void( base::Error )> listener ) override;
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when the headers and message has been sent
+					/// over the wire.  The data may/may not have been received yet.  This
+					/// is the last event emitted on this object
+					/// Inherited from StreamWritable
+					HttpServerResponse& once_finish( std::function<void( )> listener );
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted whenever this StreamWritable is passed to 
+					/// pipe( ) on a StreamReadable
+					/// Inherited from StreamWritable (Not implemented yet)
+					virtual HttpServerResponse& once_pipe( std::function<void( base::stream::StreamReadable& )> listener ) override;
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted whenever this StreamWritable is passed to 
+					/// unpipe( ) on a StreamReadable
+					/// Inherited from StreamWritable (Not implemented yet)
+					virtual HttpServerResponse& once_unpipe( std::function<void( base::stream::StreamReadable& )> listener ) override;
+
+
 				};	// class ServerResponse			
 
 
