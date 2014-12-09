@@ -17,7 +17,7 @@ namespace daw {
 				}	// namespace anonymous
 
 
-				HttpConnection::HttpConnection( std::shared_ptr<lib::net::NetSocket> socket_ptr ) :m_socket_ptr( socket_ptr ), m_state( HttpConnectionState::Request ) {
+				HttpConnection::HttpConnection( std::shared_ptr<daw::nodepp::base::data_t> data_buffer, bool is_eof, std::shared_ptr<lib::net::NetSocket> socket_ptr ) :m_socket_ptr( socket_ptr ), m_state( HttpConnectionState::Request ) {
 
 				}
 

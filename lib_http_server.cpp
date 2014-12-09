@@ -6,6 +6,7 @@
 
 #include "base_event_emitter.h"
 #include "base_url.h"
+#include "lib_http_connection.h"
 #include "lib_http_incoming_request.h"
 #include "lib_http_server.h"
 #include "lib_net_server.h"
@@ -41,15 +42,11 @@ namespace daw {
 
 				void HttpServer::handle_connection( std::shared_ptr<lib::net::NetSocket> socket_ptr ) {
 					socket_ptr->set_read_until_values( R"((\r\n|\n){2})", true )
-						.on_data( [socket_ptr]( std::shared_ptr<daw::nodepp::base::data_t> data_buffer, bool ) {
-						socket_ptr->set_read_mode( lib::net::NetSocket::ReadUntil::buffer_full );
-						// Start connection
-						
-						std::string buff( data_buffer->begin( ), data_buffer->end( ) );
-						std::cout << buff;
-						*socket_ptr << buff;
-					} ).on_end( []( ) {
-						std::cout << "\n\n" << std::endl;
+						.on_data( [&, socket_ptr]( std::shared_ptr<daw::nodepp::base::data_t> data_buffer, bool is_eof ) mutable {
+							auto it = m_connections.emplace( m_connections.end( ), data_buffer, is_eof, socket_ptr );
+							it->once_close( [&, it]( ) mutable {
+								m_connections.erase( it );
+							} );
 					} ).read_async( );
 				}
 

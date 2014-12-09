@@ -18,7 +18,7 @@ namespace daw {
 
 					void reset( );
 				public:
-					HttpConnection( std::shared_ptr<lib::net::NetSocket> socket_ptr );
+					HttpConnection( std::shared_ptr<daw::nodepp::base::data_t> data_buffer, bool is_eof, std::shared_ptr<lib::net::NetSocket> socket_ptr );
 					virtual ~HttpConnection( ) = default;
 					virtual std::vector<std::string> const & valid_events( ) const override;
 
