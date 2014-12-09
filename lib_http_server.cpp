@@ -1,5 +1,6 @@
 #include <boost/shared_ptr.hpp>
 #include <cinttypes>
+#include <iterator>
 #include <string>
 #include <utility>
 
@@ -40,8 +41,8 @@ namespace daw {
 						if( static_cast<size_t>( std::distance( first, last ) ) != value.size( ) ) {
 							return false;
 						}
-						for( std::string::size_type offset = 0; offset < value.size( ); ++offset ) {
-							if( value[offset] != *(first + offset) ) {
+						for( auto off = 0; off < value.size( ); ++off ) {
+							if( value[off] != *(first + off) ) {
 								return false;
 							}
 						}
@@ -115,7 +116,7 @@ namespace daw {
 					}
 
 					RequestLine( std::string const & line ) :m_method( HttpRequestMethod::Unknown ), m_url( ), m_version( ), m_is_valid( true ) {
-						build_request_line( std::cbegin( line ), std::cend( line ) );
+						build_request_line( std::begin( line ), std::end( line ) );
 					}
 
 					bool is_valid( ) const { return m_is_valid; }
