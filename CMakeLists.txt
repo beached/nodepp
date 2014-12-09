@@ -26,8 +26,9 @@ base_url.cpp
 base_url.h
 lib_http_chunk.cpp
 lib_http_chunk.h
-lib_http_client_request.cpp
 lib_http_client_request.h
+lib_http_connection.cpp
+lib_http_connection.h
 lib_http.h
 lib_http_header.cpp
 lib_http_headers.h
@@ -69,4 +70,5 @@ utility.h
 add_executable(NodePP ${SOURCE_FILES})
 
 target_link_libraries(NodePP  ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+
 
