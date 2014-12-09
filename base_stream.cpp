@@ -41,6 +41,22 @@ namespace daw {
 					return result;
 				}
 
+				StreamWritable& StreamWritable::on_pipe( std::function<void( StreamReadable& )> listener ) {
+					throw std::runtime_error( "Method not implemented in child" );
+				}
+
+				StreamWritable& StreamWritable::on_unpipe( std::function<void( StreamReadable& )> listener ) {
+					throw std::runtime_error( "Method not implemented in child" );
+				}
+
+				StreamWritable& StreamWritable::once_pipe( std::function<void( StreamReadable& )> listener ) {
+					throw std::runtime_error( "Method not implemented in child" );
+				}
+
+				StreamWritable& StreamWritable::once_unpipe( std::function<void( StreamReadable& )> listener ) {
+					throw std::runtime_error( "Method not implemented in child" );
+				}
+
 				StreamWritable& operator<<(StreamWritable& stream, std::string const & value) {
 					return stream.write( value, base::Encoding( ) );
 				}

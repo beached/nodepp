@@ -61,21 +61,21 @@ namespace daw {
 				namespace {
 					bool set_method( std::string::const_iterator first, std::string::const_iterator last, HttpRequestMethod& method ) {
 						// REDO better, works but don't like
-						if( daw::equal( first, last, "GET" ) ) {
+						if( daw::equal_nc( first, last, "GET" ) ) {
 							method = HttpRequestMethod::Get;
-						} else if( daw::equal( first, last, "POST" ) ) {
+						} else if( daw::equal_nc( first, last, "POST" ) ) {
 							method = HttpRequestMethod::Post;
-						} else if( daw::equal( first, last, "PUT" ) ) {
+						} else if( daw::equal_nc( first, last, "PUT" ) ) {
 							method = HttpRequestMethod::Put;
-						} else if( daw::equal( first, last, "HEAD" ) ) {
+						} else if( daw::equal_nc( first, last, "HEAD" ) ) {
 							method = HttpRequestMethod::Head;
-						} else if( daw::equal( first, last, "DELETE" ) ) {
+						} else if( daw::equal_nc( first, last, "DELETE" ) ) {
 							method = HttpRequestMethod::Delete;
-						} else if( daw::equal( first, last, "CONNECT" ) ) {
+						} else if( daw::equal_nc( first, last, "CONNECT" ) ) {
 							method = HttpRequestMethod::Connect;
-						} else if( daw::equal( first, last, "OPTIONS" ) ) {
+						} else if( daw::equal_nc( first, last, "OPTIONS" ) ) {
 							method = HttpRequestMethod::Options;
-						} else if( daw::equal( first, last, "TRACE" ) ) {
+						} else if( daw::equal_nc( first, last, "TRACE" ) ) {
 							method = HttpRequestMethod::Trace;
 						} else {
 							method = HttpRequestMethod::Unknown;
@@ -99,7 +99,7 @@ namespace daw {
 							} );
 							if( slash_pos.size( ) != 1 ) {
 								return false;
-							} else if( !daw::equal( first, slash_pos[0], "HTTP" ) ) {
+							} else if( !daw::equal_nc( first, slash_pos[0], "HTTP" ) ) {
 								return false;
 							}
 							version = std::string( slash_pos[0] + 1, last );

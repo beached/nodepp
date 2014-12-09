@@ -33,9 +33,9 @@
 int main( int, char const ** ) {
 	using namespace daw::nodepp;
 	
-	auto server = lib::http::HttpServer( );
+	//auto server = lib::http::HttpServer( );
 	
-	server.on_listening( [&]( lib::http::HttpClientRequest, lib::http::HttpServerResponse response ) {
+	auto server = lib::http::HttpServer( ).on_listening( [&]( lib::http::HttpClientRequest, lib::http::HttpServerResponse response ) {
 		response.write_head( 200, "", { { "Content-Type", "text/plain" } } );
 		response.end( "Hello World" );
 	} );

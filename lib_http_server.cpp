@@ -22,15 +22,15 @@ namespace daw {
 
 				HttpServer::HttpServer( HttpServer&& other ) : base::EventEmitter( std::move( other ) ), m_netserver( std::move( other.m_netserver ) ) { }
 
-				HttpServer& HttpServer::operator=(HttpServer&& rhs) { 
+				HttpServer& HttpServer::operator=(HttpServer&& rhs) {
 					if( this != &rhs ) {
 						m_netserver = std::move( rhs.m_netserver );
 					}
 					return *this;
 				}
-				
-				HttpServer::~HttpServer( ) {  }				
-				
+
+				HttpServer::~HttpServer( ) { }
+
 				std::vector<std::string> const & HttpServer::valid_events( ) const {
 					static auto const result = [&]( ) {
 						std::vector<std::string> local{ "request", "connection", "close", "checkContinue", "connect", "upgrade", "clientError", "listening" };
@@ -40,17 +40,17 @@ namespace daw {
 				}
 
 				void HttpServer::handle_connection( std::shared_ptr<lib::net::NetSocket> socket_ptr ) {
-					using match_iterator_t = lib::net::NetSocket::match_iterator_t;
-					socket_ptr->set_read_predicate( []( match_iterator_t begin, match_iterator_t end ) {						
-						auto it = find_buff( begin, end, "\r\n\r\n" );
-						return std::make_pair( it, it != end );
-					} );
-					socket_ptr->on_data( []( std::shared_ptr<daw::nodepp::base::data_t> data_buffer, bool ) {
+					socket_ptr->set_read_until_values( R"((\r\n|\n){2})", true )
+						.on_data( [socket_ptr]( std::shared_ptr<daw::nodepp::base::data_t> data_buffer, bool ) {
+						socket_ptr->set_read_mode( lib::net::NetSocket::ReadUntil::buffer_full );
+						// Start connection
+						
 						std::string buff( data_buffer->begin( ), data_buffer->end( ) );
 						std::cout << buff;
+						*socket_ptr << buff;
 					} ).on_end( []( ) {
 						std::cout << "\n\n" << std::endl;
-					} );
+					} ).read_async( );
 				}
 
 				void HttpServer::handle_error( base::Error error ) {
@@ -59,8 +59,9 @@ namespace daw {
 				}
 
 				HttpServer& HttpServer::listen( uint16_t port ) {
-					m_netserver.on_connection( std::bind( &HttpServer::handle_connection, this, std::placeholders::_1 ) )
-						.on_error( std::bind( &HttpServer::handle_error, this, std::placeholders::_1 ) )
+					m_netserver.once_connection( [&]( std::shared_ptr<lib::net::NetSocket> socket_ptr ) {
+						handle_connection( socket_ptr );
+					} ).on_error( std::bind( &HttpServer::handle_error, this, std::placeholders::_1 ) )
 						.listen( port );
 					return *this;
 				}

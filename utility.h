@@ -283,19 +283,6 @@ namespace daw {
 	}
 
 	template<typename Iterator>
-	bool equal( Iterator first, Iterator last, std::string const & value ) {
-		if( static_cast<size_t>(std::distance( first, last )) != value.size( ) ) {
-			return false;
-		}
-		for( size_t off = 0; off < value.size( ); ++off ) {
-			if( value[off] != *(first + static_cast<std::ptrdiff_t>(off)) ) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	template<typename Iterator>
 	Iterator advance( Iterator it, Iterator last, typename Iterator::difference_type how_far ) {
 		auto result = it;
 		while( result != last && std::distance( it, result ) < how_far ) { ++it; }
@@ -315,6 +302,42 @@ namespace daw {
 			}
 		}
 		return last;
+	}
+
+	template<typename CharType>
+	CharType Upper( CharType chr ) {
+		return chr | static_cast<CharType>( 32 );
+	}
+
+	template<typename CharType>
+	CharType Lower( CharType chr ) {
+		return chr & ~static_cast<CharType>(32);
+	}
+
+// 	template<typename Iterator>
+// 	bool equal( Iterator first, Iterator last, std::string const & value ) {
+// 		if( static_cast<size_t>(std::distance( first, last )) != value.size( ) ) {
+// 			return false;
+// 		}
+// 		for( size_t off = 0; off < value.size( ); ++off ) {
+// 			if( value[off] != *(first + static_cast<std::ptrdiff_t>(off)) ) {
+// 				return false;
+// 			}
+// 		}
+// 		return true;
+// 	}
+
+	template<typename Iterator>
+	bool equal_nc( Iterator first, Iterator last, std::string const & upper_value ) {
+		if( static_cast<size_t>(std::distance( first, last )) != upper_value.size( ) ) {
+			return false;
+		}
+		for( size_t off = 0; off < upper_value.size( ); ++off ) {
+			if( upper_value[off] != daw::Upper( *(first + static_cast<std::ptrdiff_t>(off)) ) ) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 }	// namespace daw	
