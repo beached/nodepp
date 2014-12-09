@@ -37,7 +37,8 @@ namespace daw {
 						return find_all_where( std::begin( values ), std::end( values ), predicate );
 					}					
 
-					bool equal( std::string::const_iterator first, std::string::const_iterator last, std::string const & value ) {
+					template<typename Iterator>
+					bool equal( Iterator first, Iterator last, std::string const & value ) {
 						if( static_cast<size_t>( std::distance( first, last ) ) != value.size( ) ) {
 							return false;
 						}
@@ -149,13 +150,33 @@ namespace daw {
 					return result;
 				}
 
+				template<typename Iterator>
+				Iterator advance( Iterator it, Iterator last, typename Iterator::difference_type how_far ) {
+					auto result = it;
+					while( result != last && std::distance( it, result ) < how_far ) { ++it; }
+					return it;
+				}
 
+				template<typename Iterator>
+				Iterator find_buff( Iterator first, Iterator last, std::string const & key ) {
+					auto it = advance( first, last, key.size( ) );
+					if( it == last ) {
+						return last;
+					}
+										
+					for( ; it != last; ++it, ++first ) {
+						if( equal( first, it, key ) ) {
+							return first;
+						}
+					}
+					return last;
+				}
 
 				void HttpServer::handle_connection( std::shared_ptr<lib::net::NetSocket> socket_ptr ) {
 					using match_iterator_t = lib::net::NetSocket::match_iterator_t;
 					socket_ptr->write( "Go Away\r\n\r\n" );
 					socket_ptr->set_read_predicate( []( match_iterator_t begin, match_iterator_t end ) {						
-						auto it = std::find( begin, end, "\r\n\r\n" );
+						auto it = find_buff( begin, end, "\r\n\r\n" );
 						return std::make_pair( it, it != end );
 					} );
 					socket_ptr->on_data( []( std::shared_ptr<daw::nodepp::base::data_t> data_buffer, bool ) {
