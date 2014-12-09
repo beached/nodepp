@@ -7,6 +7,7 @@
 #include <utility>
 #include <vector>
 #include "base_callback.h"
+#include "base_error.h"
 #include "range_algorithm.h"
 
 namespace daw {
@@ -41,7 +42,35 @@ namespace daw {
 				bool at_max_listeners( std::string event );
 				listeners_t & listeners( );
 				listeners_t const & listeners( ) const;
-				bool event_is_valid( std::string const & event ) const;				
+				bool event_is_valid( std::string const & event ) const;		
+			public:
+				using callback_id_t = Callback::id_t;
+			protected:
+				template<typename Listener>
+				callback_id_t add_listener( std::string event, Listener listener, bool run_once = false ) {
+					if( !at_max_listeners( event ) ) {
+						auto callback = Callback( listener );
+						emit( "newListener", event, callback );
+						listeners( )[event].emplace_back( run_once, callback );
+						return callback.id( );
+					} else {
+						// TODO: implement logging to fail gracefully.  For now throw
+						throw std::runtime_error( "Max listeners reached for event" );
+					}
+				}
+
+// 				template<typename Listener>
+// 				EventEmitter& on( std::string event, Listener listener ) {
+// 					add_listener( event, listener );
+// 					return *this;
+// 				}
+// 
+// 				template<typename Listener>
+// 				EventEmitter& once( std::string event, Listener listener ) {
+// 					add_listener( event, listener, true );
+// 					return *this;
+// 				}
+
 			public:
 				virtual std::vector<std::string> const & valid_events( ) const;
 
@@ -54,31 +83,14 @@ namespace daw {
 
 				void swap( EventEmitter& rhs );
 
-				using callback_id_t = Callback::id_t;
-				template<typename Listener>
-				callback_id_t add_listener( std::string event, Listener listener, bool run_once = false ) {
-					if( !at_max_listeners( event ) ) {
-						auto callback = Callback( listener );
-						listeners( )[event].emplace_back( run_once, callback );
-						emit( "newListener", event, callback );
-						return callback.id( );
-					} else {
-						// TODO: implement logging to fail gracefully.  For now throw
-						throw std::runtime_error( "Max listeners reached for event" );
-					}
-				}
 
-				template<typename Listener>
-				EventEmitter& on( std::string event, Listener listener ) {
-					add_listener( event, listener );
-					return *this;
-				}
+				virtual EventEmitter& on_newListener( std::function<void( std::string, Callback )> listener );
+				virtual EventEmitter& on_removeListener( std::function<void( std::string, Callback )> listener );
+				virtual EventEmitter& on_error( std::function<void( base::Error )> listener );
 
-				template<typename Listener>
-				EventEmitter& once( std::string event, Listener listener ) {
-					add_listener( event, listener, true );
-					return *this;
-				}
+				virtual EventEmitter& once_newListener( std::function<void( std::string, Callback )> listener );
+				virtual EventEmitter& once_removeListener( std::function<void( std::string, Callback )> listener );
+				virtual EventEmitter& once_error( std::function<void( base::Error )> listener );
 
 				EventEmitter& remove_listener( std::string event, callback_id_t id );
 

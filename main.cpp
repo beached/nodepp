@@ -39,9 +39,7 @@ int main( int, char const ** ) {
 	} );
 	
 	server.listen( 8080 );
-
-
-	
+s	
 	base::ServiceHandle::get( ).run( );
 
 

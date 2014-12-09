@@ -262,5 +262,59 @@ namespace daw {
 		}
 	}
 
+	inline bool is_space( char chr ) {
+		return 32 == chr;
+	}
+
+	template<typename Iterator, typename Pred>
+	auto find_all_where( Iterator first, Iterator last, Pred predicate ) -> std::vector < Iterator > {
+		std::vector<Iterator> results;
+		for( auto it = first; it != last; ++it ) {
+			if( predicate( *it ) ) {
+				results.push_back( it );
+			}
+		}
+		return results;
+	}
+
+	template<typename T, typename Pred>
+	auto find_all_where( T const & values, Pred predicate ) -> std::vector < decltype(std::begin( values )) > {
+		return find_all_where( std::begin( values ), std::end( values ), predicate );
+	}
+
+	template<typename Iterator>
+	bool equal( Iterator first, Iterator last, std::string const & value ) {
+		if( static_cast<size_t>(std::distance( first, last )) != value.size( ) ) {
+			return false;
+		}
+		for( size_t off = 0; off < value.size( ); ++off ) {
+			if( value[off] != *(first + static_cast<std::ptrdiff_t>(off)) ) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	template<typename Iterator>
+	Iterator advance( Iterator it, Iterator last, typename Iterator::difference_type how_far ) {
+		auto result = it;
+		while( result != last && std::distance( it, result ) < how_far ) { ++it; }
+		return it;
+	}
+
+	template<typename Iterator>
+	Iterator find_buff( Iterator first, Iterator last, std::string const & key ) {
+		auto it = advance( first, last, static_cast<typename Iterator::difference_type>(key.size( )) );
+		if( it == last ) {
+			return last;
+		}
+
+		for( ; it != last; ++it, ++first ) {
+			if( equal( first, it, key ) ) {
+				return first;
+			}
+		}
+		return last;
+	}
 
 }	// namespace daw	

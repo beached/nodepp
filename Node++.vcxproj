@@ -165,6 +165,7 @@
     <ClInclude Include="lib_http.h" />
     <ClInclude Include="lib_http_chunk.h" />
     <ClInclude Include="lib_http_client_request.h" />
+    <ClInclude Include="lib_http_connection.h" />
     <ClInclude Include="lib_http_headers.h" />
     <ClInclude Include="lib_http_incoming_request.h" />
     <ClInclude Include="lib_http_server.h" />
@@ -199,6 +200,7 @@
     <ClCompile Include="base_stream.cpp" />
     <ClCompile Include="base_url.cpp" />
     <ClCompile Include="lib_http_chunk.cpp" />
+    <ClCompile Include="lib_http_connection.cpp" />
     <ClCompile Include="lib_http_incoming_request.cpp" />
     <ClCompile Include="lib_http_server_response.cpp" />
     <ClCompile Include="lib_http_client_request.cpp" />

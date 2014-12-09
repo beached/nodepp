@@ -51,20 +51,46 @@ namespace daw {
 
 					NetServer& get_connections( std::function<void( daw::nodepp::base::Error err, uint16_t count )> callback );
 
-					template<typename Listener>
-					NetServer& on( std::string event, Listener listener ) {
-						add_listener( event, listener );
-						return *this;
-					}
+					// Event callbacks
+					
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when an error occurs
+					/// Inherited from EventEmitter
+					virtual NetServer& on_error( std::function<void( base::Error )> listener ) override;
 
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when a connection is established
 					NetServer& on_connection( std::function<void( std::shared_ptr<NetSocket> socket_ptr )> listener );					
-					NetServer& on_error( std::function<void( base::Error )> listener );
+					
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when the server is bound after calling 
+					/// listen( ... )
+					NetServer& on_listening( std::function<void( )> listener );
 
-					template<typename Listener>
-					NetServer& once( std::string event, Listener listener ) {
-						add_listener( event, listener, true );
-						return *this;
-					}
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when the server closes and all connections 
+					/// are closed
+					NetServer& on_close( std::function<void( )> listener );
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when an error occurs
+					/// Inherited from EventEmitter
+					virtual NetServer& once_error( std::function<void( base::Error )> listener ) override;
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when a connection is established
+					NetServer& once_connection( std::function<void( std::shared_ptr<NetSocket> socket_ptr )> listener );
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when the server is bound after calling 
+					/// listen( ... )
+					NetServer& once_listening( std::function<void( )> listener );
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when the server closes and all connections 
+					/// are closed
+					NetServer& once_close( std::function<void( )> listener );
+
 				};	// class server
 
 			}	// namespace net

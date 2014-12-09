@@ -62,6 +62,26 @@ namespace daw {
 					return *this;
 				}
 
+				NetDns& NetDns::on_error( std::function<void( base::Error )> listener ) {
+					add_listener( "error", listener );
+					return *this;
+				}
+
+				NetDns& NetDns::on_resolved( std::function<void( boost::asio::ip::tcp::resolver::iterator)> listener ) {
+					add_listener( "resolved", listener );
+					return *this;
+				}
+
+				NetDns& NetDns::once_error( std::function<void( base::Error )> listener ) {
+					add_listener( "error", listener, true );
+					return *this;
+				}
+
+				NetDns& NetDns::once_resolved( std::function<void( boost::asio::ip::tcp::resolver::iterator )> listener ) {
+					add_listener( "resolved", listener, true );
+					return *this;
+				}
+
 			}	// namespace net
 		}	// namespace lib
 	}	// namespace nodepp

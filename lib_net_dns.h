@@ -31,24 +31,32 @@ namespace daw {
 					NetDns( );
 					NetDns( NetDns&& other );
 					NetDns& operator=(NetDns && rhs);
-
+					
+					// Event callbacks
 					
 					//////////////////////////////////////////////////////////////////////////
 					// Summary: resolve name or ip address and call callback of form
 					// void(boost::system::error_code, boost::asio::ip::tcp::resolver::iterator)
 					NetDns& resolve( std::string const& address );
 					NetDns& resolve( std::string const& address, uint16_t port );
-					template<typename Listener>
-					NetDns& on( std::string event, Listener listener ) {
-						add_listener( event, listener );
-						return *this;
-					}
+					
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when an error occurs
+					/// Inherited from EventEmitter
+					virtual NetDns& on_error( std::function<void( base::Error )> listener ) override;
+					
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when name resolution is complete
+					virtual NetDns& on_resolved( std::function<void( boost::asio::ip::tcp::resolver::iterator )> listener );
 
-					template<typename Listener>
-					NetDns& once( std::string event, Listener listener ) {
-						add_listener( event, listener, true );
-						return *this;
-					}
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when an error occurs
+					/// Inherited from EventEmitter
+					virtual NetDns& once_error( std::function<void( base::Error )> listener ) override;
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when name resolution is complete
+					virtual NetDns& once_resolved( std::function<void( boost::asio::ip::tcp::resolver::iterator )> listener );
 
 				};	// class NetDns
 			}	// namespace net

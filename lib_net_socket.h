@@ -1,4 +1,5 @@
 #pragma once
+#include <atomic>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/streambuf.hpp>
 #include <boost/system/error_code.hpp>
@@ -61,10 +62,15 @@ namespace daw {
 					std::mutex m_response_buffers_mutex;					
 					ReadUntil m_read_mode;
 					std::shared_ptr<match_function_t> m_read_predicate;
-
+					std::atomic_int_least32_t m_outstanding_writes;
+					bool m_end;
+					void inc_outstanding_writes( );
+					bool dec_outstanding_writes( );
 					void handle_read( boost::system::error_code const & err, size_t bytes_transfered );					
 					void handle_write( impl::write_buffer buff, boost::system::error_code const & err );
 					void do_async_read( );
+
+					NetSocket& write( impl::write_buffer buff );
 				public:
 					virtual std::vector<std::string> const & valid_events( ) const override;
 
@@ -105,9 +111,7 @@ namespace daw {
 		
 					NetSocket& unref( );
 					NetSocket& ref( );
-
 					
-
 					std::string remote_address( ) const;
 					std::string local_address( ) const;
 					uint16_t remote_port( ) const;	
@@ -118,22 +122,97 @@ namespace daw {
 
 					bool is_open( ) const;
 
-					template<typename Listener>
-					NetSocket& on( std::string event, Listener listener ) {
-						add_listener( event, listener );
-						return *this;
-					}
+					// Event callbacks
 
-					NetSocket& on_data( std::function<void( std::shared_ptr<base::data_t>, bool )> listener );					
-					NetSocket& on_connect( std::function<void()> listener );
-					NetSocket& on_error( std::function<void(base::Error)> listener );
-					NetSocket& on_end( std::function<void( )> listener );
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when a connection is established
+					NetSocket& on_connect( std::function<void( )> listener );
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when an error occurs
+					/// Inherited from EventEmitter
+					virtual NetSocket& on_error( std::function<void( base::Error )> listener ) override;
+
+					// StreamReadable callbacks
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when data is received
+					/// Inherited from StreamReadable
+					virtual NetSocket& on_data( std::function<void( std::shared_ptr<base::data_t>, bool )> listener ) override;
 					
-					template<typename Listener>
-					NetSocket& once( std::string event, Listener listener ) {
-						add_listener( event, listener, true );
-						return *this;
-					}
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when of of stream is read.
+					/// Inherited from StreamReadable
+					virtual NetSocket& on_end( std::function<void( )> listener ) override;
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when the stream is closed
+					/// Inherited from StreamReadable
+					virtual NetSocket& on_close( std::function<void( )> listener ) override;
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when end( ... ) has been called and all data
+					/// has been flushed
+					/// Inherited from StreamWritable
+					virtual NetSocket& on_finish( std::function<void( )> listener ) override;
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted whenever this StreamWritable is passed to 
+					/// pipe( ) on a StreamReadable
+					/// Inherited from StreamWritable (Not implemented yet)
+					virtual NetSocket& on_pipe( std::function<void( StreamReadable& )> listener ) override;
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted whenever this StreamWritable is passed to 
+					/// unpipe( ) on a StreamReadable
+					/// Inherited from StreamWritable (Not implemented yet)
+					virtual NetSocket& on_unpipe( std::function<void( StreamReadable& )> listener ) override;
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when a connection is established
+					NetSocket& once_connect( std::function<void( )> listener );
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when an error occurs
+					/// Inherited from EventEmitter
+					virtual NetSocket& once_error( std::function<void( base::Error )> listener ) override;
+
+					// StreamReadable callbacks
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when data is received
+					/// Inherited from StreamReadable
+					virtual NetSocket& once_data( std::function<void( std::shared_ptr<base::data_t>, bool )> listener ) override;
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when of of stream is read.
+					/// Inherited from StreamReadable
+					virtual NetSocket& once_end( std::function<void( )> listener ) override;
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when the stream is closed
+					/// Inherited from StreamReadable
+					virtual NetSocket& once_close( std::function<void( )> listener ) override;
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when end( ... ) has been called and all data
+					/// has been flushed
+					/// Inherited from StreamWritable
+					virtual NetSocket& once_finish( std::function<void( )> listener ) override;
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted whenever this StreamWritable is passed to 
+					/// pipe( ) on a StreamReadable
+					/// Inherited from StreamWritable (Not implemented yet)
+					virtual NetSocket& once_pipe( std::function<void( StreamReadable& )> listener ) override;
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted whenever this StreamWritable is passed to 
+					/// unpipe( ) on a StreamReadable
+					/// Inherited from StreamWritable (Not implemented yet)
+					virtual NetSocket& once_unpipe( std::function<void( StreamReadable& )> listener ) override;
+
+
 
 					// StreamReadable Interface
 					virtual base::data_t read( ) override;
@@ -144,6 +223,7 @@ namespace daw {
 					virtual NetSocket& pause( ) override;
 					virtual StreamWritable& pipe( StreamWritable& destination ) override;
 					virtual StreamWritable& pipe( StreamWritable& destination, base::options_t options ) override;
+
 					virtual NetSocket& unpipe( StreamWritable& destination ) override;
 					virtual NetSocket& unshift( base::data_t const & chunk ) override;
 
@@ -151,11 +231,12 @@ namespace daw {
 					virtual NetSocket& write( base::data_t const & chunk ) override;
 					virtual NetSocket& write( std::string const & chunk, base::Encoding const & encoding = base::Encoding( ) ) override;
 
-					virtual NetSocket& end( ) override;
-					virtual NetSocket& end( base::data_t const & chunk ) override;
-					virtual NetSocket& end( std::string const & chunk, base::Encoding const & encoding = base::Encoding( ) ) override;
+					virtual void end( ) override;
+					virtual void end( base::data_t const & chunk ) override;
+					virtual void end( std::string const & chunk, base::Encoding const & encoding = base::Encoding( ) ) override;
 
-					NetSocket& destroy( );
+
+					void close( );
 				};
 				
 			}	// namespace net

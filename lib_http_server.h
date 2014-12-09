@@ -3,6 +3,7 @@
 #include "lib_net_server.h"
 #include "lib_http_client_request.h"
 #include "lib_http_server_response.h"
+#include "lib_http_connection.h"
 #include <memory>
 
 namespace daw {
@@ -15,9 +16,10 @@ namespace daw {
 				// Requires:	lib::net::NetServer
 				class HttpServer: public base::EventEmitter {
 					lib::net::NetServer m_netserver;
+					std::list<HttpConnection> m_connections;
 
 					void handle_connection( std::shared_ptr<lib::net::NetSocket> socket_ptr );
-					void handle_error( base::Error error );
+					void handle_error( base::Error error );					
 				public:
 					HttpServer( );
 
@@ -65,19 +67,7 @@ namespace daw {
 					HttpServer& set_timeout( size_t msecs, Listener listener ) {
 						throw std::runtime_error( "Method not implemented" );
 					}					
-
-					template<typename Listener>
-					HttpServer& on( std::string event, Listener listener ) {
-						add_listener( event, listener );
-						return *this;
-					}
-
-					template<typename Listener>
-					HttpServer& once( std::string event, Listener listener ) {
-						add_listener( event, listener, true );
-						return *this;
-					}
-
+					
 					HttpServer& on_listening( std::function<void( HttpClientRequest, HttpServerResponse )> listener );
 					HttpServer& once_listening( std::function<void( HttpClientRequest, HttpServerResponse )> listener );
 

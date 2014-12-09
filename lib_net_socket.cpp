@@ -24,7 +24,7 @@ namespace daw {
 
 				std::vector<std::string> const & NetSocket::valid_events( ) const {
 					static auto const result = [&]( ) {
-						auto local = std::vector < std::string > { "connect", "data", "end", "timeout", "drain", "error", "close", "endOfFile" };
+						auto local = std::vector < std::string > { "connect", "timeout" };
 						return base::impl::append_vector( local, base::stream::Stream::valid_events( ) );
 					}();
 					return result;
@@ -38,7 +38,9 @@ namespace daw {
 																m_bytes_written( 0 ),
 																m_response_buffers_mutex( ),
 																m_read_mode( ReadUntil::newline ),
-																m_read_predicate( ) { }
+																m_read_predicate( ),
+																m_outstanding_writes( 0 ),
+																m_end( false ) { }
 				
 				NetSocket::NetSocket( SocketHandle handle ) : base::stream::Stream( ),
 																m_socket( handle ),
@@ -48,7 +50,9 @@ namespace daw {
 																m_bytes_written( 0 ),
 																m_response_buffers_mutex( ),
 																m_read_mode( ReadUntil::newline ),
-																m_read_predicate( ) { }
+																m_read_predicate( ),
+																m_outstanding_writes( 0 ),
+																m_end( false ) { }
 
 				NetSocket::NetSocket( NetSocket&& other ):	base::stream::Stream( std::move( other ) ),
 															m_socket( std::move( other.m_socket ) ), 
@@ -58,7 +62,9 @@ namespace daw {
 															m_bytes_written( std::move( other.m_bytes_written ) ),
 															m_response_buffers_mutex( ),
 															m_read_mode( std::move( other.m_read_mode ) ),
-															m_read_predicate( std::move( other.m_read_predicate ) ) { }
+															m_read_predicate( std::move( other.m_read_predicate ) ),
+															m_outstanding_writes( std::move( other.m_outstanding_writes ) ),
+															m_end( std::move( other.m_end ) ) { }
 
 				NetSocket& NetSocket::operator=(NetSocket&& rhs) {
 					if( this != &rhs ) {
@@ -69,6 +75,7 @@ namespace daw {
 						m_bytes_written = std::move( rhs.m_bytes_written );
 						m_read_mode = std::move( rhs.m_read_mode );
 						m_read_predicate = std::move( rhs.m_read_predicate );
+						m_outstanding_writes = std::move( rhs.m_outstanding_writes );
 					}
 					return *this;
 				}
@@ -82,16 +89,13 @@ namespace daw {
 							net_socket->emit( "error", error );
 						} );
 					}
-
-					void emit_end( NetSocket* const net_socket ) {
-						base::ServiceHandle::get( ).post( [net_socket]( ) {
-							net_socket->emit( "error" );
-						} );
-					}
-
+					
 					void emit_data( NetSocket* const net_socket, std::shared_ptr<base::data_t> buffer, bool end_of_file ) {
 						base::ServiceHandle::get( ).post( [net_socket, buffer, end_of_file]( ) mutable {
 							net_socket->emit( "data", buffer, end_of_file );
+							if( end_of_file ) {
+								net_socket->emit( "end" );
+							}
 						} );
 					}
 
@@ -108,8 +112,14 @@ namespace daw {
 
 				NetSocket::~NetSocket( ) {
 					m_socket->close( );
-					emit_end( this );					
 					remove_all_listeners( );
+				}
+
+				void NetSocket::inc_outstanding_writes( ) {
+					m_outstanding_writes++;
+				}
+				bool NetSocket::dec_outstanding_writes( ) {
+					return 0 == --m_outstanding_writes;
 				}
 
 				void NetSocket::do_async_read( ) {
@@ -165,18 +175,20 @@ namespace daw {
 					return result;
 				}
 
-				NetSocket& NetSocket::on_data( std::function<void( std::shared_ptr<base::data_t>, bool )> listener ) {
-					add_listener( "data", listener );
-					return *this;
-				}
+				
 
 				NetSocket& NetSocket::on_connect( std::function<void( )> listener ) {
 					add_listener( "connect", listener );
 					return *this;
 				}
 
-				NetSocket& NetSocket::on_error( std::function<void(base::Error )> listener ) {
+				NetSocket& NetSocket::on_error( std::function<void( base::Error )> listener ) {
 					add_listener( "error", listener );
+					return *this;
+				}
+
+				NetSocket& NetSocket::on_data( std::function<void( std::shared_ptr<base::data_t>, bool )> listener ) {
+					add_listener( "data", listener );
 					return *this;
 				}
 
@@ -184,6 +196,51 @@ namespace daw {
 					add_listener( "end", listener );
 					return *this;
 				}
+
+				NetSocket& NetSocket::on_close( std::function<void( )> listener ) { 
+					add_listener( "close", listener );
+					return *this;
+				}
+
+				NetSocket& NetSocket::on_finish( std::function<void( )> listener ) { 
+					add_listener( "finish", listener );
+				}
+
+				NetSocket& NetSocket::on_pipe( std::function<void( StreamReadable& )> listener ) { throw std::runtime_error( "Method not implemented" ); }
+				NetSocket& NetSocket::on_unpipe( std::function<void( StreamReadable& )> listener ) { throw std::runtime_error( "Method not implemented" ); }
+
+
+				NetSocket& NetSocket::once_connect( std::function<void( )> listener ) {
+					add_listener( "connect", listener, true );
+					return *this;
+				}
+
+				NetSocket& NetSocket::once_error( std::function<void( base::Error )> listener ) {
+					add_listener( "error", listener, true );
+					return *this;
+				}
+
+				NetSocket& NetSocket::once_data( std::function<void( std::shared_ptr<base::data_t>, bool )> listener ) {
+					add_listener( "data", listener, true );
+					return *this;
+				}
+
+				NetSocket& NetSocket::once_end( std::function<void( )> listener ) {
+					add_listener( "end", listener, true );
+					return *this;
+				}
+
+				NetSocket& NetSocket::once_close( std::function<void( )> listener ) {
+					add_listener( "close", listener, true );
+					return *this;
+				}
+
+				NetSocket& NetSocket::once_finish( std::function<void( )> listener ) {
+					add_listener( "finish", listener, true );
+				}
+
+				NetSocket& NetSocket::once_pipe( std::function<void( StreamReadable& )> listener ) { throw std::runtime_error( "Method not implemented" ); }
+				NetSocket& NetSocket::once_unpipe( std::function<void( StreamReadable& )> listener ) { throw std::runtime_error( "Method not implemented" ); }
 
 				NetSocket& NetSocket::connect( std::string host, uint16_t port ) {
 					tcp::resolver resolver( base::ServiceHandle::get( ) );
@@ -242,6 +299,9 @@ namespace daw {
 					} else {
 						emit_error( this, err, "NetSocket::write" );
 					}
+					if( dec_outstanding_writes( ) && m_end ) {
+						emit( "finish" );
+					}
 				} 
 
 				boost::asio::ip::tcp::socket & NetSocket::socket( ) {
@@ -252,41 +312,41 @@ namespace daw {
 					return *m_socket;
 				}
 
-				NetSocket& NetSocket::write( base::data_t const & chunk ) { 
-					auto buff = impl::write_buffer( chunk );
+				NetSocket& NetSocket::write( impl::write_buffer buff ) {
 					m_bytes_written += buff.size( );
 					auto handler = boost::bind( &NetSocket::handle_write, this, buff, boost::asio::placeholders::error );
+					inc_outstanding_writes( );
 					boost::asio::async_write( *m_socket, buff.asio_buff( ), handler );
 					return *this;
+				}
+
+				NetSocket& NetSocket::write( base::data_t const & chunk ) { 
+					write( impl::write_buffer( chunk ) );
 				}
 				
 				NetSocket& NetSocket::write( std::string const & chunk, base::Encoding const & encoding ) { 
-					auto buff = impl::write_buffer( chunk );
-					m_bytes_written += buff.size( );
-					auto handler = boost::bind( &NetSocket::handle_write, this, buff, boost::asio::placeholders::error );
-					boost::asio::async_write( *m_socket, buff.asio_buff( ), handler );
-					return *this;
+					write( impl::write_buffer( chunk ) );
 				}
 
-				NetSocket& NetSocket::end( ) { 
+				void NetSocket::end( ) { 
 					//m_socket = std::make_shared<boost::asio::ip::tcp::socket>( base::ServiceHandle::get( ) );
-					m_socket->shutdown( boost::asio::ip::tcp::socket::shutdown_send );
-					return *this;
+					m_end = true;
+					m_socket->shutdown( boost::asio::ip::tcp::socket::shutdown_send );					
 				}
 
-				NetSocket& NetSocket::end( base::data_t const & chunk ) { 
+				void NetSocket::end( base::data_t const & chunk ) { 
 					write( chunk );
-					return end( );
+					end( );
 				}
 
-				NetSocket& NetSocket::end( std::string const & chunk, base::Encoding const & encoding ) {
+				void NetSocket::end( std::string const & chunk, base::Encoding const & encoding ) {
 					write( chunk, encoding );
-					return end( );
+					end( );
 				}
 
-				NetSocket& NetSocket::destroy( ) {
+				void NetSocket::close( ) {
 					m_socket->close( );
-					return *this;
+					emit( "close" );
 				}
 				
 				NetSocket& NetSocket::set_timeout( int32_t value ) { throw std::runtime_error( "Method not implemented" ); }

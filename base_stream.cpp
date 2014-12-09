@@ -11,21 +11,21 @@ namespace daw {
 				using namespace daw::nodepp;
 				std::vector<std::string> const & StreamReadable::valid_events( ) const {
 					static auto const result = [&]( ) {
-						auto local = std::vector < std::string > { "readable", "data", "end", "close", "error" };
+						auto local = std::vector < std::string > { "data", "end", "close" };
 						return base::impl::append_vector( local, EventEmitter::valid_events( ) );
 					}();
 					return result;
 				}
+
+				StreamReadable& StreamReadable::on_close( std::function<void( )> listener ) { return *this; }
 
 				std::vector<std::string> const & StreamWritable::valid_events( ) const {
 					static auto const result = [&]( ) {
-						auto local = std::vector < std::string > { "drain", "finish", "pipe", "unpipe", "error" };
+						auto local = std::vector < std::string > { "finish", "pipe", "unpipe" };
 						return base::impl::append_vector( local, EventEmitter::valid_events( ) );
 					}();
 					return result;
 				}
-
-//				StreamWritable::~StreamWritable( ) { }
 
 				std::vector<std::string> const & Stream::valid_events( ) const {
 					static auto const result = [&]( ) {
