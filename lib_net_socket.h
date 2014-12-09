@@ -54,7 +54,6 @@ namespace daw {
 					using match_function_t = std::function < std::pair<match_iterator_t, bool>( match_iterator_t begin, match_iterator_t end ) > ;
 				private:
 					SocketHandle m_socket;
-					//::shared_ptr<base::data_t> m_response_buffer;
 					std::shared_ptr<boost::asio::streambuf> m_response_buffer;
 					std::shared_ptr<base::data_t> m_response_buffers;
 					size_t m_bytes_read;
@@ -71,7 +70,7 @@ namespace daw {
 
 					NetSocket& set_read_mode( ReadUntil mode );
 					ReadUntil const& current_read_mode( ) const;
-					NetSocket& set_read_predicate( match_function_t match_function );
+					NetSocket& set_read_predicate( std::function < std::pair<match_iterator_t, bool>( match_iterator_t begin, match_iterator_t end ) > match_function );
 					NetSocket& clear_read_predicate( );
 
 					NetSocket( );
@@ -130,7 +129,6 @@ namespace daw {
 					NetSocket& on_error( std::function<void(base::Error)> listener );
 					NetSocket& on_end( std::function<void( )> listener );
 					
-
 					template<typename Listener>
 					NetSocket& once( std::string event, Listener listener ) {
 						add_listener( event, listener, true );
@@ -159,6 +157,7 @@ namespace daw {
 
 					NetSocket& destroy( );
 				};
+				
 			}	// namespace net
 		}	// namespace lib
 	}	// namespace nodepp

@@ -68,6 +68,9 @@ namespace daw {
 					
 				};	// class StreamWriteable
 
+				StreamWritable& operator<<(StreamWritable& stream, std::string const & value);
+				StreamWritable& operator<<(StreamWritable& stream, base::data_t const & value);
+
 				//////////////////////////////////////////////////////////////////////////
 				// Summary:		A duplex stream
 				// Requires:	StreamReadable, StreamWritable

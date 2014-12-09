@@ -21,7 +21,7 @@ namespace daw {
 					}
 
 					template<typename Iterator, typename Pred>
-					auto find_all_where( Iterator first, Iterator last, Pred predicate ) -> std::vector < decltype(std::begin( values )) > {
+					auto find_all_where( Iterator first, Iterator last, Pred predicate ) -> std::vector<Iterator> {
 						std::vector<Iterator> results;
 						for( auto it = first; it != last; ++it ) {
 							if( predicate( *it ) ) {
@@ -37,7 +37,7 @@ namespace daw {
 					}					
 
 					bool equal( std::string::const_iterator first, std::string::const_iterator last, std::string const & value ) {
-						if( std::distance( first, last ) != value.size( ) ) {
+						if( static_cast<size_t>( std::distance( first, last ) ) != value.size( ) ) {
 							return false;
 						}
 						for( std::string::size_type offset = 0; offset < value.size( ); ++offset ) {
@@ -148,8 +148,15 @@ namespace daw {
 					return result;
 				}
 
+
+
 				void HttpServer::handle_connection( std::shared_ptr<lib::net::NetSocket> socket_ptr ) {
+					using match_iterator_t = lib::net::NetSocket::match_iterator_t;
 					socket_ptr->write( "Go Away\r\n\r\n" );
+					socket_ptr->set_read_predicate( []( match_iterator_t begin, match_iterator_t end ) {						
+						auto it = std::find( begin, end, "\r\n\r\n" );
+						return std::make_pair( it, it != end );
+					} );
 					socket_ptr->on_data( []( std::shared_ptr<daw::nodepp::base::data_t> data_buffer, bool ) {
 						std::string buff( data_buffer->begin( ), data_buffer->end( ) );
 						std::cout << buff;
@@ -159,7 +166,7 @@ namespace daw {
 				}
 
 				void HttpServer::handle_error( base::Error error ) {
-					auto err = base::Error( "Error from NetServer" ).set_child( error );
+					auto err = base::Error( "Child error" ).add( "where", "HttpServer::handle_error" ).set_child( error );
 					emit( "error", err );
 				}
 

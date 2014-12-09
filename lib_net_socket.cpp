@@ -342,8 +342,17 @@ namespace daw {
 				StreamWritable& NetSocket::pipe( StreamWritable& destination ) { throw std::runtime_error( "Method not implemented" ); }
 				StreamWritable& NetSocket::pipe( StreamWritable& destination, base::options_t options ) { throw std::runtime_error( "Method not implemented" ); }
 				NetSocket& NetSocket::unpipe( StreamWritable& destination ) { throw std::runtime_error( "Method not implemented" ); }
-				NetSocket& NetSocket::unshift( base::data_t const & chunk ) { throw std::runtime_error( "Method not implemented" ); }
-				
+				NetSocket& NetSocket::unshift( base::data_t const & chunk ) { throw std::runtime_error( "Method not implemented" ); }				
+			
+
+				NetSocket& operator<<(NetSocket& net_socket, std::string const & value ) {
+					return net_socket.write( value );
+				}
+
+				NetSocket& operator<<(NetSocket& net_socket, base::data_t const & value) {
+					return net_socket.write( value );
+				}
+
 			}	// namespace net
 		}	// namespace lib
 	}	// namespace nodepp

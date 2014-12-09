@@ -34,6 +34,15 @@ namespace daw {
 					}();
 					return result;
 				}
+
+				StreamWritable& operator<<(StreamWritable& stream, std::string const & value) {
+					return stream.write( value, base::Encoding( ) );
+				}
+
+				StreamWritable& operator<<(StreamWritable& stream, base::data_t const & value) {
+					return stream.write( value );
+				}
+
 			}	// namespace stream
 		}	// namespace base
 	}	// namespace nodepp
