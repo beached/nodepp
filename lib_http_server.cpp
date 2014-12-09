@@ -42,8 +42,8 @@ namespace daw {
 						if( static_cast<size_t>( std::distance( first, last ) ) != value.size( ) ) {
 							return false;
 						}
-						for( auto off = 0; off < value.size( ); ++off ) {
-							if( value[off] != *(first + off) ) {
+						for( size_t off = 0; off < value.size( ); ++off ) {
+							if( value[off] != *(first + static_cast<std::ptrdiff_t>( off ) ) ) {
 								return false;
 							}
 						}
@@ -159,7 +159,7 @@ namespace daw {
 
 				template<typename Iterator>
 				Iterator find_buff( Iterator first, Iterator last, std::string const & key ) {
-					auto it = advance( first, last, key.size( ) );
+					auto it = advance( first, last, static_cast<typename Iterator::difference_type>( key.size( ) ) );
 					if( it == last ) {
 						return last;
 					}
