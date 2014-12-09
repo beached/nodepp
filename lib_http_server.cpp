@@ -65,11 +65,11 @@ namespace daw {
 					return *this;
 				}
 
-				HttpServer& HttpServer::listen( uint16_t port, std::string hostname, uint16_t backlog ) { throw std::runtime_error( "Method not implemented" ); }
+				HttpServer& HttpServer::listen( uint16_t, std::string, uint16_t ) { throw std::runtime_error( "Method not implemented" ); }
 
-				HttpServer& HttpServer::listen( std::string path ) { throw std::runtime_error( "Method not implemented" ); }
+				HttpServer& HttpServer::listen( std::string ) { throw std::runtime_error( "Method not implemented" ); }
 
-				HttpServer& HttpServer::listen( base::ServiceHandle handle ) { throw std::runtime_error( "Method not implemented" ); }
+				HttpServer& HttpServer::listen( base::ServiceHandle ) { throw std::runtime_error( "Method not implemented" ); }
 
 
 				size_t& HttpServer::max_header_count( ) { throw std::runtime_error( "Method not implemented" ); }

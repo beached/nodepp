@@ -208,7 +208,8 @@ namespace daw {
 				}
 
 				NetSocket& NetSocket::on_pipe( std::function<void( StreamReadable& )> listener ) { throw std::runtime_error( "Method not implemented" ); }
-				NetSocket& NetSocket::on_unpipe( std::function<void( StreamReadable& )> listener ) { throw std::runtime_error( "Method not implemented" ); }
+
+				NetSocket& NetSocket::on_unpipe( std::function<void( base::stream::StreamReadable& )> listener ) { throw std::runtime_error( "Method not implemented" ); }
 
 
 				NetSocket& NetSocket::once_connect( std::function<void( )> listener ) {
@@ -241,8 +242,8 @@ namespace daw {
 					return *this;
 				}
 
-				NetSocket& NetSocket::once_pipe( std::function<void( StreamReadable& )> listener ) { throw std::runtime_error( "Method not implemented" ); }
-				NetSocket& NetSocket::once_unpipe( std::function<void( StreamReadable& )> listener ) { throw std::runtime_error( "Method not implemented" ); }
+				NetSocket& NetSocket::once_pipe( std::function<void( base::stream::StreamReadable& )> listener ) { throw std::runtime_error( "Method not implemented" ); }
+				NetSocket& NetSocket::once_unpipe( std::function<void( base::stream::StreamReadable& )> listener ) { throw std::runtime_error( "Method not implemented" ); }
 
 				NetSocket& NetSocket::connect( std::string host, uint16_t port ) {
 					tcp::resolver resolver( base::ServiceHandle::get( ) );
@@ -326,7 +327,7 @@ namespace daw {
 					return write( impl::write_buffer( chunk ) );
 				}
 				
-				NetSocket& NetSocket::write( std::string const & chunk, base::Encoding const & encoding ) { 
+				NetSocket& NetSocket::write( std::string const & chunk, base::Encoding const & ) { 
 					return write( impl::write_buffer( chunk ) );
 				}
 
@@ -351,9 +352,9 @@ namespace daw {
 					emit( "close" );
 				}
 				
-				NetSocket& NetSocket::set_timeout( int32_t value ) { throw std::runtime_error( "Method not implemented" ); }
-				NetSocket& NetSocket::set_no_delay( bool no_delay ) { throw std::runtime_error( "Method not implemented" ); }
-				NetSocket& NetSocket::set_keep_alive( bool keep_alive, int32_t initial_delay ) { throw std::runtime_error( "Method not implemented" ); }
+				NetSocket& NetSocket::set_timeout( int32_t ) { throw std::runtime_error( "Method not implemented" ); }
+				NetSocket& NetSocket::set_no_delay( bool ) { throw std::runtime_error( "Method not implemented" ); }
+				NetSocket& NetSocket::set_keep_alive( bool, int32_t ) { throw std::runtime_error( "Method not implemented" ); }
 
 				NetSocket& NetSocket::unref( ) { throw std::runtime_error( "Method not implemented" ); }
 				NetSocket& NetSocket::ref( ) { throw std::runtime_error( "Method not implemented" ); }
@@ -392,8 +393,8 @@ namespace daw {
 					return *result;
 				}
 
-				base::data_t  NetSocket::read( size_t bytes ) { throw std::runtime_error( "Method not implemented" ); }
-				NetSocket& NetSocket::set_encoding( base::Encoding const & encoding ) { throw std::runtime_error( "Method not implemented" ); }
+				base::data_t  NetSocket::read( size_t ) { throw std::runtime_error( "Method not implemented" ); }
+				NetSocket& NetSocket::set_encoding( base::Encoding const & ) { throw std::runtime_error( "Method not implemented" ); }
 				
 				
 				NetSocket& NetSocket::resume( ) { throw std::runtime_error( "Method not implemented" ); }
@@ -401,10 +402,10 @@ namespace daw {
 
 				using base::stream::StreamWritable;
 
-				StreamWritable& NetSocket::pipe( StreamWritable& destination ) { throw std::runtime_error( "Method not implemented" ); }
-				StreamWritable& NetSocket::pipe( StreamWritable& destination, base::options_t options ) { throw std::runtime_error( "Method not implemented" ); }
-				NetSocket& NetSocket::unpipe( StreamWritable& destination ) { throw std::runtime_error( "Method not implemented" ); }
-				NetSocket& NetSocket::unshift( base::data_t const & chunk ) { throw std::runtime_error( "Method not implemented" ); }				
+				StreamWritable& NetSocket::pipe( StreamWritable& ) { throw std::runtime_error( "Method not implemented" ); }
+				StreamWritable& NetSocket::pipe( StreamWritable&, base::options_t ) { throw std::runtime_error( "Method not implemented" ); }
+				NetSocket& NetSocket::unpipe( StreamWritable& ) { throw std::runtime_error( "Method not implemented" ); }
+				NetSocket& NetSocket::unshift( base::data_t const & ) { throw std::runtime_error( "Method not implemented" ); }				
 			
 
 				NetSocket& operator<<(NetSocket& net_socket, std::string const & value ) {

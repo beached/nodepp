@@ -92,14 +92,14 @@ namespace daw {
 					start_accept( );
 					return *this;
 				}
-				NetServer& NetServer::listen( uint16_t port, std::string hostname, uint16_t backlog ) { throw std::runtime_error( "Method not implemented" ); }
-				NetServer& NetServer::listen( std::string socket_path ) { throw std::runtime_error( "Method not implemented" ); }
-				NetServer& NetServer::listen( SocketHandle handle ) { throw std::runtime_error( "Method not implemented" ); }
+				NetServer& NetServer::listen( uint16_t, std::string hostname, uint16_t ) { throw std::runtime_error( "Method not implemented" ); }
+				NetServer& NetServer::listen( std::string ) { throw std::runtime_error( "Method not implemented" ); }
+				NetServer& NetServer::listen( SocketHandle ) { throw std::runtime_error( "Method not implemented" ); }
 				NetServer& NetServer::close( ) { throw std::runtime_error( "Method not implemented" ); }
 				daw::nodepp::lib::net::NetAddress const & NetServer::address( ) const { throw std::runtime_error( "Method not implemented" ); }
 				NetServer& NetServer::unref( ) { throw std::runtime_error( "Method not implemented" ); }
 				NetServer& NetServer::ref( ) { throw std::runtime_error( "Method not implemented" ); }
-				NetServer& NetServer::set_max_connections( uint16_t value ) { throw std::runtime_error( "Method not implemented" ); }
+				NetServer& NetServer::set_max_connections( uint16_t ) { throw std::runtime_error( "Method not implemented" ); }
 				NetServer& NetServer::get_connections( std::function<void( base::Error err, uint16_t count )> callback ) { throw std::runtime_error( "Method not implemented" ); }
 
 

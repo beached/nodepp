@@ -41,15 +41,15 @@ namespace daw {
 				}
 
 				 base::data_t HttpIncomingRequest::read( ) { throw std::runtime_error( "Method not implemented" ); }
-				 base::data_t HttpIncomingRequest::read( size_t bytes ) { throw std::runtime_error( "Method not implemented" ); }
+				 base::data_t HttpIncomingRequest::read( size_t ) { throw std::runtime_error( "Method not implemented" ); }
 
-				 HttpIncomingRequest& HttpIncomingRequest::set_encoding( base::Encoding const & encoding ) { throw std::runtime_error( "Method not implemented" ); }
+				 HttpIncomingRequest& HttpIncomingRequest::set_encoding( base::Encoding const & ) { throw std::runtime_error( "Method not implemented" ); }
 				 HttpIncomingRequest& HttpIncomingRequest::resume( ) { throw std::runtime_error( "Method not implemented" ); }
 				 HttpIncomingRequest& HttpIncomingRequest::pause( ) { throw std::runtime_error( "Method not implemented" ); }
-				 base::stream::StreamWritable& HttpIncomingRequest::pipe( base::stream::StreamWritable& destination ) { throw std::runtime_error( "Method not implemented" ); }
-				 base::stream::StreamWritable& HttpIncomingRequest::pipe( base::stream::StreamWritable& destination, base::options_t options ) { throw std::runtime_error( "Method not implemented" ); }
-				 HttpIncomingRequest& HttpIncomingRequest::unpipe( base::stream::StreamWritable& destination ) { throw std::runtime_error( "Method not implemented" ); }
-				 HttpIncomingRequest& HttpIncomingRequest::unshift( base::data_t const & chunk ) { throw std::runtime_error( "Method not implemented" ); }
+				 base::stream::StreamWritable& HttpIncomingRequest::pipe( base::stream::StreamWritable& ) { throw std::runtime_error( "Method not implemented" ); }
+				 base::stream::StreamWritable& HttpIncomingRequest::pipe( base::stream::StreamWritable& , base::options_t ) { throw std::runtime_error( "Method not implemented" ); }
+				 HttpIncomingRequest& HttpIncomingRequest::unpipe( base::stream::StreamWritable& ) { throw std::runtime_error( "Method not implemented" ); }
+				 HttpIncomingRequest& HttpIncomingRequest::unshift( base::data_t const & ) { throw std::runtime_error( "Method not implemented" ); }
 
 			}	// namespace http
 		}	// namespace lib

@@ -35,7 +35,7 @@ int main( int, char const ** ) {
 	
 	auto server = lib::http::HttpServer( );
 	
-	server.on_listening( [&]( lib::http::HttpClientRequest request, lib::http::HttpServerResponse response ) {
+	server.on_listening( [&]( lib::http::HttpClientRequest, lib::http::HttpServerResponse response ) {
 		response.write_head( 200, "", { { "Content-Type", "text/plain" } } );
 		response.end( "Hello World" );
 	} );
