@@ -10,7 +10,7 @@ namespace daw {
 			namespace http {
 				using namespace daw::nodepp;
 				using http_status_code_t = std::pair<uint16_t, std::string>;
-				std::pair<uint16_t, std::string> const & HttpStatusCodes( uint16_t code );				
+				std::pair<uint16_t, std::string> const & HttpStatusCodes( uint16_t code );
 			}	// namespace http
 		}	// namespace lib
 	}	// namespace nodepp

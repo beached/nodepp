@@ -26,7 +26,9 @@ namespace daw {
 					bool is_chunk;
 					std::shared_ptr<HttpServerResponse> next;
 
-					HttpServerResponse( ) : version( 1, 1 ), status( HttpStatusCodes( 200 ) ), body( ), is_chunk( false ), next( ) { }
+
+
+					HttpServerResponse( );
 
 					HttpServerResponse& write( base::data_t data );
 					HttpServerResponse& write( std::string data, base::Encoding encoding = base::Encoding( ) );

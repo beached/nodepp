@@ -23,25 +23,45 @@ namespace daw {
 				HttpHeaders::HttpHeaders( ) : headers( ) { }
 				HttpHeaders::HttpHeaders( std::initializer_list<HttpHeader> values ) : headers( std::begin( values ), std::end( values ) ) { }
 
-				std::vector<HttpHeader>::iterator HttpHeaders::find( std::string const & name ) {
-					auto it = std::find_if( std::begin( headers ), std::end( headers ), [&name]( HttpHeader const & item ) {
-						return 0 == name.compare( item.name );
+				std::vector<HttpHeader>::iterator HttpHeaders::find( std::string const & header_name ) {
+					auto it = std::find_if( std::begin( headers ), std::end( headers ), [&header_name]( HttpHeader const & item ) {
+						return 0 == header_name.compare( item.name );
 					} );					
 					return it;
 				}
 
-				std::string const& HttpHeaders::operator[]( std::string const & name ) {
-					return find( name )->value;
+				std::vector<HttpHeader>::const_iterator HttpHeaders::find( std::string const & header_name ) const {
+					auto it = std::find_if( std::begin( headers ), std::end( headers ), [&header_name]( HttpHeader const & item ) {
+						return 0 == header_name.compare( item.name );
+					} );
+					return it;
 				}
 
-				std::string const& HttpHeaders::at( std::string const& name ) {
-					auto it = HttpHeaders::find( name );
+
+				std::string const& HttpHeaders::operator[]( std::string const & header_name ) const {
+					return find( header_name )->value;
+				}
+
+				std::string & HttpHeaders::operator[]( std::string const & header_name ) {
+					return find( header_name )->value;
+				}
+
+				std::string const& HttpHeaders::at( std::string const& heaer_name ) const {
+					auto it = HttpHeaders::find( header_name );
 					if( it != std::end( headers )  ) {
 						return it->value;						
 					}
-					throw std::out_of_range( name + " is not a valid header" );
-					
+					throw std::out_of_range( header_name + " is not a valid header" );
 				}
+
+				std::string & HttpHeaders::at( std::string const& heaer_name ) {
+					auto it = HttpHeaders::find( header_name );
+					if( it != std::end( headers ) ) {
+						return it->value;
+					}
+					throw std::out_of_range( header_name + " is not a valid header" );
+				}
+
 
 			}	// namespace http
 		}	// namespace lib

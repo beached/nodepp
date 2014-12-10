@@ -31,11 +31,14 @@ namespace daw {
 						
 					}
 
-					std::vector<HttpHeader>::iterator find( std::string const & name );
+					std::vector<HttpHeader>::iterator find( std::string const & header_name );
+					std::vector<HttpHeader>::const_iterator find( std::string const & header_name ) const;
 
-					std::string const& operator[]( std::string const & name );
+					std::string const& operator[]( std::string const & header_name ) const;
+					std::string & operator[]( std::string const & header_name );
 
-					std::string const& at( std::string const & name );
+					std::string const& at( std::string const & header_name ) const;
+					std::string & at( std::string const & header_name );
 				};
 			}	// namespace http
 		}	// namespace lib
