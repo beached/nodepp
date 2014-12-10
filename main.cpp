@@ -35,9 +35,10 @@ int main( int, char const ** ) {
 	
 	//auto server = lib::http::HttpServer( );
 	
-	auto server = lib::http::HttpServer( ).on_listening( [&]( lib::http::HttpClientRequest, lib::http::HttpServerResponse response ) {
-		response.write_head( 200, "", { { "Content-Type", "text/plain" } } );
-		response.end( "Hello World" );
+	auto server = lib::http::HttpServer( ).on_listening( [&]( lib::http::HttpClientRequest, lib::http::HttpServerResponse& response ) {
+		response.status = lib::http::HttpStatusCodes( 200 );
+		response.headers["Content-Type"] = "text/plain";
+		response.write( "Hello World" );
 	} );
 	
 	server.listen( 8080 );

@@ -70,13 +70,13 @@ namespace daw {
 						throw std::runtime_error( "Method not implemented" );
 					}					
 					
-					HttpServer& on_listening( std::function<void( HttpClientRequest, HttpServerResponse )> listener );
-					HttpServer& once_listening( std::function<void( HttpClientRequest, HttpServerResponse )> listener );
+					HttpServer& on_listening( std::function<void( HttpClientRequest, HttpServerResponse& )> listener );
+					HttpServer& once_listening( std::function<void( HttpClientRequest, HttpServerResponse& )> listener );
 
 					size_t timeout( ) const;
 				};	// class Server
 
-				HttpServer& create_server( std::function<void( HttpClientRequest, HttpServerResponse )> listener );
+				HttpServer& create_server( std::function<void( HttpClientRequest, HttpServerResponse& )> listener );
 			}	// namespace http
 		}	// namespace lib
 	}	// namespace nodepp

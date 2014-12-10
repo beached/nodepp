@@ -41,13 +41,10 @@ namespace daw {
 				}
 
 				void HttpServer::handle_connection( std::shared_ptr<lib::net::NetSocket> socket_ptr ) {
-					socket_ptr->set_read_until_values( R"((\r\n|\n){2})", true )
-						.on_data( [&, socket_ptr]( std::shared_ptr<daw::nodepp::base::data_t> data_buffer, bool is_eof ) mutable {
-							auto it = m_connections.emplace( m_connections.end( ), data_buffer, is_eof, socket_ptr );
-							it->once_close( [&, it]( ) mutable {
-								m_connections.erase( it );
-							} );
-					} ).read_async( );
+					auto it = m_connections.emplace( m_connections.end( ), socket_ptr );
+					it->once_close( [&, it]( ) {
+						m_connections.erase( it );
+					} );
 				}
 
 				void HttpServer::handle_error( base::Error error ) {
@@ -56,7 +53,7 @@ namespace daw {
 				}
 
 				HttpServer& HttpServer::listen( uint16_t port ) {
-					m_netserver.once_connection( [&]( std::shared_ptr<lib::net::NetSocket> socket_ptr ) {
+					m_netserver.on_connection( [&]( std::shared_ptr<lib::net::NetSocket> socket_ptr ) {
 						handle_connection( socket_ptr );
 					} ).on_error( std::bind( &HttpServer::handle_error, this, std::placeholders::_1 ) )
 						.listen( port );
@@ -75,16 +72,16 @@ namespace daw {
 
 				size_t HttpServer::timeout( ) const { throw std::runtime_error( "Method not implemented" ); }
 
-				HttpServer& HttpServer::on_listening( std::function<void( HttpClientRequest, HttpServerResponse )> listener ) {
+				HttpServer& HttpServer::on_listening( std::function<void( HttpClientRequest, HttpServerResponse& )> listener ) {
 					add_listener( "listening", listener, false );
 					return *this;
 				}
-				HttpServer& HttpServer::once_listening( std::function<void( HttpClientRequest, HttpServerResponse )> listener ) {
+				HttpServer& HttpServer::once_listening( std::function<void( HttpClientRequest, HttpServerResponse& )> listener ) {
 					add_listener( "listening", listener, true );
 					return *this;
 				}
 
-				HttpServer& create_server( std::function<void( HttpClientRequest, HttpServerResponse )> listener ) {
+				HttpServer& create_server( std::function<void( HttpClientRequest, HttpServerResponse& )> listener ) {
 					return HttpServer( ).on_listening( listener );
 				}
 			} // namespace http

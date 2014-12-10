@@ -163,7 +163,6 @@
     <ClInclude Include="base_enoding.h" />
     <ClInclude Include="base_event_emitter.h" />
     <ClInclude Include="lib_http.h" />
-    <ClInclude Include="lib_http_chunk.h" />
     <ClInclude Include="lib_http_client_request.h" />
     <ClInclude Include="lib_http_connection.h" />
     <ClInclude Include="lib_http_headers.h" />

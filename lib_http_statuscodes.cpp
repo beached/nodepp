@@ -2,14 +2,16 @@
 #include <cstdint>
 #include <map>
 #include <string>
+#include <utility>
+
 #include "lib_http.h"
 
 namespace daw {
 	namespace nodepp {
 		namespace lib {
 			namespace http {
-				std::map<uint16_t, std::string> const & status_codes( ) {
-					static std::map<uint16_t, std::string> const result = {	
+				std::pair<uint16_t, std::string> HttpStatusCodes( uint16_t code ) {
+					static std::map<uint16_t, std::string> const status_codes = {	
 							{ 100, "Continue" },
 							{ 101, "Switching Protocols" },
 							{ 102, "Processing" },
@@ -68,7 +70,7 @@ namespace daw {
 							{ 510, "Not Extended" },
 							{ 511, "Network Authentication Required" }
 						};
-						return result;
+					return *status_codes.find( code )
 				}
 			}	// namespace http
 		}	// namespace lib

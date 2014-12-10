@@ -23,7 +23,13 @@ namespace daw {
 
 					HttpHeaders( );
 					HttpHeaders( std::initializer_list<HttpHeader> values );
-
+					
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: A data buffer representing the data from an http request
+					template<typename Iterator>
+					HttpHeaders( Iterator first, Iterator laset ) {
+						
+					}
 
 					std::vector<HttpHeader>::iterator find( std::string const & name );
 
