@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <string>
 
 #include "base_enoding.h"
@@ -18,17 +19,13 @@ namespace daw {
 				using namespace daw::nodepp;
 				//////////////////////////////////////////////////////////////////////////
 				// Summary:	Contains the data needed to respond to a client request				
-				struct HttpServerResponse {	// TODO inherit from StreamWriter
-					HttpVersion version;
-					HttpHeaders headers;
-					http_status_code_t status;
-					base::data_t body;
-					bool is_chunk;
-					std::shared_ptr<HttpServerResponse> next;
-
-
-
-					HttpServerResponse( );
+				class HttpServerResponse {	// TODO inherit from StreamWriter
+					HttpVersion m_version;
+					HttpHeaders m_headers;
+					http_status_code_t m_status;
+					base::data_t m_body;
+				public:
+					HttpServerResponse( uint16_t status_code = 200 );
 
 					HttpServerResponse& write( base::data_t data );
 					HttpServerResponse& write( std::string data, base::Encoding encoding = base::Encoding( ) );
@@ -38,7 +35,9 @@ namespace daw {
 						next = std::make_shared<HttpServerResponse>( std::forward<Args>( args )... );
 						return *next;
 					}
-
+					void send_status( );
+					void send_headers( );
+					void send_body( );
 					void clear_body( );
 				};	// struct ServerResponse			
 			}	// namespace http

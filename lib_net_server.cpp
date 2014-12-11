@@ -23,17 +23,13 @@ namespace daw {
 					void emit_error( NetServer* const net_server, boost::system::error_code const & err, std::string where ) {
 						auto error = base::Error( err );
 						error.add( "where", where );
-						base::ServiceHandle::get( ).post( [net_server, error]( ) {
-							net_server->emit( "error", error );
-						} );
+						net_server->emit( "error", error );
 					}
 
 					void emit_error( NetServer* const net_server, std::exception_ptr err, std::string where ) {
 						auto error = base::Error( "Exception Caught", err );
 						error.add( "where", where );
-						base::ServiceHandle::get( ).post( [net_server, error]( ) {
-							net_server->emit( "error", error );
-						} );
+						net_server->emit( "error", error );
 					}
 				}	// namespace anonymous
 
@@ -90,6 +86,7 @@ namespace daw {
 					m_acceptor->bind( endpoint );
 					m_acceptor->listen( );
 					start_accept( );
+					emit( "listening", endpoint );
 					return *this;
 				}
 				NetServer& NetServer::listen( uint16_t, std::string hostname, uint16_t ) { throw std::runtime_error( "Method not implemented" ); }
@@ -115,13 +112,8 @@ namespace daw {
 					return *this;
 				}
 
-				NetServer& NetServer::on_listening( std::function<void( )> listener ) {
+				NetServer& NetServer::on_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener ) {
 					add_listener( "listening", listener );
-					return *this;
-				}
-
-				NetServer& NetServer::on_close( std::function<void( )> listener ) {
-					add_listener( "close", listener );
 					return *this;
 				}
 

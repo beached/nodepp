@@ -46,7 +46,7 @@ namespace daw {
 					return find( header_name )->value;
 				}
 
-				std::string const& HttpHeaders::at( std::string const& heaer_name ) const {
+				std::string const& HttpHeaders::at( std::string const& header_name ) const {
 					auto it = HttpHeaders::find( header_name );
 					if( it != std::end( headers )  ) {
 						return it->value;						
@@ -54,7 +54,7 @@ namespace daw {
 					throw std::out_of_range( header_name + " is not a valid header" );
 				}
 
-				std::string & HttpHeaders::at( std::string const& heaer_name ) {
+				std::string & HttpHeaders::at( std::string const& header_name ) {
 					auto it = HttpHeaders::find( header_name );
 					if( it != std::end( headers ) ) {
 						return it->value;

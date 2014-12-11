@@ -7,6 +7,7 @@
 #include <utility>
 #include <vector>
 #include "base_callback.h"
+#include "base_service_handle.h"
 #include "base_error.h"
 #include "range_algorithm.h"
 
@@ -42,7 +43,7 @@ namespace daw {
 				bool at_max_listeners( std::string event );
 				listeners_t & listeners( );
 				listeners_t const & listeners( ) const;
-				bool event_is_valid( std::string const & event ) const;		
+				bool event_is_valid( std::string const & event ) const;
 			public:
 				using callback_id_t = Callback::id_t;
 			protected:
@@ -50,7 +51,9 @@ namespace daw {
 				callback_id_t add_listener( std::string event, Listener listener, bool run_once = false ) {
 					if( !at_max_listeners( event ) ) {
 						auto callback = Callback( listener );
-						emit( "newListener", event, callback );
+						if( event != "newListener" ) {
+							emit( "newListener", event, callback );
+						}
 						listeners( )[event].emplace_back( run_once, callback );
 						return callback.id( );
 					} else {
@@ -109,15 +112,21 @@ namespace daw {
 				template<typename... Args>
 				void emit( std::string event, Args&&... args ) {
 					assert( daw::algorithm::contains( this->valid_events( ), event ) );
-					for( auto& callback : listeners( )[event] ) {
-						if( !callback.second.empty( ) ) {
-							callback.second.exec( std::forward<Args>( args )... );
+//					base::ServiceHandle::get( ).post( [&]( ) {						
+						for( auto& callback : listeners( )[event] ) {
+							if( !callback.second.empty( ) ) {
+									callback.second.exec( std::forward<Args>( args )... );							
+							}
 						}
-					}
-					daw::algorithm::erase_remove_if( listeners( )[event], []( std::pair<bool, Callback> const & item ) {
-						return item.first;
-					} );
+						daw::algorithm::erase_remove_if( listeners( )[event], []( std::pair<bool, Callback> const & item ) {
+							return item.first;
+						} );
+//					} );
 				}				
+
+				void run( ) { 
+					base::ServiceHandle::get( ).run( );
+				}
 
 			};	// class EventEmitter
 

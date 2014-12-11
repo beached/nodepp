@@ -110,25 +110,19 @@ namespace daw {
 					void emit_error( NetSocket* const net_socket, boost::system::error_code const & err, std::string where ) {
 						auto error = base::Error( err );
 						error.add( "where", where );
-						base::ServiceHandle::get( ).post( [net_socket, error]( ) {
-							net_socket->emit( "error", error );
-						} );
+						net_socket->emit( "error", error );
 					}
 
 					void emit_data( NetSocket* const net_socket, std::shared_ptr<base::data_t> buffer, bool end_of_file ) {
-						base::ServiceHandle::get( ).post( [net_socket, buffer, end_of_file]( ) mutable {
-							net_socket->emit( "data", buffer, end_of_file );
-							if( end_of_file ) {
-								net_socket->emit( "end" );
-							}
-						} );
+						net_socket->emit( "data", buffer, end_of_file );
+						if( end_of_file ) {
+							net_socket->emit( "end" );
+						}
 					}
 
 					void connect_handler( NetSocket* const net_socket, boost::system::error_code const & err, tcp::resolver::iterator it ) {
 						if( !err ) {
-							base::ServiceHandle::get( ).post( [net_socket]( ) {
-								net_socket->emit( "connect" );
-							} );
+							net_socket->emit( "connect" );
 						} else {
 							emit_error( net_socket, err, "NetSocket::connect" );
 						}

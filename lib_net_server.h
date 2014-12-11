@@ -65,12 +65,7 @@ namespace daw {
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when the server is bound after calling 
 					/// listen( ... )
-					NetServer& on_listening( std::function<void( )> listener );
-
-					//////////////////////////////////////////////////////////////////////////
-					/// Summary: Event emitted when the server closes and all connections 
-					/// are closed
-					NetServer& on_close( std::function<void( )> listener );
+					NetServer& on_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener );
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when an error occurs

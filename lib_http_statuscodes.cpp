@@ -10,7 +10,7 @@ namespace daw {
 	namespace nodepp {
 		namespace lib {
 			namespace http {
-				std::pair<uint16_t, std::string> const & HttpStatusCodes( uint16_t code ) {
+				std::pair<uint16_t, std::string> HttpStatusCodes( uint16_t code ) {
 					static std::map<uint16_t, std::string> const status_codes = {
 						{ 100, "Continue" },
 						{ 101, "Switching Protocols" },
@@ -69,8 +69,8 @@ namespace daw {
 						{ 508, "Loop Detected" },
 						{ 510, "Not Extended" },
 						{ 511, "Network Authentication Required" }
-					}
-					return *(status_codes.find( code ));
+					};
+					return std::make_pair( code, status_codes.at( code ) );
 				}
 			}	// namespace http
 		}	// namespace lib

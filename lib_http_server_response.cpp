@@ -14,18 +14,20 @@ namespace daw {
 			namespace http {
 				using namespace daw::nodepp;
 
-				HttpServerResponse::HttpServerResponse( ) : version( 1, 1 ), status( HttpStatusCodes( 200 ) ), body( ), is_chunk( false ), next( ) { }
+				HttpServerResponse::HttpServerResponse( uint16_t code ) : m_version( 1, 1 ), m_status( HttpStatusCodes( code ) ), m_body( ), m_headers( ) { }
 
 				HttpServerResponse& HttpServerResponse::write( base::data_t data ) {
-					body.insert( std::end( body ), std::begin( data ), std::end( data ) );
+					m_body.insert( std::end( m_body ), std::begin( data ), std::end( data ) );
+					return *this;
 				}
 
-				HttpServerResponse& HttpServerResponse::write( std::string data, base::Encoding encoding = base::Encoding( ) ) { 
-					body.insert( std::end( body ), std::begin( data ), std::end( data ) );
+				HttpServerResponse& HttpServerResponse::write( std::string data, base::Encoding encoding ) { 
+					m_body.insert( std::end( m_body ), std::begin( data ), std::end( data ) );
+					return *this;
 				}
 
 				void HttpServerResponse::clear_body( ) {
-					body.clear( );
+					m_body.clear( );
 				}
 
 			}	// namespace http

@@ -14,7 +14,7 @@ namespace daw {
 					std::pair<uint8_t, uint8_t> parse_string( std::string const & version ) {
 						int major, minor;
 						std::istringstream iss( version );
-						iss >> major >> minor;
+						iss >> major >> minor;	// TODO fix, doesn't account for . but assumes whitespace
 						if( major < 0 && major > std::numeric_limits<uint8_t>::max( ) ) {
 							throw std::invalid_argument( "Major version is out of range: " + version );
 						} else if( minor < 0 && minor > std::numeric_limits<uint8_t>::max( ) ) {
@@ -40,11 +40,17 @@ namespace daw {
 					return m_version.second;
 				}
 
-				HttpVersion::HttpVersion( ) : m_version( 1, 1 ) { }
+				HttpVersion::HttpVersion( ) : m_version( 0, 0 ), m_is_valid( false ) { }
 
-				HttpVersion::HttpVersion( uint8_t const & Major, uint8_t const & Minor ) : m_version( Major, Minor ) { }
+				HttpVersion::HttpVersion( uint8_t const & Major, uint8_t const & Minor ) : m_version( Major, Minor ), m_is_valid( true ) { }
 
-				HttpVersion::HttpVersion( std::string const & version ) : m_version( parse_string( version ) ) { }
+				HttpVersion::HttpVersion( std::string const & version ) : m_version( 0, 0 ), m_is_valid( true ) { 
+					try {
+						m_version = parse_string( version );
+					} catch( std::exception const & ) {
+						m_is_valid = false;
+					}
+				}
 
 				HttpVersion& HttpVersion::operator=(std::string const & version) {
 					m_version = parse_string( version );
@@ -57,6 +63,10 @@ namespace daw {
 
 				HttpVersion::operator std::string( ) const {
 					return to_string( );
+				}
+
+				bool HttpVersion::is_valid( ) const {
+					return m_is_valid;
 				}
 			}	// namespace http
 		}	// namespace lib

@@ -44,7 +44,7 @@ namespace daw {
 					base::Url & url( );
 
 					uint16_t& status( );
-					uint16_t const & status( ) const;
+					uint16_t const & status( ) const;					
 
 					std::shared_ptr<lib::net::NetSocket> & socket( );
 					std::shared_ptr<lib::net::NetSocket> const & socket( ) const;

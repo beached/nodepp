@@ -200,7 +200,7 @@ namespace daw {
 	template<typename T> 
 	void copy_vect_and_set( std::vector<T> & source, std::vector<T> & destination, size_t num_items, T const & replacement_value ) {
 		using item_size_t = typename std::vector<T>::difference_type;
-		assert( num_items < static_cast<size_t>( std::numeric_limits<item_size_t>::max( ) ) );
+		assert( num_items < static_cast<size_t>(std::numeric_limits<item_size_t>::max( )) );
 		auto first = std::begin( source );
 		auto last = std::end( source );
 		auto max_dist = std::distance( first, last );
@@ -305,13 +305,13 @@ namespace daw {
 	}
 
 	template<typename CharType>
-	CharType Upper( CharType chr ) {
-		return chr | static_cast<CharType>( 32 );
+	CharType AsciiUpper( CharType chr ) {
+		return chr & ~static_cast<CharType>(32);
 	}
 
 	template<typename CharType>
-	CharType Lower( CharType chr ) {
-		return chr & ~static_cast<CharType>(32);
+	CharType AsciiLower( CharType chr ) {
+		return chr | static_cast<CharType>(32);		
 	}
 
 // 	template<typename Iterator>
@@ -333,7 +333,9 @@ namespace daw {
 			return false;
 		}
 		for( size_t off = 0; off < upper_value.size( ); ++off ) {
-			if( upper_value[off] != daw::Upper( *(first + static_cast<std::ptrdiff_t>(off)) ) ) {
+			auto const & left = upper_value[off];
+			auto const & right = daw::AsciiUpper( *(first + static_cast<std::ptrdiff_t>(off)) );
+			if( left != right  ) {
 				return false;
 			}
 		}

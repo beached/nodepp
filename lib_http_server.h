@@ -70,13 +70,17 @@ namespace daw {
 						throw std::runtime_error( "Method not implemented" );
 					}					
 					
-					HttpServer& on_listening( std::function<void( HttpClientRequest, HttpServerResponse& )> listener );
-					HttpServer& once_listening( std::function<void( HttpClientRequest, HttpServerResponse& )> listener );
+					HttpServer& on_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener );
+					HttpServer& once_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener );
+
+					HttpServer& on_connection( std::function<void( HttpConnection& )> listener );
+					HttpServer& once_connection( std::function<void( HttpConnection& )> listener );
+
+					HttpServer& on_close( std::function<void( )> listener );
+					HttpServer& once_close( std::function<void( )> listener );
 
 					size_t timeout( ) const;
 				};	// class Server
-
-				HttpServer& create_server( std::function<void( HttpClientRequest, HttpServerResponse& )> listener );
 			}	// namespace http
 		}	// namespace lib
 	}	// namespace nodepp

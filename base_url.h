@@ -9,14 +9,16 @@ namespace daw {
 				using namespace daw::nodepp;
 
 				class Url {
-					std::string m_protocol;
-					std::string m_host_name;
-					std::string m_auth_user;
-					std::string m_auth_password;
-					std::string m_port;
-					std::string m_path;
-					std::string m_query;
-					std::string m_hash;
+					std::string m_url;
+					std::pair<uint16_t, uint16_t> m_protocol;					
+					std::pair<uint16_t, uint16_t> m_host_name;
+					std::pair<uint16_t, uint16_t> m_auth_user;
+					std::pair<uint16_t, uint16_t> m_auth_password;
+					std::pair<uint16_t, uint16_t> m_port;
+					std::pair<uint16_t, uint16_t> m_path;
+					std::pair<uint16_t, uint16_t> m_query;
+					std::pair<uint16_t, uint16_t> m_hash;
+					mutable bool m_is_valid;
 				public:
 					Url( ) = default;
 					Url( Url const & ) = default;
@@ -25,10 +27,15 @@ namespace daw {
 					~Url( ) = default;
 
 					Url( std::string const & uri );
-
+					
 					Url( std::string protocol, std::string host_port, std::string request_path );
-					void from_string( std::string const & url );
+					void from_string( std::string url );
 					std::string to_string( ) const;
+					bool is_valid( ) const;
+
+					template<typename Iterator>
+					Url( Iterator first, Iterator last ): m_url( firt, last ) { }
+
 				};
 		}	// namespace base
 	}	// namespace nodepp

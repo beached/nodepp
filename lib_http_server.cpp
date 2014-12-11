@@ -34,7 +34,7 @@ namespace daw {
 
 				std::vector<std::string> const & HttpServer::valid_events( ) const {
 					static auto const result = [&]( ) {
-						std::vector<std::string> local{ "request", "connection", "close", "checkContinue", "connect", "upgrade", "clientError", "listening" };
+						std::vector<std::string> local{ "connection", "close", "listening" };
 						return base::impl::append_vector( local, base::EventEmitter::valid_events( ) );
 					}();
 					return result;
@@ -45,6 +45,7 @@ namespace daw {
 					it->once_close( [&, it]( ) {
 						m_connections.erase( it );
 					} );
+					emit( "connection", *it );
 				}
 
 				void HttpServer::handle_error( base::Error error ) {
@@ -54,9 +55,11 @@ namespace daw {
 
 				HttpServer& HttpServer::listen( uint16_t port ) {
 					m_netserver.on_connection( [&]( std::shared_ptr<lib::net::NetSocket> socket_ptr ) {
-						handle_connection( socket_ptr );
-					} ).on_error( std::bind( &HttpServer::handle_error, this, std::placeholders::_1 ) )
-						.listen( port );
+							handle_connection( socket_ptr );
+						} ).on_error( std::bind( &HttpServer::handle_error, this, std::placeholders::_1 ) )
+						.on_listening( [&]( boost::asio::ip::tcp::endpoint endpoint ) {
+							emit( "listening", endpoint );
+						} ).listen( port );
 					return *this;
 				}
 
@@ -72,17 +75,24 @@ namespace daw {
 
 				size_t HttpServer::timeout( ) const { throw std::runtime_error( "Method not implemented" ); }
 
-				HttpServer& HttpServer::on_listening( std::function<void( HttpClientRequest, HttpServerResponse& )> listener ) {
-					add_listener( "listening", listener, false );
+				HttpServer& HttpServer::on_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener ) {
+					add_listener( "listening", listener );
 					return *this;
 				}
-				HttpServer& HttpServer::once_listening( std::function<void( HttpClientRequest, HttpServerResponse& )> listener ) {
+
+				HttpServer& HttpServer::once_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener ) {
 					add_listener( "listening", listener, true );
 					return *this;
 				}
 
-				HttpServer& create_server( std::function<void( HttpClientRequest, HttpServerResponse& )> listener ) {
-					return HttpServer( ).on_listening( listener );
+				HttpServer& HttpServer::on_connection( std::function<void( HttpConnection& )> listener ) {
+					add_listener( "connection", listener );
+					return *this;
+				}
+
+				HttpServer& HttpServer::once_connection( std::function<void( HttpConnection& )> listener ) {
+					add_listener( "connection", listener, true );
+					return *this;
 				}
 			} // namespace http
 		}	// namespace lib

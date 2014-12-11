@@ -34,16 +34,21 @@ int main( int, char const ** ) {
 	using namespace daw::nodepp;
 	
 	//auto server = lib::http::HttpServer( );
-	
-	auto server = lib::http::HttpServer( ).on_listening( [&]( lib::http::HttpClientRequest, lib::http::HttpServerResponse& response ) {
-		response.status = lib::http::HttpStatusCodes( 200 );
-		response.headers["Content-Type"] = "text/plain";
-		response.write( "Hello World" );
+	auto server = lib::http::HttpServer( );
+	server.on_listening( []( boost::asio::ip::tcp::endpoint endpoint ) {
+		std::cout << "Server listening on " << endpoint << "\n";
+// 		response.status = lib::http::HttpStatusCodes( 200 );
+// 		response.headers["Content-Type"] = "text/plain";
+//		response.write( "Hello World" );
+	} ).on_connection( []( lib::http::HttpConnection & con ) {
+		con.on_requestGet( []( lib::http::HttpClientRequest request, lib::http::HttpServerResponse response ) {
+			std::cout << "GET request";
+		} );
 	} );
 	
 	server.listen( 8080 );
 
-	base::ServiceHandle::get( ).run( );
+	server.run( );
 
 
 //	std::cout << "\n\nRead " << socket.bytes_read( ) << "bytes	Wrote: " << socket.bytes_written( ) << "bytes\n";
