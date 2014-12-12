@@ -28,6 +28,7 @@ namespace daw {
 				}	// namespace request
 
 				std::shared_ptr<request::HttpClientRequest> parse_http_request( unsigned char const * first, unsigned char const * last );
+
 			} // namespace http
 		}	// namespace lib
 	}	// namespace nodepp

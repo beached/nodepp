@@ -3,7 +3,7 @@
 #include <memory>
 
 #include "lib_http_connection.h"
-#include "lib_http_incoming_request.h"
+#include "lib_http_request_parser.h"
 #include "lib_net_socket.h"
 
 namespace daw {
@@ -13,37 +13,37 @@ namespace daw {
 				using namespace daw::nodepp;
 				namespace {
 
-				void err400( std::shared_ptr<lib::net::NetSocket> socket_ptr, request::HttpRequestLine const & req ) {
-					// 400 bad request
-					socket_ptr->write( "HTTP/1.1 400 Bad Request\r\nConnection: close\r\n" );
-					std::stringstream stream;
-					stream << "<html><body><h2>Could not parse request</h2>\r\n";
-					stream << "</body></html>\r\n";
-					auto body_str( stream.str( ) );
-					stream.str( "" );
-					stream.clear( );
-					stream << "Content-Type: text/html\r\n";
-					stream << "Content-Length: " << body_str.size( ) << "\r\n\r\n";
-					socket_ptr->write( stream.str( ) );
-					socket_ptr->end( body_str );
+					void err400( std::shared_ptr<lib::net::NetSocket> socket_ptr, request::HttpRequestLine const & req ) {
+						// 400 bad request
+						socket_ptr->write( "HTTP/1.1 400 Bad Request\r\nConnection: close\r\n" );
+						std::stringstream stream;
+						stream << "<html><body><h2>Could not parse request</h2>\r\n";
+						stream << "</body></html>\r\n";
+						auto body_str( stream.str( ) );
+						stream.str( "" );
+						stream.clear( );
+						stream << "Content-Type: text/html\r\n";
+						stream << "Content-Length: " << body_str.size( ) << "\r\n\r\n";
+						socket_ptr->write( stream.str( ) );
+						socket_ptr->end( body_str );
 
+					}
+
+					void err505( std::shared_ptr<lib::net::NetSocket> socket_ptr ) {
+						socket_ptr->write( "HTTP/1.1 505 HTTP Version Not Supported\r\nConnection: close\r\n" );
+						std::stringstream stream;
+						stream << "<html><body><h2>HTTP Version Not Supported</h2>\r\n";
+						stream << "<div>This server only supports the HTTP/1.1 protocol\r\n";
+						stream << "</body></html>\r\n";
+						auto body_str( stream.str( ) );
+						stream.str( "" );
+						stream.clear( );
+						stream << "Content-Type: text/html\r\n";
+						stream << "Content-Length: " << body_str.size( ) << "\r\n\r\n";
+						socket_ptr->write( stream.str( ) );
+						socket_ptr->end( body_str );
+					}
 				}
-
-				void err505( std::shared_ptr<lib::net::NetSocket> socket_ptr ) {
-					socket_ptr->write( "HTTP/1.1 505 HTTP Version Not Supported\r\nConnection: close\r\n" );
-					std::stringstream stream;
-					stream << "<html><body><h2>HTTP Version Not Supported</h2>\r\n";
-					stream << "<div>This server only supports the HTTP/1.1 protocol\r\n";
-					stream << "</body></html>\r\n";
-					auto body_str( stream.str( ) );
-					stream.str( "" );
-					stream.clear( );
-					stream << "Content-Type: text/html\r\n";
-					stream << "Content-Length: " << body_str.size( ) << "\r\n\r\n";
-					socket_ptr->write( stream.str( ) );
-					socket_ptr->end( body_str );
-				}
-
 				HttpConnection::HttpConnection( std::shared_ptr<lib::net::NetSocket> socket_ptr ): m_socket_ptr( std::move( socket_ptr ) ) {
 					socket_ptr->set_read_until_values( R"((\r\n|\n){2})", true );
 					socket_ptr->once_data( [&, socket_ptr]( std::shared_ptr<base::data_t> data_buffer, bool is_eof ) mutable {
