@@ -18,7 +18,6 @@
 #include "base_event_emitter.h"
 #include "base_service_handle.h"
 #include "base_types.h"
-#include "base_url.h"
 #include "lib_http.h"
 #include "lib_http_client_request.h"
 #include "lib_http_server.h"
@@ -41,7 +40,7 @@ int main( int, char const ** ) {
 // 		response.headers["Content-Type"] = "text/plain";
 //		response.write( "Hello World" );
 	} ).on_connection( []( lib::http::HttpConnection & con ) {
-		con.on_requestGet( []( lib::http::HttpClientRequest request, lib::http::HttpServerResponse response ) {
+		con.on_requestGet( []( lib::http::request::HttpClientRequest, lib::http::HttpServerResponse response ) {
 			std::cout << "GET request";
 		} );
 	} );

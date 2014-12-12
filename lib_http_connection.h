@@ -3,9 +3,8 @@
 #include <memory>
 
 #include "lib_net_socket.h"
-#include "lib_http_client_request.h"
+#include "lib_http_request_parser.h"
 #include "lib_http_server_response.h"
-#include "lib_http_incoming_request.h"
 
 namespace daw {
 	namespace nodepp {
@@ -17,7 +16,6 @@ namespace daw {
 
 				class HttpConnection: public base::EventEmitter {
 					std::shared_ptr<lib::net::NetSocket> m_socket_ptr;
-					HttpConnectionState m_state;
 
 					void reset( );
 				public:
@@ -32,32 +30,32 @@ namespace daw {
 					virtual HttpConnection& on_clientError( std::function<void( base::Error )> listener );
 					virtual HttpConnection& once_clientError( std::function<void( base::Error )> listener );
 
-					virtual HttpConnection& on_requestGet( std::function<void( HttpClientRequest, HttpServerResponse )> listener );
-					virtual HttpConnection& once_requestGet( std::function<void( HttpClientRequest, HttpServerResponse )> listener );
+					virtual HttpConnection& on_requestGet( std::function<void( request::HttpClientRequest, HttpServerResponse )> listener );
+					virtual HttpConnection& once_requestGet( std::function<void( request::HttpClientRequest, HttpServerResponse )> listener );
 
-					virtual HttpConnection& on_requestPost( std::function<void( HttpClientRequest, HttpServerResponse )> listener );
-					virtual HttpConnection& once_requestPost( std::function<void( HttpClientRequest, HttpServerResponse )> listener );
+					virtual HttpConnection& on_requestPost( std::function<void( request::HttpClientRequest, HttpServerResponse )> listener );
+					virtual HttpConnection& once_requestPost( std::function<void( request::HttpClientRequest, HttpServerResponse )> listener );
 
-					virtual HttpConnection& on_requestPut( std::function<void( HttpClientRequest, HttpServerResponse )> listener );
-					virtual HttpConnection& once_requestPut( std::function<void( HttpClientRequest, HttpServerResponse )> listener );
+					virtual HttpConnection& on_requestPut( std::function<void( request::HttpClientRequest, HttpServerResponse )> listener );
+					virtual HttpConnection& once_requestPut( std::function<void( request::HttpClientRequest, HttpServerResponse )> listener );
 
-					virtual HttpConnection& on_requestHead( std::function<void( HttpClientRequest, HttpServerResponse )> listener );
-					virtual HttpConnection& once_requestHead( std::function<void( HttpClientRequest, HttpServerResponse )> listener );
+					virtual HttpConnection& on_requestHead( std::function<void( request::HttpClientRequest, HttpServerResponse )> listener );
+					virtual HttpConnection& once_requestHead( std::function<void( request::HttpClientRequest, HttpServerResponse )> listener );
 
-					virtual HttpConnection& on_requestDelete( std::function<void( HttpClientRequest, HttpServerResponse )> listener );
-					virtual HttpConnection& once_requestDelete( std::function<void( HttpClientRequest, HttpServerResponse )> listener );
+					virtual HttpConnection& on_requestDelete( std::function<void( request::HttpClientRequest, HttpServerResponse )> listener );
+					virtual HttpConnection& once_requestDelete( std::function<void( request::HttpClientRequest, HttpServerResponse )> listener );
 
-					virtual HttpConnection& on_requestConnect( std::function<void( HttpClientRequest, HttpServerResponse )> listener );
-					virtual HttpConnection& once_requestConnect( std::function<void( HttpClientRequest, HttpServerResponse )> listener );
+					virtual HttpConnection& on_requestConnect( std::function<void( request::HttpClientRequest, HttpServerResponse )> listener );
+					virtual HttpConnection& once_requestConnect( std::function<void( request::HttpClientRequest, HttpServerResponse )> listener );
 
-					virtual HttpConnection& on_requestOptions( std::function<void( HttpClientRequest, HttpServerResponse )> listener );
-					virtual HttpConnection& once_requestOptions( std::function<void( HttpClientRequest, HttpServerResponse )> listener );
+					virtual HttpConnection& on_requestOptions( std::function<void( request::HttpClientRequest, HttpServerResponse )> listener );
+					virtual HttpConnection& once_requestOptions( std::function<void( request::HttpClientRequest, HttpServerResponse )> listener );
 
-					virtual HttpConnection& on_requestTrace( std::function<void( HttpClientRequest, HttpServerResponse )> listener );
-					virtual HttpConnection& once_requestTrace( std::function<void( HttpClientRequest, HttpServerResponse )> listener );
+					virtual HttpConnection& on_requestTrace( std::function<void( request::HttpClientRequest, HttpServerResponse )> listener );
+					virtual HttpConnection& once_requestTrace( std::function<void( request::HttpClientRequest, HttpServerResponse )> listener );
 
-					virtual HttpConnection& on_request( std::function<void( HttpRequestMethod, HttpClientRequest, HttpServerResponse )> listener );
-					virtual HttpConnection& once_request( std::function<void( HttpRequestMethod, HttpClientRequest, HttpServerResponse )> listener );
+					virtual HttpConnection& on_request( std::function<void( request::HttpRequestMethod, request::HttpClientRequest, HttpServerResponse )> listener );
+					virtual HttpConnection& once_request( std::function<void( request::HttpRequestMethod, request::HttpClientRequest, HttpServerResponse )> listener );
 
 					virtual HttpConnection& once_close( std::function<void( )> listener );	// Only once as it is called on the way out				
 					void close( );
