@@ -27,7 +27,7 @@ namespace daw {
 					};
 				}	// namespace request
 
-				std::shared_ptr<request::HttpClientRequest> parse_http_request( unsigned char const * first, unsigned char const * last );
+				std::shared_ptr<request::HttpClientRequest> parse_http_request( std::string::iterator * first, std::string::iterator * last );
 
 			} // namespace http
 		}	// namespace lib

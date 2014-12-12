@@ -111,7 +111,7 @@ namespace daw {
 					};
 				}	// namespace anonymous
 
-				std::shared_ptr<request::HttpClientRequest> parse_http_request( unsigned char const * first, unsigned char const * last ) {
+				std::shared_ptr<request::HttpClientRequest> parse_http_request( std::string::iterator first, std::string::iterator last ) {
 					auto result = std::make_shared < request::HttpClientRequest >( );
 					parse_grammar<unsigned char const *> grammar;
 					if( !boost::spirit::qi::parse( first, last, grammar, *result ) ) {
