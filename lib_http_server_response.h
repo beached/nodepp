@@ -32,7 +32,7 @@ namespace daw {
 					
 					template<typename... Args>
 					HttpServerResponse& create_chunk( Args&&... args ) {
-						next = std::make_shared<HttpServerResponse>( std::forward<Args>( args )... );
+						auto next = std::make_shared<HttpServerResponse>( std::forward<Args>( args )... );
 						return *next;
 					}
 					void send_status( );
