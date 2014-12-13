@@ -164,10 +164,12 @@
     <ClInclude Include="base_error.h" />
     <ClInclude Include="base_enoding.h" />
     <ClInclude Include="base_event_emitter.h" />
+    <ClInclude Include="base_url.h" />
     <ClInclude Include="lib_http.h" />
     <ClInclude Include="lib_http_connection.h" />
     <ClInclude Include="lib_http_headers.h" />
     <ClInclude Include="lib_http_request_parser.h" />
+    <ClInclude Include="lib_http_request_parser_impl.h" />
     <ClInclude Include="lib_http_server.h" />
     <ClInclude Include="lib_http_server_response.h" />
     <ClInclude Include="lib_http_version.h" />

@@ -52,7 +52,7 @@ int main( int, char const ** ) {
 			std::cout << "GET request for " << request.request.url << "\n with headers\n" << request.headers << std::endl;
 		} );
 	} ).on_error( [&]( base::Error err ) {
-		if( err.has_exception( ) ) {
+		while( err.has_exception( ) ) {
 			try {
 				err.throw_exception( );
 			} catch( std::exception const & ex ) {
