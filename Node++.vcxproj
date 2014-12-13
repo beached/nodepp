@@ -165,10 +165,11 @@
     <ClInclude Include="base_enoding.h" />
     <ClInclude Include="base_event_emitter.h" />
     <ClInclude Include="base_url.h" />
+    <ClInclude Include="base_url_parser_impl.h" />
     <ClInclude Include="lib_http.h" />
     <ClInclude Include="lib_http_connection.h" />
     <ClInclude Include="lib_http_headers.h" />
-    <ClInclude Include="lib_http_request_parser.h" />
+    <ClInclude Include="lib_http_request.h" />
     <ClInclude Include="lib_http_request_parser_impl.h" />
     <ClInclude Include="lib_http_server.h" />
     <ClInclude Include="lib_http_server_response.h" />
@@ -200,7 +201,7 @@
     <ClCompile Include="base_event_emitter.cpp" />
     <ClCompile Include="base_stream.cpp" />
     <ClCompile Include="lib_http_connection.cpp" />
-    <ClCompile Include="lib_http_request_parser.cpp" />
+    <ClCompile Include="lib_http_request.cpp" />
     <ClCompile Include="lib_http_server_response.cpp" />
     <ClCompile Include="lib_http_server.cpp" />
     <ClCompile Include="lib_http_header.cpp" />

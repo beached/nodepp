@@ -3,7 +3,7 @@
 #include <memory>
 
 #include "lib_net_socket.h"
-#include "lib_http_request_parser.h"
+#include "lib_http_request.h"
 #include "lib_http_server_response.h"
 
 namespace daw {

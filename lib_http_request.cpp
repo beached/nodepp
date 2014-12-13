@@ -2,7 +2,7 @@
 #include <boost\spirit\home\qi\parse_attr.hpp>
 
 #include "base_types.h"
-#include "lib_http_request_parser.h"
+#include "lib_http_request.h"
 #include "lib_http_request_parser_impl.h"
 
 namespace daw {
