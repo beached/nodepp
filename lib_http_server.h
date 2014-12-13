@@ -3,7 +3,6 @@
 #include <list>
 #include <memory>
 
-#include "lib_http_client_request.h"
 #include "lib_http_connection.h"
 #include "lib_http_server_response.h"
 #include "lib_net_server.h"
@@ -73,8 +72,8 @@ namespace daw {
 					HttpServer& on_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener );
 					HttpServer& once_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener );
 
-					HttpServer& on_connection( std::function<void( HttpConnection& )> listener );
-					HttpServer& once_connection( std::function<void( HttpConnection& )> listener );
+					HttpServer& on_connection( std::function<void( HttpConnection )> listener );
+					HttpServer& once_connection( std::function<void( HttpConnection )> listener );
 
 					HttpServer& on_close( std::function<void( )> listener );
 					HttpServer& once_close( std::function<void( )> listener );

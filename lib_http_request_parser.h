@@ -4,30 +4,28 @@
 #include <map>
 #include <string>
 #include <utility>
+#include "base_types.h"
 
 namespace daw {
 	namespace nodepp {
 		namespace lib {
 			namespace http {
 				using namespace daw::nodepp;
-				namespace request {
-
-					enum class HttpRequestMethod { Options, Get, Head, Post, Put, Delete, Trace, Connect };
+				enum class HttpRequestMethod { Options, Get, Head, Post, Put, Delete, Trace, Connect };
 	
-					struct HttpRequestLine {
-						HttpRequestMethod method;
-						std::string url;
-						std::string version;
-					};
+				struct HttpRequestLine {
+					HttpRequestMethod method;
+					std::string url;
+					std::string version;
+				};
 
-					struct HttpClientRequest {
-						using headers_t = std::map < std::string, std::string > ;
-						HttpRequestLine request;
-						headers_t headers;
-					};
-				}	// namespace request
+				struct HttpClientRequest {
+					using headers_t = std::map < std::string, std::string > ;
+					HttpRequestLine request;
+					headers_t headers;
+				};
 
-				std::shared_ptr<request::HttpClientRequest> parse_http_request( std::string::iterator * first, std::string::iterator * last );
+				std::shared_ptr<HttpClientRequest> parse_http_request( daw::nodepp::base::data_t::iterator first, daw::nodepp::base::data_t::iterator last );
 
 			} // namespace http
 		}	// namespace lib

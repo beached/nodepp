@@ -17,7 +17,7 @@ namespace daw {
 				m_keyvalues.emplace( "error_code", boost::lexical_cast<std::string>(err.value( )) );
  			}
 
-			Error::Error( std::string description, std::exception_ptr ex_ptr ) : m_keyvalues{ }, m_frozen{ false }, m_child{ }, m_exception{ ex_ptr } { 
+			Error::Error( std::string description, std::exception_ptr ex_ptr ) : m_keyvalues( ), m_frozen( false ), m_child( ), m_exception( std::move( ex_ptr ) ) { 
 				m_keyvalues.emplace( "description", description );
 			}
 
@@ -54,7 +54,7 @@ namespace daw {
 				m_frozen = true;
 			}
 
-			Error & Error::get_child( ) const {
+			Error & Error::child( ) const {
 				return *m_child.get( );
 			}
 
@@ -66,7 +66,21 @@ namespace daw {
 			}
 
 			bool Error::has_exception( ) const {
-				return m_exception ? true : false;
+				if( has_child() && child( ).has_exception( ) ) {
+					return true;
+				}
+				return static_cast<bool>(m_exception);
+			}
+
+			void Error::throw_exception( ) {
+				if( has_child( ) && child( ).has_exception( ) ) {
+					child( ).throw_exception( );
+				}
+				if( has_exception( ) ) {
+					auto current_exception = std::move( m_exception );
+					m_exception = nullptr;
+					std::rethrow_exception( current_exception );
+				}
 			}
 
 			Error& Error::clear_child( ) {
@@ -89,7 +103,7 @@ namespace daw {
 					}
 				}
 				if( has_child( ) ) {
-					ss << get_child( ).to_string( prefix + "	" );
+					ss << child( ).to_string( prefix + "	" );
 				}
 				ss << "\n";
 				return ss.str( );

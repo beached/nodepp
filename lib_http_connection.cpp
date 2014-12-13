@@ -13,7 +13,7 @@ namespace daw {
 				using namespace daw::nodepp;
 				namespace {
 
-					void err400( std::shared_ptr<lib::net::NetSocket> socket_ptr, request::HttpRequestLine const & req ) {
+					void err400( std::shared_ptr<lib::net::NetSocket> socket_ptr ) {
 						// 400 bad request
 						socket_ptr->write( "HTTP/1.1 400 Bad Request\r\nConnection: close\r\n" );
 						std::stringstream stream;
@@ -44,50 +44,50 @@ namespace daw {
 						socket_ptr->end( body_str );
 					}
 				}
-				HttpConnection::HttpConnection( std::shared_ptr<lib::net::NetSocket> socket_ptr ): m_socket_ptr( std::move( socket_ptr ) ) {
-					socket_ptr->set_read_until_values( R"((\r\n|\n){2})", true );
-					socket_ptr->once_data( [&, socket_ptr]( std::shared_ptr<base::data_t> data_buffer, bool is_eof ) mutable {
+				HttpConnection::HttpConnection( std::shared_ptr<lib::net::NetSocket> socket_ptr ): m_socket_ptr( socket_ptr ) {
+					m_socket_ptr->set_read_until_values( R"((\r\n|\n){2})", true );
+					m_socket_ptr->once_data( [&]( std::shared_ptr<base::data_t> data_buffer, bool ) {
 						
 						auto req = parse_http_request( data_buffer->begin( ), data_buffer->end( ) );
 												
 						if( req ) {
 							if( req->request.version != "1.1" ) {
-								err505( socket_ptr );
+								err505( m_socket_ptr );
 							}
 							HttpServerResponse resp;
 							
 							std::string method = "Get";
 							switch( req->request.method ) {
-							case request::HttpRequestMethod::Post:
+							case HttpRequestMethod::Post:
 								method = "Post";
 								break;
-							case request::HttpRequestMethod::Connect:
+							case HttpRequestMethod::Connect:
 								method = "Connect";
 								break;
-							case request::HttpRequestMethod::Delete:
+							case HttpRequestMethod::Delete:
 								method = "Delete";
 								break;
-							case request::HttpRequestMethod::Head:
+							case HttpRequestMethod::Head:
 								method = "Head";
 								break;
-							case request::HttpRequestMethod::Options:
+							case HttpRequestMethod::Options:
 								method = "Options";
 								break;
-							case request::HttpRequestMethod::Put:
+							case HttpRequestMethod::Put:
 								method = "Put";
 								break;
-							case request::HttpRequestMethod::Trace:
+							case HttpRequestMethod::Trace:
 								method = "Trace";
 								break;
 							}
 							emit( "request", req->request.method, *req, resp );
 							emit( "request" + method, *req, resp );
 						} else {
-							err400( socket_ptr, *req );
+							err400( m_socket_ptr );
 						}
 
 					} );
-					socket_ptr->read_async( );
+					m_socket_ptr->read_async( );
 				}
 
 				void HttpConnection::reset( ) { }
@@ -137,92 +137,92 @@ namespace daw {
 					return *this;
 				}
 
-				HttpConnection& HttpConnection::on_requestGet( std::function<void( request::HttpClientRequest, HttpServerResponse )> listener ) { 
+				HttpConnection& HttpConnection::on_requestGet( std::function<void( HttpClientRequest, HttpServerResponse )> listener ) { 
 					add_listener( "requestGet", listener );
 					return *this;
 				}
 
-				HttpConnection& HttpConnection::once_requestGet( std::function<void( request::HttpClientRequest, HttpServerResponse )> listener ) {
+				HttpConnection& HttpConnection::once_requestGet( std::function<void( HttpClientRequest, HttpServerResponse )> listener ) {
 					add_listener( "requestGet", listener, true );
 					return *this;
 				}
 
-				HttpConnection& HttpConnection::on_requestPost( std::function<void( request::HttpClientRequest, HttpServerResponse )> listener ) {
+				HttpConnection& HttpConnection::on_requestPost( std::function<void( HttpClientRequest, HttpServerResponse )> listener ) {
 					add_listener( "requestPost", listener );
 					return *this;
 				}
 
-				HttpConnection& HttpConnection::once_requestPost( std::function<void( request::HttpClientRequest, HttpServerResponse )> listener ) {
+				HttpConnection& HttpConnection::once_requestPost( std::function<void( HttpClientRequest, HttpServerResponse )> listener ) {
 					add_listener( "requestPost", listener, true );
 					return *this;
 				}
 
-				HttpConnection& HttpConnection::on_requestPut( std::function<void( request::HttpClientRequest, HttpServerResponse )> listener ) {
+				HttpConnection& HttpConnection::on_requestPut( std::function<void( HttpClientRequest, HttpServerResponse )> listener ) {
 					add_listener( "requestPut", listener );
 					return *this;
 				}
 
-				HttpConnection& HttpConnection::once_requestPut( std::function<void( request::HttpClientRequest, HttpServerResponse )> listener ) {
+				HttpConnection& HttpConnection::once_requestPut( std::function<void( HttpClientRequest, HttpServerResponse )> listener ) {
 					add_listener( "requestPut", listener, true );
 					return *this;
 				}
 
-				HttpConnection& HttpConnection::on_requestHead( std::function<void( request::HttpClientRequest, HttpServerResponse )> listener ) {
+				HttpConnection& HttpConnection::on_requestHead( std::function<void( HttpClientRequest, HttpServerResponse )> listener ) {
 					add_listener( "requestHead", listener );
 					return *this;
 				}
 
-				HttpConnection& HttpConnection::once_requestHead( std::function<void( request::HttpClientRequest, HttpServerResponse )> listener ) {
+				HttpConnection& HttpConnection::once_requestHead( std::function<void( HttpClientRequest, HttpServerResponse )> listener ) {
 					add_listener( "requestHead", listener, true );
 					return *this;
 				}
 
-				HttpConnection& HttpConnection::on_requestDelete( std::function<void( request::HttpClientRequest, HttpServerResponse )> listener ) {
+				HttpConnection& HttpConnection::on_requestDelete( std::function<void( HttpClientRequest, HttpServerResponse )> listener ) {
 					add_listener( "requestDelete", listener );
 					return *this;
 				}
 
-				HttpConnection& HttpConnection::once_requestDelete( std::function<void( request::HttpClientRequest, HttpServerResponse )> listener ) {
+				HttpConnection& HttpConnection::once_requestDelete( std::function<void( HttpClientRequest, HttpServerResponse )> listener ) {
 					add_listener( "requestDelete", listener, true );
 					return *this;
 				}
 
-				HttpConnection& HttpConnection::on_requestConnect( std::function<void( request::HttpClientRequest, HttpServerResponse )> listener ) {
+				HttpConnection& HttpConnection::on_requestConnect( std::function<void( HttpClientRequest, HttpServerResponse )> listener ) {
 					add_listener( "requestConnect", listener );
 					return *this;
 				}
 
-				HttpConnection& HttpConnection::once_requestConnect( std::function<void( request::HttpClientRequest, HttpServerResponse )> listener ) {
+				HttpConnection& HttpConnection::once_requestConnect( std::function<void( HttpClientRequest, HttpServerResponse )> listener ) {
 					add_listener( "requestConnect", listener, true );
 					return *this;
 				}
 
-				HttpConnection& HttpConnection::on_requestOptions( std::function<void( request::HttpClientRequest, HttpServerResponse )> listener ) {
+				HttpConnection& HttpConnection::on_requestOptions( std::function<void( HttpClientRequest, HttpServerResponse )> listener ) {
 					add_listener( "requestOptions", listener );
 					return *this;
 				}
 
-				HttpConnection& HttpConnection::once_requestOptions( std::function<void( request::HttpClientRequest, HttpServerResponse )> listener ) {
+				HttpConnection& HttpConnection::once_requestOptions( std::function<void( HttpClientRequest, HttpServerResponse )> listener ) {
 					add_listener( "requestOptions", listener, true );
 					return *this;
 				}
 
-				HttpConnection& HttpConnection::on_requestTrace( std::function<void( request::HttpClientRequest, HttpServerResponse )> listener ) {
+				HttpConnection& HttpConnection::on_requestTrace( std::function<void( HttpClientRequest, HttpServerResponse )> listener ) {
 					add_listener( "requestTrace", listener );
 					return *this;
 				}
 
-				HttpConnection& HttpConnection::once_requestTrace( std::function<void( request::HttpClientRequest, HttpServerResponse )> listener ) {
+				HttpConnection& HttpConnection::once_requestTrace( std::function<void( HttpClientRequest, HttpServerResponse )> listener ) {
 					add_listener( "requestTrace", listener, true );
 					return *this;
 				}
 
-				HttpConnection& HttpConnection::on_request( std::function<void( HttpRequestMethod, request::HttpClientRequest, HttpServerResponse )> listener ) {
+				HttpConnection& HttpConnection::on_request( std::function<void( HttpRequestMethod, HttpClientRequest, HttpServerResponse )> listener ) {
 					add_listener( "request", listener );
 					return *this;
 				}
 
-				HttpConnection& HttpConnection::once_request( std::function<void( HttpRequestMethod, request::HttpClientRequest, HttpServerResponse )> listener ) {
+				HttpConnection& HttpConnection::once_request( std::function<void( HttpRequestMethod, HttpClientRequest, HttpServerResponse )> listener ) {
 					add_listener( "request", listener, true );
 					return *this;
 				}

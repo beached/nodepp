@@ -27,7 +27,7 @@ namespace daw {
 					}
 
 					void emit_error( NetServer* const net_server, std::exception_ptr err, std::string where ) {
-						auto error = base::Error( "Exception Caught", err );
+						auto error = base::Error( "Exception Caught", std::move( err ) );
 						error.add( "where", where );
 						net_server->emit( "error", error );
 					}
@@ -56,12 +56,18 @@ namespace daw {
 					return *this;
 				}
 
+				namespace {
+					void emit_connection( NetServer& server, std::shared_ptr<NetSocket> socket_ptr ) {
+						server.emit( "connection", socket_ptr );
+					}
+				}
+
 				void NetServer::handle_accept( std::shared_ptr<NetSocket> socket_ptr, boost::system::error_code const & err ) {
 					if( !err ) {
 						try {
-							emit( "connection", socket_ptr );
+							emit_connection( *this, socket_ptr );
 						} catch( ... ) {
-							emit_error( this, std::current_exception( ), "NetServer::listen" );
+							emit_error( this, std::current_exception( ) , "NetServer::listen#emit_connection" );
 						}
 					} else {
 						emit_error( this, err, "NetServer::listen" );
@@ -101,7 +107,7 @@ namespace daw {
 
 
 				// Event callbacks
-
+				
 				NetServer& NetServer::on_connection( std::function<void( std::shared_ptr<NetSocket> socket_ptr )> listener ) {
 					add_listener( "connection", listener );
 					return *this;

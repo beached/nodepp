@@ -38,12 +38,18 @@ namespace daw {
 					return result;
 				}
 
+				namespace {
+					void emit_connection( HttpServer& server, HttpConnection connection ) {
+						server.emit( "connection", connection );
+					}
+				}
+
 				void HttpServer::handle_connection( std::shared_ptr<lib::net::NetSocket> socket_ptr ) {
-					auto it = m_connections.emplace( m_connections.end( ), socket_ptr );
+					auto it = m_connections.emplace( m_connections.begin( ), socket_ptr );
 					it->once_close( [&, it]( ) {
 						m_connections.erase( it );
 					} );
-					emit( "connection", *it );
+					emit_connection( *this, *it );
 				}
 
 				void HttpServer::handle_error( base::Error error ) {
@@ -83,12 +89,12 @@ namespace daw {
 					return *this;
 				}
 
-				HttpServer& HttpServer::on_connection( std::function<void( HttpConnection& )> listener ) {
+				HttpServer& HttpServer::on_connection( std::function<void( HttpConnection )> listener ) {
 					add_listener( "connection", listener );
 					return *this;
 				}
 
-				HttpServer& HttpServer::once_connection( std::function<void( HttpConnection& )> listener ) {
+				HttpServer& HttpServer::once_connection( std::function<void( HttpConnection )> listener ) {
 					add_listener( "connection", listener, true );
 					return *this;
 				}

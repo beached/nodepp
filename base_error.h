@@ -31,12 +31,13 @@ namespace daw {
 				Error& add( std::string const & name, std::string value );
 				std::string const & get( std::string const & name ) const;
 				std::string & get( std::string const & name );
-				Error & get_child( ) const;
+				Error & child( ) const;
 				bool has_child( ) const;
 				Error& clear_child( );
 				Error& set_child( Error const & child );
 				void freeze( );
 				bool has_exception( ) const;
+				void throw_exception( );
 				std::string to_string( std::string prefix = "" ) const;
 			};	// class Error
 			
