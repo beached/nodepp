@@ -19,7 +19,10 @@ namespace daw {
 
 					void reset( );
 				public:
+					HttpConnection( ) = default;
 					HttpConnection( std::shared_ptr<lib::net::NetSocket> socket_ptr );
+					HttpConnection( HttpConnection const & ) = default;
+					HttpConnection& operator=( HttpConnection const & ) = default;
 					virtual ~HttpConnection( ) = default;
 					virtual std::vector<std::string> const & valid_events( ) const override;
 
