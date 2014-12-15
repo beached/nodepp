@@ -78,7 +78,8 @@ namespace daw {
 				void NetServer::start_accept( ) {
 					auto new_connection_it = m_current_connections.insert( std::end( m_current_connections ), std::make_shared<NetSocket>( base::ServiceHandle::get( ) ) );
 					auto& new_connection = *new_connection_it;
-					new_connection->on_end( [&, new_connection_it]( ) {
+					new_connection->on_close( [&, new_connection_it]( ) {
+						(*new_connection_it)->remove_all_listeners( );
 						m_current_connections.erase( new_connection_it );
 					} );
 					auto handle = boost::bind( &NetServer::handle_accept, this, new_connection, boost::asio::placeholders::error );

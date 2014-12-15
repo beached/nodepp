@@ -47,6 +47,7 @@ namespace daw {
 				void HttpServer::handle_connection( std::shared_ptr<lib::net::NetSocket> socket_ptr ) {
 					auto it = m_connections.emplace( m_connections.begin( ), socket_ptr );
 					it->once_close( [&, it]( ) {
+						it->remove_all_listeners( );
 						m_connections.erase( it );
 					} );
 					emit_connection( *this, *it );

@@ -29,13 +29,14 @@ namespace daw {
 				return result;				
 			}
 
-			EventEmitter::EventEmitter( ) :m_listeners( std::make_shared<listeners_t>( ) ), m_max_listeners( 10 ) { }
+			EventEmitter::EventEmitter( ) :m_listeners( std::make_shared<listeners_t>( ) ), m_max_listeners( 10 ), m_mutex( std::make_shared<std::mutex>( ) ) { }
 
-			EventEmitter::EventEmitter( EventEmitter && other ): m_listeners( std::move( other.m_listeners ) ), m_max_listeners( std::move( other.m_max_listeners ) ) { }
+			EventEmitter::EventEmitter( EventEmitter && other ): m_listeners( std::move( other.m_listeners ) ), m_max_listeners( std::move( other.m_max_listeners ) ), m_mutex( std::move( other.m_mutex ) ) { }
 
 			EventEmitter& EventEmitter::operator=( EventEmitter && rhs ) {
 				m_listeners = std::move( rhs.m_listeners );
 				m_max_listeners = std::move( rhs.m_max_listeners );
+				m_mutex = std::move( rhs.m_mutex );
 				return *this;
 			}
 
@@ -43,11 +44,13 @@ namespace daw {
 				using std::swap;
 				swap( m_listeners, rhs.m_listeners );
 				swap( m_max_listeners, rhs.m_max_listeners );
+				swap( m_mutex, rhs.m_mutex );
 			}
 
 			EventEmitter::~EventEmitter( ) { }
 			
 			EventEmitter& EventEmitter::remove_listener( std::string event, callback_id_t id ) {
+				std::lock_guard<std::mutex> listener_lock( *m_mutex );
 				daw::algorithm::erase_remove_if( listeners( )[event], [&]( std::pair<bool, Callback> const & item ) {
 					if( item.second.id( ) == id ) {
 						// TODO verify if this needs to be outside loop
