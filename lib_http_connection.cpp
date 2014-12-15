@@ -44,7 +44,7 @@ namespace daw {
 						socket_ptr->end( body_str );
 					}
 				}
-				HttpConnection::HttpConnection( std::shared_ptr<lib::net::NetSocket> socket_ptr ): m_socket_ptr( std::move( socket_ptr ) ) {
+				HttpConnection::HttpConnection( std::shared_ptr<lib::net::NetSocket> socket_ptr ): m_socket_ptr( socket_ptr ) {
 					m_socket_ptr->set_read_until_values( R"((\r\n|\n){2})", true );
 					m_socket_ptr->once_data( [&]( std::shared_ptr<base::data_t> data_buffer, bool ) {
 						
@@ -59,6 +59,7 @@ namespace daw {
 
 							emit( "request", method, *req, resp );
 							emit( "request" + http_request_method_as_string( method ), *req, resp );
+							
 						} else {
 							err400( m_socket_ptr );
 						}

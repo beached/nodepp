@@ -33,7 +33,10 @@ namespace daw {
 					std::string const& at( std::string const & header_name ) const;
 					std::string & at( std::string const & header_name );
 
+					bool exits( std::string const & header_name ) const;
 					std::string to_string( );
+
+					HttpHeaders& add( std::string header_name, std::string header_value );
 				};
 			}	// namespace http
 		}	// namespace lib

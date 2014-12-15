@@ -15,7 +15,37 @@ namespace daw {
 			namespace http {
 				using namespace daw::nodepp;
 
-				HttpServerResponse::HttpServerResponse( std::shared_ptr<lib::net::NetSocket> socket_ptr ) : m_version( 1, 1 ), m_headers( ), m_body( ), m_status_sent( false ), m_headers_sent( false ), m_body_sent( false ), m_socket_ptr( socket ) { }
+				HttpServerResponse::HttpServerResponse( std::shared_ptr<lib::net::NetSocket> socket_ptr ) : 
+						m_version( 1, 1 ), 
+						m_headers( ), 
+						m_body( ), 
+						m_status_sent( false ), 
+						m_headers_sent( false ), 
+						m_body_sent( false ), 
+						m_socket_ptr( socket_ptr ) { }
+
+				HttpServerResponse::HttpServerResponse( HttpServerResponse&& other ): 
+					m_version( std::move( other.m_version ) ),
+					m_headers( std::move( other.m_headers ) ),
+					m_body( std::move( other.m_body ) ),
+					m_status_sent( std::move( other.m_status_sent) ),
+					m_headers_sent( std::move( other.m_headers_sent) ),
+					m_body_sent( std::move( other.m_body_sent ) ),
+					m_socket_ptr( other.m_socket_ptr ) { }
+
+
+				HttpServerResponse& HttpServerResponse::operator = (HttpServerResponse && rhs) {
+					if( this != &rhs ) {
+						m_version = std::move( rhs.m_version );
+						m_headers = std::move( rhs.m_headers );
+						m_body = std::move( rhs.m_body );
+						m_status_sent = std::move( rhs.m_status_sent );
+						m_headers_sent = std::move( rhs.m_headers_sent );
+						m_body_sent = std::move( rhs.m_body_sent );
+						m_socket_ptr = std::move( rhs.m_socket_ptr );
+					}
+					return *this;
+				}
 
 				HttpServerResponse& HttpServerResponse::write( base::data_t data ) {
 					m_body.insert( std::end( m_body ), std::begin( data ), std::end( data ) );
@@ -41,7 +71,7 @@ namespace daw {
 
 				void HttpServerResponse::send_status( uint16_t status_code ) {
 					auto status = HttpStatusCodes( status_code );
-					auto msg = daw::string::string_format( "{0} {1} {2}", m_version.to_string( ), status.first, status.second );
+					auto msg = daw::string::string_format( "HTTP/{0} {1} {2}\r\n", m_version.to_string( ), status.first, status.second );
 					m_socket_ptr->write( msg ); // TODO make faster
 					m_status_sent = true;
 				}
@@ -57,7 +87,7 @@ namespace daw {
 				void HttpServerResponse::send_body( ) {
 					HttpHeader content_header( "Content-Length", boost::lexical_cast<std::string>(m_body.size( )) );
 					m_socket_ptr->write( content_header.to_string( ) );
-					m_socket_ptr->write( "\r\n" );
+					m_socket_ptr->write( "\r\n\r\n" );
 					m_socket_ptr->write( m_body );
 					m_body_sent = true;
 				}				
@@ -72,6 +102,10 @@ namespace daw {
 					if( !m_body_sent ) {
 						send_body( );
 					}
+				}
+
+				void HttpServerResponse::end( ) {
+					m_socket_ptr->end( );
 				}
 
 				void HttpServerResponse::reset( ) {

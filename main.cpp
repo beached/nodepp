@@ -48,8 +48,8 @@ int main( int, char const ** ) {
 		con.on_requestGet( []( lib::http::HttpClientRequest request, std::shared_ptr<lib::http::HttpServerResponse> response_ptr ) {
 			std::cout << "GET request for " << request.request.url << "\n with headers\n" << request.headers << std::endl;
 			response_ptr->send_status( 200 );
-			response_ptr->headers( ).headers.emplace_back( "Content-Type", "text/html" );
-			response_ptr->headers( ).headers.emplace_back( "Connection", "close" );			
+			response_ptr->headers( ).add( "Content-Type", "text/html" );
+			response_ptr->headers( ).add( "Connection", "close" );			
 			response_ptr->write( "<html><head><title>welcome</title></head><body><h1>Welcome!</h1></body><html>\n" );
 			response_ptr->send( );
 		} );

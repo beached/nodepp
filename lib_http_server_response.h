@@ -20,7 +20,7 @@ namespace daw {
 				using namespace daw::nodepp;
 				//////////////////////////////////////////////////////////////////////////
 				// Summary:	Contains the data needed to respond to a client request				
-				class HttpServerResponse {	// TODO inherit from StreamWriter
+				class HttpServerResponse {	// TODO inherit from StreamWriterHt
 					HttpVersion m_version;
 					HttpHeaders m_headers;
 					base::data_t m_body;
@@ -30,10 +30,14 @@ namespace daw {
 					std::shared_ptr<lib::net::NetSocket> m_socket_ptr;
 				public:
 					HttpServerResponse( std::shared_ptr<lib::net::NetSocket> socket_ptr );
-
+					HttpServerResponse( HttpServerResponse const & ) = default;
+					~HttpServerResponse( ) = default;
+					HttpServerResponse& operator=(HttpServerResponse const &) = default;
+					HttpServerResponse( HttpServerResponse&& other );
+					HttpServerResponse& operator=(HttpServerResponse && rhs);
 					HttpServerResponse& write( base::data_t data );
 					HttpServerResponse& write( std::string data, base::Encoding encoding = base::Encoding( ) );
-					
+					void end( );
 // 					template<typename... Args>
 // 					HttpServerResponse& create_chunk( Args&&... args ) {
 // 						auto next = std::make_shared<HttpServerResponse>( std::forward<Args>( args )... );

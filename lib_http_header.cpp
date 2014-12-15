@@ -43,7 +43,15 @@ namespace daw {
 				}
 
 				std::string & HttpHeaders::operator[]( std::string const & header_name ) {
-					return find( header_name )->value;
+					auto it = find( header_name );
+					if( it == headers.end( ) ) {
+						it = headers.emplace( headers.end( ), header_name, "" );
+					}
+					return it->value;
+				}
+
+				bool HttpHeaders::exits( std::string const & header_name ) const {
+					return find( header_name ) != headers.cend( );
 				}
 
 				std::string const& HttpHeaders::at( std::string const& header_name ) const {
@@ -68,6 +76,11 @@ namespace daw {
 						ss << header.to_string( ) << "\r\n";
 					}
 					return ss.str( );
+				}
+
+				HttpHeaders& HttpHeaders::add( std::string header_name, std::string header_value ) {
+					headers.emplace_back( std::move( header_name ), std::move( header_value ) );
+					return *this;
 				}
 
 			}	// namespace http
