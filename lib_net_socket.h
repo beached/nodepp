@@ -75,8 +75,8 @@ namespace daw {
 					NetSocket& set_read_until_values( std::string const & values, bool is_regex = false );
 
 					NetSocket( );
-					explicit NetSocket( boost::asio::io_service& io_service );
-					explicit NetSocket( SocketHandle handle );
+					explicit NetSocket( boost::asio::io_service& io_service, size_t max_read_size = 8192 );
+
 					NetSocket( NetSocket const & ) = delete;
 					NetSocket& operator=(NetSocket const &) = delete;
 					NetSocket( NetSocket&& other );
@@ -170,6 +170,11 @@ namespace daw {
 					/// Summary: Event emitted when the stream is closed
 					/// Inherited from StreamReadable
 					virtual NetSocket& on_close( std::function<void( )> listener ) override;
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when a write is completed
+					/// Inherited from StreamWritable
+					virtual NetSocket& on_drain( std::function<void( )> listener ) override;
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when end( ... ) has been called and all data

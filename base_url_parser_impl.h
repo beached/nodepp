@@ -11,25 +11,10 @@
 #include "base_types.h"
 
 BOOST_FUSION_ADAPT_STRUCT(
-	daw::nodepp::base::url_details::UserInfo,
-	(std::string, username)
-	(boost::optional<std::string>, password)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
-	daw::nodepp::base::url_details::UrlAuthority,
-	(boost::optional < daw::nodepp::base::url_details::UserInfo, user_info)
-	(std::string, host)
-	(boost::optional<std::string>, host)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
 	daw::nodepp::base::Url,
-	(boost::optional<std::string>, scheme)
-	(daw::nodepp::base::url_details::UrlAuthority, authority)
-	(boost::optional<std::string>, path)
-	(boost::optional<daw::nodepp::base::Url::query_t>, queries)
-	(boost::optional<std::string>, fragment)
+	(boost::optional< std::string >, root)
+	(boost::optional< std::string>, hierarchy)
+	(boost::optional< query_t >, queries)
 )
 
 namespace daw {
@@ -43,20 +28,21 @@ namespace daw {
 				using ascii::char_;
 
 				template <typename Iterator >
-				struct url_encoded_data_grammar: qi::grammar < Iterator, std::map<std::string, std::string>( ) > {
+				struct url_encoded_data_grammar: qi::grammar < Iterator, daw::nodepp::base::Url( ) > {
 					url_encoded_data_grammar( ) : url_encoded_data_grammar::base_type( start ) {
-						start = query_pair % '&';
-						query_pair = url_encoded_string >> '=' >> url_encoded_string;
-						url_encoded_string = +(('%' >> encoded_hex)
-							|
-							~char_( "=&" )
-							);
+						start =
+							lit( ’ / ’ )
+							>> -(+(~char_( "/?" )))
+							>> -(’ / ’ >> +(~char_( "?" )))
+							>> -(’?’ >> (query_pair % ’&’))
+							;
+						
+						query_pair = +(~char_( ’ = ’ )) >> ’ = ’ >> +(~char_( ’&’ ));
 					}
 
-					qi::rule< Iterator, std::map<std::string, std::string>( ) > start;
+
+					qi::rule< Iterator, daw::nodepp::base::Url( ) > start;
 					qi::rule< Iterator, std::pair<std::string, std::string>( ) > query_pair;
-					qi::rule< Iterator, std::string( ) > url_encoded_string;
-					qi::uint_parser< char, 16, 2, 2 > encoded_hex;
 				};	// struct url_encoded_data_grammar
 
 			} // namespace url_parser

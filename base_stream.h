@@ -91,6 +91,10 @@ namespace daw {
 					}
 
 					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when a write is completed
+					virtual StreamWritable& on_drain( std::function<void( )> listener ) = 0;
+
+					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when end( ... ) has been called and all data
 					/// has been flushed
 					virtual StreamWritable& on_finish( std::function<void( )> listener ) = 0;

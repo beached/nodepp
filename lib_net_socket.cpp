@@ -50,22 +50,9 @@ namespace daw {
 					return result;
 				}
 
-				NetSocket::NetSocket( boost::asio::io_service& io_service ) : base::stream::Stream( ),
+				NetSocket::NetSocket( boost::asio::io_service& io_service, size_t max_read_size ) : base::stream::Stream( ),
 					m_socket( io_service ),
-					m_response_buffer( std::make_shared<boost::asio::streambuf>( ) ),
-					m_response_buffers( std::make_shared<base::data_t>( ) ),
-					m_bytes_read( 0 ),
-					m_bytes_written( 0 ),
-					m_response_buffers_mutex( ),
-					m_read_mode( ReadUntil::newline ),
-					m_read_predicate( ),
-					m_outstanding_writes( std::make_shared<std::atomic_int_least32_t>( 0 ) ),
-					m_end( false ),
-					m_read_until_values( ) { }
-
-				NetSocket::NetSocket( SocketHandle handle ) : base::stream::Stream( ),
-					m_socket( handle ),
-					m_response_buffer( std::make_shared<boost::asio::streambuf>( ) ),
+					m_response_buffer( std::make_shared<boost::asio::streambuf>( max_read_size ) ),
 					m_response_buffers( std::make_shared<base::data_t>( ) ),
 					m_bytes_read( 0 ),
 					m_bytes_written( 0 ),
@@ -235,6 +222,11 @@ namespace daw {
 					return *this;
 				}
 
+				NetSocket& NetSocket::on_drain( std::function<void( )> listener ) {
+					add_listener( "drain", listener );
+					return *this;
+				}
+
 				NetSocket& NetSocket::on_finish( std::function<void( )> listener ) {
 					add_listener( "finish", listener );
 					return *this;
@@ -319,11 +311,9 @@ namespace daw {
 					return m_socket && m_socket->is_open( );
 				}
 
-				void NetSocket::handle_write( impl::write_buffer buff, boost::system::error_code const & err ) {
+				void NetSocket::handle_write( impl::write_buffer buff, boost::system::error_code const & err ) { // TODO see if we need buff, maybe lifetime issue
 					if( !err ) {
-						if( is_open( ) ) {
-							NetSocket::read_async( );
-						}
+						emit( "drain" );
 					} else {
 						emit_error( this, err, "NetSocket::write" );
 					}

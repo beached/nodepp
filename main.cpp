@@ -44,12 +44,14 @@ int main( int, char const ** ) {
 	auto server = lib::http::HttpServer( );
 	server.on_listening( []( boost::asio::ip::tcp::endpoint endpoint ) {
 		std::cout << "Server listening on " << endpoint << "\n";
-// 		response.status = lib::http::HttpStatusCodes( 200 );
-// 		response.headers["Content-Type"] = "text/plain";
-//		response.write( "Hello World" );
 	} ).on_connection( []( lib::http::HttpConnection con ) {
-		con.on_requestGet( []( lib::http::HttpClientRequest request, lib::http::HttpServerResponse response ) {
+		con.on_requestGet( []( lib::http::HttpClientRequest request, std::shared_ptr<lib::http::HttpServerResponse> response_ptr ) {
 			std::cout << "GET request for " << request.request.url << "\n with headers\n" << request.headers << std::endl;
+			response_ptr->send_status( 200 );
+			response_ptr->headers( ).headers.emplace_back( "Content-Type", "text/html" );
+			response_ptr->headers( ).headers.emplace_back( "Connection", "close" );			
+			response_ptr->write( "<html><head><title>welcome</title></head><body><h1>Welcome!</h1></body><html>\n" );
+			response_ptr->send( );
 		} );
 	} ).on_error( [&]( base::Error err ) {
 		while( err.has_exception( ) ) {

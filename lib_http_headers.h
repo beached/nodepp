@@ -22,14 +22,7 @@ namespace daw {
 					std::vector<HttpHeader> headers;
 
 					HttpHeaders( );
-					HttpHeaders( std::initializer_list<HttpHeader> values );
-					
-					//////////////////////////////////////////////////////////////////////////
-					/// Summary: A data buffer representing the data from an http request
-					template<typename Iterator>
-					HttpHeaders( Iterator first, Iterator laset ) {
-						
-					}
+					HttpHeaders( std::initializer_list<HttpHeader> values );										
 
 					std::vector<HttpHeader>::iterator find( std::string const & header_name );
 					std::vector<HttpHeader>::const_iterator find( std::string const & header_name ) const;
@@ -39,6 +32,8 @@ namespace daw {
 
 					std::string const& at( std::string const & header_name ) const;
 					std::string & at( std::string const & header_name );
+
+					std::string to_string( );
 				};
 			}	// namespace http
 		}	// namespace lib

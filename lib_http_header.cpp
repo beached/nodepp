@@ -13,7 +13,7 @@ namespace daw {
 				HttpHeader::HttpHeader( std::string Name, std::string Value ) : name( Name ), value( Value ) { }
 
 				std::string HttpHeader::to_string( ) const {
-					return daw::string::string_format( "{0}	: {1}", name, value );
+					return daw::string::string_format( "{0}: {1}", name, value );
 				}
 				
 				bool HttpHeader::empty( ) const {
@@ -62,6 +62,13 @@ namespace daw {
 					throw std::out_of_range( header_name + " is not a valid header" );
 				}
 
+				std::string HttpHeaders::to_string( ) {
+					std::stringstream ss;
+					for( auto const& header : headers ) {
+						ss << header.to_string( ) << "\r\n";
+					}
+					return ss.str( );
+				}
 
 			}	// namespace http
 		}	// namespace lib

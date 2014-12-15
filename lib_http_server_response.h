@@ -11,6 +11,7 @@
 #include "lib_http.h"
 #include "lib_http_headers.h"
 #include "lib_http_version.h"
+#include "lib_net_socket.h"
 
 namespace daw {
 	namespace nodepp {
@@ -22,23 +23,31 @@ namespace daw {
 				class HttpServerResponse {	// TODO inherit from StreamWriter
 					HttpVersion m_version;
 					HttpHeaders m_headers;
-					http_status_code_t m_status;
 					base::data_t m_body;
+					bool m_status_sent;
+					bool m_headers_sent;
+					bool m_body_sent;
+					std::shared_ptr<lib::net::NetSocket> m_socket_ptr;
 				public:
-					HttpServerResponse( uint16_t status_code = 200 );
+					HttpServerResponse( std::shared_ptr<lib::net::NetSocket> socket_ptr );
 
 					HttpServerResponse& write( base::data_t data );
 					HttpServerResponse& write( std::string data, base::Encoding encoding = base::Encoding( ) );
 					
-					template<typename... Args>
-					HttpServerResponse& create_chunk( Args&&... args ) {
-						auto next = std::make_shared<HttpServerResponse>( std::forward<Args>( args )... );
-						return *next;
-					}
-					void send_status( );
+// 					template<typename... Args>
+// 					HttpServerResponse& create_chunk( Args&&... args ) {
+// 						auto next = std::make_shared<HttpServerResponse>( std::forward<Args>( args )... );
+// 						return *next;
+// 					}
+					HttpHeaders& headers( );
+					HttpHeaders const & headers( ) const;
+
+					void send_status( uint16_t status_code = 200 );
 					void send_headers( );
 					void send_body( );
 					void clear_body( );
+					void send( );
+					void reset( );
 				};	// struct ServerResponse			
 			}	// namespace http
 		}	// namespace lib

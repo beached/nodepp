@@ -27,7 +27,7 @@ namespace daw {
 
 				std::vector<std::string> const & StreamWritable::valid_events( ) const {
 					static auto const result = [&]( ) {
-						auto local = std::vector < std::string > { "finish", "pipe", "unpipe" };
+						auto local = std::vector < std::string > { "drain", "finish", "pipe", "unpipe" };
 						return base::impl::append_vector( local, EventEmitter::valid_events( ) );
 					}();
 					return result;
