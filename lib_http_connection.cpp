@@ -44,33 +44,43 @@ namespace daw {
 						socket_ptr->end( body_str );
 					}
 				}
-				HttpConnection::HttpConnection( std::shared_ptr<lib::net::NetSocket> socket_ptr ): m_socket_ptr( socket_ptr ) {
+				HttpConnection::HttpConnection( std::shared_ptr<lib::net::NetSocket> socket_ptr ) : m_socket_ptr( socket_ptr ) {
 					m_socket_ptr->set_read_until_values( R"((\r\n|\n){2})", true );
-					m_socket_ptr->once_data( [&]( std::shared_ptr<base::data_t> data_buffer, bool ) {
-						
+					socket_ptr->on_end( [&]( ) {
+						emit( "close" );
+					} ).once_data( [&]( std::shared_ptr<base::data_t> data_buffer, bool ) {
+
 						auto req = parse_http_request( data_buffer->begin( ), data_buffer->end( ) );
-												
+
 						if( req ) {
 							if( req->request.version != "1.1" ) {
 								err505( m_socket_ptr );	// TODO support v1.0 or at least validate
 							}
 							auto resp = std::make_shared<HttpServerResponse>( m_socket_ptr );
+
 							const auto & method = req->request.method;
 
 							emit( "request", method, *req, resp );
 							emit( "request" + http_request_method_as_string( method ), *req, resp );
-							
+
 						} else {
 							err400( m_socket_ptr );
 						}
 
-					} );
-					m_socket_ptr->read_async( );
+					} ).once_close( [&]( ) {
+						emit( "close" );
+					} ).once_end( [&]( ) {
+						emit( "close" );
+					} ).read_async( );
+					//m_socket_ptr->read_async( );
 				}
 
 				void HttpConnection::reset( ) { }
 
-				void HttpConnection::close( ) { }
+				void HttpConnection::close( ) { 
+					m_socket_ptr->close( );
+					emit( "close" );
+				}
 
 				std::vector<std::string> const & HttpConnection::valid_events( ) const {
 					static auto const result = [&]( ) {

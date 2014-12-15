@@ -51,6 +51,7 @@ int main( int, char const ** ) {
 			response_ptr->headers( ).add( "Connection", "close" );			
 			response_ptr->write( "<html><head><title>welcome</title></head><body><h1>Welcome!</h1></body><html>\n" );
 			response_ptr->send( );
+			response_ptr->end( );
 		} );
 	} ).on_error( [&]( base::Error err ) {
 		while( err.has_exception( ) ) {

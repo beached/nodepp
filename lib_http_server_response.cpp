@@ -1,3 +1,6 @@
+#include <boost/date_time/c_local_time_adjustor.hpp>
+#include <boost/date_time/local_time_adjustor.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
 #include <cstdint>
 #include <string>
 
@@ -76,10 +79,23 @@ namespace daw {
 					m_status_sent = true;
 				}
 
+				namespace {
+					std::string gmt_timestamp( ) {
+						time_t now = time( 0 );
+						struct tm tstruct;
+						char buf[80];
+						#pragma warning(disable : 4996)
+						tstruct = *localtime( &now );
+						strftime( buf, sizeof( buf ), "%a, %d %b %Y %H:%M:%S %Z", &tstruct );
+
+						return buf;
+					}
+				}
+
 				void HttpServerResponse::send_headers( ) {
 					auto dte = m_headers["Date"];
 					if( dte.empty( ) ) {
-
+						dte = gmt_timestamp( );
 					}
 					m_socket_ptr->write( m_headers.to_string() );
 					m_headers_sent = true;

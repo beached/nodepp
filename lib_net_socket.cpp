@@ -350,6 +350,7 @@ namespace daw {
 					//m_socket = std::make_shared<boost::asio::ip::tcp::socket>( base::ServiceHandle::get( ) );
 					m_end = true;
 					m_socket->shutdown( boost::asio::ip::tcp::socket::shutdown_send );
+					emit( "end" );
 				}
 
 				void NetSocket::end( base::data_t const & chunk ) {

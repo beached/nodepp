@@ -15,7 +15,7 @@ namespace daw {
 					SocketHandle( SocketHandle const & ) = default;
 					SocketHandle& operator=(SocketHandle const &) = default;
 					
-					~SocketHandle( ) = default;
+					~SocketHandle( );
 					boost::asio::ip::tcp::socket& get( );
 					boost::asio::ip::tcp::socket const & get( ) const;
 

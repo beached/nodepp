@@ -62,17 +62,17 @@ namespace daw {
 					}
 				}
 
-// 				template<typename Listener>
-// 				EventEmitter& on( std::string event, Listener listener ) {
-// 					add_listener( event, listener );
-// 					return *this;
-// 				}
-// 
-// 				template<typename Listener>
-// 				EventEmitter& once( std::string event, Listener listener ) {
-// 					add_listener( event, listener, true );
-// 					return *this;
-// 				}
+				// 				template<typename Listener>
+				// 				EventEmitter& on( std::string event, Listener listener ) {
+				// 					add_listener( event, listener );
+				// 					return *this;
+				// 				}
+				// 
+				// 				template<typename Listener>
+				// 				EventEmitter& once( std::string event, Listener listener ) {
+				// 					add_listener( event, listener, true );
+				// 					return *this;
+				// 				}
 
 			public:
 				virtual std::vector<std::string> const & valid_events( ) const;
@@ -112,19 +112,17 @@ namespace daw {
 				template<typename... Args>
 				void emit( std::string event, Args&&... args ) {
 					assert( daw::algorithm::contains( this->valid_events( ), event ) );
-//					base::ServiceHandle::get( ).post( [&]( ) {						
-						for( auto& callback : listeners( )[event] ) {
-							if( !callback.second.empty( ) ) {
-									callback.second.exec( std::forward<Args>( args )... );							
-							}
+					for( auto& callback : listeners( )[event] ) {
+						if( !callback.second.empty( ) ) {
+							callback.second.exec( std::forward<Args>( args )... );
 						}
-						daw::algorithm::erase_remove_if( listeners( )[event], []( std::pair<bool, Callback> const & item ) {
-							return item.first;
-						} );
-//					} );
-				}				
+					}
+					daw::algorithm::erase_remove_if( listeners( )[event], []( std::pair<bool, Callback> const & item ) {
+						return item.first;
+					} );
+				}
 
-				void run( ) { 
+				void run( ) {
 					base::ServiceHandle::get( ).run( );
 				}
 
