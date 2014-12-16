@@ -73,7 +73,8 @@ namespace daw {
 
 				void HttpServerResponse::send_status( uint16_t status_code ) {
 					auto status = HttpStatusCodes( status_code );
-					auto msg = daw::string::string_format( "HTTP/{0} {1} {2}\r\n", m_version.to_string( ), status.first, status.second );
+					std::string msg = "HTTP/" +m_version.to_string( ) + " " + std::to_string( status.first ) + " " + status.second + "\r\n";
+					//auto msg = daw::string::string_format( "HTTP/{0} {1} {2}\r\n", m_version.to_string( ), status.first, status.second );
 					m_socket_ptr->write( msg ); // TODO make faster
 					m_status_sent = true;
 				}

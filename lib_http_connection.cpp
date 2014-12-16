@@ -30,8 +30,8 @@ namespace daw {
 					}
 
 				}
-				HttpConnection::HttpConnection( std::shared_ptr<lib::net::NetSocketStream> socket_ptr ) : m_socket_ptr( socket_ptr ) {
-					m_socket_ptr->when_next_data_recv( [&]( std::shared_ptr<base::data_t> data_buffer, bool ) {
+				HttpConnection::HttpConnection( std::shared_ptr<lib::net::NetSocketStream> socket_ptr ) : m_socket_ptr( std::move( socket_ptr ) ) {
+					m_socket_ptr->when_next_data_recv( [&]( std::shared_ptr<base::data_t> data_buffer, bool ) mutable {
 						auto req = parse_http_request( data_buffer->begin( ), data_buffer->end( ) );
 						data_buffer.reset( );
 						if( req ) {
