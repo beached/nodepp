@@ -87,13 +87,13 @@ namespace daw {
 				void swap( EventEmitter& rhs );
 
 
-				virtual EventEmitter& on_newListener( std::function<void( std::string, Callback )> listener );
-				virtual EventEmitter& on_removeListener( std::function<void( std::string, Callback )> listener );
-				virtual EventEmitter& on_error( std::function<void( base::Error )> listener );
+				virtual EventEmitter& when_listener_added( std::function<void( std::string, Callback )> listener );
+				virtual EventEmitter& when_listener_removed( std::function<void( std::string, Callback )> listener );
+				virtual EventEmitter& when_error( std::function<void( base::Error )> listener );
 
-				virtual EventEmitter& once_newListener( std::function<void( std::string, Callback )> listener );
-				virtual EventEmitter& once_removeListener( std::function<void( std::string, Callback )> listener );
-				virtual EventEmitter& once_error( std::function<void( base::Error )> listener );
+				virtual EventEmitter& when_next_listener_added( std::function<void( std::string, Callback )> listener );
+				virtual EventEmitter& when_next_listener_removed( std::function<void( std::string, Callback )> listener );
+				virtual EventEmitter& when_next_error( std::function<void( base::Error )> listener );
 
 				EventEmitter& remove_listener( std::string event, callback_id_t id );
 

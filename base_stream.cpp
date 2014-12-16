@@ -17,11 +17,11 @@ namespace daw {
 					return result;
 				}
 
-				StreamReadable& StreamReadable::on_close( std::function<void( )> listener ) { 
+				StreamReadable& StreamReadable::when_closed( std::function<void( )> listener ) { 
 					throw std::runtime_error( "Method not implemented in child" ); 
 				}
 				
-				StreamReadable& StreamReadable::once_close( std::function<void( )> listener ) { 
+				StreamReadable& StreamReadable::when_next_close( std::function<void( )> listener ) { 
 					throw std::runtime_error( "Method not implemented in child" );
 				}
 
@@ -41,19 +41,19 @@ namespace daw {
 					return result;
 				}
 
-				StreamWritable& StreamWritable::on_pipe( std::function<void( StreamReadable& )> listener ) {
+				StreamWritable& StreamWritable::when_piped( std::function<void( StreamReadable& )> listener ) {
 					throw std::runtime_error( "Method not implemented in child" );
 				}
 
-				StreamWritable& StreamWritable::on_unpipe( std::function<void( StreamReadable& )> listener ) {
+				StreamWritable& StreamWritable::when_unpiped( std::function<void( StreamReadable& )> listener ) {
 					throw std::runtime_error( "Method not implemented in child" );
 				}
 
-				StreamWritable& StreamWritable::once_pipe( std::function<void( StreamReadable& )> listener ) {
+				StreamWritable& StreamWritable::when_next_pipe( std::function<void( StreamReadable& )> listener ) {
 					throw std::runtime_error( "Method not implemented in child" );
 				}
 
-				StreamWritable& StreamWritable::once_unpipe( std::function<void( StreamReadable& )> listener ) {
+				StreamWritable& StreamWritable::when_next_unpipe( std::function<void( StreamReadable& )> listener ) {
 					throw std::runtime_error( "Method not implemented in child" );
 				}
 

@@ -28,16 +28,16 @@ namespace daw {
 					virtual std::vector<std::string> const & valid_events( ) const override;
 
 					// Event callbacks															
-					virtual HttpConnection& on_error( std::function<void( base::Error )> listener ) override;
-					virtual HttpConnection& once_error( std::function<void( base::Error )> listener ) override;
+					virtual HttpConnection& when_error( std::function<void( base::Error )> listener ) override;
+					virtual HttpConnection& when_next_error( std::function<void( base::Error )> listener ) override;
 
-					virtual HttpConnection& on_clientError( std::function<void( base::Error )> listener );
-					virtual HttpConnection& once_clientError( std::function<void( base::Error )> listener );
+					virtual HttpConnection& when_client_error( std::function<void( base::Error )> listener );
+					virtual HttpConnection& when_next_client_error( std::function<void( base::Error )> listener );
 
-					virtual HttpConnection& on_request( std::function<void( std::shared_ptr<HttpClientRequest>, std::shared_ptr<HttpServerResponse> )> listener );
-					virtual HttpConnection& once_request( std::function<void( std::shared_ptr<HttpClientRequest>, std::shared_ptr<HttpServerResponse> )> listener );
+					virtual HttpConnection& when_request_made( std::function<void( std::shared_ptr<HttpClientRequest>, std::shared_ptr<HttpServerResponse> )> listener );
+					virtual HttpConnection& when_next_request_made( std::function<void( std::shared_ptr<HttpClientRequest>, std::shared_ptr<HttpServerResponse> )> listener );
 
-					virtual HttpConnection& once_close( std::function<void( )> listener );	// Only once as it is called on the way out				
+					virtual HttpConnection& when_next_close( std::function<void( )> listener );	// Only once as it is called on the way out				
 					void close( );
 
 					lib::net::NetSocketStream& socket( );

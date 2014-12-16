@@ -55,6 +55,8 @@ namespace daw {
 					bool is_open( );
 					bool is_closed( ) const;
 					bool can_write( ) const;
+
+					HttpServerResponse& add_header( std::string header_name, std::string header_value );
 				};	// struct ServerResponse			
 			}	// namespace http
 		}	// namespace lib

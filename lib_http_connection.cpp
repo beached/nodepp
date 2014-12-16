@@ -31,7 +31,7 @@ namespace daw {
 
 				}
 				HttpConnection::HttpConnection( std::shared_ptr<lib::net::NetSocketStream> socket_ptr ) : m_socket_ptr( socket_ptr ) {
-					m_socket_ptr->once_data( [&]( std::shared_ptr<base::data_t> data_buffer, bool ) {
+					m_socket_ptr->when_next_data_recv( [&]( std::shared_ptr<base::data_t> data_buffer, bool ) {
 						auto req = parse_http_request( data_buffer->begin( ), data_buffer->end( ) );
 						data_buffer.reset( );
 						if( req ) {
@@ -39,11 +39,11 @@ namespace daw {
 						} else {
 							err400( m_socket_ptr );
 						}
-					} ).once_end( [&]( ) {
+					} ).when_next_eof( [&]( ) {
 						close( );
-					} ).once_close( [&]( ) {
+					} ).when_next_close( [&]( ) {
 						emit( "close" );
-					} ).once_error( [&]( base::Error error ) {
+					} ).when_next_error( [&]( base::Error error ) {
 						auto err = base::Error( "Error in connection socket" );
 						err.add( "where", "HttpConnection::HttpConnection" )
 							.child( std::move( error ) );
@@ -74,7 +74,7 @@ namespace daw {
 				//////////////////////////////////////////////////////////////////////////
 				/// Summary: Event emitted when an error occurs
 				/// Inherited from EventEmitter
-				HttpConnection& HttpConnection::on_error( std::function<void( base::Error )> listener ) {
+				HttpConnection& HttpConnection::when_error( std::function<void( base::Error )> listener ) {
 					add_listener( "error", listener );
 					return *this;
 				}
@@ -82,35 +82,35 @@ namespace daw {
 				//////////////////////////////////////////////////////////////////////////
 				/// Summary: Event emitted when an error occurs
 				/// Inherited from EventEmitter
-				HttpConnection& HttpConnection::once_error( std::function<void( base::Error )> listener ) {
+				HttpConnection& HttpConnection::when_next_error( std::function<void( base::Error )> listener ) {
 					add_listener( "error", listener, true );
 					return *this;
 				}
 
 				//////////////////////////////////////////////////////////////////////////
 				/// Summary: Event emitted when the connection is closed
-				HttpConnection& HttpConnection::once_close( std::function<void( )> listener ) {
+				HttpConnection& HttpConnection::when_next_close( std::function<void( )> listener ) {
 					add_listener( "close", listener, true );
 					return *this;
 				}
 
-				HttpConnection& HttpConnection::on_clientError( std::function<void( base::Error )> listener ) { 
+				HttpConnection& HttpConnection::when_client_error( std::function<void( base::Error )> listener ) { 
 					add_listener( "clientError", listener );
 					return *this;
 				}
 
-				HttpConnection& HttpConnection::once_clientError( std::function<void( base::Error )> listener ) { 
+				HttpConnection& HttpConnection::when_next_client_error( std::function<void( base::Error )> listener ) { 
 					add_listener( "clientError", listener, true );
 					return *this;
 				}
 
-				HttpConnection& HttpConnection::on_request( std::function<void( std::shared_ptr<HttpClientRequest>, std::shared_ptr<HttpServerResponse> )> listener ) { 
-					add_listener( "requestGet", listener );
+				HttpConnection& HttpConnection::when_request_made( std::function<void( std::shared_ptr<HttpClientRequest>, std::shared_ptr<HttpServerResponse> )> listener ) { 
+					add_listener( "request", listener );
 					return *this;
 				}
 
-				HttpConnection& HttpConnection::once_request( std::function<void( std::shared_ptr<HttpClientRequest>, std::shared_ptr<HttpServerResponse> )> listener ) {
-					add_listener( "requestGet", listener, true );
+				HttpConnection& HttpConnection::when_next_request_made( std::function<void( std::shared_ptr<HttpClientRequest>, std::shared_ptr<HttpServerResponse> )> listener ) {
+					add_listener( "request", listener, true );
 					return *this;
 				}
 

@@ -202,67 +202,67 @@ namespace daw {
 					return result;
 				}
 
-				NetSocketStream& NetSocketStream::on_connect( std::function<void( )> listener ) {
+				NetSocketStream& NetSocketStream::when_connected( std::function<void( )> listener ) {
 					add_listener( "connect", listener );
 					return *this;
 				}
 
-				NetSocketStream& NetSocketStream::on_error( std::function<void( base::Error )> listener ) {
+				NetSocketStream& NetSocketStream::when_error( std::function<void( base::Error )> listener ) {
 					add_listener( "error", listener );
 					return *this;
 				}
 
-				NetSocketStream& NetSocketStream::on_data( std::function<void( std::shared_ptr<base::data_t>, bool )> listener ) {
+				NetSocketStream& NetSocketStream::when_data_recv( std::function<void( std::shared_ptr<base::data_t>, bool )> listener ) {
 					add_listener( "data", listener );
 					return *this;
 				}
 
-				NetSocketStream& NetSocketStream::on_end( std::function<void( )> listener ) {
+				NetSocketStream& NetSocketStream::when_eof( std::function<void( )> listener ) {
 					add_listener( "end", listener );
 					return *this;
 				}
 
-				NetSocketStream& NetSocketStream::on_close( std::function<void( )> listener ) {
+				NetSocketStream& NetSocketStream::when_closed( std::function<void( )> listener ) {
 					add_listener( "close", listener );
 					return *this;
 				}
 
-				NetSocketStream& NetSocketStream::on_drain( std::function<void( )> listener ) {
+				NetSocketStream& NetSocketStream::when_write_completes( std::function<void( )> listener ) {
 					add_listener( "drain", listener );
 					return *this;
 				}
 
-				NetSocketStream& NetSocketStream::on_finish( std::function<void( )> listener ) {
+				NetSocketStream& NetSocketStream::when_writes_finished( std::function<void( )> listener ) {
 					add_listener( "finish", listener );
 					return *this;
 				}
 
-				NetSocketStream& NetSocketStream::once_connect( std::function<void( )> listener ) {
+				NetSocketStream& NetSocketStream::when_next_connected( std::function<void( )> listener ) {
 					add_listener( "connect", listener, true );
 					return *this;
 				}
 
-				NetSocketStream& NetSocketStream::once_error( std::function<void( base::Error )> listener ) {
+				NetSocketStream& NetSocketStream::when_next_error( std::function<void( base::Error )> listener ) {
 					add_listener( "error", listener, true );
 					return *this;
 				}
 
-				NetSocketStream& NetSocketStream::once_data( std::function<void( std::shared_ptr<base::data_t>, bool )> listener ) {
+				NetSocketStream& NetSocketStream::when_next_data_recv( std::function<void( std::shared_ptr<base::data_t>, bool )> listener ) {
 					add_listener( "data", listener, true );
 					return *this;
 				}
 
-				NetSocketStream& NetSocketStream::once_end( std::function<void( )> listener ) {
+				NetSocketStream& NetSocketStream::when_next_eof( std::function<void( )> listener ) {
 					add_listener( "end", listener, true );
 					return *this;
 				}
 
-				NetSocketStream& NetSocketStream::once_close( std::function<void( )> listener ) {
+				NetSocketStream& NetSocketStream::when_next_close( std::function<void( )> listener ) {
 					add_listener( "close", listener, true );
 					return *this;
 				}
 
-				NetSocketStream& NetSocketStream::once_finish( std::function<void( )> listener ) {
+				NetSocketStream& NetSocketStream::when_next_writes_finish( std::function<void( )> listener ) {
 					add_listener( "finish", listener, true );
 					return *this;
 				}

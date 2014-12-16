@@ -148,72 +148,72 @@ namespace daw {
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when a connection is established
-					NetSocketStream& on_connect( std::function<void( )> listener );
+					NetSocketStream& when_connected( std::function<void( )> listener );
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when an error occurs
 					/// Inherited from EventEmitter
-					virtual NetSocketStream& on_error( std::function<void( base::Error )> listener ) override;
+					virtual NetSocketStream& when_error( std::function<void( base::Error )> listener ) override;
 
 					// StreamReadable callbacks
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when data is received
 					/// Inherited from StreamReadable
-					virtual NetSocketStream& on_data( std::function<void( std::shared_ptr<base::data_t>, bool )> listener ) override;
+					virtual NetSocketStream& when_data_recv( std::function<void( std::shared_ptr<base::data_t>, bool )> listener ) override;
 					
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when of of stream is read.
 					/// Inherited from StreamReadable
-					virtual NetSocketStream& on_end( std::function<void( )> listener ) override;
+					virtual NetSocketStream& when_eof( std::function<void( )> listener ) override;
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when the stream is closed
 					/// Inherited from StreamReadable
-					virtual NetSocketStream& on_close( std::function<void( )> listener ) override;
+					virtual NetSocketStream& when_closed( std::function<void( )> listener ) override;
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when a write is completed
 					/// Inherited from StreamWritable
-					virtual NetSocketStream& on_drain( std::function<void( )> listener ) override;
+					virtual NetSocketStream& when_write_completes( std::function<void( )> listener ) override;
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when end( ... ) has been called and all data
 					/// has been flushed
 					/// Inherited from StreamWritable
-					virtual NetSocketStream& on_finish( std::function<void( )> listener ) override;					
+					virtual NetSocketStream& when_writes_finished( std::function<void( )> listener ) override;					
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when a connection is established
-					NetSocketStream& once_connect( std::function<void( )> listener );
+					NetSocketStream& when_next_connected( std::function<void( )> listener );
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when an error occurs
 					/// Inherited from EventEmitter
-					virtual NetSocketStream& once_error( std::function<void( base::Error )> listener ) override;
+					virtual NetSocketStream& when_next_error( std::function<void( base::Error )> listener ) override;
 
 					// StreamReadable callbacks
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when data is received
 					/// Inherited from StreamReadable
-					virtual NetSocketStream& once_data( std::function<void( std::shared_ptr<base::data_t>, bool )> listener ) override;
+					virtual NetSocketStream& when_next_data_recv( std::function<void( std::shared_ptr<base::data_t>, bool )> listener ) override;
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when of of stream is read.
 					/// Inherited from StreamReadable
-					virtual NetSocketStream& once_end( std::function<void( )> listener ) override;
+					virtual NetSocketStream& when_next_eof( std::function<void( )> listener ) override;
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when the stream is closed
 					/// Inherited from StreamReadable
-					virtual NetSocketStream& once_close( std::function<void( )> listener ) override;
+					virtual NetSocketStream& when_next_close( std::function<void( )> listener ) override;
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when end( ... ) has been called and all data
 					/// has been flushed
 					/// Inherited from StreamWritable
-					virtual NetSocketStream& once_finish( std::function<void( )> listener ) override;					
+					virtual NetSocketStream& when_next_writes_finish( std::function<void( )> listener ) override;					
 				};
 				
 			}	// namespace net

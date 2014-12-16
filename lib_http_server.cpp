@@ -48,13 +48,13 @@ namespace daw {
 				void HttpServer::handle_connection( std::shared_ptr<lib::net::NetSocketStream> socket_ptr ) {
 					auto con = std::make_shared<HttpConnection>( std::move( socket_ptr ) );
 					
-					con->once_close( [con]( ) {
+					con->when_next_close( [con]( ) {
 						base::ServiceHandle::get( ).post( [con]( ) {
 							con->remove_all_listeners( );
 							con->socket( ).remove_all_listeners( );
 							con->reset( );
 						} );
-					} ).on_error( [&]( base::Error error ) {
+					} ).when_error( [&]( base::Error error ) {
 						auto err = base::Error( "Error in connection" );
 						err.add( "where", "HttpServer::handle_connection" )
 							.child( std::move( error ) );
@@ -69,21 +69,21 @@ namespace daw {
 					emit( "error", err );
 				}
 
-				HttpServer& HttpServer::listen( uint16_t port ) {
-					m_netserver.on_connection( [&]( std::shared_ptr<lib::net::NetSocketStream> socket_ptr ) {
+				HttpServer& HttpServer::listen_on( uint16_t port ) {
+					m_netserver.when_connected( [&]( std::shared_ptr<lib::net::NetSocketStream> socket_ptr ) {
 							handle_connection( std::move( socket_ptr ) );
-						} ).on_error( std::bind( &HttpServer::handle_error, this, std::placeholders::_1 ) )
-						.on_listening( [&]( boost::asio::ip::tcp::endpoint endpoint ) {
+						} ).when_error( std::bind( &HttpServer::handle_error, this, std::placeholders::_1 ) )
+						.when_listening( [&]( boost::asio::ip::tcp::endpoint endpoint ) {
 							emit( "listening", endpoint );
 						} ).listen( port );
 					return *this;
 				}
 
-				HttpServer& HttpServer::listen( uint16_t, std::string, uint16_t ) { throw std::runtime_error( "Method not implemented" ); }
+				HttpServer& HttpServer::listen_on( uint16_t, std::string, uint16_t ) { throw std::runtime_error( "Method not implemented" ); }
 
-				HttpServer& HttpServer::listen( std::string ) { throw std::runtime_error( "Method not implemented" ); }
+				HttpServer& HttpServer::listen_on( std::string ) { throw std::runtime_error( "Method not implemented" ); }
 
-				HttpServer& HttpServer::listen( base::ServiceHandle ) { throw std::runtime_error( "Method not implemented" ); }
+				HttpServer& HttpServer::listen_on( base::ServiceHandle ) { throw std::runtime_error( "Method not implemented" ); }
 
 
 				size_t& HttpServer::max_header_count( ) { throw std::runtime_error( "Method not implemented" ); }
@@ -91,22 +91,22 @@ namespace daw {
 
 				size_t HttpServer::timeout( ) const { throw std::runtime_error( "Method not implemented" ); }
 
-				HttpServer& HttpServer::on_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener ) {
+				HttpServer& HttpServer::when_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener ) {
 					add_listener( "listening", listener );
 					return *this;
 				}
 
-				HttpServer& HttpServer::once_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener ) {
+				HttpServer& HttpServer::when_next_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener ) {
 					add_listener( "listening", listener, true );
 					return *this;
 				}
 
-				HttpServer& HttpServer::on_connection( std::function<void( std::shared_ptr<HttpConnection> )> listener ) {
+				HttpServer& HttpServer::when_client_connected( std::function<void( std::shared_ptr<HttpConnection> )> listener ) {
 					add_listener( "connection", listener );
 					return *this;
 				}
 
-				HttpServer& HttpServer::once_connection( std::function<void( std::shared_ptr<HttpConnection> )> listener ) {
+				HttpServer& HttpServer::when_next_client_connected( std::function<void( std::shared_ptr<HttpConnection> )> listener ) {
 					add_listener( "connection", listener, true );
 					return *this;
 				}

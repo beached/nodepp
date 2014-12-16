@@ -103,37 +103,37 @@ namespace daw {
 
 				// Event callbacks
 				
-				NetServer& NetServer::on_connection( std::function<void( std::shared_ptr<NetSocketStream> socket_ptr )> listener ) {
+				NetServer& NetServer::when_connected( std::function<void( std::shared_ptr<NetSocketStream> socket_ptr )> listener ) {
 					add_listener( "connection", listener );
 					return *this;
 				}
 
-				NetServer& NetServer::on_error( std::function<void( base::Error )> listener ) {
+				NetServer& NetServer::when_error( std::function<void( base::Error )> listener ) {
 					add_listener( "error", listener );
 					return *this;
 				}
 
-				NetServer& NetServer::on_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener ) {
+				NetServer& NetServer::when_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener ) {
 					add_listener( "listening", listener );
 					return *this;
 				}
 
-				NetServer& NetServer::once_error( std::function<void( base::Error )> listener ) {
+				NetServer& NetServer::when_next_error( std::function<void( base::Error )> listener ) {
 					add_listener( "error", listener, true );
 					return *this;
 				}
 
-				NetServer& NetServer::once_connection( std::function<void( std::shared_ptr<NetSocketStream> socket_ptr )> listener ) {
+				NetServer& NetServer::when_next_connection( std::function<void( std::shared_ptr<NetSocketStream> socket_ptr )> listener ) {
 					add_listener( "connection", listener, true );
 					return *this;
 				}
 
-				NetServer& NetServer::once_listening( std::function<void( )> listener ) {
+				NetServer& NetServer::when_next_listening( std::function<void( )> listener ) {
 					add_listener( "listening", listener, true );
 					return *this;
 				}
 
-				NetServer& NetServer::once_close( std::function<void( )> listener ) {
+				NetServer& NetServer::when_next_closed( std::function<void( )> listener ) {
 					add_listener( "close", listener, true );
 					return *this;
 				}

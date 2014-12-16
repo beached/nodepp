@@ -43,20 +43,20 @@ namespace daw {
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when an error occurs
 					/// Inherited from EventEmitter
-					virtual NetDns& on_error( std::function<void( base::Error )> listener ) override;
+					virtual NetDns& when_error( std::function<void( base::Error )> listener ) override;
 					
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when name resolution is complete
-					virtual NetDns& on_resolved( std::function<void( boost::asio::ip::tcp::resolver::iterator )> listener );
+					virtual NetDns& when_resolved( std::function<void( boost::asio::ip::tcp::resolver::iterator )> listener );
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when an error occurs
 					/// Inherited from EventEmitter
-					virtual NetDns& once_error( std::function<void( base::Error )> listener ) override;
+					virtual NetDns& when_next_error( std::function<void( base::Error )> listener ) override;
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when name resolution is complete
-					virtual NetDns& once_resolved( std::function<void( boost::asio::ip::tcp::resolver::iterator )> listener );
+					virtual NetDns& when_next_resolved( std::function<void( boost::asio::ip::tcp::resolver::iterator )> listener );
 
 				};	// class NetDns
 			}	// namespace net

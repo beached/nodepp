@@ -69,7 +69,7 @@ namespace daw {
 
 				HttpHeaders const & HttpServerResponse::headers( ) const {
 					return m_headers;
-				}
+				}			
 
 				void HttpServerResponse::send_status( uint16_t status_code ) {
 					auto status = HttpStatusCodes( status_code );
@@ -161,6 +161,11 @@ namespace daw {
 
 				bool HttpServerResponse::is_open( ) {
 					return m_socket_ptr->is_open( );
+				}
+
+				HttpServerResponse& HttpServerResponse::add_header( std::string header_name, std::string header_value ) {
+					m_headers.add( std::move( header_name ), std::move( header_value ) );
+					return *this;
 				}
 
 			}	// namespace http

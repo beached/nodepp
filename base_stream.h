@@ -36,27 +36,27 @@ namespace daw {
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when data is received
-					virtual StreamReadable& on_data( std::function<void( std::shared_ptr<base::data_t>, bool )> listener ) = 0;
+					virtual StreamReadable& when_data_recv( std::function<void( std::shared_ptr<base::data_t>, bool )> listener ) = 0;
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when of of stream is read.
-					virtual StreamReadable& on_end( std::function<void( )> listener ) = 0;
+					virtual StreamReadable& when_eof( std::function<void( )> listener ) = 0;
 					
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when the stream is closed
-					virtual StreamReadable& on_close( std::function<void( )> listener );
+					virtual StreamReadable& when_closed( std::function<void( )> listener );
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when data is received
-					virtual StreamReadable& once_data( std::function<void( std::shared_ptr<base::data_t>, bool )> listener ) = 0;
+					virtual StreamReadable& when_next_data_recv( std::function<void( std::shared_ptr<base::data_t>, bool )> listener ) = 0;
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when of of stream is read.
-					virtual StreamReadable& once_end( std::function<void( )> listener ) = 0;
+					virtual StreamReadable& when_next_eof( std::function<void( )> listener ) = 0;
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when the stream is closed
-					virtual StreamReadable& once_close( std::function<void( )> listener );
+					virtual StreamReadable& when_next_close( std::function<void( )> listener );
 				};	// class StreamReadable
 
 				//////////////////////////////////////////////////////////////////////////
@@ -92,37 +92,37 @@ namespace daw {
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when a write is completed
-					virtual StreamWritable& on_drain( std::function<void( )> listener ) = 0;
+					virtual StreamWritable& when_write_completes( std::function<void( )> listener ) = 0;
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when end( ... ) has been called and all data
 					/// has been flushed
-					virtual StreamWritable& on_finish( std::function<void( )> listener ) = 0;
+					virtual StreamWritable& when_writes_finished( std::function<void( )> listener ) = 0;
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted whenever this StreamWritable is passed to pipe( )
 					///  on a StreamReadable					
-					virtual StreamWritable& on_pipe( std::function<void( StreamReadable& )> listener );
+					virtual StreamWritable& when_piped( std::function<void( StreamReadable& )> listener );
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted whenever this StreamWritable is passed to unpipe( )
 					///  on a StreamReadable
-					virtual StreamWritable& on_unpipe( std::function<void( StreamReadable& )> listener );
+					virtual StreamWritable& when_unpiped( std::function<void( StreamReadable& )> listener );
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when end( ... ) has been called and all data
 					/// has been flushed
-					virtual StreamWritable& once_finish( std::function<void( )> listener ) = 0;
+					virtual StreamWritable& when_next_writes_finish( std::function<void( )> listener ) = 0;
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted whenever this StreamWritable is passed to pipe( )
 					///  on a StreamReadable					
-					virtual StreamWritable& once_pipe( std::function<void( StreamReadable& )> listener );
+					virtual StreamWritable& when_next_pipe( std::function<void( StreamReadable& )> listener );
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted whenever this StreamWritable is passed to unpipe( )
 					///  on a StreamReadable
-					virtual StreamWritable& once_unpipe( std::function<void( StreamReadable& )> listener );
+					virtual StreamWritable& when_next_unpipe( std::function<void( StreamReadable& )> listener );
 
 
 				};	// class StreamWriteable
