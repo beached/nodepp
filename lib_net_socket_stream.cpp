@@ -60,10 +60,9 @@ namespace daw {
 					m_read_mode( ReadUntil::newline ),
 					m_read_predicate( ),
 					m_outstanding_writes( std::make_shared<std::atomic_int_least32_t>( 0 ) ),
-					m_end( false ),
 					m_closed( false ),
-					m_read_until_values( ),
-					m_closed_for_write( false ) { }
+					m_end( false ),
+					m_read_until_values( ) { }
 
 				NetSocketStream::NetSocketStream( NetSocketStream&& other ) : base::stream::Stream( std::move( other ) ),
 					m_socket( std::move( other.m_socket ) ),
@@ -75,10 +74,9 @@ namespace daw {
 					m_read_mode( std::move( other.m_read_mode ) ),
 					m_read_predicate( std::move( other.m_read_predicate ) ),
 					m_outstanding_writes( std::move( other.m_outstanding_writes ) ),
-					m_end( std::move( other.m_end ) ),
 					m_closed( std::move( other.m_closed ) ),
-					m_read_until_values( std::move( other.m_read_until_values ) ),
-					m_closed_for_write( std::move( other.m_closed_for_write ) ) { }
+					m_end( std::move( other.m_end ) ),					
+					m_read_until_values( std::move( other.m_read_until_values ) ) { }
 
 				NetSocketStream& NetSocketStream::operator=(NetSocketStream&& rhs) {
 					if( this != &rhs ) {
@@ -90,10 +88,9 @@ namespace daw {
 						m_read_mode = std::move( rhs.m_read_mode );
 						m_read_predicate = std::move( rhs.m_read_predicate );
 						m_outstanding_writes = std::move( rhs.m_outstanding_writes );
+						m_closed = std::move( rhs.m_closed );
 						m_end = std::move( rhs.m_end );
 						m_read_until_values = std::move( rhs.m_read_until_values );
-						m_closed = std::move( rhs.m_closed );
-						m_closed_for_write = std::move( rhs.m_closed_for_write );
 					}
 					return *this;
 				}
@@ -342,7 +339,7 @@ namespace daw {
 				}
 
 				NetSocketStream& NetSocketStream::write( impl::write_buffer buff ) {
-					if( m_closed || m_closed_for_write ) {
+					if( m_closed || m_end ) {
 						throw std::runtime_error( "Attempt to use a closed NetSocketStream" );
 					}
 					m_bytes_written += buff.size( );
@@ -363,7 +360,7 @@ namespace daw {
 				void NetSocketStream::end( ) {
 					//m_socket = std::make_shared<boost::asio::ip::tcp::socket>( base::ServiceHandle::get( ) );
 					m_end = true;
-					m_closed_for_write = true;
+					m_end = true;
 					try {
 						m_socket->shutdown( boost::asio::ip::tcp::socket::shutdown_send );
 					} catch( ... ) {
@@ -384,7 +381,7 @@ namespace daw {
 
 				void NetSocketStream::close( bool emit_cb ) {
 					m_closed = true;
-					m_closed_for_write = true;
+					m_end = true;
 					try {
 						m_socket->shutdown( boost::asio::ip::tcp::socket::shutdown_both );
 					} catch( ... ) {
@@ -461,6 +458,14 @@ namespace daw {
 
 				NetSocketStream& operator<<(NetSocketStream& net_socket, base::data_t const & value) {
 					return net_socket.write( value );
+				}
+
+				bool NetSocketStream::is_closed( ) const {
+					return m_closed;
+				}
+
+				bool NetSocketStream::can_write( ) const {
+					return !m_end;
 				}
 
 			}	// namespace net

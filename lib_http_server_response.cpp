@@ -131,7 +131,15 @@ namespace daw {
 					m_body_sent = false;
 				}
 
-				bool HttpServerResponse::open( ) {
+				bool HttpServerResponse::is_closed( ) const {
+					return m_socket_ptr->is_closed( );
+				}
+
+				bool HttpServerResponse::can_write( ) const {
+					return m_socket_ptr->can_write( );
+				}
+
+				bool HttpServerResponse::is_open( ) {
 					return m_socket_ptr->is_open( );
 				}
 

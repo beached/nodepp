@@ -52,7 +52,9 @@ namespace daw {
 					void clear_body( );
 					void send( );
 					void reset( );
-					bool open( );
+					bool is_open( );
+					bool is_closed( ) const;
+					bool can_write( ) const;
 				};	// struct ServerResponse			
 			}	// namespace http
 		}	// namespace lib
