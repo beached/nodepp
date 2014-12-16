@@ -26,6 +26,8 @@ namespace daw {
 					boost::asio::ip::tcp::socket const * operator->() const;
 
 					explicit operator bool( ) const;
+
+					void reset( );
 				};	// class SocketHandle
 			}	// namespace net
 		}	// namespace lib

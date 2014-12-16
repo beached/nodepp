@@ -4,7 +4,7 @@
 
 #include "lib_http_connection.h"
 #include "lib_http_request.h"
-#include "lib_net_socket.h"
+#include "lib_net_socket_stream.h"
 
 namespace daw {
 	namespace nodepp {
@@ -13,7 +13,7 @@ namespace daw {
 				using namespace daw::nodepp;
 				namespace {
 
-					void err400( std::shared_ptr<lib::net::NetSocket> socket_ptr ) {
+					void err400( std::shared_ptr<lib::net::NetSocketStream> socket_ptr ) {
 						// 400 bad request
 						socket_ptr->write( "HTTP/1.1 400 Bad Request\r\nConnection: close\r\n" );
 						std::stringstream stream;
@@ -29,7 +29,7 @@ namespace daw {
 
 					}
 
-					void err505( std::shared_ptr<lib::net::NetSocket> socket_ptr ) {
+					void err505( std::shared_ptr<lib::net::NetSocketStream> socket_ptr ) {
 						socket_ptr->write( "HTTP/1.1 505 HTTP Version Not Supported\r\nConnection: close\r\n" );
 						std::stringstream stream;
 						stream << "<html><body><h2>HTTP Version Not Supported</h2>\r\n";
@@ -44,9 +44,11 @@ namespace daw {
 						socket_ptr->end( body_str );
 					}
 				}
-				HttpConnection::HttpConnection( std::shared_ptr<lib::net::NetSocket> socket_ptr ) : m_socket_ptr( socket_ptr ) {
+				HttpConnection::HttpConnection( std::shared_ptr<lib::net::NetSocketStream> socket_ptr ) : m_socket_ptr( socket_ptr ) {
 					m_socket_ptr->set_read_until_values( R"((\r\n|\n){2})", true );
-					socket_ptr->on_end( [&]( ) {
+					m_socket_ptr->on_end( [&]( ) {
+						close( );
+					} ).once_close( [&]( ) {
 						emit( "close" );
 					} ).once_data( [&]( std::shared_ptr<base::data_t> data_buffer, bool ) {
 
@@ -66,19 +68,18 @@ namespace daw {
 						} else {
 							err400( m_socket_ptr );
 						}
-
-					} ).once_close( [&]( ) {
-						emit( "close" );
 					} ).once_end( [&]( ) {
-						emit( "close" );
+						close( );
 					} ).read_async( );
 					//m_socket_ptr->read_async( );
 				}
 
-				void HttpConnection::reset( ) { }
+				void HttpConnection::reset( ) {
+					m_socket_ptr.reset( );
+				}
 
 				void HttpConnection::close( ) { 
-					m_socket_ptr->close( );
+					m_socket_ptr->close( false );
 					emit( "close" );
 				}
 
@@ -213,6 +214,14 @@ namespace daw {
 				HttpConnection& HttpConnection::once_request( std::function<void( HttpRequestMethod, HttpClientRequest, std::shared_ptr<HttpServerResponse> )> listener ) {
 					add_listener( "request", listener, true );
 					return *this;
+				}
+
+				lib::net::NetSocketStream& HttpConnection::socket( ) {
+					return *m_socket_ptr;
+				}
+
+				lib::net::NetSocketStream const & HttpConnection::socket( ) const {
+					return *m_socket_ptr;
 				}
 			} // namespace http
 		}	// namespace lib

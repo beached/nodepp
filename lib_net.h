@@ -3,7 +3,7 @@
 
 #include "base_types.h"
 #include "lib_net_server.h"
-#include "lib_net_socket.h"
+#include "lib_net_socket_stream.h"
 
 namespace daw {
 	namespace nodepp {
@@ -18,14 +18,14 @@ namespace daw {
 					
 				}
 
-				NetSocket create_connection( base::options_t options );
+				NetSocketStream create_connection( base::options_t options );
 				template<typename Listener>
 				NetServer create_connection( base::options_t options, Listener listener ) {
 					return create_connection( options ).on( "connect", listener );
 
 				}
 
-				NetSocket create_connection( uint16_t port, std::string host = "" );
+				NetSocketStream create_connection( uint16_t port, std::string host = "" );
 				
 				template<typename Listener>
 				NetServer create_connection( uint16_t port, std::string host = "", Listener listener ) {

@@ -2,6 +2,7 @@
 
 #include <list>
 #include <memory>
+#include <vector>
 
 #include "lib_http_connection.h"
 #include "lib_http_server_response.h"
@@ -17,9 +18,9 @@ namespace daw {
 				// Requires:	lib::net::NetServer
 				class HttpServer: public base::EventEmitter {
 					lib::net::NetServer m_netserver;
-					std::list<HttpConnection> m_connections;
-
-					void handle_connection( std::shared_ptr<lib::net::NetSocket> socket_ptr );
+					std::list<std::shared_ptr<HttpConnection>> m_connections;
+					std::vector<std::shared_ptr<HttpConnection>> m_closed_connections;
+					void handle_connection( std::shared_ptr<lib::net::NetSocketStream> socket_ptr );
 					void handle_error( base::Error error );					
 				public:
 					HttpServer( );
@@ -72,8 +73,8 @@ namespace daw {
 					HttpServer& on_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener );
 					HttpServer& once_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener );
 
-					HttpServer& on_connection( std::function<void( HttpConnection )> listener );
-					HttpServer& once_connection( std::function<void( HttpConnection )> listener );
+					HttpServer& on_connection( std::function<void( std::shared_ptr<HttpConnection> )> listener );
+					HttpServer& once_connection( std::function<void( std::shared_ptr<HttpConnection> )> listener );
 
 					HttpServer& on_close( std::function<void( )> listener );
 					HttpServer& once_close( std::function<void( )> listener );

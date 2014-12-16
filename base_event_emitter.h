@@ -38,6 +38,7 @@ namespace daw {
 				using listener_list_t = std::vector < std::pair<bool, Callback> > ;
 				using listeners_t = std::unordered_map < std::string, listener_list_t > ;
 
+				std::shared_ptr<std::unordered_map<std::string, listener_list_t>> m_listeners;
 				size_t m_max_listeners;
 				std::shared_ptr<std::mutex> m_mutex;
 				bool at_max_listeners( std::string event );

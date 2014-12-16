@@ -8,7 +8,7 @@
 #include "base_event_emitter.h"
 #include "base_types.h"
 #include "lib_net_address.h"
-#include "lib_net_socket.h"
+#include "lib_net_socket_stream.h"
 #include "lib_net_socket_handle.h"
 #include "base_service_handle.h"
 
@@ -23,9 +23,8 @@ namespace daw {
 				//				lib::net::NetAddress, base::Error
 				class NetServer: public daw::nodepp::base::EventEmitter {
 					std::shared_ptr<boost::asio::ip::tcp::acceptor> m_acceptor;
-					std::list<std::shared_ptr<NetSocket>> m_current_connections;
 
-					void handle_accept( std::shared_ptr<NetSocket> socket, boost::system::error_code const & err );
+					void handle_accept( std::shared_ptr<NetSocketStream> socket, boost::system::error_code const & err );
 					void start_accept( );					
 				public:
 					NetServer( );
@@ -60,7 +59,7 @@ namespace daw {
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when a connection is established
-					NetServer& on_connection( std::function<void( std::shared_ptr<NetSocket> socket_ptr )> listener );					
+					NetServer& on_connection( std::function<void( std::shared_ptr<NetSocketStream> socket_ptr )> listener );					
 					
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when the server is bound after calling 
@@ -74,7 +73,7 @@ namespace daw {
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when a connection is established
-					NetServer& once_connection( std::function<void( std::shared_ptr<NetSocket> socket_ptr )> listener );
+					NetServer& once_connection( std::function<void( std::shared_ptr<NetSocketStream> socket_ptr )> listener );
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when the server is bound after calling 

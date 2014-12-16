@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "lib_net_socket.h"
+#include "lib_net_socket_stream.h"
 #include "lib_http_request.h"
 #include "lib_http_server_response.h"
 
@@ -15,12 +15,13 @@ namespace daw {
 				enum class HttpConnectionState { Request, Message };
 
 				class HttpConnection: public base::EventEmitter {
-					std::shared_ptr<lib::net::NetSocket> m_socket_ptr;
+					std::shared_ptr<lib::net::NetSocketStream> m_socket_ptr;
 
-					void reset( );
+					
 				public:
-					HttpConnection( ) = default;
-					HttpConnection( std::shared_ptr<lib::net::NetSocket> socket_ptr );
+					void reset( );
+					HttpConnection( ) = delete;
+					HttpConnection( std::shared_ptr<lib::net::NetSocketStream> socket_ptr );
 					HttpConnection( HttpConnection const & ) = default;
 					HttpConnection& operator=( HttpConnection const & ) = default;
 					virtual ~HttpConnection( ) = default;
@@ -62,6 +63,9 @@ namespace daw {
 
 					virtual HttpConnection& once_close( std::function<void( )> listener );	// Only once as it is called on the way out				
 					void close( );
+
+					lib::net::NetSocketStream& socket( );
+					lib::net::NetSocketStream const & socket( ) const;
 				};	// class HttpConnection
 			} // namespace http
 		}	// namespace lib

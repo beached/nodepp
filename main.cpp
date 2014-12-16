@@ -24,7 +24,7 @@
 #include "lib_http_server_response.h"
 #include "lib_net_dns.h"
 #include "lib_net_server.h"
-#include "lib_net_socket.h"
+#include "lib_net_socket_stream.h"
 #include "range_algorithm.h"
 #include "range_algorithm.h"
 #include "utility.h"
@@ -44,8 +44,8 @@ int main( int, char const ** ) {
 	auto server = lib::http::HttpServer( );
 	server.on_listening( []( boost::asio::ip::tcp::endpoint endpoint ) {
 		std::cout << "Server listening on " << endpoint << "\n";
-	} ).on_connection( []( lib::http::HttpConnection con ) {
-		con.on_requestGet( []( lib::http::HttpClientRequest request, std::shared_ptr<lib::http::HttpServerResponse> response_ptr ) {
+	} ).on_connection( []( std::shared_ptr<lib::http::HttpConnection> con ) {
+		con->on_requestGet( []( lib::http::HttpClientRequest request, std::shared_ptr<lib::http::HttpServerResponse> response_ptr ) {
 			response_ptr->send_status( 200 );
 			response_ptr->headers( ).add( "Content-Type", "text/html" );
 			response_ptr->headers( ).add( "Connection", "close" );			

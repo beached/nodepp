@@ -41,6 +41,10 @@ namespace daw {
 					return m_socket ? true : false;
 				}
 
+				void SocketHandle::reset( ) {
+					m_socket.reset( );
+				}
+
 			}	// namespace net
 		}	// namespace lib
 	}	// namespace nodepp

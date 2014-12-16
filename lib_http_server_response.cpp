@@ -18,7 +18,7 @@ namespace daw {
 			namespace http {
 				using namespace daw::nodepp;
 
-				HttpServerResponse::HttpServerResponse( std::shared_ptr<lib::net::NetSocket> socket_ptr ) : 
+				HttpServerResponse::HttpServerResponse( std::shared_ptr<lib::net::NetSocketStream> socket_ptr ) : 
 						m_version( 1, 1 ), 
 						m_headers( ), 
 						m_body( ), 

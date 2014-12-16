@@ -11,7 +11,7 @@
 #include "lib_http.h"
 #include "lib_http_headers.h"
 #include "lib_http_version.h"
-#include "lib_net_socket.h"
+#include "lib_net_socket_stream.h"
 
 namespace daw {
 	namespace nodepp {
@@ -27,9 +27,9 @@ namespace daw {
 					bool m_status_sent;
 					bool m_headers_sent;
 					bool m_body_sent;
-					std::shared_ptr<lib::net::NetSocket> m_socket_ptr;
+					std::shared_ptr<lib::net::NetSocketStream> m_socket_ptr;
 				public:
-					HttpServerResponse( std::shared_ptr<lib::net::NetSocket> socket_ptr );
+					HttpServerResponse( std::shared_ptr<lib::net::NetSocketStream> socket_ptr );
 					HttpServerResponse( HttpServerResponse const & ) = default;
 					~HttpServerResponse( ) = default;
 					HttpServerResponse& operator=(HttpServerResponse const &) = default;

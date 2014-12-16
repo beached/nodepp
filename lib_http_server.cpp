@@ -5,6 +5,7 @@
 #include <utility>
 
 #include "base_event_emitter.h"
+#include "base_service_handle.h"
 #include "lib_http_connection.h"
 #include "lib_http_server.h"
 #include "lib_net_server.h"
@@ -39,18 +40,27 @@ namespace daw {
 				}
 
 				namespace {
-					void emit_connection( HttpServer& server, HttpConnection connection ) {
+					void emit_connection( HttpServer& server, std::shared_ptr<HttpConnection> connection ) {
 						server.emit( "connection", connection );
 					}
 				}
 
-				void HttpServer::handle_connection( std::shared_ptr<lib::net::NetSocket> socket_ptr ) {
-					auto it = m_connections.emplace( m_connections.begin( ), socket_ptr );
-					it->once_close( [&, it]( ) {
-						it->remove_all_listeners( );
-						m_connections.erase( it );
-					} );
-					emit_connection( *this, *it );
+				void HttpServer::handle_connection( std::shared_ptr<lib::net::NetSocketStream> socket_ptr ) {
+					//auto it = m_connections.emplace( m_connections.begin( ), std::make_shared<HttpConnection>( socket_ptr ) );
+					//auto& con = *it;
+					auto con = std::make_shared<HttpConnection>( socket_ptr );
+					auto cleanup = [con]( ) {
+						base::ServiceHandle::get( ).post( [con]( ) {
+							con->remove_all_listeners( );
+							con->socket( ).remove_all_listeners( );
+							con->close( );
+							con->reset( );
+						} );
+					};
+					con->once_close( cleanup );
+
+					emit_connection( *this, con );
+					//m_closed_connections.resize( 0 );
 				}
 
 				void HttpServer::handle_error( base::Error error ) {
@@ -59,7 +69,7 @@ namespace daw {
 				}
 
 				HttpServer& HttpServer::listen( uint16_t port ) {
-					m_netserver.on_connection( [&]( std::shared_ptr<lib::net::NetSocket> socket_ptr ) {
+					m_netserver.on_connection( [&]( std::shared_ptr<lib::net::NetSocketStream> socket_ptr ) {
 							handle_connection( socket_ptr );
 						} ).on_error( std::bind( &HttpServer::handle_error, this, std::placeholders::_1 ) )
 						.on_listening( [&]( boost::asio::ip::tcp::endpoint endpoint ) {
@@ -90,12 +100,12 @@ namespace daw {
 					return *this;
 				}
 
-				HttpServer& HttpServer::on_connection( std::function<void( HttpConnection )> listener ) {
+				HttpServer& HttpServer::on_connection( std::function<void( std::shared_ptr<HttpConnection> )> listener ) {
 					add_listener( "connection", listener );
 					return *this;
 				}
 
-				HttpServer& HttpServer::once_connection( std::function<void( HttpConnection )> listener ) {
+				HttpServer& HttpServer::once_connection( std::function<void( std::shared_ptr<HttpConnection> )> listener ) {
 					add_listener( "connection", listener, true );
 					return *this;
 				}

@@ -8,7 +8,7 @@
 #include "base_service_handle.h"
 #include "base_types.h"
 #include "lib_net_server.h"
-#include "lib_net_socket.h"
+#include "lib_net_socket_stream.h"
 #include "make_unique.h"
 #include "range_algorithm.h"
 
@@ -42,27 +42,26 @@ namespace daw {
 					return result;
 				}
 
-				NetServer::NetServer( ): EventEmitter{ }, m_acceptor( std::make_shared<boost::asio::ip::tcp::acceptor>( base::ServiceHandle::get( ) ) ), m_current_connections( ) { }
+				NetServer::NetServer( ): EventEmitter{ }, m_acceptor( std::make_shared<boost::asio::ip::tcp::acceptor>( base::ServiceHandle::get( ) ) ) { }
 				
 				NetServer::~NetServer( ) { }
 
-				NetServer::NetServer( NetServer&& other ) : EventEmitter{ std::move( other ) }, m_acceptor( std::move( other.m_acceptor ) ), m_current_connections( std::move( other.m_current_connections ) ) { }
+				NetServer::NetServer( NetServer&& other ) : EventEmitter{ std::move( other ) }, m_acceptor( std::move( other.m_acceptor ) ) { }
 
 				NetServer& NetServer::operator=(NetServer&& rhs) {
 					if( this != &rhs ) {
 						m_acceptor = std::move( rhs.m_acceptor );
-						m_current_connections = std::move( rhs.m_current_connections );
 					}
 					return *this;
 				}
 
 				namespace {
-					void emit_connection( NetServer& server, std::shared_ptr<NetSocket> socket_ptr ) {
+					void emit_connection( NetServer& server, std::shared_ptr<NetSocketStream> socket_ptr ) {
 						server.emit( "connection", socket_ptr );
 					}
 				}
 
-				void NetServer::handle_accept( std::shared_ptr<NetSocket> socket_ptr, boost::system::error_code const & err ) {
+				void NetServer::handle_accept( std::shared_ptr<NetSocketStream> socket_ptr, boost::system::error_code const & err ) {
 					if( !err ) {
 						try {
 							emit_connection( *this, socket_ptr );
@@ -76,14 +75,10 @@ namespace daw {
 				}	
 
 				void NetServer::start_accept( ) {
-					auto new_connection_it = m_current_connections.insert( std::end( m_current_connections ), std::make_shared<NetSocket>( base::ServiceHandle::get( ) ) );
-					auto& new_connection = *new_connection_it;
-					new_connection->on_close( [&, new_connection_it]( ) {
-						(*new_connection_it)->remove_all_listeners( );
-						m_current_connections.erase( new_connection_it );
-					} );
-					auto handle = boost::bind( &NetServer::handle_accept, this, new_connection, boost::asio::placeholders::error );
-					m_acceptor->async_accept( new_connection->socket( ), handle );
+					auto socket_ptr = std::make_shared<NetSocketStream>( base::ServiceHandle::get( ) );
+					
+					auto handle = boost::bind( &NetServer::handle_accept, this, socket_ptr, boost::asio::placeholders::error );
+					m_acceptor->async_accept( socket_ptr->socket( ), handle );
 				}
 
 				NetServer& NetServer::listen( uint16_t port ) {
@@ -109,7 +104,7 @@ namespace daw {
 
 				// Event callbacks
 				
-				NetServer& NetServer::on_connection( std::function<void( std::shared_ptr<NetSocket> socket_ptr )> listener ) {
+				NetServer& NetServer::on_connection( std::function<void( std::shared_ptr<NetSocketStream> socket_ptr )> listener ) {
 					add_listener( "connection", listener );
 					return *this;
 				}
@@ -129,7 +124,7 @@ namespace daw {
 					return *this;
 				}
 
-				NetServer& NetServer::once_connection( std::function<void( std::shared_ptr<NetSocket> socket_ptr )> listener ) {
+				NetServer& NetServer::once_connection( std::function<void( std::shared_ptr<NetSocketStream> socket_ptr )> listener ) {
 					add_listener( "connection", listener, true );
 					return *this;
 				}

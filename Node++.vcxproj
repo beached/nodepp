@@ -179,7 +179,7 @@
     <ClInclude Include="base_service_handle.h" />
     <ClInclude Include="lib_net_dns.h" />
     <ClInclude Include="lib_net_server.h" />
-    <ClInclude Include="lib_net_socket.h" />
+    <ClInclude Include="lib_net_socket_stream.h" />
     <ClInclude Include="base_stream.h" />
     <ClInclude Include="base_types.h" />
     <ClInclude Include="lib_net_socket_handle.h" />
@@ -211,7 +211,7 @@
     <ClCompile Include="base_service_handle.cpp" />
     <ClCompile Include="lib_net_dns.cpp" />
     <ClCompile Include="lib_net_server.cpp" />
-    <ClCompile Include="lib_net_socket.cpp" />
+    <ClCompile Include="lib_net_socket_stream.cpp" />
     <ClCompile Include="lib_net_socket_handle.cpp" />
     <ClCompile Include="load_library.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
