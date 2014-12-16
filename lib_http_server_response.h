@@ -38,6 +38,9 @@ namespace daw {
 					HttpServerResponse& write( base::data_t data );
 					HttpServerResponse& write( std::string data, base::Encoding encoding = base::Encoding( ) );
 					void end( );
+					void end( base::data_t data );
+					void end( std::string data, base::Encoding encoding = base::Encoding( ) );
+
 					void close( );
 
 					HttpHeaders& headers( );

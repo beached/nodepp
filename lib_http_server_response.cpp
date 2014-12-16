@@ -125,7 +125,18 @@ namespace daw {
 				}
 
 				void HttpServerResponse::end( ) {
+					send( );
 					m_socket_ptr->end( );					
+				}
+
+				void HttpServerResponse::end( base::data_t data ) {
+					write( std::move( data ) );
+					end( );
+				}
+
+				void HttpServerResponse::end( std::string data, base::Encoding encoding ) {
+					write( std::move( data ), std::move( encoding ) );
+					end( );
 				}
 
 				void HttpServerResponse::close( ) {

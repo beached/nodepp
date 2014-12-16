@@ -29,28 +29,13 @@ namespace daw {
 
 					}
 
-					void err505( std::shared_ptr<lib::net::NetSocketStream> socket_ptr ) {
-						socket_ptr->write( "HTTP/1.1 505 HTTP Version Not Supported\r\nConnection: close\r\n" );
-						std::stringstream stream;
-						stream << "<html><body><h2>HTTP Version Not Supported</h2>\r\n";
-						stream << "<div>This server only supports the HTTP/1.1 protocol\r\n";
-						stream << "</body></html>\r\n";
-						auto body_str( stream.str( ) );
-						stream.str( "" );
-						stream.clear( );
-						stream << "Content-Type: text/html\r\n";
-						stream << "Content-Length: " << body_str.size( ) << "\r\n\r\n";
-						socket_ptr->write( stream.str( ) );
-						socket_ptr->end( body_str );
-					}
 				}
 				HttpConnection::HttpConnection( std::shared_ptr<lib::net::NetSocketStream> socket_ptr ) : m_socket_ptr( socket_ptr ) {
 					m_socket_ptr->once_data( [&]( std::shared_ptr<base::data_t> data_buffer, bool ) {
 						auto req = parse_http_request( data_buffer->begin( ), data_buffer->end( ) );
 						data_buffer.reset( );
 						if( req ) {
-							auto resp = std::make_shared<HttpServerResponse>( m_socket_ptr );
-							emit( "request" + http_request_method_as_string( req->request.method ), std::move( req ), resp );
+							emit( "request", std::move( req ), std::make_shared<HttpServerResponse>( m_socket_ptr ) );
 						} else {
 							err400( m_socket_ptr );
 						}
@@ -119,83 +104,13 @@ namespace daw {
 					return *this;
 				}
 
-				HttpConnection& HttpConnection::on_requestGet( std::function<void( std::shared_ptr<HttpClientRequest>, std::shared_ptr<HttpServerResponse> )> listener ) { 
+				HttpConnection& HttpConnection::on_request( std::function<void( std::shared_ptr<HttpClientRequest>, std::shared_ptr<HttpServerResponse> )> listener ) { 
 					add_listener( "requestGet", listener );
 					return *this;
 				}
 
-				HttpConnection& HttpConnection::once_requestGet( std::function<void( std::shared_ptr<HttpClientRequest>, std::shared_ptr<HttpServerResponse> )> listener ) {
+				HttpConnection& HttpConnection::once_request( std::function<void( std::shared_ptr<HttpClientRequest>, std::shared_ptr<HttpServerResponse> )> listener ) {
 					add_listener( "requestGet", listener, true );
-					return *this;
-				}
-
-				HttpConnection& HttpConnection::on_requestPost( std::function<void( std::shared_ptr<HttpClientRequest>, std::shared_ptr<HttpServerResponse> )> listener ) {
-					add_listener( "requestPost", listener );
-					return *this;
-				}
-
-				HttpConnection& HttpConnection::once_requestPost( std::function<void( std::shared_ptr<HttpClientRequest>, std::shared_ptr<HttpServerResponse> )> listener ) {
-					add_listener( "requestPost", listener, true );
-					return *this;
-				}
-
-				HttpConnection& HttpConnection::on_requestPut( std::function<void( std::shared_ptr<HttpClientRequest>, std::shared_ptr<HttpServerResponse> )> listener ) {
-					add_listener( "requestPut", listener );
-					return *this;
-				}
-
-				HttpConnection& HttpConnection::once_requestPut( std::function<void( std::shared_ptr<HttpClientRequest>, std::shared_ptr<HttpServerResponse> )> listener ) {
-					add_listener( "requestPut", listener, true );
-					return *this;
-				}
-
-				HttpConnection& HttpConnection::on_requestHead( std::function<void( std::shared_ptr<HttpClientRequest>, std::shared_ptr<HttpServerResponse> )> listener ) {
-					add_listener( "requestHead", listener );
-					return *this;
-				}
-
-				HttpConnection& HttpConnection::once_requestHead( std::function<void( std::shared_ptr<HttpClientRequest>, std::shared_ptr<HttpServerResponse> )> listener ) {
-					add_listener( "requestHead", listener, true );
-					return *this;
-				}
-
-				HttpConnection& HttpConnection::on_requestDelete( std::function<void( std::shared_ptr<HttpClientRequest>, std::shared_ptr<HttpServerResponse> )> listener ) {
-					add_listener( "requestDelete", listener );
-					return *this;
-				}
-
-				HttpConnection& HttpConnection::once_requestDelete( std::function<void( std::shared_ptr<HttpClientRequest>, std::shared_ptr<HttpServerResponse> )> listener ) {
-					add_listener( "requestDelete", listener, true );
-					return *this;
-				}
-
-				HttpConnection& HttpConnection::on_requestConnect( std::function<void( std::shared_ptr<HttpClientRequest>, std::shared_ptr<HttpServerResponse> )> listener ) {
-					add_listener( "requestConnect", listener );
-					return *this;
-				}
-
-				HttpConnection& HttpConnection::once_requestConnect( std::function<void( std::shared_ptr<HttpClientRequest>, std::shared_ptr<HttpServerResponse> )> listener ) {
-					add_listener( "requestConnect", listener, true );
-					return *this;
-				}
-
-				HttpConnection& HttpConnection::on_requestOptions( std::function<void( std::shared_ptr<HttpClientRequest>, std::shared_ptr<HttpServerResponse> )> listener ) {
-					add_listener( "requestOptions", listener );
-					return *this;
-				}
-
-				HttpConnection& HttpConnection::once_requestOptions( std::function<void( std::shared_ptr<HttpClientRequest>, std::shared_ptr<HttpServerResponse> )> listener ) {
-					add_listener( "requestOptions", listener, true );
-					return *this;
-				}
-
-				HttpConnection& HttpConnection::on_requestTrace( std::function<void( std::shared_ptr<HttpClientRequest>, std::shared_ptr<HttpServerResponse> )> listener ) {
-					add_listener( "requestTrace", listener );
-					return *this;
-				}
-
-				HttpConnection& HttpConnection::once_requestTrace( std::function<void( std::shared_ptr<HttpClientRequest>, std::shared_ptr<HttpServerResponse> )> listener ) {
-					add_listener( "requestTrace", listener, true );
 					return *this;
 				}
 

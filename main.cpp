@@ -29,14 +29,6 @@
 #include "range_algorithm.h"
 #include "utility.h"
 
-template<typename MapKey, typename MapValue>
-std::ostream &operator<<(std::ostream &stream, const std::map<MapKey, MapValue>& map) {
-	for( auto it = map.begin( ); it != map.end( ); ++it ) {
-		stream << "{ " << (*it).first << ", " << (*it).second << " }" << std::endl;
-	}
-	return stream;
-}
-
 int main( int, char const ** ) {
 	using namespace daw::nodepp;
 	
@@ -45,33 +37,19 @@ int main( int, char const ** ) {
 	server.on_listening( []( boost::asio::ip::tcp::endpoint endpoint ) {
 		std::cout << "Server listening on " << endpoint << "\n";
 	} ).on_connection( []( std::shared_ptr<lib::http::HttpConnection> con ) {
-		con->on_requestGet( []( std::shared_ptr<lib::http::HttpClientRequest> request, std::shared_ptr<lib::http::HttpServerResponse> response_ptr ) {
-			response_ptr->send_status( 200 );
-			response_ptr->headers( ).add( "Content-Type", "text/html" );
-			response_ptr->headers( ).add( "Connection", "close" );
+		con->on_request( []( std::shared_ptr<lib::http::HttpClientRequest> request, std::shared_ptr<lib::http::HttpServerResponse> response ) {
+			response->send_status( 200 );
+			response->headers( ).add( "Content-Type", "text/html" );
+			response->headers( ).add( "Connection", "close" );
 			static const std::string msg = "<p>Hello World</p>";
-			response_ptr->write( msg );
-			response_ptr->send( );
-			response_ptr->end( );
-			response_ptr->close( );
+			response->end( msg );
+			response->close( );
 		} );
-	} ).on_error( [&]( base::Error err ) {
-		while( err.has_exception( ) ) {
-			try {
-				err.throw_exception( );
-			} catch( std::exception const & ex ) {
-				std::cerr << "Exception thrown: " << ex.what( ) << std::endl;
-			}
-		}
-		std::cout << "\n" << err << std::endl;
 	} );
 	
 	server.listen( 8080 );
 
 	server.run( );
 
-
-//	std::cout << "\n\nRead " << socket.bytes_read( ) << "bytes	Wrote: " << socket.bytes_written( ) << "bytes\n";
-	//	system( "pause" );
 	return EXIT_SUCCESS;
 }
