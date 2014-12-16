@@ -46,10 +46,10 @@ set(SOURCE_FILES
 		lib_net.h
 		lib_net_server.cpp
 		lib_net_server.h
-		lib_net_socket.cpp
-		lib_net_socket.h
 		lib_net_socket_handle.cpp
 		lib_net_socket_handle.h
+		lib_net_socket_stream.cpp
+		lib_net_socket_stream.h
 		load_library.cpp
 		load_library.h
 		load_library_posix.cpp
@@ -68,7 +68,6 @@ set(SOURCE_FILES
 add_executable(NodePP ${SOURCE_FILES})
 
 target_link_libraries(NodePP  ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
-
 
 
 
