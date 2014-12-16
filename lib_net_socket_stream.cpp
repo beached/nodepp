@@ -3,7 +3,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/regex.hpp>
 #include <cstdint>
-#include <mutex>
 #include <string>
 
 #include "base_enoding.h"
@@ -56,7 +55,6 @@ namespace daw {
 					m_response_buffers( std::make_shared<base::data_t>( ) ),
 					m_bytes_read( 0 ),
 					m_bytes_written( 0 ),
-					m_response_buffers_mutex( ),
 					m_read_mode( ReadUntil::newline ),
 					m_read_predicate( ),
 					m_outstanding_writes( std::make_shared<std::atomic_int_least32_t>( 0 ) ),
@@ -70,7 +68,6 @@ namespace daw {
 					m_response_buffers( std::move( other.m_response_buffers ) ),
 					m_bytes_read( std::move( other.m_bytes_read ) ),
 					m_bytes_written( std::move( other.m_bytes_written ) ),
-					m_response_buffers_mutex( ),
 					m_read_mode( std::move( other.m_read_mode ) ),
 					m_read_predicate( std::move( other.m_read_predicate ) ),
 					m_outstanding_writes( std::move( other.m_outstanding_writes ) ),
@@ -294,7 +291,6 @@ namespace daw {
 							{
 								// Handle when the emitter comes after the data starts pouring in.  This might be best placed in newEvent
 								// have not decided
-								std::lock_guard<std::mutex> scoped_lock( m_response_buffers_mutex );
 								if( !m_response_buffers->empty( ) ) {
 									emit_data( this, get_clear_buffer( m_response_buffers, m_response_buffers->size( ), 0 ), false );
 								}
@@ -430,7 +426,6 @@ namespace daw {
 				base::data_t NetSocketStream::read( ) {
 					std::shared_ptr<base::data_t> result;
 					{
-						std::lock_guard<std::mutex> scoped_lock( m_response_buffers_mutex );
 						result = get_clear_buffer( m_response_buffers, m_response_buffers->size( ), 0 );
 					}
 					return *result;

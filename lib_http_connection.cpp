@@ -51,9 +51,6 @@ namespace daw {
 						if( req ) {
 							auto resp = std::make_shared<HttpServerResponse>( m_socket_ptr );
 							emit( "request" + http_request_method_as_string( req->request.method ), std::move( req ), resp );
-							if( !resp->can_write( ) ) {
-								resp->close( );
-							}
 						} else {
 							err400( m_socket_ptr );
 						}

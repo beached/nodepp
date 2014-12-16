@@ -49,9 +49,11 @@ int main( int, char const ** ) {
 			response_ptr->send_status( 200 );
 			response_ptr->headers( ).add( "Content-Type", "text/html" );
 			response_ptr->headers( ).add( "Connection", "close" );
-			response_ptr->write( "<p>Hello World</p>" );
+			static const std::string msg = "<p>Hello World</p>";
+			response_ptr->write( msg );
 			response_ptr->send( );
 			response_ptr->end( );
+			response_ptr->close( );
 		} );
 	} ).on_error( [&]( base::Error err ) {
 		while( err.has_exception( ) ) {

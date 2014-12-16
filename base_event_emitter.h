@@ -4,7 +4,6 @@
 #include <string>
 #include <unordered_map>
 #include <memory>
-#include <mutex>
 #include <utility>
 #include <vector>
 #include "base_callback.h"
@@ -40,7 +39,6 @@ namespace daw {
 
 				std::shared_ptr<std::unordered_map<std::string, listener_list_t>> m_listeners;
 				size_t m_max_listeners;
-				std::shared_ptr<std::mutex> m_mutex;				
 
 				bool at_max_listeners( std::string event );
 				listeners_t & listeners( );
@@ -51,7 +49,6 @@ namespace daw {
 			protected:
 				template<typename Listener>
 				callback_id_t add_listener( std::string event, Listener listener, bool run_once = false ) {
-					std::lock_guard<std::mutex> listener_lock( *m_mutex );
 					if( !at_max_listeners( event ) ) {
 						auto callback = Callback( listener );
 						if( event != "newListener" ) {

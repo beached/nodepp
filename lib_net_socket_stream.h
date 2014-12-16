@@ -6,7 +6,6 @@
 #include <cstdint>
 #include <functional>
 #include <memory>
-#include <mutex>
 #include <string>
 
 #include "base_enoding.h"
@@ -53,7 +52,6 @@ namespace daw {
 					std::shared_ptr<base::data_t> m_response_buffers;
 					size_t m_bytes_read;
 					size_t m_bytes_written;
-					std::mutex m_response_buffers_mutex;					
 					ReadUntil m_read_mode;
 					std::shared_ptr<match_function_t> m_read_predicate;
 					std::shared_ptr<std::atomic_int_least32_t> m_outstanding_writes;
