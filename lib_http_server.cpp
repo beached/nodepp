@@ -46,27 +46,32 @@ namespace daw {
 				}
 
 				void HttpServer::handle_connection( std::shared_ptr<lib::net::NetSocketStream> socket_ptr ) {
-					auto con = std::make_shared<HttpConnection>( socket_ptr );
-
+					auto con = std::make_shared<HttpConnection>( std::move( socket_ptr ) );
+					
 					con->once_close( [con]( ) {
 						base::ServiceHandle::get( ).post( [con]( ) {
 							con->remove_all_listeners( );
 							con->socket( ).remove_all_listeners( );
 							con->reset( );
 						} );
+					} ).on_error( [&]( base::Error error ) {
+						auto err = base::Error( "Error in connection" );
+						err.add( "where", "HttpServer::handle_connection" )
+							.child( std::move( error ) );
+						emit( "error", std::move( err ) );
 					} );
 
 					emit_connection( *this, std::move( con ) );
 				}
 
 				void HttpServer::handle_error( base::Error error ) {
-					auto err = base::Error( "Child error" ).add( "where", "HttpServer::handle_error" ).set_child( error );
+					auto err = base::Error( "Child error" ).add( "where", "HttpServer::handle_error" ).child( error );
 					emit( "error", err );
 				}
 
 				HttpServer& HttpServer::listen( uint16_t port ) {
 					m_netserver.on_connection( [&]( std::shared_ptr<lib::net::NetSocketStream> socket_ptr ) {
-							handle_connection( socket_ptr );
+							handle_connection( std::move( socket_ptr ) );
 						} ).on_error( std::bind( &HttpServer::handle_error, this, std::placeholders::_1 ) )
 						.on_listening( [&]( boost::asio::ip::tcp::endpoint endpoint ) {
 							emit( "listening", endpoint );

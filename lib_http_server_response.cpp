@@ -125,11 +125,11 @@ namespace daw {
 				}
 
 				void HttpServerResponse::end( ) {
-					m_socket_ptr->end( );
+					m_socket_ptr->end( );					
 				}
 
 				void HttpServerResponse::close( ) {
-					m_socket_ptr->close( false );
+					m_socket_ptr->close( );
 				}
 
 				void HttpServerResponse::reset( ) {

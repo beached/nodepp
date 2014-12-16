@@ -40,7 +40,8 @@ namespace daw {
 
 				std::shared_ptr<std::unordered_map<std::string, listener_list_t>> m_listeners;
 				size_t m_max_listeners;
-				std::shared_ptr<std::mutex> m_mutex;
+				std::shared_ptr<std::mutex> m_mutex;				
+
 				bool at_max_listeners( std::string event );
 				listeners_t & listeners( );
 				listeners_t const & listeners( ) const;
@@ -111,11 +112,17 @@ namespace daw {
 				listener_list_t const listeners( std::string event ) const;
 				size_t listener_count( std::string event );
 
+				void tap( std::function<void( std::string, size_t )> listner );
+				void untap( );
+
 				template<typename... Args>
 				void emit( std::string event, Args&&... args ) {
 					assert( daw::algorithm::contains( this->valid_events( ), event ) );
-					
 					auto& callbacks = listeners( )[event];
+					if( !listeners( )["tap"].empty( ) ) {
+						listeners( )["tap"][0].second.exec( event, callbacks.size( ) );
+					}
+					
 					
 					for( auto& callback : callbacks ) {						
 						if( !callback.second.empty( ) ) {

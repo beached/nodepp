@@ -141,7 +141,7 @@ namespace daw {
 					virtual void end( base::data_t const & chunk ) override;
 					virtual void end( std::string const & chunk, base::Encoding const & encoding = base::Encoding( ) ) override;
 
-					void close( bool emit_cb = false );
+					void close( bool emit_cb = true );
 					void cancel( );
 
 					bool is_closed( ) const;

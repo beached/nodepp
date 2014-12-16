@@ -308,8 +308,10 @@ namespace daw {
 						m_bytes_read += bytes_transfered;
 					}
 
-					if( !err && !m_closed ) {
-						read_async( );
+					if( !err ) {
+						if( !m_closed ) {
+							read_async( );
+						}
 					} else if( 2 != err.value( ) ) {
 						emit_error( this, err, "NetSocket::read" );
 					}

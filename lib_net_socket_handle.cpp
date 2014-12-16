@@ -12,11 +12,17 @@ namespace daw {
 		namespace lib {
 			namespace net {
 				SocketHandle::SocketHandle( ) : m_socket( std::make_shared<boost::asio::ip::tcp::socket>( base::ServiceHandle::get( ) )	) { }
+
 				SocketHandle::SocketHandle( boost::asio::io_service & io_service ) : m_socket( std::make_shared<boost::asio::ip::tcp::socket>( io_service ) ) { }
 
-				SocketHandle::~SocketHandle( ) {
-					std::cerr << "Socket destroyed\n";	
+				SocketHandle::SocketHandle( SocketHandle&& other ): m_socket( std::move( other.m_socket ) ) { }
+
+				SocketHandle& SocketHandle::operator=(SocketHandle rhs) {
+					m_socket = std::move( rhs.m_socket );
+					return *this;
 				}
+
+				SocketHandle::~SocketHandle( ) { }
 
 				boost::asio::ip::tcp::socket& SocketHandle::get( ) { return *m_socket; }
 				boost::asio::ip::tcp::socket const & SocketHandle::get( ) const { return *m_socket; }

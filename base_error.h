@@ -34,7 +34,7 @@ namespace daw {
 				Error & child( ) const;
 				bool has_child( ) const;
 				Error& clear_child( );
-				Error& set_child( Error const & child );
+				Error& child( Error child );
 				void freeze( );
 				bool has_exception( ) const;
 				void throw_exception( );

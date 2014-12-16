@@ -122,6 +122,13 @@ namespace daw {
 				return listeners( event ).size( );
 			}
 
+			void EventEmitter::tap( std::function<void( std::string, size_t )> listener ) {
+				add_listener( "tap", listener, false );
+			}
+
+			void EventEmitter::untap( ) {
+				remove_all_listeners( "tap" );
+			}
 
 		}	// namespace base
 	}	// namespace nodepp

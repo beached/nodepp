@@ -45,20 +45,30 @@ namespace daw {
 					}
 				}
 				HttpConnection::HttpConnection( std::shared_ptr<lib::net::NetSocketStream> socket_ptr ) : m_socket_ptr( socket_ptr ) {
-					m_socket_ptr->set_read_until_values( R"((\r\n|\n){2})", true ).once_close( [&]( ) {
-						emit( "close" );
-					} ).once_data( [&]( std::shared_ptr<base::data_t> data_buffer, bool ) {
-
+					m_socket_ptr->once_data( [&]( std::shared_ptr<base::data_t> data_buffer, bool ) {
 						auto req = parse_http_request( data_buffer->begin( ), data_buffer->end( ) );
 						data_buffer.reset( );
 						if( req ) {
-							emit( "request" + http_request_method_as_string( req->request.method ), std::move( req ), std::make_shared<HttpServerResponse>( m_socket_ptr ) );
+							auto resp = std::make_shared<HttpServerResponse>( m_socket_ptr );
+							emit( "request" + http_request_method_as_string( req->request.method ), std::move( req ), resp );
+							if( !resp->can_write( ) ) {
+								resp->close( );
+							}
 						} else {
 							err400( m_socket_ptr );
 						}
 					} ).once_end( [&]( ) {
 						close( );
-					} ).read_async( );
+					} ).once_close( [&]( ) {
+						emit( "close" );
+					} ).once_error( [&]( base::Error error ) {
+						auto err = base::Error( "Error in connection socket" );
+						err.add( "where", "HttpConnection::HttpConnection" )
+							.child( std::move( error ) );
+						emit( "error", std::move( err ) );						
+					} );
+					
+					m_socket_ptr->set_read_until_values( R"((\r\n|\n){2})", true ).read_async( );
 				}
 
 				void HttpConnection::reset( ) {
@@ -66,8 +76,7 @@ namespace daw {
 				}
 
 				void HttpConnection::close( ) { 
-					m_socket_ptr->close( false );
-					emit( "close" );
+					m_socket_ptr->close( );
 				}
 
 				std::vector<std::string> const & HttpConnection::valid_events( ) const {

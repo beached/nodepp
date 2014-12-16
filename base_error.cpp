@@ -88,8 +88,8 @@ namespace daw {
 				return *this;
 			}
 
-			Error& Error::set_child( Error const & child ) {
-				m_child = std::make_shared<Error>( child );
+			Error& Error::child( Error child ) {
+				m_child = std::make_shared<Error>( std::move( child ) );
 				m_child->freeze( );
 				return *this;
 			}
