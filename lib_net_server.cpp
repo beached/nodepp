@@ -64,7 +64,7 @@ namespace daw {
 				void NetServer::handle_accept( std::shared_ptr<NetSocketStream> socket_ptr, boost::system::error_code const & err ) {
 					if( !err ) {
 						try {
-							emit_connection( *this, socket_ptr );
+							emit_connection( *this, std::shared_ptr<NetSocketStream>( std::move( socket_ptr ) ) );
 						} catch( ... ) {
 							emit_error( this, std::current_exception( ) , "NetServer::listen#emit_connection" );
 						}
@@ -76,7 +76,6 @@ namespace daw {
 
 				void NetServer::start_accept( ) {
 					auto socket_ptr = std::make_shared<NetSocketStream>( base::ServiceHandle::get( ) );
-					
 					auto handle = boost::bind( &NetServer::handle_accept, this, socket_ptr, boost::asio::placeholders::error );
 					m_acceptor->async_accept( socket_ptr->socket( ), handle );
 				}

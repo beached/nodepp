@@ -49,18 +49,17 @@ namespace daw {
 					//auto it = m_connections.emplace( m_connections.begin( ), std::make_shared<HttpConnection>( socket_ptr ) );
 					//auto& con = *it;
 					auto con = std::make_shared<HttpConnection>( socket_ptr );
-					auto cleanup = [con]( ) {
+
+					con->once_close( [con]( ) {
 						base::ServiceHandle::get( ).post( [con]( ) {
 							con->remove_all_listeners( );
 							con->socket( ).remove_all_listeners( );
 							con->close( );
 							con->reset( );
 						} );
-					};
-					con->once_close( cleanup );
+					} );
 
-					emit_connection( *this, con );
-					//m_closed_connections.resize( 0 );
+					emit_connection( *this, std::move( con ) );
 				}
 
 				void HttpServer::handle_error( base::Error error ) {

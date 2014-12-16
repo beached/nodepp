@@ -131,6 +131,10 @@ namespace daw {
 					m_body_sent = false;
 				}
 
+				bool HttpServerResponse::open( ) {
+					return m_socket_ptr->is_open( );
+				}
+
 			}	// namespace http
 		}	// namespace lib
 	}	// namespace nodepp

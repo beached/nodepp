@@ -363,7 +363,7 @@ namespace daw {
 				void NetSocketStream::end( ) {
 					//m_socket = std::make_shared<boost::asio::ip::tcp::socket>( base::ServiceHandle::get( ) );
 					m_end = true;
-					m_closed_for_write;
+					m_closed_for_write = true;
 					try {
 						m_socket->shutdown( boost::asio::ip::tcp::socket::shutdown_send );
 					} catch( ... ) {

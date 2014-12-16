@@ -46,12 +46,16 @@ int main( int, char const ** ) {
 		std::cout << "Server listening on " << endpoint << "\n";
 	} ).on_connection( []( std::shared_ptr<lib::http::HttpConnection> con ) {
 		con->on_requestGet( []( lib::http::HttpClientRequest request, std::shared_ptr<lib::http::HttpServerResponse> response_ptr ) {
-			response_ptr->send_status( 200 );
-			response_ptr->headers( ).add( "Content-Type", "text/html" );
-			response_ptr->headers( ).add( "Connection", "close" );			
-			response_ptr->write( "<html><head><title>welcome</title></head><body><h1>Welcome!</h1></body><html>\n" );
-			response_ptr->send( );
-			response_ptr->end( );
+			if( !response_ptr->open( ) ) {
+				response_ptr->send_status( 200 );
+				response_ptr->headers( ).add( "Content-Type", "text/html" );
+				response_ptr->headers( ).add( "Connection", "close" );
+				response_ptr->write( "<html><head><title>welcome</title></head><body><h1>Welcome!</h1></body><html>\n" );
+				response_ptr->send( );
+				response_ptr->end( );
+			} else {
+				std::cout;
+			}
 		} );
 	} ).on_error( [&]( base::Error err ) {
 		while( err.has_exception( ) ) {
