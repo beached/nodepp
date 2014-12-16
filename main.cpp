@@ -45,17 +45,13 @@ int main( int, char const ** ) {
 	server.on_listening( []( boost::asio::ip::tcp::endpoint endpoint ) {
 		std::cout << "Server listening on " << endpoint << "\n";
 	} ).on_connection( []( std::shared_ptr<lib::http::HttpConnection> con ) {
-		con->on_requestGet( []( lib::http::HttpClientRequest request, std::shared_ptr<lib::http::HttpServerResponse> response_ptr ) {
-			if( response_ptr->can_write( ) ) {
-				response_ptr->send_status( 200 );
-				response_ptr->headers( ).add( "Content-Type", "text/html" );
-				response_ptr->headers( ).add( "Connection", "close" );
-				response_ptr->write( "<p>Hello World</p>" );
-				response_ptr->send( );
-				response_ptr->close( );
-			} else {
-				std::cout << "";
-			}
+		con->on_requestGet( []( std::shared_ptr<lib::http::HttpClientRequest> request, std::shared_ptr<lib::http::HttpServerResponse> response_ptr ) {
+			response_ptr->send_status( 200 );
+			response_ptr->headers( ).add( "Content-Type", "text/html" );
+			response_ptr->headers( ).add( "Connection", "close" );
+			response_ptr->write( "<p>Hello World</p>" );
+			response_ptr->send( );
+			response_ptr->end( );
 		} );
 	} ).on_error( [&]( base::Error err ) {
 		while( err.has_exception( ) ) {

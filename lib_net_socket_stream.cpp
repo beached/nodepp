@@ -111,7 +111,7 @@ namespace daw {
 
 
 					void emit_data( NetSocketStream* const net_socket, std::shared_ptr<base::data_t> buffer, bool end_of_file ) {
-						net_socket->emit( "data", buffer, end_of_file );
+						net_socket->emit( "data", std::move( buffer ), end_of_file );
 						if( end_of_file ) {
 							net_socket->emit( "end" );
 						}
@@ -301,9 +301,9 @@ namespace daw {
 							}
 							bool end_of_file = err && 2 == err.value( );
 
-							emit_data( this, new_data, end_of_file );
+							emit_data( this, std::move( new_data ), end_of_file );
 						} else {	// Queue up for a			
-							daw::copy_vect_and_set( new_data, m_response_buffers, bytes_transfered, static_cast<base::data_t::value_type>(0) );
+							daw::copy_vect_and_set( std::move( new_data ), m_response_buffers, bytes_transfered, static_cast<base::data_t::value_type>(0) );
 						}
 						m_bytes_read += bytes_transfered;
 					}

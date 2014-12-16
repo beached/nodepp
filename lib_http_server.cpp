@@ -54,7 +54,6 @@ namespace daw {
 						base::ServiceHandle::get( ).post( [con]( ) {
 							con->remove_all_listeners( );
 							con->socket( ).remove_all_listeners( );
-							con->close( );
 							con->reset( );
 						} );
 					} );
