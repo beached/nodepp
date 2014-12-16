@@ -37,7 +37,7 @@ namespace daw {
 					virtual HttpConnection& when_request_made( std::function<void( std::shared_ptr<HttpClientRequest>, std::shared_ptr<HttpServerResponse> )> listener );
 					virtual HttpConnection& when_next_request_made( std::function<void( std::shared_ptr<HttpClientRequest>, std::shared_ptr<HttpServerResponse> )> listener );
 
-					virtual HttpConnection& when_next_close( std::function<void( )> listener );	// Only once as it is called on the way out				
+					virtual HttpConnection& on_closed( std::function<void( )> listener );	// Only once as it is called on the way out				
 					void close( );
 
 					lib::net::NetSocketStream& socket( );

@@ -41,7 +41,7 @@ namespace daw {
 						}
 					} ).when_next_eof( [&]( ) {
 						close( );
-					} ).when_next_close( [&]( ) {
+					} ).on_closed( [&]( ) {
 						emit( "close" );
 					} ).when_next_error( [&]( base::Error error ) {
 						auto err = base::Error( "Error in connection socket" );
@@ -89,7 +89,7 @@ namespace daw {
 
 				//////////////////////////////////////////////////////////////////////////
 				/// Summary: Event emitted when the connection is closed
-				HttpConnection& HttpConnection::when_next_close( std::function<void( )> listener ) {
+				HttpConnection& HttpConnection::on_closed( std::function<void( )> listener ) {
 					add_listener( "close", listener, true );
 					return *this;
 				}

@@ -83,7 +83,7 @@ namespace daw {
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when the server closes and all connections 
 					/// are closed
-					NetServer& when_next_closed( std::function<void( )> listener );
+					NetServer& on_closed( std::function<void( )> listener );
 
 				};	// class server
 

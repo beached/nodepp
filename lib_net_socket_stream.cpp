@@ -257,7 +257,7 @@ namespace daw {
 					return *this;
 				}
 
-				NetSocketStream& NetSocketStream::when_next_close( std::function<void( )> listener ) {
+				NetSocketStream& NetSocketStream::on_closed( std::function<void( )> listener ) {
 					add_listener( "close", listener, true );
 					return *this;
 				}

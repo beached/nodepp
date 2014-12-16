@@ -21,7 +21,7 @@ namespace daw {
 					throw std::runtime_error( "Method not implemented in child" ); 
 				}
 				
-				StreamReadable& StreamReadable::when_next_close( std::function<void( )> listener ) { 
+				StreamReadable& StreamReadable::on_closed( std::function<void( )> listener ) { 
 					throw std::runtime_error( "Method not implemented in child" );
 				}
 

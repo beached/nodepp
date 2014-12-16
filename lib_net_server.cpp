@@ -133,7 +133,7 @@ namespace daw {
 					return *this;
 				}
 
-				NetServer& NetServer::when_next_closed( std::function<void( )> listener ) {
+				NetServer& NetServer::on_closed( std::function<void( )> listener ) {
 					add_listener( "close", listener, true );
 					return *this;
 				}

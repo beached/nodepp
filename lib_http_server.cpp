@@ -46,13 +46,13 @@ namespace daw {
 				}
 
 				void HttpServer::handle_connection( std::shared_ptr<lib::net::NetSocketStream> socket_ptr ) {
-					auto con = std::make_shared<HttpConnection>( std::move( socket_ptr ) );
+					auto connection = std::make_shared<HttpConnection>( std::move( socket_ptr ) );
 					
-					con->when_next_close( [con]( ) {
-						base::ServiceHandle::get( ).post( [con]( ) {
-							con->remove_all_listeners( );
-							con->socket( ).remove_all_listeners( );
-							con->reset( );
+					connection->on_closed( [connection]( ) {
+						base::ServiceHandle::get( ).post( [connection]( ) {
+							connection->remove_all_listeners( );
+							connection->socket( ).remove_all_listeners( );
+							connection->reset( );
 						} );
 					} ).when_error( [&]( base::Error error ) {
 						auto err = base::Error( "Error in connection" );
@@ -61,7 +61,7 @@ namespace daw {
 						emit( "error", std::move( err ) );
 					} );
 
-					emit_connection( *this, std::move( con ) );
+					emit_connection( *this, std::move( connection ) );
 				}
 
 				void HttpServer::handle_error( base::Error error ) {

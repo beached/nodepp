@@ -56,7 +56,7 @@ namespace daw {
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when the stream is closed
-					virtual StreamReadable& when_next_close( std::function<void( )> listener );
+					virtual StreamReadable& on_closed( std::function<void( )> listener );
 				};	// class StreamReadable
 
 				//////////////////////////////////////////////////////////////////////////

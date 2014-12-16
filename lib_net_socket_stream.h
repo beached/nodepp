@@ -207,7 +207,7 @@ namespace daw {
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when the stream is closed
 					/// Inherited from StreamReadable
-					virtual NetSocketStream& when_next_close( std::function<void( )> listener ) override;
+					virtual NetSocketStream& on_closed( std::function<void( )> listener ) override;
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when end( ... ) has been called and all data
