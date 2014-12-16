@@ -13,7 +13,8 @@ namespace daw {
 				HttpHeader::HttpHeader( std::string Name, std::string Value ) : name( Name ), value( Value ) { }
 
 				std::string HttpHeader::to_string( ) const {
-					return daw::string::string_format( "{0}: {1}", name, value );
+					return name + ": " + value;
+					//return daw::string::string_format( "{0}: {1}", name, value );
 				}
 				
 				bool HttpHeader::empty( ) const {
