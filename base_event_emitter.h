@@ -114,12 +114,15 @@ namespace daw {
 				template<typename... Args>
 				void emit( std::string event, Args&&... args ) {
 					assert( daw::algorithm::contains( this->valid_events( ), event ) );
-					for( auto& callback : listeners( )[event] ) {
+					
+					auto& callbacks = listeners( )[event];
+					
+					for( auto& callback : callbacks ) {						
 						if( !callback.second.empty( ) ) {
 							callback.second.exec( std::forward<Args>( args )... );
 						}
 					}
-					daw::algorithm::erase_remove_if( listeners( )[event], []( std::pair<bool, Callback> const & item ) {
+					daw::algorithm::erase_remove_if( callbacks, []( std::pair<bool, Callback> const & item ) {
 						return item.first;
 					} );
 				}

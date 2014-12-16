@@ -20,16 +20,16 @@ namespace daw {
 				using namespace boost::asio::ip;
 
 				namespace {
-					void emit_error( NetServer* const net_server, boost::system::error_code const & err, std::string where ) {
+					void emit_error( NetServer& net_server, boost::system::error_code const & err, std::string where ) {
 						auto error = base::Error( err );
 						error.add( "where", where );
-						net_server->emit( "error", error );
+						net_server.emit( "error", error );
 					}
 
-					void emit_error( NetServer* const net_server, std::exception_ptr err, std::string where ) {
+					void emit_error( NetServer& net_server, std::exception_ptr err, std::string where ) {
 						auto error = base::Error( "Exception Caught", std::move( err ) );
 						error.add( "where", where );
-						net_server->emit( "error", error );
+						net_server.emit( "error", error );
 					}
 				}	// namespace anonymous
 
@@ -42,11 +42,11 @@ namespace daw {
 					return result;
 				}
 
-				NetServer::NetServer( ): EventEmitter{ }, m_acceptor( std::make_shared<boost::asio::ip::tcp::acceptor>( base::ServiceHandle::get( ) ) ) { }
+				NetServer::NetServer( ): EventEmitter( ), m_acceptor( std::make_shared<boost::asio::ip::tcp::acceptor>( base::ServiceHandle::get( ) ) ) { }
 				
 				NetServer::~NetServer( ) { }
 
-				NetServer::NetServer( NetServer&& other ) : EventEmitter{ std::move( other ) }, m_acceptor( std::move( other.m_acceptor ) ) { }
+				NetServer::NetServer( NetServer&& other ) : EventEmitter( std::move( other ) ), m_acceptor( std::move( other.m_acceptor ) ) { }
 
 				NetServer& NetServer::operator=(NetServer&& rhs) {
 					if( this != &rhs ) {
@@ -64,12 +64,12 @@ namespace daw {
 				void NetServer::handle_accept( std::shared_ptr<NetSocketStream> socket_ptr, boost::system::error_code const & err ) {
 					if( !err ) {
 						try {
-							emit_connection( *this, std::shared_ptr<NetSocketStream>( std::move( socket_ptr ) ) );
+							emit_connection( *this, std::move( socket_ptr ) );
 						} catch( ... ) {
-							emit_error( this, std::current_exception( ) , "NetServer::listen#emit_connection" );
+							emit_error( *this, std::current_exception( ) , "NetServer::listen#emit_connection" );
 						}
 					} else {
-						emit_error( this, err, "NetServer::listen" );
+						emit_error( *this, err, "NetServer::listen" );
 					}
 					start_accept( );
 				}	

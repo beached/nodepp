@@ -360,13 +360,11 @@ namespace daw {
 				void NetSocketStream::end( ) {
 					//m_socket = std::make_shared<boost::asio::ip::tcp::socket>( base::ServiceHandle::get( ) );
 					m_end = true;
-					m_end = true;
 					try {
 						m_socket->shutdown( boost::asio::ip::tcp::socket::shutdown_send );
 					} catch( ... ) {
 						emit_error( this, std::current_exception( ), "Error calling shutdown on socket", "NetSocketStream::end( )" );
 					}
-					emit( "end" );
 				}
 
 				void NetSocketStream::end( base::data_t const & chunk ) {

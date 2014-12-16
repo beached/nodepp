@@ -38,6 +38,7 @@ namespace daw {
 					HttpServerResponse& write( base::data_t data );
 					HttpServerResponse& write( std::string data, base::Encoding encoding = base::Encoding( ) );
 					void end( );
+					void close( );
 // 					template<typename... Args>
 // 					HttpServerResponse& create_chunk( Args&&... args ) {
 // 						auto next = std::make_shared<HttpServerResponse>( std::forward<Args>( args )... );

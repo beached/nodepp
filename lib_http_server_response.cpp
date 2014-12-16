@@ -79,20 +79,25 @@ namespace daw {
 				}
 
 				namespace {
-					std::string gmt_timestamp( ) {
-						time_t now = time( 0 );
-						struct tm tstruct;
+					std::string gmt_timestamp( ) {				
+						auto now = time( 0 );
+#ifdef _MSC_VER
+#pragma warning(disable : 4996)
+#endif
+						auto ptm = gmtime( &now );
+
 						char buf[80];
-						#pragma warning(disable : 4996)
-						tstruct = *localtime( &now );
-						strftime( buf, sizeof( buf ), "%a, %d %b %Y %H:%M:%S %Z", &tstruct );
+#ifdef _MSC_VER
+#pragma warning(disable : 4996)
+#endif
+						strftime( buf, sizeof( buf ), "%a, %d %b %Y %H:%M:%S GMT", ptm );
 
 						return buf;
 					}
 				}
 
 				void HttpServerResponse::send_headers( ) {
-					auto dte = m_headers["Date"];
+					auto& dte = m_headers["Date"];
 					if( dte.empty( ) ) {
 						dte = gmt_timestamp( );
 					}
@@ -121,6 +126,10 @@ namespace daw {
 
 				void HttpServerResponse::end( ) {
 					m_socket_ptr->end( );
+				}
+
+				void HttpServerResponse::close( ) {
+					m_socket_ptr->close( false );
 				}
 
 				void HttpServerResponse::reset( ) {

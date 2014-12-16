@@ -50,11 +50,11 @@ int main( int, char const ** ) {
 				response_ptr->send_status( 200 );
 				response_ptr->headers( ).add( "Content-Type", "text/html" );
 				response_ptr->headers( ).add( "Connection", "close" );
-				response_ptr->write( "<html><head><title>welcome</title></head><body><h1>Welcome!</h1></body><html>\n" );
+				response_ptr->write( "<p>Hello World</p>" );
 				response_ptr->send( );
-				response_ptr->end( );
+				response_ptr->close( );
 			} else {
-				std::cout;
+				std::cout << "";
 			}
 		} );
 	} ).on_error( [&]( base::Error err ) {

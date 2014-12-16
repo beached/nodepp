@@ -58,9 +58,6 @@ namespace daw {
 					virtual HttpConnection& on_requestTrace( std::function<void( HttpClientRequest, std::shared_ptr<HttpServerResponse> )> listener );
 					virtual HttpConnection& once_requestTrace( std::function<void( HttpClientRequest, std::shared_ptr<HttpServerResponse> )> listener );
 
-					virtual HttpConnection& on_request( std::function<void( HttpRequestMethod, HttpClientRequest, std::shared_ptr<HttpServerResponse> )> listener );
-					virtual HttpConnection& once_request( std::function<void( HttpRequestMethod, HttpClientRequest, std::shared_ptr<HttpServerResponse> )> listener );
-
 					virtual HttpConnection& once_close( std::function<void( )> listener );	// Only once as it is called on the way out				
 					void close( );
 

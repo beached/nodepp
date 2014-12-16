@@ -55,15 +55,11 @@ namespace daw {
 						auto req = parse_http_request( data_buffer->begin( ), data_buffer->end( ) );
 
 						if( req ) {
-							if( req->request.version != "1.1" ) {
+							if( false && req->request.version != "1.1" ) {
 								err505( m_socket_ptr );	// TODO support v1.0 or at least validate
+							} else {
+								emit( "request" + http_request_method_as_string( req->request.method ), *req, std::make_shared<HttpServerResponse>( m_socket_ptr ) );
 							}
-							auto resp = std::make_shared<HttpServerResponse>( m_socket_ptr );
-
-							const auto & method = req->request.method;
-
-							emit( "request", method, *req, resp );
-							emit( "request" + http_request_method_as_string( method ), *req, resp );
 
 						} else {
 							err400( m_socket_ptr );
@@ -203,16 +199,6 @@ namespace daw {
 
 				HttpConnection& HttpConnection::once_requestTrace( std::function<void( HttpClientRequest, std::shared_ptr<HttpServerResponse> )> listener ) {
 					add_listener( "requestTrace", listener, true );
-					return *this;
-				}
-
-				HttpConnection& HttpConnection::on_request( std::function<void( HttpRequestMethod, HttpClientRequest, std::shared_ptr<HttpServerResponse> )> listener ) {
-					add_listener( "request", listener );
-					return *this;
-				}
-
-				HttpConnection& HttpConnection::once_request( std::function<void( HttpRequestMethod, HttpClientRequest, std::shared_ptr<HttpServerResponse> )> listener ) {
-					add_listener( "request", listener, true );
 					return *this;
 				}
 
