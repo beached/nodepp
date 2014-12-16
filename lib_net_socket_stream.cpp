@@ -303,7 +303,7 @@ namespace daw {
 
 							emit_data( this, std::move( new_data ), end_of_file );
 						} else {	// Queue up for a			
-							daw::copy_vect_and_set( std::move( new_data ), m_response_buffers, bytes_transfered, static_cast<base::data_t::value_type>(0) );
+							daw::copy_vect_and_set( new_data, m_response_buffers, bytes_transfered, static_cast<base::data_t::value_type>(0) );
 						}
 						m_bytes_read += bytes_transfered;
 					}
