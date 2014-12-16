@@ -98,7 +98,7 @@ namespace daw {
 
 					template<typename Listener>
 					NetSocketStream& set_timeout( int32_t value, Listener listener ) {
-						return base::rollback_event_on_exception( this, "timeout", listener, [&]( ) -> NetSocket& {
+						return base::rollback_event_on_exception( this, "timeout", listener, [&]( ) -> NetSocketStream& {
 							set_timeout( value );
 						} );
 					}
