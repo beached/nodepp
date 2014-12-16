@@ -46,8 +46,6 @@ namespace daw {
 				}
 
 				void HttpServer::handle_connection( std::shared_ptr<lib::net::NetSocketStream> socket_ptr ) {
-					//auto it = m_connections.emplace( m_connections.begin( ), std::make_shared<HttpConnection>( socket_ptr ) );
-					//auto& con = *it;
 					auto con = std::make_shared<HttpConnection>( socket_ptr );
 
 					con->once_close( [con]( ) {
