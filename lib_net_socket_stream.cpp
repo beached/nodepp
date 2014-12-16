@@ -61,8 +61,8 @@ namespace daw {
 					m_read_predicate( ),
 					m_outstanding_writes( std::make_shared<std::atomic_int_least32_t>( 0 ) ),
 					m_end( false ),
-					m_read_until_values( ),
 					m_closed( false ),
+					m_read_until_values( ),
 					m_closed_for_write( false ) { }
 
 				NetSocketStream::NetSocketStream( NetSocketStream&& other ) : base::stream::Stream( std::move( other ) ),
@@ -76,8 +76,8 @@ namespace daw {
 					m_read_predicate( std::move( other.m_read_predicate ) ),
 					m_outstanding_writes( std::move( other.m_outstanding_writes ) ),
 					m_end( std::move( other.m_end ) ),
-					m_read_until_values( std::move( other.m_read_until_values ) ),
 					m_closed( std::move( other.m_closed ) ),
+					m_read_until_values( std::move( other.m_read_until_values ) ),
 					m_closed_for_write( std::move( other.m_closed_for_write ) ) { }
 
 				NetSocketStream& NetSocketStream::operator=(NetSocketStream&& rhs) {
