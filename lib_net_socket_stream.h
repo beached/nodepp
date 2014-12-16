@@ -57,6 +57,8 @@ namespace daw {
 					ReadUntil m_read_mode;
 					std::shared_ptr<match_function_t> m_read_predicate;
 					std::shared_ptr<std::atomic_int_least32_t> m_outstanding_writes;
+					bool m_closed;
+					bool m_closed_for_write;
 					bool m_end;
 					std::string m_read_until_values;
 					void inc_outstanding_writes( );

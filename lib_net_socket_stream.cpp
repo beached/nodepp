@@ -61,7 +61,9 @@ namespace daw {
 					m_read_predicate( ),
 					m_outstanding_writes( std::make_shared<std::atomic_int_least32_t>( 0 ) ),
 					m_end( false ),
-					m_read_until_values( ) { }
+					m_read_until_values( ),
+					m_closed( false ),
+					m_closed_for_write( false ) { }
 
 				NetSocketStream::NetSocketStream( NetSocketStream&& other ) : base::stream::Stream( std::move( other ) ),
 					m_socket( std::move( other.m_socket ) ),
@@ -74,7 +76,9 @@ namespace daw {
 					m_read_predicate( std::move( other.m_read_predicate ) ),
 					m_outstanding_writes( std::move( other.m_outstanding_writes ) ),
 					m_end( std::move( other.m_end ) ),
-					m_read_until_values( std::move( other.m_read_until_values ) ) { }
+					m_read_until_values( std::move( other.m_read_until_values ) ),
+					m_closed( std::move( other.m_closed ) ),
+					m_closed_for_write( std::move( other.m_closed_for_write ) ) { }
 
 				NetSocketStream& NetSocketStream::operator=(NetSocketStream&& rhs) {
 					if( this != &rhs ) {
@@ -88,17 +92,26 @@ namespace daw {
 						m_outstanding_writes = std::move( rhs.m_outstanding_writes );
 						m_end = std::move( rhs.m_end );
 						m_read_until_values = std::move( rhs.m_read_until_values );
+						m_closed = std::move( rhs.m_closed );
+						m_closed_for_write = std::move( rhs.m_closed_for_write );
 					}
 					return *this;
 				}
 
 				namespace {
 
-					void emit_error( NetSocketStream* const net_socket, boost::system::error_code const & err, std::string where ) {
+					void emit_error( NetSocketStream * const net_socket, boost::system::error_code const & err, std::string where ) {
 						auto error = base::Error( err );
 						error.add( "where", where );
 						net_socket->emit( "error", error );
 					}
+
+					void emit_error( NetSocketStream * const net_socket, std::exception_ptr ex, std::string description, std::string where ) {
+						auto error = base::Error( description, ex );
+						error.add( "where", where );
+						net_socket->emit( "error", error );
+					}
+
 
 					void emit_data( NetSocketStream* const net_socket, std::shared_ptr<base::data_t> buffer, bool end_of_file ) {
 						net_socket->emit( "data", buffer, end_of_file );
@@ -125,6 +138,9 @@ namespace daw {
 				}
 
 				void NetSocketStream::read_async( ) {
+					if( m_closed ) {
+						return;
+					}
 					auto handler = boost::bind( &NetSocketStream::handle_read, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred );
 
 					switch( m_read_mode ) {
@@ -295,7 +311,7 @@ namespace daw {
 						m_bytes_read += bytes_transfered;
 					}
 
-					if( !err ) {
+					if( !err && !m_closed ) {
 						read_async( );
 					} else if( 2 != err.value( ) ) {
 						emit_error( this, err, "NetSocket::read" );
@@ -326,6 +342,9 @@ namespace daw {
 				}
 
 				NetSocketStream& NetSocketStream::write( impl::write_buffer buff ) {
+					if( m_closed || m_closed_for_write ) {
+						throw std::runtime_error( "Attempt to use a closed NetSocketStream" );
+					}
 					m_bytes_written += buff.size( );
 					auto handler = boost::bind( &NetSocketStream::handle_write, this, buff, boost::asio::placeholders::error );
 					inc_outstanding_writes( );
@@ -344,7 +363,12 @@ namespace daw {
 				void NetSocketStream::end( ) {
 					//m_socket = std::make_shared<boost::asio::ip::tcp::socket>( base::ServiceHandle::get( ) );
 					m_end = true;
-					m_socket->shutdown( boost::asio::ip::tcp::socket::shutdown_send );
+					m_closed_for_write;
+					try {
+						m_socket->shutdown( boost::asio::ip::tcp::socket::shutdown_send );
+					} catch( ... ) {
+						emit_error( this, std::current_exception( ), "Error calling shutdown on socket", "NetSocketStream::end( )" );
+					}
 					emit( "end" );
 				}
 
@@ -359,7 +383,13 @@ namespace daw {
 				}
 
 				void NetSocketStream::close( bool emit_cb ) {
-					m_socket->close( );
+					m_closed = true;
+					m_closed_for_write = true;
+					try {
+						m_socket->shutdown( boost::asio::ip::tcp::socket::shutdown_both );
+					} catch( ... ) {
+						emit_error( this, std::current_exception( ), "Error calling shutdown on socket", "NetSocketStream::close( )" );
+					}
 					if( emit_cb ) {
 						emit( "close" );
 					}
