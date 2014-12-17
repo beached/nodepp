@@ -13,9 +13,9 @@ namespace daw {
 				using namespace daw::nodepp;
 				namespace {
 
-					void err400( std::shared_ptr<lib::net::NetSocketStream> socket_ptr ) {
+					void err400( lib::net::NetSocketStream socket ) {
 						// 400 bad request
-						socket_ptr->write( "HTTP/1.1 400 Bad Request\r\nConnection: close\r\n" );
+						socket.write( "HTTP/1.1 400 Bad Request\r\nConnection: close\r\n" );
 						std::stringstream stream;
 						stream << "<html><body><h2>Could not parse request</h2>\r\n";
 						stream << "</body></html>\r\n";
@@ -24,41 +24,35 @@ namespace daw {
 						stream.clear( );
 						stream << "Content-Type: text/html\r\n";
 						stream << "Content-Length: " << body_str.size( ) << "\r\n\r\n";
-						socket_ptr->write( stream.str( ) );
-						socket_ptr->end( body_str );
+						socket.write( stream.str( ) );
+						socket.end( body_str );
 
 					}
 
 				}
-				HttpConnection::HttpConnection( std::shared_ptr<lib::net::NetSocketStream> socket_ptr ) : m_socket_ptr( std::move( socket_ptr ) ) {
-					m_socket_ptr->when_next_data_recv( [&]( std::shared_ptr<base::data_t> data_buffer, bool ) mutable {
+				HttpConnection::HttpConnection( lib::net::NetSocketStream socket ) : m_socket( std::move( socket ) ) {
+					m_socket.when_next_data_recv( [&]( std::shared_ptr<base::data_t> data_buffer, bool ) mutable {
 						auto req = parse_http_request( data_buffer->begin( ), data_buffer->end( ) );
 						data_buffer.reset( );
 						if( req ) {
-							emit( "request", std::move( req ), std::make_shared<HttpServerResponse>( m_socket_ptr ) );
+							emit( "request", std::move( req ), HttpServerResponse( m_socket ) );
 						} else {
-							err400( m_socket_ptr );
+							err400( m_socket );
 						}
-					} ).when_next_eof( [&]( ) {
-						close( );
 					} ).on_closed( [&]( ) {
 						emit( "close" );
-					} ).when_next_error( [&]( base::Error error ) {
+					} ).when_error( [&]( base::Error error ) {
 						auto err = base::Error( "Error in connection socket" );
 						err.add( "where", "HttpConnection::HttpConnection" )
 							.child( std::move( error ) );
 						emit( "error", std::move( err ) );						
 					} );
 					
-					m_socket_ptr->set_read_until_values( R"((\r\n|\n){2})", true ).read_async( );
-				}
-
-				void HttpConnection::reset( ) {
-					m_socket_ptr.reset( );
+					m_socket.set_read_until_values( R"((\r\n|\n){2})", true ).read_async( );
 				}
 
 				void HttpConnection::close( ) { 
-					m_socket_ptr->close( );
+					m_socket.close( );
 				}
 
 				std::vector<std::string> const & HttpConnection::valid_events( ) const {
@@ -104,22 +98,22 @@ namespace daw {
 					return *this;
 				}
 
-				HttpConnection& HttpConnection::when_request_made( std::function<void( std::shared_ptr<HttpClientRequest>, std::shared_ptr<HttpServerResponse> )> listener ) { 
+				HttpConnection& HttpConnection::when_request_made( std::function<void( std::shared_ptr<HttpClientRequest>, HttpServerResponse )> listener ) { 
 					add_listener( "request", listener );
 					return *this;
 				}
 
-				HttpConnection& HttpConnection::when_next_request_made( std::function<void( std::shared_ptr<HttpClientRequest>, std::shared_ptr<HttpServerResponse> )> listener ) {
+				HttpConnection& HttpConnection::when_next_request_made( std::function<void( std::shared_ptr<HttpClientRequest>, HttpServerResponse )> listener ) {
 					add_listener( "request", listener, true );
 					return *this;
 				}
 
 				lib::net::NetSocketStream& HttpConnection::socket( ) {
-					return *m_socket_ptr;
+					return m_socket;
 				}
 
 				lib::net::NetSocketStream const & HttpConnection::socket( ) const {
-					return *m_socket_ptr;
+					return m_socket;
 				}
 			} // namespace http
 		}	// namespace lib

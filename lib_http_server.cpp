@@ -45,16 +45,10 @@ namespace daw {
 					}
 				}
 
-				void HttpServer::handle_connection( std::shared_ptr<lib::net::NetSocketStream> socket_ptr ) {
-					auto connection = std::make_shared<HttpConnection>( std::move( socket_ptr ) );
+				void HttpServer::handle_connection( lib::net::NetSocketStream socket ) {
+					auto connection = std::make_shared<HttpConnection>( std::move( socket ) );
 					
-					connection->on_closed( [connection]( ) {
-						base::ServiceHandle::get( ).post( [connection]( ) {
-							connection->remove_all_listeners( );
-							connection->socket( ).remove_all_listeners( );
-							connection->reset( );
-						} );
-					} ).when_error( [&]( base::Error error ) {
+					connection->when_error( [&]( base::Error error ) {
 						auto err = base::Error( "Error in connection" );
 						err.add( "where", "HttpServer::handle_connection" )
 							.child( std::move( error ) );
@@ -70,8 +64,8 @@ namespace daw {
 				}
 
 				HttpServer& HttpServer::listen_on( uint16_t port ) {
-					m_netserver.when_connected( [&]( std::shared_ptr<lib::net::NetSocketStream> socket_ptr ) {
-							handle_connection( std::move( socket_ptr ) );
+					m_netserver.when_connected( [&]( lib::net::NetSocketStream socket ) {
+							handle_connection( std::move( socket ) );
 						} ).when_error( std::bind( &HttpServer::handle_error, this, std::placeholders::_1 ) )
 						.when_listening( [&]( boost::asio::ip::tcp::endpoint endpoint ) {
 							emit( "listening", endpoint );

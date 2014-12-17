@@ -14,57 +14,32 @@
 #include "base_service_handle.h"
 #include "base_stream.h"
 #include "base_types.h"
-#include "lib_net_address.h"
-#include "lib_net_socket_handle.h"
+
 
 namespace daw {
 	namespace nodepp {
 		namespace lib {
-			namespace net {
+			namespace net {		
+				namespace impl { class NetSocketStreamImpl; }
 				using namespace daw::nodepp;
-				namespace impl {
-					class write_buffer {
-						using data_type = base::data_t::pointer;
-					public:
-						std::shared_ptr<base::data_t> buff;
-
-						template<typename Iterator>
-						write_buffer( Iterator first, Iterator last ) : buff( std::make_shared<base::data_t>( first, last ) ) { }
-						
-						write_buffer( base::data_t const & source );
-						write_buffer( std::string const & source );
-						size_t size( ) const;
-						
-						data_type data( ) const;
-						boost::asio::mutable_buffers_1 asio_buff( ) const;
-					};
-				}	// namespace impl
 
 
 				class NetSocketStream: public base::stream::Stream {
+					std::shared_ptr<impl::NetSocketStreamImpl> m_impl;
 				public:
+					NetSocketStream( );
+					explicit NetSocketStream( boost::asio::io_service& io_service, size_t max_read_size = 8192 );
+
+					NetSocketStream( NetSocketStream const & ) = default;
+					NetSocketStream( NetSocketStream&& other );
+					NetSocketStream& operator=(NetSocketStream rhs);
+					virtual ~NetSocketStream( );
+
+
 					enum class ReadUntil { newline, buffer_full, predicate, next_byte, regex, values };
 					using match_iterator_t = boost::asio::buffers_iterator < boost::asio::streambuf::const_buffers_type > ;
 					using match_function_t = std::function < std::pair<match_iterator_t, bool>( match_iterator_t begin, match_iterator_t end ) > ;
-				private:
-					SocketHandle m_socket;
-					std::shared_ptr<boost::asio::streambuf> m_response_buffer;
-					std::shared_ptr<base::data_t> m_response_buffers;
-					size_t m_bytes_read;
-					size_t m_bytes_written;
-					ReadUntil m_read_mode;
-					std::shared_ptr<match_function_t> m_read_predicate;
-					std::shared_ptr<std::atomic_int_least32_t> m_outstanding_writes;
-					bool m_closed;
-					bool m_end;
-					std::string m_read_until_values;
-					void inc_outstanding_writes( );
-					bool dec_outstanding_writes( );
-					void handle_read( boost::system::error_code const & err, size_t bytes_transfered );					
-					void handle_write( impl::write_buffer buff, boost::system::error_code const & err );					
-
-					NetSocketStream& write( impl::write_buffer buff );
-				public:
+				
 					virtual std::vector<std::string> const & valid_events( ) const override;
 
 					NetSocketStream& set_read_mode( ReadUntil mode );
@@ -73,46 +48,27 @@ namespace daw {
 					NetSocketStream& clear_read_predicate( );
 					NetSocketStream& set_read_until_values( std::string const & values, bool is_regex = false );
 
-					NetSocketStream( );
-					explicit NetSocketStream( boost::asio::io_service& io_service, size_t max_read_size = 8192 );
-
-					NetSocketStream( NetSocketStream const & ) = delete;
-					NetSocketStream& operator=(NetSocketStream const &) = delete;
-					NetSocketStream( NetSocketStream&& other );
-					NetSocketStream& operator=(NetSocketStream&& rhs);
-					virtual ~NetSocketStream( ) = default;
-
 					boost::asio::ip::tcp::socket & socket( );
 					boost::asio::ip::tcp::socket const & socket( ) const;
 
 					NetSocketStream& connect( std::string host, uint16_t port );
 					NetSocketStream& connect( std::string path );
 
-					size_t& buffer_size( );
-					size_t const & buffer_size( ) const;					
+					std::size_t& buffer_size( );
+					std::size_t const & buffer_size( ) const;					
 
 					NetSocketStream& set_timeout( int32_t value );
 
-					template<typename Listener>
-					NetSocketStream& set_timeout( int32_t value, Listener listener ) {
-						return base::rollback_event_on_exception( this, "timeout", listener, [&]( ) -> NetSocketStream& {
-							set_timeout( value );
-						} );
-					}
-
 					NetSocketStream& set_no_delay( bool noDelay = true );
 					NetSocketStream& set_keep_alive( bool keep_alive = false, int32_t initial_delay = 0 );
-		
-					NetSocketStream& unref( );
-					NetSocketStream& ref( );
-					
+							
 					std::string remote_address( ) const;
 					std::string local_address( ) const;
 					uint16_t remote_port( ) const;	
 					uint16_t local_port( ) const;
 					
-					size_t bytes_read( ) const;
-					size_t bytes_written( ) const;
+					std::size_t bytes_read( ) const;
+					std::size_t bytes_written( ) const;
 
 					bool is_open( ) const;
 
@@ -120,7 +76,7 @@ namespace daw {
 
 					// StreamReadable Interface
 					virtual base::data_t read( ) override;
-					virtual base::data_t read( size_t bytes ) override;
+					virtual base::data_t read( std::size_t bytes ) override;
 
 					virtual NetSocketStream& set_encoding( base::Encoding const & encoding ) override;
 					virtual NetSocketStream& resume( ) override;
@@ -175,13 +131,13 @@ namespace daw {
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when a write is completed
 					/// Inherited from StreamWritable
-					virtual NetSocketStream& when_write_completes( std::function<void( )> listener ) override;
+					virtual NetSocketStream& when_a_write_completes( std::function<void( )> listener ) override;
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when end( ... ) has been called and all data
 					/// has been flushed
 					/// Inherited from StreamWritable
-					virtual NetSocketStream& when_writes_finished( std::function<void( )> listener ) override;					
+					virtual NetSocketStream& when_all_writes_complete( std::function<void( )> listener ) override;					
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when a connection is established
@@ -213,9 +169,19 @@ namespace daw {
 					/// Summary: Event emitted when end( ... ) has been called and all data
 					/// has been flushed
 					/// Inherited from StreamWritable
-					virtual NetSocketStream& when_next_writes_finish( std::function<void( )> listener ) override;					
-				};
+					virtual NetSocketStream& when_next_all_writes_complete( std::function<void( )> listener ) override;	
+					
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when the next write is completed
+					/// Inherited from StreamWritable
+					virtual NetSocketStream& when_next_write_completes( std::function<void( )> listener ) override;
+				};	// class NetSocketStream
 				
+				NetSocketStream& operator<<(NetSocketStream& net_socket, std::string const & value);
+
+				NetSocketStream& operator<<(NetSocketStream& net_socket, base::data_t const & value);
+
+
 			}	// namespace net
 		}	// namespace lib
 	}	// namespace nodepp

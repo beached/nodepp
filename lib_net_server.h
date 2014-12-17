@@ -9,7 +9,6 @@
 #include "base_types.h"
 #include "lib_net_address.h"
 #include "lib_net_socket_stream.h"
-#include "lib_net_socket_handle.h"
 #include "base_service_handle.h"
 
 namespace daw {
@@ -24,7 +23,7 @@ namespace daw {
 				class NetServer: public daw::nodepp::base::EventEmitter {
 					std::shared_ptr<boost::asio::ip::tcp::acceptor> m_acceptor;
 
-					void handle_accept( std::shared_ptr<NetSocketStream> socket, boost::system::error_code const & err );
+					void handle_accept( NetSocketStream socket, boost::system::error_code const & err );
 					void start_accept( );					
 				public:
 					NetServer( );
@@ -39,7 +38,6 @@ namespace daw {
 					NetServer& listen( uint16_t port );
 					NetServer& listen( uint16_t port, std::string hostname, uint16_t backlog = 511 );										
 					NetServer& listen( std::string socket_path );					
-					NetServer& listen( SocketHandle handle );				
 					NetServer& close( );
 					
 
@@ -59,7 +57,7 @@ namespace daw {
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when a connection is established
-					NetServer& when_connected( std::function<void( std::shared_ptr<NetSocketStream> socket_ptr )> listener );					
+					NetServer& when_connected( std::function<void( NetSocketStream socket )> listener );					
 					
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when the server is bound after calling 
@@ -73,7 +71,7 @@ namespace daw {
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when a connection is established
-					NetServer& when_next_connection( std::function<void( std::shared_ptr<NetSocketStream> socket_ptr )> listener );
+					NetServer& when_next_connection( std::function<void( NetSocketStream socket )> listener );
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when the server is bound after calling 

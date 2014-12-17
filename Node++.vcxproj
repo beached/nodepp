@@ -182,7 +182,7 @@
     <ClInclude Include="lib_net_socket_stream.h" />
     <ClInclude Include="base_stream.h" />
     <ClInclude Include="base_types.h" />
-    <ClInclude Include="lib_net_socket_handle.h" />
+    <ClInclude Include="lib_net_socket_stream_impl.h" />
     <ClInclude Include="load_library.h" />
     <ClInclude Include="load_library_posix.h" />
     <ClInclude Include="load_library_windows.h" />
@@ -212,7 +212,6 @@
     <ClCompile Include="lib_net_dns.cpp" />
     <ClCompile Include="lib_net_server.cpp" />
     <ClCompile Include="lib_net_socket_stream.cpp" />
-    <ClCompile Include="lib_net_socket_handle.cpp" />
     <ClCompile Include="load_library.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>

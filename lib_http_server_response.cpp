@@ -16,71 +16,117 @@ namespace daw {
 		namespace lib {
 			namespace http {
 				using namespace daw::nodepp;
+				class HttpServerResponseImpl: public base::stream::StreamWritable {
+					HttpVersion m_version;
+					HttpHeaders m_headers;
+					base::data_t m_body;
+					bool m_status_sent;
+					bool m_headers_sent;
+					bool m_body_sent;
+					lib::net::NetSocketStream m_socket;
+				public:
+					HttpServerResponseImpl( lib::net::NetSocketStream socket  );
+					HttpServerResponseImpl( HttpServerResponseImpl const & ) = delete;
+					~HttpServerResponseImpl( ) = default;
+					HttpServerResponseImpl& operator=(HttpServerResponseImpl const &) = delete;
+					HttpServerResponseImpl( HttpServerResponseImpl&& other ) = delete;
+					HttpServerResponseImpl& operator=(HttpServerResponseImpl && rhs) = delete;
 
-				HttpServerResponse::HttpServerResponse( std::shared_ptr<lib::net::NetSocketStream> socket_ptr ) : 
-						m_version( 1, 1 ), 
-						m_headers( ), 
-						m_body( ), 
-						m_status_sent( false ), 
-						m_headers_sent( false ), 
-						m_body_sent( false ), 
-						m_socket_ptr( socket_ptr ) { }
+					virtual HttpServerResponseImpl& write( base::data_t const & data ) override;
+					virtual HttpServerResponseImpl& write( std::string const & data, base::Encoding const & encoding = base::Encoding( ) ) override;
+					virtual void end( ) override;
+					virtual void end( base::data_t const & data ) override;
+					virtual void end( std::string const & data, base::Encoding const & encoding = base::Encoding( ) ) override;
 
-				HttpServerResponse::HttpServerResponse( HttpServerResponse&& other ): 
-					m_version( std::move( other.m_version ) ),
-					m_headers( std::move( other.m_headers ) ),
-					m_body( std::move( other.m_body ) ),
-					m_status_sent( std::move( other.m_status_sent) ),
-					m_headers_sent( std::move( other.m_headers_sent) ),
-					m_body_sent( std::move( other.m_body_sent ) ),
-					m_socket_ptr( other.m_socket_ptr ) { }
+					void close( );
 
+					HttpHeaders& headers( );
+					HttpHeaders const & headers( ) const;
 
-				HttpServerResponse& HttpServerResponse::operator = (HttpServerResponse && rhs) {
-					if( this != &rhs ) {
-						m_version = std::move( rhs.m_version );
-						m_headers = std::move( rhs.m_headers );
-						m_body = std::move( rhs.m_body );
-						m_status_sent = std::move( rhs.m_status_sent );
-						m_headers_sent = std::move( rhs.m_headers_sent );
-						m_body_sent = std::move( rhs.m_body_sent );
-						m_socket_ptr = std::move( rhs.m_socket_ptr );
-					}
-					return *this;
+					void send_status( uint16_t status_code = 200 );
+					void send_headers( );
+					void send_body( );
+					void clear_body( );
+					bool send( );
+					void reset( );
+					bool is_open( );
+					bool is_closed( ) const;
+					bool can_write( ) const;
+
+					HttpServerResponseImpl& add_header( std::string header_name, std::string header_value );
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when a write is completed
+					/// Inherited from StreamWritable
+					virtual HttpServerResponseImpl& when_a_write_completes( std::function<void( )> listener ) override;
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when end( ... ) has been called and all data
+					/// has been flushed
+					/// Inherited from StreamWritable
+					virtual HttpServerResponseImpl& when_all_writes_complete( std::function<void( )> listener ) override;
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when end( ... ) has been called and all data
+					/// has been flushed
+					/// Inherited from StreamWritable
+					virtual HttpServerResponseImpl& when_next_all_writes_complete( std::function<void( )> listener ) override;
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when the next write is completed
+					/// Inherited from StreamWritable
+					virtual HttpServerResponseImpl& when_next_write_completes( std::function<void( )> listener ) override;
+
+				};	// struct HttpServerResponse						
+
+				HttpServerResponseImpl::HttpServerResponseImpl( lib::net::NetSocketStream socket ) :
+					m_version( 1, 1 ),
+					m_headers( ),
+					m_body( ),
+					m_status_sent( false ),
+					m_headers_sent( false ),
+					m_body_sent( false ),
+					m_socket( std::move( socket ) ) {
+
+					m_socket.when_a_write_completes( [&]( ) {
+						emit( "drain" );
+					} ).when_all_writes_complete( [&]( ) {
+						emit( "finish" );
+					} );
 				}
 
-				HttpServerResponse& HttpServerResponse::write( base::data_t data ) {
+				HttpServerResponseImpl& HttpServerResponseImpl::write( base::data_t const & data ) {
 					m_body.insert( std::end( m_body ), std::begin( data ), std::end( data ) );
 					return *this;
 				}
 
-				HttpServerResponse& HttpServerResponse::write( std::string data, base::Encoding encoding ) { 
+				HttpServerResponseImpl& HttpServerResponseImpl::write( std::string const & data, base::Encoding const & ) {
 					m_body.insert( std::end( m_body ), std::begin( data ), std::end( data ) );
 					return *this;
 				}
 
-				void HttpServerResponse::clear_body( ) {
+				void HttpServerResponseImpl::clear_body( ) {
 					m_body.clear( );
 				}
 
-				HttpHeaders& HttpServerResponse::headers( ) {
+				HttpHeaders& HttpServerResponseImpl::headers( ) {
 					return m_headers;
 				}
 
-				HttpHeaders const & HttpServerResponse::headers( ) const {
+				HttpHeaders const & HttpServerResponseImpl::headers( ) const {
 					return m_headers;
-				}			
+				}
 
-				void HttpServerResponse::send_status( uint16_t status_code ) {
+				void HttpServerResponseImpl::send_status( uint16_t status_code ) {
 					auto status = HttpStatusCodes( status_code );
-					std::string msg = "HTTP/" +m_version.to_string( ) + " " + std::to_string( status.first ) + " " + status.second + "\r\n";
+					std::string msg = "HTTP/" + m_version.to_string( ) + " " + std::to_string( status.first ) + " " + status.second + "\r\n";
 					//auto msg = daw::string::string_format( "HTTP/{0} {1} {2}\r\n", m_version.to_string( ), status.first, status.second );
-					m_socket_ptr->write( msg ); // TODO make faster
+					m_socket.write( msg ); // TODO make faster
 					m_status_sent = true;
 				}
 
 				namespace {
-					std::string gmt_timestamp( ) {				
+					std::string gmt_timestamp( ) {
 						auto now = time( 0 );
 #ifdef _MSC_VER
 #pragma warning(disable : 4996)
@@ -97,54 +143,61 @@ namespace daw {
 					}
 				}
 
-				void HttpServerResponse::send_headers( ) {
+				void HttpServerResponseImpl::send_headers( ) {
 					auto& dte = m_headers["Date"];
 					if( dte.empty( ) ) {
 						dte = gmt_timestamp( );
 					}
-					m_socket_ptr->write( m_headers.to_string() );
+					m_socket.write( m_headers.to_string( ) );
 					m_headers_sent = true;
 				}
-				void HttpServerResponse::send_body( ) {
+				void HttpServerResponseImpl::send_body( ) {
 					HttpHeader content_header( "Content-Length", boost::lexical_cast<std::string>(m_body.size( )) );
-					m_socket_ptr->write( content_header.to_string( ) );
-					m_socket_ptr->write( "\r\n\r\n" );
-					m_socket_ptr->write( m_body );
+					m_socket.write( content_header.to_string( ) );
+					m_socket.write( "\r\n\r\n" );
+					m_socket.write( m_body );
 					m_body_sent = true;
-				}				
+				}
 
-				void HttpServerResponse::send( ) {
+				bool HttpServerResponseImpl::send( ) {
+					bool result = false;
 					if( !m_status_sent ) {
+						result = true;
 						send_status( );
 					}
 					if( !m_headers_sent ) {
+						result = true;
 						send_headers( );
 					}
 					if( !m_body_sent ) {
+						result = true;
 						send_body( );
+					}
+					return result;
+				}
+
+				void HttpServerResponseImpl::end( ) {
+					send( );
+					m_socket.end( );
+				}
+
+				void HttpServerResponseImpl::end( base::data_t const & data ) {
+					write( data );
+					end( );
+				}
+
+				void HttpServerResponseImpl::end( std::string const & data, base::Encoding const & encoding ) {
+					write( data, encoding );
+					end( );
+				}
+
+				void HttpServerResponseImpl::close( ) {
+					if( !send( ) ) {
+						m_socket.close( );
 					}
 				}
 
-				void HttpServerResponse::end( ) {
-					send( );
-					m_socket_ptr->end( );					
-				}
-
-				void HttpServerResponse::end( base::data_t data ) {
-					write( std::move( data ) );
-					end( );
-				}
-
-				void HttpServerResponse::end( std::string data, base::Encoding encoding ) {
-					write( std::move( data ), std::move( encoding ) );
-					end( );
-				}
-
-				void HttpServerResponse::close( ) {
-					m_socket_ptr->close( );
-				}
-
-				void HttpServerResponse::reset( ) {
+				void HttpServerResponseImpl::reset( ) {
 					m_status_sent = false;
 					m_headers.headers.clear( );
 					m_headers_sent = false;
@@ -152,22 +205,164 @@ namespace daw {
 					m_body_sent = false;
 				}
 
-				bool HttpServerResponse::is_closed( ) const {
-					return m_socket_ptr->is_closed( );
+				bool HttpServerResponseImpl::is_closed( ) const {
+					return m_socket.is_closed( );
 				}
 
-				bool HttpServerResponse::can_write( ) const {
-					return m_socket_ptr->can_write( );
+				bool HttpServerResponseImpl::can_write( ) const {
+					return m_socket.can_write( );
 				}
 
-				bool HttpServerResponse::is_open( ) {
-					return m_socket_ptr->is_open( );
+				bool HttpServerResponseImpl::is_open( ) {
+					return m_socket.is_open( );
 				}
 
-				HttpServerResponse& HttpServerResponse::add_header( std::string header_name, std::string header_value ) {
+				HttpServerResponseImpl& HttpServerResponseImpl::add_header( std::string header_name, std::string header_value ) {
 					m_headers.add( std::move( header_name ), std::move( header_value ) );
 					return *this;
 				}
+
+				HttpServerResponseImpl& HttpServerResponseImpl::when_all_writes_complete( std::function<void( )> listener ) {
+					add_listener( "finish", listener );
+					return *this;
+				}
+
+				HttpServerResponseImpl& HttpServerResponseImpl::when_next_all_writes_complete( std::function<void( )> listener ) {
+					add_listener( "finish", listener, true );
+					return *this;
+				}
+
+				HttpServerResponseImpl& HttpServerResponseImpl::when_a_write_completes( std::function<void( )> listener ) {
+					add_listener( "drain", listener );
+					return *this;
+				}
+
+				HttpServerResponseImpl& HttpServerResponseImpl::when_next_write_completes( std::function<void( )> listener ) {
+					add_listener( "drain", listener, true );
+					return *this;
+				}
+
+				HttpServerResponse::~HttpServerResponse( ) { }
+
+				HttpServerResponse::HttpServerResponse( lib::net::NetSocketStream socket ) : m_impl( std::make_shared<HttpServerResponseImpl>( std::move( socket ) ) ) { }
+
+				HttpServerResponse::HttpServerResponse( HttpServerResponse && other ): m_impl( std::move( other.m_impl ) ) { }
+				
+				HttpServerResponse& HttpServerResponse::operator=(HttpServerResponse rhs) {
+					m_impl = std::move( rhs.m_impl );
+					return *this;
+				}
+
+
+				HttpServerResponse& HttpServerResponse::write( base::data_t const & data ) {
+					m_impl->write( data );
+					return *this;
+				}
+
+				HttpServerResponse& HttpServerResponse::write( std::string const & data, base::Encoding const & encoding ) {
+					m_impl->write( data, encoding );
+					return *this;
+				}
+
+				void HttpServerResponse::end( ) {
+					m_impl->end( );
+				}
+
+				void HttpServerResponse::end( base::data_t const & data ) {
+					m_impl->end( data );
+				}
+
+				void HttpServerResponse::end( std::string const & data, base::Encoding const & encoding ) {
+					m_impl->end( data, encoding );
+				}
+
+				void HttpServerResponse::close( ) {
+					m_impl->close( );
+				}
+
+				HttpHeaders& HttpServerResponse::headers( ) {
+					return m_impl->headers( );
+				}
+
+				HttpHeaders const & HttpServerResponse::headers( ) const {
+					return m_impl->headers( );
+				}
+
+				void HttpServerResponse::send_status( uint16_t status_code ) {
+					m_impl->send_status( status_code );
+				}
+				void HttpServerResponse::send_headers( ) {
+					m_impl->send_headers( );
+				}
+
+				void HttpServerResponse::send_body( ) {
+					m_impl->send_body( );
+				}
+
+				void HttpServerResponse::clear_body( ) {
+					m_impl->clear_body( );
+				}
+
+				bool HttpServerResponse::send( ) {
+					return m_impl->send( );
+				}
+
+				void HttpServerResponse::reset( ) {
+					m_impl->reset( );
+				}
+
+				bool HttpServerResponse::is_open( ) {
+					return m_impl->is_open( );
+				}
+
+				bool HttpServerResponse::is_closed( ) const {
+					return m_impl->is_closed( );
+				}
+
+				bool HttpServerResponse::can_write( ) const {
+					return m_impl->can_write( );
+				}
+
+				HttpServerResponse& HttpServerResponse::add_header( std::string header_name, std::string header_value ) {
+					m_impl->add_header( std::move( header_name ), std::move( header_value ) );
+					return *this;
+				}
+
+
+				//////////////////////////////////////////////////////////////////////////
+				/// Summary: Event emitted when a write is completed
+				/// Inherited from StreamWritable
+				HttpServerResponse& HttpServerResponse::when_a_write_completes( std::function<void( )> listener ) {
+					m_impl->when_a_write_completes( listener );
+					return *this;
+				}
+
+				//////////////////////////////////////////////////////////////////////////
+				/// Summary: Event emitted when end( ... ) has been called and all data
+				/// has been flushed
+				/// Inherited from StreamWritable
+				HttpServerResponse& HttpServerResponse::when_all_writes_complete( std::function<void( )> listener ) {
+					m_impl->when_all_writes_complete( listener );
+					return *this;
+				}
+
+				//////////////////////////////////////////////////////////////////////////
+				/// Summary: Event emitted when end( ... ) has been called and all data
+				/// has been flushed
+				/// Inherited from StreamWritable
+				HttpServerResponse& HttpServerResponse::when_next_all_writes_complete( std::function<void( )> listener ) {
+					m_impl->when_next_all_writes_complete( listener );
+					return *this;
+				}
+
+				//////////////////////////////////////////////////////////////////////////
+				/// Summary: Event emitted when the next write is completed
+				/// Inherited from StreamWritable
+				HttpServerResponse& HttpServerResponse::when_next_write_completes( std::function<void( )> listener ) {
+					m_impl->when_next_write_completes( listener );
+					return *this;
+				}
+
 
 			}	// namespace http
 		}	// namespace lib

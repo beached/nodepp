@@ -18,7 +18,7 @@ namespace daw {
 				// Requires:	lib::net::NetServer
 				class HttpServer: public base::EventEmitter {
 					lib::net::NetServer m_netserver;
-					void handle_connection( std::shared_ptr<lib::net::NetSocketStream> socket_ptr );
+					void handle_connection( lib::net::NetSocketStream socket );
 					void handle_error( base::Error error );					
 				public:
 					HttpServer( );

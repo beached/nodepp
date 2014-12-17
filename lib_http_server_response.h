@@ -12,34 +12,31 @@
 #include "lib_http_headers.h"
 #include "lib_http_version.h"
 #include "lib_net_socket_stream.h"
+#include "base_stream.h"
 
 namespace daw {
 	namespace nodepp {
 		namespace lib {
 			namespace http {
 				using namespace daw::nodepp;
+				class HttpServerResponseImpl;
 				//////////////////////////////////////////////////////////////////////////
 				// Summary:	Contains the data needed to respond to a client request				
-				class HttpServerResponse {	// TODO inherit from StreamWriterHt
-					HttpVersion m_version;
-					HttpHeaders m_headers;
-					base::data_t m_body;
-					bool m_status_sent;
-					bool m_headers_sent;
-					bool m_body_sent;
-					std::shared_ptr<lib::net::NetSocketStream> m_socket_ptr;
+				class HttpServerResponse: public base::stream::StreamWritable {
+					std::shared_ptr<HttpServerResponseImpl> m_impl;
 				public:
-					HttpServerResponse( std::shared_ptr<lib::net::NetSocketStream> socket_ptr );
+					HttpServerResponse( lib::net::NetSocketStream socket );
 					HttpServerResponse( HttpServerResponse const & ) = default;
-					~HttpServerResponse( ) = default;
-					HttpServerResponse& operator=(HttpServerResponse const &) = default;
-					HttpServerResponse( HttpServerResponse&& other );
-					HttpServerResponse& operator=(HttpServerResponse && rhs);
-					HttpServerResponse& write( base::data_t data );
-					HttpServerResponse& write( std::string data, base::Encoding encoding = base::Encoding( ) );
-					void end( );
-					void end( base::data_t data );
-					void end( std::string data, base::Encoding encoding = base::Encoding( ) );
+					virtual ~HttpServerResponse( );
+
+					HttpServerResponse( HttpServerResponse && other );
+					HttpServerResponse& operator=(HttpServerResponse rhs);
+
+					virtual HttpServerResponse& write( base::data_t const & data ) override;
+					virtual HttpServerResponse& write( std::string const & data, base::Encoding const & encoding = base::Encoding( ) ) override;
+					virtual void end( ) override;
+					virtual void end( base::data_t const & data ) override;
+					virtual void end( std::string const & data, base::Encoding const & encoding = base::Encoding( ) ) override;
 
 					void close( );
 
@@ -50,13 +47,36 @@ namespace daw {
 					void send_headers( );
 					void send_body( );
 					void clear_body( );
-					void send( );
+					bool send( );
 					void reset( );
 					bool is_open( );
 					bool is_closed( ) const;
 					bool can_write( ) const;
 
 					HttpServerResponse& add_header( std::string header_name, std::string header_value );
+				
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when a write is completed
+					/// Inherited from StreamWritable
+					virtual HttpServerResponse& when_a_write_completes( std::function<void( )> listener ) override;
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when end( ... ) has been called and all data
+					/// has been flushed
+					/// Inherited from StreamWritable
+					virtual HttpServerResponse& when_all_writes_complete( std::function<void( )> listener ) override;
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when end( ... ) has been called and all data
+					/// has been flushed
+					/// Inherited from StreamWritable
+					virtual HttpServerResponse& when_next_all_writes_complete( std::function<void( )> listener ) override;
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when the next write is completed
+					/// Inherited from StreamWritable
+					virtual HttpServerResponse& when_next_write_completes( std::function<void( )> listener ) override;
+
 				};	// struct ServerResponse			
 			}	// namespace http
 		}	// namespace lib

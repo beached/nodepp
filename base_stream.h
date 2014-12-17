@@ -92,12 +92,12 @@ namespace daw {
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when a write is completed
-					virtual StreamWritable& when_write_completes( std::function<void( )> listener ) = 0;
+					virtual StreamWritable& when_a_write_completes( std::function<void( )> listener ) = 0;
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when end( ... ) has been called and all data
 					/// has been flushed
-					virtual StreamWritable& when_writes_finished( std::function<void( )> listener ) = 0;
+					virtual StreamWritable& when_all_writes_complete( std::function<void( )> listener ) = 0;
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted whenever this StreamWritable is passed to pipe( )
@@ -112,7 +112,11 @@ namespace daw {
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when end( ... ) has been called and all data
 					/// has been flushed
-					virtual StreamWritable& when_next_writes_finish( std::function<void( )> listener ) = 0;
+					virtual StreamWritable& when_next_all_writes_complete( std::function<void( )> listener ) = 0;
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when the next write is completed
+					virtual StreamWritable& when_next_write_completes( std::function<void( )> listener ) = 0;
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted whenever this StreamWritable is passed to pipe( )

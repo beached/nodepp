@@ -56,15 +56,15 @@ namespace daw {
 				}
 
 				namespace {
-					void emit_connection( NetServer& server, std::shared_ptr<NetSocketStream> socket_ptr ) {
-						server.emit( "connection", socket_ptr );
+					void emit_connection( NetServer& server, NetSocketStream socket ) {
+						server.emit( "connection", socket );
 					}
 				}
 
-				void NetServer::handle_accept( std::shared_ptr<NetSocketStream> socket_ptr, boost::system::error_code const & err ) {
+				void NetServer::handle_accept( NetSocketStream socket, boost::system::error_code const & err ) {
 					if( !err ) {
 						try {
-							emit_connection( *this, std::move( socket_ptr ) );
+							emit_connection( *this, std::move( socket ) );
 						} catch( ... ) {
 							emit_error( *this, std::current_exception( ) , "NetServer::listen#emit_connection" );
 						}
@@ -75,9 +75,9 @@ namespace daw {
 				}	
 
 				void NetServer::start_accept( ) {
-					auto socket_ptr = std::make_shared<NetSocketStream>( base::ServiceHandle::get( ) );
-					auto handle = boost::bind( &NetServer::handle_accept, this, socket_ptr, boost::asio::placeholders::error );
-					m_acceptor->async_accept( socket_ptr->socket( ), handle );
+					auto socket = NetSocketStream( base::ServiceHandle::get( ) );
+					auto handle = boost::bind( &NetServer::handle_accept, this, socket, boost::asio::placeholders::error );
+					m_acceptor->async_accept( socket.socket( ), handle );
 				}
 
 				NetServer& NetServer::listen( uint16_t port ) {
@@ -92,7 +92,6 @@ namespace daw {
 				}
 				NetServer& NetServer::listen( uint16_t, std::string hostname, uint16_t ) { throw std::runtime_error( "Method not implemented" ); }
 				NetServer& NetServer::listen( std::string ) { throw std::runtime_error( "Method not implemented" ); }
-				NetServer& NetServer::listen( SocketHandle ) { throw std::runtime_error( "Method not implemented" ); }
 				NetServer& NetServer::close( ) { throw std::runtime_error( "Method not implemented" ); }
 				daw::nodepp::lib::net::NetAddress const & NetServer::address( ) const { throw std::runtime_error( "Method not implemented" ); }
 				NetServer& NetServer::unref( ) { throw std::runtime_error( "Method not implemented" ); }
@@ -103,7 +102,7 @@ namespace daw {
 
 				// Event callbacks
 				
-				NetServer& NetServer::when_connected( std::function<void( std::shared_ptr<NetSocketStream> socket_ptr )> listener ) {
+				NetServer& NetServer::when_connected( std::function<void( NetSocketStream socket )> listener ) {
 					add_listener( "connection", listener );
 					return *this;
 				}
@@ -123,7 +122,7 @@ namespace daw {
 					return *this;
 				}
 
-				NetServer& NetServer::when_next_connection( std::function<void( std::shared_ptr<NetSocketStream> socket_ptr )> listener ) {
+				NetServer& NetServer::when_next_connection( std::function<void( NetSocketStream socket_ptr )> listener ) {
 					add_listener( "connection", listener, true );
 					return *this;
 				}
