@@ -13,6 +13,7 @@
 #include "base_types.h"
 #include "lib_net_dns.h"
 #include "range_algorithm.h"
+#include "make_unique.h"
 
 #include "lib_net_socket_stream.h"
 #include "lib_net_socket_stream_impl.h"
@@ -46,26 +47,26 @@ namespace daw {
 
 					NetSocketStreamImpl::NetSocketStreamImpl( ) : base::stream::Stream( ),
 						m_socket( base::ServiceHandle::get( ) ),
-						m_response_buffer2( 8192 ),
-						m_response_buffers2( ),
+						m_response_buffer( 8192 ),
+						m_response_buffers( ),
 						m_bytes_read( 0 ),
 						m_bytes_written( 0 ),
 						m_read_mode( NetSocketStream::ReadUntil::newline ),
 						m_read_predicate( ),
-						m_outstanding_writes2( 0 ),
+						m_outstanding_writes( 0 ),
 						m_closed( false ),
 						m_end( false ),
 						m_read_until_values( ) { }
 
 					NetSocketStreamImpl::NetSocketStreamImpl( boost::asio::io_service& io_service, std::size_t max_read_size ) : base::stream::Stream( ),
 						m_socket( io_service ),
-						m_response_buffer2( max_read_size ),
-						m_response_buffers2( ),
+						m_response_buffer( max_read_size ),
+						m_response_buffers( ),
 						m_bytes_read( 0 ),
 						m_bytes_written( 0 ),
 						m_read_mode( NetSocketStream::ReadUntil::newline ),
 						m_read_predicate( ),
-						m_outstanding_writes2( 0 ),
+						m_outstanding_writes( 0 ),
 						m_closed( false ),
 						m_end( false ),
 						m_read_until_values( ) { }
@@ -102,11 +103,11 @@ namespace daw {
 					}	// namespace anonymous
 
 					void NetSocketStreamImpl::inc_outstanding_writes( ) {
-						m_outstanding_writes2++;
+						m_outstanding_writes++;
 					}
 
 					bool NetSocketStreamImpl::dec_outstanding_writes( ) {
-						return 0 == --m_outstanding_writes2;
+						return 0 == --m_outstanding_writes;
 					}
 
 					std::vector<std::string> const & NetSocketStreamImpl::valid_events( ) const {
@@ -128,19 +129,19 @@ namespace daw {
 							throw std::runtime_error( "Read Until mode not implemented" );
 							//boost::asio::async_read( m_socket, m_response_buffer2, boost::asio::transfer_exactly( 1 ), handler );
 						case NetSocketStream::ReadUntil::buffer_full:
-							boost::asio::async_read( m_socket, m_response_buffer2, handler );
+							boost::asio::async_read( m_socket, m_response_buffer, handler );
 							break;
 						case NetSocketStream::ReadUntil::newline:
-							boost::asio::async_read_until( m_socket, m_response_buffer2, "\n", handler );
+							boost::asio::async_read_until( m_socket, m_response_buffer, "\n", handler );
 							break;
 						case NetSocketStream::ReadUntil::predicate:
-							boost::asio::async_read_until( m_socket, m_response_buffer2, *m_read_predicate, handler );
+							boost::asio::async_read_until( m_socket, m_response_buffer, *m_read_predicate, handler );
 							break;
 						case NetSocketStream::ReadUntil::values:
-							boost::asio::async_read_until( m_socket, m_response_buffer2, m_read_until_values, handler );
+							boost::asio::async_read_until( m_socket, m_response_buffer, m_read_until_values, handler );
 							break;
 						case NetSocketStream::ReadUntil::regex:
-							boost::asio::async_read_until( m_socket, m_response_buffer2, boost::regex( m_read_until_values ), handler );
+							boost::asio::async_read_until( m_socket, m_response_buffer, boost::regex( m_read_until_values ), handler );
 							break;
 
 						default:
@@ -159,7 +160,7 @@ namespace daw {
 					}
 
 					NetSocketStreamImpl& NetSocketStreamImpl::set_read_predicate( NetSocketStream::match_function_t read_predicate ) {
-						m_read_predicate = std::make_shared<NetSocketStream::match_function_t>( read_predicate );
+						m_read_predicate = daw::make_unique<NetSocketStream::match_function_t>( read_predicate );
 						m_read_mode = NetSocketStream::ReadUntil::predicate;
 						return *this;
 					}
@@ -273,25 +274,26 @@ namespace daw {
 					std::size_t const & NetSocketStreamImpl::buffer_size( ) const { throw std::runtime_error( "Method not implemented" ); }
 
 					void NetSocketStreamImpl::handle_read( boost::system::error_code const & err, std::size_t bytes_transfered ) {
-
+						m_response_buffer.commit( bytes_transfered );
 						if( 0 < bytes_transfered ) {
-							std::istream resp( &m_response_buffer2 );
-							auto new_data = base::data_t( bytes_transfered );
-							resp.read( reinterpret_cast<char*>(new_data.data( )), static_cast<std::streamsize>(bytes_transfered) );
+							std::istream resp( &m_response_buffer );
+							auto new_data = base::data_t( bytes_transfered );							
+							resp.read( new_data.data( ), static_cast<std::streamsize>(bytes_transfered) );
+							m_response_buffer.consume( bytes_transfered );
 							if( 0 < listener_count( "data" ) ) {
 
 								{
 									// Handle when the emitter comes after the data starts pouring in.  This might be best placed in newEvent
 									// have not decided
-									if( !m_response_buffers2.empty( ) ) {
-										emit_data( this, get_clear_buffer( m_response_buffers2, m_response_buffers2.size( ), 0 ), false );
+									if( !m_response_buffers.empty( ) ) {
+										emit_data( this, get_clear_buffer( m_response_buffers, m_response_buffers.size( ), 0 ), false );
 									}
 								}
 								bool end_of_file = err && 2 == err.value( );
 
 								emit_data( this, std::move( new_data ), end_of_file );
 							} else {	// Queue up for a			
-								daw::copy_vect_and_set( new_data, m_response_buffers2, bytes_transfered, static_cast<base::data_t::value_type>(0) );
+								daw::copy_vect_and_set( new_data, m_response_buffers, bytes_transfered, static_cast<base::data_t::value_type>(0) );
 							}
 							m_bytes_read += bytes_transfered;
 						}
@@ -414,7 +416,7 @@ namespace daw {
 
 					// StreamReadable Interface
 					base::data_t NetSocketStreamImpl::read( ) {
-						return get_clear_buffer( m_response_buffers2, m_response_buffers2.size( ), 0 );
+						return get_clear_buffer( m_response_buffers, m_response_buffers.size( ), 0 );
 					}
 
 					base::data_t  NetSocketStreamImpl::read( std::size_t ) { throw std::runtime_error( "Method not implemented" ); }
@@ -449,6 +451,21 @@ namespace daw {
 					}
 				} // namespace impl
 
+				NetSocketStream::NetSocketStream( ) : m_impl( std::make_shared<impl::NetSocketStreamImpl>( ) ) { }
+				NetSocketStream::NetSocketStream( boost::asio::io_service& io_service, size_t max_read_size ) : m_impl( std::make_shared<impl::NetSocketStreamImpl>( io_service, max_read_size ) ) { }
+				
+				NetSocketStream::NetSocketStream( NetSocketStream && other ): m_impl( std::move( other.m_impl ) ) { }
+				
+				NetSocketStream& NetSocketStream::operator=( NetSocketStream rhs ) {
+					m_impl = std::move( rhs.m_impl );
+					return *this;
+				}
+
+				NetSocketStream::~NetSocketStream( ) { }
+
+				boost::asio::ip::tcp::socket & NetSocketStream::socket( ) { return m_impl->socket( ); }
+				boost::asio::ip::tcp::socket const & NetSocketStream::socket( ) const { return m_impl->socket( ); }
+
 				std::vector<std::string> const & NetSocketStream::valid_events( ) const {
 					return m_impl->valid_events( );
 				}
@@ -477,20 +494,6 @@ namespace daw {
 					return *this;
 				}
 
-				NetSocketStream::NetSocketStream( ) : m_impl( std::make_shared<impl::NetSocketStreamImpl>( ) ) { }
-				NetSocketStream::NetSocketStream( boost::asio::io_service& io_service, size_t max_read_size ) : m_impl( std::make_shared<impl::NetSocketStreamImpl>( io_service, max_read_size ) ) { }
-				
-				NetSocketStream::NetSocketStream( NetSocketStream && other ): m_impl( std::move( other.m_impl ) ) { }
-				
-				NetSocketStream& NetSocketStream::operator=( NetSocketStream rhs ) {
-					m_impl = std::move( rhs.m_impl );
-					return *this;
-				}
-
-				NetSocketStream::~NetSocketStream( ) { }
-
-				boost::asio::ip::tcp::socket & NetSocketStream::socket( ) { return m_impl->socket( ); }
-				boost::asio::ip::tcp::socket const & NetSocketStream::socket( ) const { return m_impl->socket( ); }
 
 				NetSocketStream& NetSocketStream::connect( std::string host, uint16_t port ) {
 					m_impl->connect( host, port );

@@ -13,8 +13,8 @@ int main( int, char const ** ) {
 
 	server.when_listening( []( boost::asio::ip::tcp::endpoint endpoint ) {
 		std::cout << "Server listening on " << endpoint << "\n";
-	} ).when_client_connected( []( std::shared_ptr<lib::http::HttpConnection> client_connection ) {
-		client_connection->when_request_made( []( std::shared_ptr<lib::http::HttpClientRequest> request, lib::http::HttpServerResponse response ) {
+	} ).when_client_connected( []( lib::http::HttpConnection client_connection ) {
+		client_connection.when_request_made( []( std::shared_ptr<lib::http::HttpClientRequest> request, lib::http::HttpServerResponse response ) {
 			response.when_all_writes_complete( [response]( ) mutable { 
 				response.close( );
 			} );

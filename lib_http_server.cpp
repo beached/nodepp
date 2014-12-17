@@ -40,15 +40,15 @@ namespace daw {
 				}
 
 				namespace {
-					void emit_connection( HttpServer& server, std::shared_ptr<HttpConnection> connection ) {
+					void emit_connection( HttpServer& server, HttpConnection connection ) {
 						server.emit( "connection", connection );
 					}
 				}
 
 				void HttpServer::handle_connection( lib::net::NetSocketStream socket ) {
-					auto connection = std::make_shared<HttpConnection>( std::move( socket ) );
+					auto connection = HttpConnection( std::move( socket ) );
 					
-					connection->when_error( [&]( base::Error error ) {
+					connection.when_error( [&]( base::Error error ) {
 						auto err = base::Error( "Error in connection" );
 						err.add( "where", "HttpServer::handle_connection" )
 							.child( std::move( error ) );
@@ -95,12 +95,12 @@ namespace daw {
 					return *this;
 				}
 
-				HttpServer& HttpServer::when_client_connected( std::function<void( std::shared_ptr<HttpConnection> )> listener ) {
+				HttpServer& HttpServer::when_client_connected( std::function<void( HttpConnection )> listener ) {
 					add_listener( "connection", listener );
 					return *this;
 				}
 
-				HttpServer& HttpServer::when_next_client_connected( std::function<void( std::shared_ptr<HttpConnection> )> listener ) {
+				HttpServer& HttpServer::when_next_client_connected( std::function<void( HttpConnection )> listener ) {
 					add_listener( "connection", listener, true );
 					return *this;
 				}

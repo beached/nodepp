@@ -41,16 +41,18 @@ namespace daw {
 					class NetSocketStreamImpl: public base::stream::Stream {
 					private:
 						boost::asio::ip::tcp::socket m_socket;
-						boost::asio::streambuf m_response_buffer2;
-						base::data_t m_response_buffers2;
+						boost::asio::streambuf m_response_buffer;
+						base::data_t m_response_buffers;
 						std::size_t m_bytes_read;
 						std::size_t m_bytes_written;
 						NetSocketStream::ReadUntil m_read_mode;
-						std::shared_ptr<NetSocketStream::match_function_t> m_read_predicate;
-						std::atomic_int_least32_t m_outstanding_writes2;
+						std::unique_ptr<NetSocketStream::match_function_t> m_read_predicate;
+						std::atomic_int_least32_t m_outstanding_writes;
 						bool m_closed;
 						bool m_end;
 						std::string m_read_until_values;
+
+
 						void inc_outstanding_writes( );
 						bool dec_outstanding_writes( );
 						void handle_read( boost::system::error_code const & err, std::size_t bytes_transfered );

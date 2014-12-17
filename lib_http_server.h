@@ -71,8 +71,8 @@ namespace daw {
 					HttpServer& when_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener );
 					HttpServer& when_next_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener );
 
-					HttpServer& when_client_connected( std::function<void( std::shared_ptr<HttpConnection> )> listener );
-					HttpServer& when_next_client_connected( std::function<void( std::shared_ptr<HttpConnection> )> listener );
+					HttpServer& when_client_connected( std::function<void( HttpConnection )> listener );
+					HttpServer& when_next_client_connected( std::function<void( HttpConnection )> listener );
 
 					HttpServer& when_closed( std::function<void( )> listener );
 					HttpServer& when_next_close( std::function<void( )> listener );
