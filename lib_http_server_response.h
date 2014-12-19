@@ -25,9 +25,10 @@ namespace daw {
 				class HttpServerResponse: public base::stream::StreamWritable {
 					std::shared_ptr<HttpServerResponseImpl> m_impl;
 				public:
-					HttpServerResponse( lib::net::NetSocketStream socket );
+					HttpServerResponse( ) = delete;
 					HttpServerResponse( HttpServerResponse const & ) = default;
 					virtual ~HttpServerResponse( ) = default;
+					HttpServerResponse( lib::net::NetSocketStream socket );
 
 					HttpServerResponse( HttpServerResponse && other );
 					HttpServerResponse& operator=(HttpServerResponse const &) = default;

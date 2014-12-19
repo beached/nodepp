@@ -38,7 +38,7 @@ namespace daw {
 						boost::asio::mutable_buffers_1 asio_buff( ) const;
 					};
 
-					class NetSocketStreamImpl: public base::stream::Stream {
+					class NetSocketStreamImpl: public base::stream::Stream, public std::enable_shared_from_this<NetSocketStreamImpl> {
 					private:
 						boost::asio::ip::tcp::socket m_socket;
 						size_t m_max_read_size;
@@ -55,14 +55,15 @@ namespace daw {
 
 						void inc_outstanding_writes( );
 						bool dec_outstanding_writes( );
-						void handle_read( std::shared_ptr<boost::asio::streambuf> read_buffer, boost::system::error_code const & err, std::size_t bytes_transfered );
-						void handle_write( write_buffer buff, boost::system::error_code const & err, size_t bytes_transfered );
-						void handle_connect( boost::system::error_code const & err, tcp::resolver::iterator it );
+						static void handle_read( std::shared_ptr<NetSocketStreamImpl> self, std::shared_ptr<boost::asio::streambuf> read_buffer, boost::system::error_code const & err, std::size_t bytes_transfered );
+						static void handle_write( std::shared_ptr<NetSocketStreamImpl> self, write_buffer buff, boost::system::error_code const & err, size_t bytes_transfered );
+						static void handle_connect( std::shared_ptr<NetSocketStreamImpl> self, boost::system::error_code const & err, tcp::resolver::iterator it );
 						void write( write_buffer buff );
 						friend NetSocketStreamImpl& operator<<(NetSocketStreamImpl&, std::string const &);
 						friend NetSocketStreamImpl& operator<<(NetSocketStreamImpl&, base::data_t const &);
 
 					public:
+						std::shared_ptr<NetSocketStreamImpl> get_ptr( );
 						NetSocketStreamImpl( );
 						explicit NetSocketStreamImpl( boost::asio::io_service& io_service, std::size_t max_read_size );
 

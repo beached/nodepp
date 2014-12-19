@@ -31,7 +31,7 @@ namespace daw {
 
 					}	// namespace anonymous
 
-					class HttpConnectionImpl: public base::EventEmitter {
+					class HttpConnectionImpl: public base::EventEmitter, public std::enable_shared_from_this < HttpConnectionImpl > {
 						lib::net::NetSocketStream m_socket;
 
 					public:
@@ -55,8 +55,9 @@ namespace daw {
 						void close( );
 
 						lib::net::NetSocketStream& socket( );
-						lib::net::NetSocketStream const & socket( ) const;						
+						lib::net::NetSocketStream const & socket( ) const;
 
+						std::shared_ptr<HttpConnectionImpl> get_ptr( );
 					protected:
 						virtual void emit_close( );
 						virtual void emit_client_error( base::Error error );
@@ -144,10 +145,13 @@ namespace daw {
 						return m_socket;
 					}
 
+					std::shared_ptr<HttpConnectionImpl> HttpConnectionImpl::get_ptr( ) {
+						return shared_from_this( );
+					}
+
 				}	// namespace impl
 
-
-				HttpConnection::HttpConnection( lib::net::NetSocketStream socket ) : m_impl( std::make_shared<impl::HttpConnectionImpl>( std::move( socket ) ) ) { }
+				HttpConnection::HttpConnection( lib::net::NetSocketStream socket ) : m_impl( new impl::HttpConnectionImpl( std::move( socket ) ) ) { }
 				
 				HttpConnection::HttpConnection( HttpConnection && other ): m_impl( std::move( other.m_impl ) ) { }
 				
@@ -205,11 +209,7 @@ namespace daw {
 				}
 
 				void HttpConnection::when_closed( std::function<void( )> listener ) {	// Only once as it is called on the way out
-					auto handler = [&]( ) {
-						auto self = get_ptr( );
-						listener( );
-					};
-					m_impl->when_closed( handler );
+					m_impl->when_closed( listener );
 				}
 
 				void HttpConnection::close( ) {
@@ -219,8 +219,6 @@ namespace daw {
 				std::shared_ptr<HttpConnection> HttpConnection::get_ptr( ) {
 					return shared_from_this( );
 				}
-
-
 
 				lib::net::NetSocketStream& HttpConnection::socket( ) { return m_impl->socket( ); }
 				lib::net::NetSocketStream const & HttpConnection::socket( ) const { return m_impl->socket( ); }

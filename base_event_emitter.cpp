@@ -10,6 +10,34 @@
 namespace daw {
 	namespace nodepp {
 		namespace base {	
+			EventEmitter::EventEmitter( ) :
+				IEventEmitter( ),
+				m_listeners( std::make_shared<listeners_t>( ) ),
+				m_max_listeners( 10 ) { }
+
+			EventEmitter::EventEmitter( EventEmitter && other ):
+				IEventEmitter( std::move( other ) ),
+				m_listeners( std::move( other.m_listeners ) ),
+				m_max_listeners( std::move( other.m_max_listeners ) ) {
+				std::cerr << "EventEmitter::EventEmitter( EventEmmiter && )\n";
+			}
+
+			EventEmitter& EventEmitter::operator=(EventEmitter && rhs) {
+				if( this != &rhs ) {
+					m_listeners = std::move( rhs.m_listeners );
+					m_max_listeners = std::move( rhs.m_max_listeners );
+				}
+				std::cerr << "EventEmitter::operator=( EventEmitter&& )\n";
+				return *this;
+			}
+
+			void EventEmitter::swap( EventEmitter& rhs ) {
+				std::cerr << "EventEmitter::swap( EventEmitter & )\n";
+				using std::swap;
+				swap( m_listeners, rhs.m_listeners );
+				swap( m_max_listeners, rhs.m_max_listeners );
+			}
+
 			void EventEmitter::emit_error( base::Error error ) {
 				emit( "error", std::move( error ) );
 			}
@@ -55,10 +83,6 @@ namespace daw {
 				return *m_listeners;
 			}
 
-			std::unordered_map<std::string, EventEmitter::listener_list_t> const & EventEmitter::listeners( ) const {
-				return *m_listeners;
-			}
-
 			std::vector<std::string> const & EventEmitter::valid_events( ) const {
 				static auto const result = std::vector < std::string > { "newListener", "removeListener", "error" };
 				return result;
@@ -68,38 +92,6 @@ namespace daw {
 				auto result = 0 != m_max_listeners;
 				result &= listeners( )[event].size( ) >= m_max_listeners;
 				return result;				
-			}
-
-			EventEmitter::EventEmitter( ) :
-				m_listeners( std::make_shared<listeners_t>( ) ), 
-				m_max_listeners( 10 ) {
-				std::cerr << "EventEmitter::EventEmitter( )\n";
-			}
-
-			EventEmitter::EventEmitter( EventEmitter && other ):
-				m_listeners( std::move( other.m_listeners ) ), 
-				m_max_listeners( std::move( other.m_max_listeners ) ) {
-				std::cerr << "EventEmitter::EventEmitter( EventEmmiter && )\n";
-			}
-
-			EventEmitter& EventEmitter::operator=( EventEmitter && rhs ) {
-				if( this != &rhs ) {
-					m_listeners = std::move( rhs.m_listeners );
-					m_max_listeners = std::move( rhs.m_max_listeners );
-				}
-				std::cerr << "EventEmitter::operator=( EventEmitter&& )\n";
-				return *this;
-			}
-
-			void EventEmitter::swap( EventEmitter& rhs ) {
-				std::cerr << "EventEmitter::swap( EventEmitter & )\n";
-				using std::swap;
-				swap( m_listeners, rhs.m_listeners );
-				swap( m_max_listeners, rhs.m_max_listeners );
-			}
-
-			EventEmitter::~EventEmitter( ) { 
-				std::cerr << "EventEmitter::~EventEmitter( )\n";
 			}
 			
 			void EventEmitter::remove_listener( std::string event, callback_id_t id ) {
@@ -157,10 +149,6 @@ namespace daw {
 				return listeners( )[event];
 			}
 
-// 			EventEmitter::listener_list_t const EventEmitter::listeners( std::string event ) const {
-// 				return listeners( ).at( event );
-// 			}
-
 			size_t EventEmitter::listener_count( std::string event ) {
 				return listeners( event ).size( );
 			}
@@ -171,6 +159,14 @@ namespace daw {
 
 			void EventEmitter::untap( ) {
 				remove_all_listeners( "tap" );
+			}
+
+			void EventEmitter::run( ) {
+				base::ServiceHandle::get( ).run( );
+			}
+
+			bool EventEmitter::event_is_valid( std::string const & event ) const {
+				return daw::algorithm::contains( valid_events( ), event );
 			}
 
 		}	// namespace base

@@ -40,7 +40,7 @@ namespace daw {
 				}
 
 				void HttpServer::emit_connection( std::shared_ptr<HttpConnection> connection ) {
-					emit( "connection", std::move( connection ) );
+					emit( "connection", connection );
 				}
 				
 				void HttpServer::emit_close( ) {
@@ -53,7 +53,7 @@ namespace daw {
 				
 				void HttpServer::handle_connection( lib::net::NetSocketStream socket ) {
 					
-					auto connection = std::make_shared<HttpConnection>( std::move( socket ) );
+					std::shared_ptr<HttpConnection> connection( new HttpConnection( std::move( socket ) ) );
 
 					connection->when_error( [&]( base::Error error ) {
 						emit_error( "HttpServer::handle_connection", std::move( error ) );

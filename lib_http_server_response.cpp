@@ -16,7 +16,7 @@ namespace daw {
 		namespace lib {
 			namespace http {
 				using namespace daw::nodepp;
-				class HttpServerResponseImpl: public base::stream::StreamWritable {
+				class HttpServerResponseImpl: public base::stream::StreamWritable, public std::enable_shared_from_this<HttpServerResponseImpl> {
 					HttpVersion m_version;
 					HttpHeaders m_headers;
 					base::data_t m_body;
@@ -54,7 +54,7 @@ namespace daw {
 					bool can_write( ) const;
 
 					void add_header( std::string header_name, std::string header_value );
-
+					std::shared_ptr<HttpServerResponseImpl> get_ptr( );
 				};	// struct HttpServerResponse						
 
 				HttpServerResponseImpl::HttpServerResponseImpl( lib::net::NetSocketStream socket ) :
@@ -199,7 +199,11 @@ namespace daw {
 					m_headers.add( std::move( header_name ), std::move( header_value ) );
 				}
 
-				HttpServerResponse::HttpServerResponse( lib::net::NetSocketStream socket ) : m_impl( std::make_shared<HttpServerResponseImpl>( std::move( socket ) ) ) { }
+				std::shared_ptr<HttpServerResponseImpl> HttpServerResponseImpl::get_ptr( ) {
+					return shared_from_this( );
+				}
+
+				HttpServerResponse::HttpServerResponse( lib::net::NetSocketStream socket ) : m_impl( new HttpServerResponseImpl( std::move( socket ) ) ) { }
 
 				HttpServerResponse::HttpServerResponse( HttpServerResponse && other ): m_impl( std::move( other.m_impl ) ) { }
 				

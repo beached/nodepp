@@ -20,7 +20,7 @@ namespace daw {
 					std::shared_ptr<impl::HttpConnectionImpl> m_impl;
 
 				public:
-					HttpConnection( ) = default;
+					HttpConnection( ) = delete;
 					HttpConnection( HttpConnection const & ) = default;
 					HttpConnection( lib::net::NetSocketStream socket );
 					HttpConnection( HttpConnection && );

@@ -121,50 +121,54 @@ namespace daw {
 						}
 					}	// namespace anonymous
 
-					void NetSocketStreamImpl::handle_connect( boost::system::error_code const & err, tcp::resolver::iterator it ) {
+					void NetSocketStreamImpl::handle_connect( std::shared_ptr<NetSocketStreamImpl> self, boost::system::error_code const & err, tcp::resolver::iterator it ) {
 						if( !err ) {
 							try {
-								emit_connect( );
+								self->emit_connect( );
 							} catch( ... ) {
-								emit_error( std::current_exception( ), "Running connect listeners", "NetSocketStream::connect_handler" );
+								self->emit_error( std::current_exception( ), "Running connect listeners", "NetSocketStream::connect_handler" );
 							}
 						} else {
-							emit_error( err, "NetSocketStream::connect" );
+							self->emit_error( err, "NetSocketStream::connect" );
 						}
 					}
 
-					void NetSocketStreamImpl::handle_read( std::shared_ptr<boost::asio::streambuf> read_buffer, boost::system::error_code const & err, std::size_t bytes_transfered ) {
-						read_buffer->commit( bytes_transfered );
-						if( 0 < bytes_transfered ) {
-							std::istream resp( read_buffer.get( ) );
-							auto new_data = std::make_shared<base::data_t>( bytes_transfered );
-							resp.read( new_data->data( ), static_cast<std::streamsize>(bytes_transfered) );
-							read_buffer->consume( bytes_transfered );
-							if( 0 < listener_count( "data" ) ) {
+					void NetSocketStreamImpl::handle_read( std::shared_ptr<NetSocketStreamImpl> self, std::shared_ptr<boost::asio::streambuf> read_buffer, boost::system::error_code const & err, std::size_t bytes_transfered ) {
+						try {
+							read_buffer->commit( bytes_transfered );
+							if( 0 < bytes_transfered ) {
+								std::istream resp( read_buffer.get( ) );
+								auto new_data = std::make_shared<base::data_t>( bytes_transfered );
+								resp.read( new_data->data( ), static_cast<std::streamsize>(bytes_transfered) );
+								read_buffer->consume( bytes_transfered );
+								if( 0 < self->listener_count( "data" ) ) {
 
-								{
-									// Handle when the emitter comes after the data starts pouring in.  This might be best placed in newEvent
-									// have not decided
-									if( !m_response_buffers.empty( ) ) {
-										auto buff = std::make_shared<base::data_t>( get_clear_buffer( m_response_buffers, m_response_buffers.size( ), 0 ) );
-										emit_data( std::move( buff ), false );
+									{
+										// Handle when the emitter comes after the data starts pouring in.  This might be best placed in newEvent
+										// have not decided
+										if( !self->m_response_buffers.empty( ) ) {
+											auto buff = std::make_shared<base::data_t>( get_clear_buffer( self->m_response_buffers, self->m_response_buffers.size( ), 0 ) );
+											self->emit_data( std::move( buff ), false );
+										}
 									}
+									bool end_of_file = err && 2 == err.value( );
+
+									self->emit_data( std::move( new_data ), end_of_file );
+								} else {	// Queue up for a			
+									daw::copy_vect_and_set( *new_data, self->m_response_buffers, bytes_transfered, static_cast<base::data_t::value_type>(0) );
 								}
-								bool end_of_file = err && 2 == err.value( );
-
-								emit_data( std::move( new_data ), end_of_file );
-							} else {	// Queue up for a			
-								daw::copy_vect_and_set( *new_data, m_response_buffers, bytes_transfered, static_cast<base::data_t::value_type>(0) );
+								self->m_bytes_read += bytes_transfered;
 							}
-							m_bytes_read += bytes_transfered;
-						}
 
-						if( !err ) {
-							if( !m_closed ) {
-								read_async( read_buffer );
+							if( !err ) {
+								if( !self->m_closed ) {
+									self->read_async( read_buffer );
+								}
+							} else if( 2 != err.value( ) ) {
+								self->emit_error( err, "NetSocket::read" );
 							}
-						} else if( 2 != err.value( ) ) {
-							emit_error( err, "NetSocket::read" );
+						} catch( std::exception const & ex ) {
+							std::cerr << "Exception: " << ex.what( ) << " in read handler\n";
 						}
 					}
 
@@ -176,8 +180,9 @@ namespace daw {
 							read_buffer = std::make_shared<boost::asio::streambuf>( m_max_read_size );
 						}
 
-						auto handler = [&, read_buffer]( boost::system::error_code const & err, std::size_t bytes_transfered ) mutable {
-							handle_read( read_buffer, err, bytes_transfered );
+						auto self = get_ptr( );
+						auto handler = [self, read_buffer]( boost::system::error_code const & err, std::size_t bytes_transfered ) mutable {
+							self->handle_read( self, read_buffer, err, bytes_transfered );
 						};
 
 						switch( m_read_mode ) {
@@ -244,8 +249,9 @@ namespace daw {
 					void NetSocketStreamImpl::connect( std::string host, uint16_t port ) {
 						tcp::resolver resolver( base::ServiceHandle::get( ) );
 
-						auto handler = [&]( boost::system::error_code const & err, tcp::resolver::iterator it ) {
-							handle_connect( err, it );
+						auto self = get_ptr( );
+						auto handler = [self]( boost::system::error_code const & err, tcp::resolver::iterator it ) {
+							self->handle_connect( self, err, it );
 						};
 
 						boost::asio::async_connect( m_socket, resolver.resolve( { host, boost::lexical_cast<std::string>(port) } ), handler );
@@ -261,15 +267,15 @@ namespace daw {
 						return m_socket.is_open( );
 					}
 
-					void NetSocketStreamImpl::handle_write( write_buffer buff, boost::system::error_code const & err, size_t bytes_transfered ) { // TODO see if we need buff, maybe lifetime issue
-						m_bytes_written += bytes_transfered;
+					void NetSocketStreamImpl::handle_write( std::shared_ptr<NetSocketStreamImpl> self, write_buffer buff, boost::system::error_code const & err, size_t bytes_transfered ) { // TODO see if we need buff, maybe lifetime issue
+						self->m_bytes_written += bytes_transfered;
 						if( !err ) {
-							emit( "drain" );
+							self->emit( "drain" );
 						} else {
-							emit_error( err, "NetSocket::write" );
+							self->emit_error( err, "NetSocket::write" );
 						}
-						if( dec_outstanding_writes( ) ) {
-							emit( "finish" );
+						if( self->dec_outstanding_writes( ) ) {
+							self->emit( "finish" );
 						}
 					}
 
@@ -287,8 +293,9 @@ namespace daw {
 						}
 						m_bytes_written += buff.size( );
 
-						auto handler = [&, buff]( boost::system::error_code const & err, size_t bytes_transfered ) mutable {
-							handle_write( buff, err, bytes_transfered );
+						auto self = get_ptr( );
+						auto handler = [self, buff]( boost::system::error_code const & err, size_t bytes_transfered ) mutable {
+							self->handle_write( self, buff, err, bytes_transfered );
 						};
 
 						inc_outstanding_writes( );
@@ -395,11 +402,15 @@ namespace daw {
 					bool NetSocketStreamImpl::can_write( ) const {
 						return !m_end;
 					}
+
+					std::shared_ptr<NetSocketStreamImpl> NetSocketStreamImpl::get_ptr( ) {
+						return shared_from_this( );
+					}
 				} // namespace impl
 
-				NetSocketStream::NetSocketStream( ) : m_impl( std::make_shared<impl::NetSocketStreamImpl>( ) ) { }
+				NetSocketStream::NetSocketStream( ) : m_impl( new impl::NetSocketStreamImpl ) { }
 
-				NetSocketStream::NetSocketStream( boost::asio::io_service& io_service, size_t max_read_size ) : m_impl( std::make_shared<impl::NetSocketStreamImpl>( io_service, max_read_size ) ) { }
+				NetSocketStream::NetSocketStream( boost::asio::io_service& io_service, size_t max_read_size ) : m_impl( new impl::NetSocketStreamImpl( io_service, max_read_size ) ) { }
 
 				NetSocketStream::NetSocketStream( NetSocketStream const & other ):  m_impl( other.m_impl ) { }
 				
