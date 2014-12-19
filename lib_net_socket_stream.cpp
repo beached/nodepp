@@ -56,7 +56,6 @@ namespace daw {
 						m_closed( false ),
 						m_end( false ),
 						m_read_until_values( ) { 
-						std::cerr << "NetSocketStreamImpl( )\n";
 					}
 
 					NetSocketStreamImpl::NetSocketStreamImpl( boost::asio::io_service& io_service, std::size_t max_read_size ) : base::stream::Stream( ),
@@ -71,7 +70,6 @@ namespace daw {
 						m_closed( false ),
 						m_end( false ),
 						m_read_until_values( ) {
-						std::cerr << "NetSocketStreamImpl( boost::asio::io_service& io_service, std::size_t max_read_size )\n";
 					}
 
 					NetSocketStreamImpl::~NetSocketStreamImpl( ) {
@@ -82,7 +80,6 @@ namespace daw {
 						} catch( std::exception const & ) {
 							// Do nothing, we don't usually care.  It's gone, move on
 						}
-						std::cerr << "~NetSocketStreamImpl( )\n";
 					}
 
 					namespace {
