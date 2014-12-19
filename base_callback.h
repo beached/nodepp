@@ -49,7 +49,6 @@ namespace daw {
 
 				template<typename... Args>
 				void exec( Args&&... args ) {					
-					//using cb_type = remove_const<std::function < void( typename std::remove_reference<Args>::type... ) >>::type;
 					using cb_type = std::function < void( typename std::remove_reference<Args>::type... ) >;
 					auto callback = boost::any_cast<cb_type>(m_callback);
 					callback( std::forward<Args>( args )... );

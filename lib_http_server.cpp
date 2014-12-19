@@ -9,7 +9,9 @@
 #include "lib_http_connection.h"
 #include "lib_http_server.h"
 #include "lib_net_server.h"
+#include "utility.h"
 #include "range_algorithm.h"
+#include <cstdlib>
 
 namespace daw {
 	namespace nodepp {
@@ -40,23 +42,39 @@ namespace daw {
 					void emit_connection( HttpServer& server, HttpConnection connection ) {
 						server.emit( "connection", connection );
 					}
+
+					void emit_error( HttpServer & server, boost::system::error_code const & err, std::string where ) {
+						auto error = base::Error( err );
+						error.add( "where", where );
+						server.emit( "error", error );
+					}
+
+					void emit_error( HttpServer & server, std::exception_ptr ex, std::string description, std::string where ) {
+						auto error = base::Error( description, ex );
+						error.add( "where", where );
+						server.emit( "error", error );
+					}
 				}
 
 				void HttpServer::handle_connection( lib::net::NetSocketStream socket ) {
-					auto connections = m_connections;
-					auto connection_ptr = connections->emplace( connections->begin( ), std::move( socket ) );
-					connection_ptr->when_error( [&]( base::Error error ) {
+					daw::algorithm::erase_remove_if( m_connections, []( std::pair<bool, HttpConnection> const & item ) {
+						return item.first;
+					} );
+
+					auto connection_ptr = m_connections.emplace( m_connections.begin( ), std::make_pair<bool, HttpConnection>( false, HttpConnection( std::move( socket ) ) ) );
+					connection_ptr->second.when_error( [&]( base::Error error ) {
 						auto err = base::Error( "Error in connection" );
 						err.add( "where", "HttpServer::handle_connection" )
 							.child( std::move( error ) );
 						emit( "error", std::move( err ) );
-					} ).on_closed( [connections, connection_ptr]( ) mutable { 
-						base::ServiceHandle::get( ).post( [connections, connection_ptr]( ) mutable {
-							connections->erase( connection_ptr );
-						} );
+					} ).on_closed( [connection_ptr]( ) mutable {
+						connection_ptr->first = true;
 					} );
-
-					emit_connection( *this, *connection_ptr );
+					try {
+						emit_connection( *this, connection_ptr->second );
+					} catch( ... ) {
+						emit_error( *this, std::current_exception( ), "Running connection listeners", "HttpServer::handle_connection" );
+					}
 				}
 
 				void HttpServer::handle_error( base::Error error ) {

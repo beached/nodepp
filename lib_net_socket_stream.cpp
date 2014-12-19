@@ -85,30 +85,50 @@ namespace daw {
 					namespace {
 
 						void emit_error( NetSocketStreamImpl * const net_socket, boost::system::error_code const & err, std::string where ) {
-							auto error = base::Error( err );
-							error.add( "where", where );
-							net_socket->emit( "error", error );
+							if( net_socket ) {
+								auto error = base::Error( err );
+								error.add( "where", where );
+								net_socket->emit( "error", error );
+							} else {
+								throw std::runtime_error( "NetSocketStream: Null passed to emit_error" );
+							}
 						}
 
 						void emit_error( NetSocketStreamImpl * const net_socket, std::exception_ptr ex, std::string description, std::string where ) {
-							auto error = base::Error( description, ex );
-							error.add( "where", where );
-							net_socket->emit( "error", error );
+							if( net_socket ) {
+								auto error = base::Error( description, ex );
+								error.add( "where", where );
+								net_socket->emit( "error", error );
+							} else {
+								throw std::runtime_error( "NetSocketStream: Null passed to emit_error" );
+							}
 						}
 
 
 						void emit_data( NetSocketStreamImpl* const net_socket, std::shared_ptr<base::data_t> buffer, bool end_of_file ) {
-							net_socket->emit( "data", std::move( buffer ), end_of_file );
-							if( end_of_file ) {
-								net_socket->emit( "end" );
+							if( net_socket ) {
+								net_socket->emit( "data", std::move( buffer ), end_of_file );
+								if( end_of_file ) {
+									net_socket->emit( "end" );
+								}
+							} else {
+								throw std::runtime_error( "NetSocketStream: Null passed to emit_data" );
 							}
 						}
 
 						void connect_handler( NetSocketStreamImpl* const net_socket, boost::system::error_code const & err, tcp::resolver::iterator it ) {
-							if( !err ) {
-								net_socket->emit( "connect" );
+							if( net_socket ) {
+								if( !err ) {
+									try {
+										net_socket->emit( "connect" );
+									} catch( ... ) {
+										emit_error( net_socket, std::current_exception( ), "Running connect listeners", "NetSocketStream::connect_handler" );
+									}
+								} else {
+									emit_error( net_socket, err, "NetSocketStream::connect" );
+								}
 							} else {
-								emit_error( net_socket, err, "NetSocket::connect" );
+								throw std::runtime_error( "NetSocketStream: Null passed to connect_handler" );
 							}
 						}
 					}	// namespace anonymous

@@ -25,8 +25,8 @@ namespace daw {
 						net_server.emit( "error", error );
 					}
 
-					void emit_error( NetServer& net_server, std::exception_ptr err, std::string where ) {
-						auto error = base::Error( "Exception Caught", std::move( err ) );
+					void emit_error( NetServer& net_server, std::exception_ptr err, std::string description, std::string where ) {
+						auto error = base::Error( description, std::move( err ) );
 						error.add( "where", where );
 						net_server.emit( "error", error );
 					}
@@ -65,7 +65,7 @@ namespace daw {
 						try {
 							emit_connection( *this, std::move( socket ) );
 						} catch( ... ) {
-							emit_error( *this, std::current_exception( ) , "NetServer::listen#emit_connection" );
+							emit_error( *this, std::current_exception( ) , "Running connection listeners", "NetServer::listen#emit_connection" );
 						}
 					} else {
 						emit_error( *this, err, "NetServer::listen" );

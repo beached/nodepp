@@ -49,6 +49,9 @@ namespace daw {
 			protected:
 				template<typename Listener>
 				callback_id_t add_listener( std::string event, Listener listener, bool run_once = false ) {
+					if( event.empty( ) ) {
+						throw std::runtime_error( "Empty event name passed to add_listener" );
+					}
 					if( !at_max_listeners( event ) ) {
 						auto callback = Callback( listener );
 						if( event != "newListener" ) {
@@ -62,17 +65,17 @@ namespace daw {
 					}
 				}
 
-				// 				template<typename Listener>
-				// 				EventEmitter& on( std::string event, Listener listener ) {
-				// 					add_listener( event, listener );
-				// 					return *this;
-				// 				}
-				// 
-				// 				template<typename Listener>
-				// 				EventEmitter& once( std::string event, Listener listener ) {
-				// 					add_listener( event, listener, true );
-				// 					return *this;
-				// 				}
+				template<typename Listener>
+				EventEmitter& on( std::string event, Listener listener ) {
+					add_listener( event, listener );
+					return *this;
+				}
+
+				template<typename Listener>
+				EventEmitter& once( std::string event, Listener listener ) {
+					add_listener( event, listener, true );
+					return *this;
+				}
 
 			public:
 				virtual std::vector<std::string> const & valid_events( ) const;
@@ -114,13 +117,15 @@ namespace daw {
 
 				template<typename... Args>
 				void emit( std::string event, Args&&... args ) {
+					if( event.empty( ) ) {
+						throw std::runtime_error( "Empty event name passed to emit" );
+					}
 					assert( daw::algorithm::contains( this->valid_events( ), event ) );
 					auto& callbacks = listeners( )[event];
 					if( !listeners( )["tap"].empty( ) ) {
 						listeners( )["tap"][0].second.exec( event, callbacks.size( ) );
 					}
-					
-					
+										
 					for( auto& callback : callbacks ) {						
 						if( !callback.second.empty( ) ) {
 							callback.second.exec( std::forward<Args>( args )... );

@@ -67,9 +67,9 @@ namespace daw {
 							auto req = parse_http_request( data_buffer->begin( ), data_buffer->end( ) );
 							data_buffer.reset( );
 							if( req ) {
-								emit( "request", std::move( req ), HttpServerResponse( m_socket ) );
+								emit( "request", std::move( req ), HttpServerResponse( std::move( m_socket ) ) );
 							} else {
-								err400( m_socket );
+								err400( std::move( m_socket ) );
 							}
 						} ).on_closed( [&]( ) {
 							emit( "close" );
