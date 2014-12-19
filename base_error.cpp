@@ -23,15 +23,14 @@ namespace daw {
 
 			Error::Error( Error && other ) : m_keyvalues( std::move( other.m_keyvalues ) ), m_frozen{ std::move( other.m_frozen ) }, m_child{ std::move( other.m_child ) }, m_exception{ std::move( other.m_exception ) } { }
 
-			Error& Error::operator=(Error && rhs) {
-				if( this != &rhs ) {
-					m_keyvalues = std::move( rhs.m_keyvalues );
-					m_frozen = std::move( rhs.m_frozen );
-					m_child = std::move( rhs.m_child );
-					m_exception = std::move( rhs.m_exception );
-				}
+			Error& Error::operator=(Error rhs) {
+				m_keyvalues = std::move( rhs.m_keyvalues );
+				m_frozen = std::move( rhs.m_frozen );
+				m_child = std::move( rhs.m_child );
+				m_exception = std::move( rhs.m_exception );
 				return *this;
 			}
+
 
 			Error& Error::add( std::string const & name, std::string value ) {
 				if( m_frozen ) {

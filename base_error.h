@@ -20,14 +20,13 @@ namespace daw {
 				std::exception_ptr m_exception;
 			public:
 				Error( ) = delete;
-				Error( Error const & ) = default;
-				Error( std::string description, std::exception_ptr ex_ptr );
-				Error& operator=(Error const &) = default;
-
 				Error( std::string description );
 				explicit Error( boost::system::error_code const & err );
 				Error( Error && );
-				Error& operator=(Error &&);
+				Error( Error const & ) = default;
+				Error( std::string description, std::exception_ptr ex_ptr );
+				Error& operator=(Error rhs);
+
 				Error& add( std::string const & name, std::string value );
 				std::string const & get( std::string const & name ) const;
 				std::string & get( std::string const & name );

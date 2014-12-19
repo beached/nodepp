@@ -27,6 +27,10 @@ int main( int, char const ** ) {
 		} );
 	} );
 
+	server.when_error( []( base::Error error ) {
+		std::cerr << error << std::endl;
+	} );
+
 	server.listen_on( 8080 );
 
 	server.run( );
