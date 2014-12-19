@@ -126,7 +126,11 @@ namespace daw {
 					return result;
 				}
 
-				Stream::Stream( Stream && other ) : StreamReadable( std::move( other ) ), StreamWritable( std::move( other ) ) { }
+// 				Stream::Stream( ) : base::EventEmitter( ), StreamReadable( ), StreamWritable( ) { }
+// 				Stream::Stream( Stream const & );
+// 				Stream& Stream::operator=(Stream const &);
+
+				Stream::Stream( Stream && other ) : base::EventEmitter( std::move( other ) ), StreamReadable( std::move( other ) ), StreamWritable( std::move( other ) ) { }
 
 				Stream& Stream::operator=(Stream && rhs) {
 					if( this != &rhs ) {

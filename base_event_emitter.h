@@ -86,7 +86,8 @@ namespace daw {
 				virtual ~EventEmitter( );
 				EventEmitter( EventEmitter const & ) = default;
 				EventEmitter( EventEmitter && other );
-				EventEmitter& operator=(EventEmitter rhs);
+				EventEmitter& operator=(EventEmitter const &) = default;
+				EventEmitter& operator=(EventEmitter && rhs);
 
 				void swap( EventEmitter& rhs );
 
@@ -110,7 +111,7 @@ namespace daw {
 				void set_max_listeners( size_t max_listeners );
 
 				listener_list_t listeners( std::string event );
-				listener_list_t const listeners( std::string event ) const;
+			//	listener_list_t const listeners( std::string event ) const;
 				size_t listener_count( std::string event );
 
 				void tap( std::function<void( std::string, size_t )> listner );

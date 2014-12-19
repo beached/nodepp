@@ -24,7 +24,8 @@ namespace daw {
 					HttpConnection( HttpConnection const & ) = default;
 					HttpConnection( lib::net::NetSocketStream socket );
 					HttpConnection( HttpConnection && );
-					HttpConnection& operator=( HttpConnection );
+					HttpConnection& operator=(HttpConnection const &) = default;
+					HttpConnection& operator=( HttpConnection && rhs );
 					virtual ~HttpConnection( ) = default;
 
 					std::vector<std::string> const & valid_events( ) const;					

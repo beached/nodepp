@@ -160,7 +160,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="base_callback.h" />
-    <ClInclude Include="base_data.h" />
     <ClInclude Include="base_error.h" />
     <ClInclude Include="base_enoding.h" />
     <ClInclude Include="base_event_emitter.h" />

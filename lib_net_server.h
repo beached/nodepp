@@ -29,7 +29,8 @@ namespace daw {
 					NetServer( );
 					NetServer( NetServer const & ) = default;
 					NetServer( NetServer&& other );
-					NetServer& operator=(NetServer rhs);
+					NetServer& operator=(NetServer && rhs);
+					NetServer& operator=(NetServer const &) = default;
 					virtual ~NetServer( ) = default;
 					
 					virtual std::vector<std::string> const & valid_events( ) const override;

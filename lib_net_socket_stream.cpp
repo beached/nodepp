@@ -44,7 +44,8 @@ namespace daw {
 						return boost::asio::buffer( data( ), size( ) );
 					}
 
-					NetSocketStreamImpl::NetSocketStreamImpl( ) : base::stream::Stream( ),
+					NetSocketStreamImpl::NetSocketStreamImpl( ) : 
+						base::stream::Stream( ),
 						m_socket( base::ServiceHandle::get( ) ),
 						m_max_read_size( 8192 ),
 						m_response_buffers( ),
@@ -56,9 +57,11 @@ namespace daw {
 						m_closed( false ),
 						m_end( false ),
 						m_read_until_values( ) { 
+						std::cerr << "NetSocketStreamImpl::NetSocketStreamImpl( )\n";
 					}
 
-					NetSocketStreamImpl::NetSocketStreamImpl( boost::asio::io_service& io_service, std::size_t max_read_size ) : base::stream::Stream( ),
+					NetSocketStreamImpl::NetSocketStreamImpl( boost::asio::io_service& io_service, std::size_t max_read_size ) : 
+						base::stream::Stream( ),
 						m_socket( io_service ),
 						m_max_read_size( max_read_size ),
 						m_response_buffers( ),
@@ -70,6 +73,7 @@ namespace daw {
 						m_closed( false ),
 						m_end( false ),
 						m_read_until_values( ) {
+						std::cerr << "NetSocketStreamImpl::NetSocketStreamImpl( boost::asio::io_service& io_service, std::size_t max_read_size )\n";
 					}
 
 					NetSocketStreamImpl::~NetSocketStreamImpl( ) {
@@ -80,6 +84,7 @@ namespace daw {
 						} catch( std::exception const & ) {
 							// Do nothing, we don't usually care.  It's gone, move on
 						}
+						std::cerr << "NetSocketStreamImpl::~NetSocketStreamImpl( )\n";
 					}			
 
 					void NetSocketStreamImpl::inc_outstanding_writes( ) {
@@ -396,12 +401,14 @@ namespace daw {
 
 				NetSocketStream::NetSocketStream( boost::asio::io_service& io_service, size_t max_read_size ) : m_impl( std::make_shared<impl::NetSocketStreamImpl>( io_service, max_read_size ) ) { }
 
-				NetSocketStream::NetSocketStream( NetSocketStream const & rhs ): m_impl( rhs.m_impl ) { }
+				NetSocketStream::NetSocketStream( NetSocketStream const & other ):  m_impl( other.m_impl ) { }
 				
-				NetSocketStream::NetSocketStream( NetSocketStream && other ): m_impl( std::move( other.m_impl ) ) { }
+				NetSocketStream::NetSocketStream( NetSocketStream && other ):  m_impl( std::move( other.m_impl ) ) { }
 				
-				NetSocketStream& NetSocketStream::operator=( NetSocketStream rhs ) {
-					m_impl = std::move( m_impl );
+				NetSocketStream& NetSocketStream::operator=( NetSocketStream && rhs ) {
+					if( this != &rhs ) {
+						m_impl = std::move( m_impl );
+					}
 					return *this;
 				}
 
@@ -513,22 +520,6 @@ namespace daw {
 					m_impl->pause( );
 				}
 				
-				base::stream::StreamWritable& NetSocketStream::pipe( base::stream::StreamWritable& destination ) {
-					return m_impl->pipe( destination );
-				}
-				
-				base::stream::StreamWritable& NetSocketStream::pipe( base::stream::StreamWritable& destination, base::options_t options ) {
-					return m_impl->pipe( destination, options );
-				}
-
-				void NetSocketStream::unpipe( StreamWritable& destination ) {
-					m_impl->unpipe( destination );
-				}
-
-				void NetSocketStream::unshift( base::data_t const & chunk ) { 
-					m_impl->unshift( chunk );
-				}
-
 				// StreamWritable Interface
 				void NetSocketStream::write( base::data_t const & chunk ) { 
 					m_impl->write( chunk );

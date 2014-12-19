@@ -12,12 +12,12 @@ namespace daw {
 					NetAddress( );
 					~NetAddress( ) = default;
 					NetAddress( NetAddress const & ) = default;
-					NetAddress& operator=(NetAddress const &) = default;
-
+					NetAddress( NetAddress && other );
 					explicit NetAddress( std::string address );
 
-					NetAddress( NetAddress && );
+					NetAddress& operator=(NetAddress const &) = default;
 					NetAddress& operator=(NetAddress && rhs);
+
 
 					std::string const & operator()( ) const;
 

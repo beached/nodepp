@@ -30,7 +30,8 @@ namespace daw {
 					virtual ~HttpServerResponse( ) = default;
 
 					HttpServerResponse( HttpServerResponse && other );
-					HttpServerResponse& operator=(HttpServerResponse rhs);
+					HttpServerResponse& operator=(HttpServerResponse const &) = default;
+					HttpServerResponse& operator=(HttpServerResponse && rhs);
 
 					virtual void write( base::data_t const & data ) override;
 					virtual void write( std::string const & data, base::Encoding const & encoding = base::Encoding( ) ) override;

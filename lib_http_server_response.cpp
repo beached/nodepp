@@ -203,8 +203,10 @@ namespace daw {
 
 				HttpServerResponse::HttpServerResponse( HttpServerResponse && other ): m_impl( std::move( other.m_impl ) ) { }
 				
-				HttpServerResponse& HttpServerResponse::operator=(HttpServerResponse rhs) {
-					m_impl = std::move( rhs.m_impl );
+				HttpServerResponse& HttpServerResponse::operator=(HttpServerResponse && rhs) {
+					if( this != &rhs ) {
+						m_impl = std::move( rhs.m_impl );
+					}
 					return *this;
 				}
 

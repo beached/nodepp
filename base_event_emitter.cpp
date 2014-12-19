@@ -72,25 +72,35 @@ namespace daw {
 
 			EventEmitter::EventEmitter( ) :
 				m_listeners( std::make_shared<listeners_t>( ) ), 
-				m_max_listeners( 10 ) { }
+				m_max_listeners( 10 ) {
+				std::cerr << "EventEmitter::EventEmitter( )\n";
+			}
 
 			EventEmitter::EventEmitter( EventEmitter && other ):
 				m_listeners( std::move( other.m_listeners ) ), 
-				m_max_listeners( std::move( other.m_max_listeners ) ) { }
+				m_max_listeners( std::move( other.m_max_listeners ) ) {
+				std::cerr << "EventEmitter::EventEmitter( EventEmmiter && )\n";
+			}
 
-			EventEmitter& EventEmitter::operator=( EventEmitter rhs ) {
-				m_listeners = std::move( rhs.m_listeners );
-				m_max_listeners = std::move( rhs.m_max_listeners );
+			EventEmitter& EventEmitter::operator=( EventEmitter && rhs ) {
+				if( this != &rhs ) {
+					m_listeners = std::move( rhs.m_listeners );
+					m_max_listeners = std::move( rhs.m_max_listeners );
+				}
+				std::cerr << "EventEmitter::operator=( EventEmitter&& )\n";
 				return *this;
 			}
 
 			void EventEmitter::swap( EventEmitter& rhs ) {
+				std::cerr << "EventEmitter::swap( EventEmitter & )\n";
 				using std::swap;
 				swap( m_listeners, rhs.m_listeners );
 				swap( m_max_listeners, rhs.m_max_listeners );
 			}
 
-			EventEmitter::~EventEmitter( ) { }
+			EventEmitter::~EventEmitter( ) { 
+				std::cerr << "EventEmitter::~EventEmitter( )\n";
+			}
 			
 			void EventEmitter::remove_listener( std::string event, callback_id_t id ) {
 				daw::algorithm::erase_remove_if( listeners( )[event], [&]( std::pair<bool, Callback> const & item ) {
@@ -147,9 +157,9 @@ namespace daw {
 				return listeners( )[event];
 			}
 
-			EventEmitter::listener_list_t const EventEmitter::listeners( std::string event ) const {
-				return listeners( ).at( event );
-			}
+// 			EventEmitter::listener_list_t const EventEmitter::listeners( std::string event ) const {
+// 				return listeners( ).at( event );
+// 			}
 
 			size_t EventEmitter::listener_count( std::string event ) {
 				return listeners( event ).size( );

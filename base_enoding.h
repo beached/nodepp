@@ -19,6 +19,8 @@ namespace daw {
 				explicit Encoding( std::string encoding );	
 				Encoding( Encoding const & ) = default;
 				Encoding& operator=(Encoding const &) = default;
+				Encoding( Encoding && other );
+				Encoding& operator=(Encoding && rhs);
 				Encoding& operator=(std::string const & rhs);
 
 				~Encoding( ) = default;

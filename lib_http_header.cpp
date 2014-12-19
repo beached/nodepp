@@ -24,6 +24,15 @@ namespace daw {
 				HttpHeaders::HttpHeaders( ) : headers( ) { }
 				HttpHeaders::HttpHeaders( std::initializer_list<HttpHeader> values ) : headers( std::begin( values ), std::end( values ) ) { }
 
+				HttpHeaders::HttpHeaders( HttpHeaders && other ) : headers( std::move( other.headers ) ) { }
+				
+				HttpHeaders& HttpHeaders::operator = (HttpHeaders && rhs) {
+					if( this != &rhs ) {
+						headers = std::move( rhs.headers );
+					}
+					return *this;
+				}
+
 				std::vector<HttpHeader>::iterator HttpHeaders::find( std::string const & header_name ) {
 					auto it = std::find_if( std::begin( headers ), std::end( headers ), [&header_name]( HttpHeader const & item ) {
 						return 0 == header_name.compare( item.name );

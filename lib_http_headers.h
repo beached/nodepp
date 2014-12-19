@@ -23,7 +23,10 @@ namespace daw {
 
 					HttpHeaders( );
 					HttpHeaders( std::initializer_list<HttpHeader> values );										
-
+					~HttpHeaders( ) = default;
+					HttpHeaders( HttpHeaders const & ) = default;
+					HttpHeaders( HttpHeaders && other );
+					HttpHeaders& operator=(HttpHeaders && rhs);
 					std::vector<HttpHeader>::iterator find( std::string const & header_name );
 					std::vector<HttpHeader>::const_iterator find( std::string const & header_name ) const;
 

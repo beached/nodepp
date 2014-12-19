@@ -24,9 +24,11 @@ namespace daw {
 
 				HttpServer::HttpServer( HttpServer&& other ) : base::EventEmitter( std::move( other ) ), m_netserver( std::move( other.m_netserver ) ), m_connections( std::move( other.m_connections ) ) { }
 
-				HttpServer& HttpServer::operator=(HttpServer rhs) {
-					m_netserver = std::move( rhs.m_netserver );
-					m_connections = std::move( rhs.m_connections );
+				HttpServer& HttpServer::operator=(HttpServer && rhs) {
+					if( this != &rhs ) {
+						m_netserver = std::move( rhs.m_netserver );
+						m_connections = std::move( rhs.m_connections );
+					}
 					return *this;
 				}
 
@@ -62,7 +64,7 @@ namespace daw {
 						emit_connection( connection->get_ptr( ) );
 					} catch( ... ) {
 						emit_error( std::current_exception( ), "Running connection listeners", "HttpServer::handle_connection" );
-					}
+					}					
 				}
 
 				void HttpServer::handle_error( base::Error error ) {

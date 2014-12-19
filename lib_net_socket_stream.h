@@ -23,23 +23,24 @@ namespace daw {
 				namespace impl { class NetSocketStreamImpl; }
 				using namespace daw::nodepp;				
 
-				class NetSocketStream: public base::stream::Stream {
+				class NetSocketStream {
 					std::shared_ptr<impl::NetSocketStreamImpl> m_impl;
 				public:
 					NetSocketStream( );
 					explicit NetSocketStream( boost::asio::io_service& io_service, size_t max_read_size = 8192 );
 
-					NetSocketStream( NetSocketStream const & rhs);
+					NetSocketStream( NetSocketStream const & other);
 					NetSocketStream( NetSocketStream&& other );
-					NetSocketStream& operator=(NetSocketStream rhs);
-					virtual ~NetSocketStream( ) = default;
+					NetSocketStream& operator=(NetSocketStream const &) = default;
+					NetSocketStream& operator=(NetSocketStream && rhs);
+					~NetSocketStream( ) = default;
 
 
 					enum class ReadUntil { newline, buffer_full, predicate, next_byte, regex, values };
 					using match_iterator_t = boost::asio::buffers_iterator < boost::asio::streambuf::const_buffers_type > ;
 					using match_function_t = std::function < std::pair<match_iterator_t, bool>( match_iterator_t begin, match_iterator_t end ) > ;
 				
-					virtual std::vector<std::string> const & valid_events( ) const override;
+					std::vector<std::string> const & valid_events( ) const;
 
 					void set_read_mode( ReadUntil mode );
 					ReadUntil const& current_read_mode( ) const;
@@ -74,25 +75,20 @@ namespace daw {
 					void read_async( );
 
 					// StreamReadable Interface
-					virtual base::data_t read( ) override;
-					virtual base::data_t read( std::size_t bytes ) override;
+					base::data_t read( );
+					base::data_t read( std::size_t bytes );
 
-					virtual void set_encoding( base::Encoding const & encoding ) override;
-					virtual void resume( ) override;
-					virtual void pause( ) override;
-					virtual StreamWritable& pipe( StreamWritable& destination ) override;
-					virtual StreamWritable& pipe( StreamWritable& destination, base::options_t options ) override;
-
-					virtual void unpipe( StreamWritable& destination ) override;
-					virtual void unshift( base::data_t const & chunk ) override;
+					void set_encoding( base::Encoding const & encoding );
+					void resume( );
+					void pause( );
 
 					// StreamWritable Interface
-					virtual void write( base::data_t const & chunk ) override;
-					virtual void write( std::string const & chunk, base::Encoding const & encoding = base::Encoding( ) ) override;
+					void write( base::data_t const & chunk );
+					void write( std::string const & chunk, base::Encoding const & encoding = base::Encoding( ) );
 
-					virtual void end( ) override;
-					virtual void end( base::data_t const & chunk ) override;
-					virtual void end( std::string const & chunk, base::Encoding const & encoding = base::Encoding( ) ) override;
+					void end( );
+					void end( base::data_t const & chunk );
+					void end( std::string const & chunk, base::Encoding const & encoding = base::Encoding( ) );
 
 					void close( bool emit_cb = true );
 					void cancel( );
@@ -108,35 +104,35 @@ namespace daw {
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when an error occurs
 					/// Inherited from EventEmitter
-					virtual void when_error( std::function<void( base::Error )> listener ) override;
+					void when_error( std::function<void( base::Error )> listener );
 
 					// StreamReadable callbacks
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when data is received
 					/// Inherited from StreamReadable
-					virtual void when_data_recv( std::function<void( std::shared_ptr<base::data_t>, bool )> listener ) override;
+					void when_data_recv( std::function<void( std::shared_ptr<base::data_t>, bool )> listener );
 					
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when of of stream is read.
 					/// Inherited from StreamReadable
-					virtual void when_eof( std::function<void( )> listener ) override;
+					void when_eof( std::function<void( )> listener );
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when the stream is closed
 					/// Inherited from StreamReadable
-					virtual void when_closed( std::function<void( )> listener ) override;
+					void when_closed( std::function<void( )> listener );
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when a write is completed
 					/// Inherited from StreamWritable
-					virtual void when_a_write_completes( std::function<void( )> listener ) override;
+					void when_a_write_completes( std::function<void( )> listener );
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when end( ... ) has been called and all data
 					/// has been flushed
 					/// Inherited from StreamWritable
-					virtual void when_all_writes_complete( std::function<void( )> listener ) override;					
+					void when_all_writes_complete( std::function<void( )> listener );					
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when a connection is established
@@ -145,37 +141,37 @@ namespace daw {
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when an error occurs
 					/// Inherited from EventEmitter
-					virtual void when_next_error( std::function<void( base::Error )> listener ) override;
+					void when_next_error( std::function<void( base::Error )> listener );
 
 					// StreamReadable callbacks
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when data is received
 					/// Inherited from StreamReadable
-					virtual void when_next_data_recv( std::function<void( std::shared_ptr<base::data_t>, bool )> listener ) override;
+					void when_next_data_recv( std::function<void( std::shared_ptr<base::data_t>, bool )> listener );
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when of of stream is read.
 					/// Inherited from StreamReadable
-					virtual void when_next_eof( std::function<void( )> listener ) override;
+					void when_next_eof( std::function<void( )> listener );
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when end( ... ) has been called and all data
 					/// has been flushed
 					/// Inherited from StreamWritable
-					virtual void when_next_all_writes_complete( std::function<void( )> listener ) override;	
+					void when_next_all_writes_complete( std::function<void( )> listener );	
 					
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when the next write is completed
 					/// Inherited from StreamWritable
-					virtual void when_next_write_completes( std::function<void( )> listener ) override;
+					void when_next_write_completes( std::function<void( )> listener );
 
 
-					virtual void when_listener_added( std::function<void( std::string, base::Callback )> listener ) override;
-					virtual void when_listener_removed( std::function<void( std::string, base::Callback )> listener ) override;
+					void when_listener_added( std::function<void( std::string, base::Callback )> listener );
+					void when_listener_removed( std::function<void( std::string, base::Callback )> listener );
 
-					virtual void when_next_listener_added( std::function<void( std::string, base::Callback )> listener ) override;
-					virtual void when_next_listener_removed( std::function<void( std::string, base::Callback )> listener ) override;
+					void when_next_listener_added( std::function<void( std::string, base::Callback )> listener );
+					void when_next_listener_removed( std::function<void( std::string, base::Callback )> listener );
 
 				};	// class NetSocketStream
 				

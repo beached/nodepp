@@ -151,8 +151,10 @@ namespace daw {
 				
 				HttpConnection::HttpConnection( HttpConnection && other ): m_impl( std::move( other.m_impl ) ) { }
 				
-				HttpConnection& HttpConnection::operator=(HttpConnection rhs) {
-					m_impl = std::move( rhs.m_impl );
+				HttpConnection& HttpConnection::operator=(HttpConnection && rhs) {
+					if( this != &rhs ) {
+						m_impl = std::move( rhs.m_impl );
+					}
 					return *this;
 				}
 

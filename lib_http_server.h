@@ -25,7 +25,8 @@ namespace daw {
 					HttpServer( );
 
 					HttpServer( HttpServer&& other );
-					HttpServer& operator=(HttpServer rhs);
+					HttpServer& operator=(HttpServer const &) = default;
+					HttpServer& operator=(HttpServer && rhs);
 					HttpServer( HttpServer const & ) = default;
 					virtual ~HttpServer( ) = default;
 

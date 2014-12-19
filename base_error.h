@@ -25,7 +25,8 @@ namespace daw {
 				Error( Error && );
 				Error( Error const & ) = default;
 				Error( std::string description, std::exception_ptr ex_ptr );
-				Error& operator=(Error rhs);
+				Error& operator=(Error const &) = default;
+				Error& operator=(Error && rhs);
 
 				Error& add( std::string const & name, std::string value );
 				std::string const & get( std::string const & name ) const;

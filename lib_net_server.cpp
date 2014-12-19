@@ -43,8 +43,10 @@ namespace daw {
 
 				NetServer::NetServer( NetServer&& other ) : EventEmitter( std::move( other ) ), m_acceptor( std::move( other.m_acceptor ) ) { }
 
-				NetServer& NetServer::operator=(NetServer rhs) {
-					m_acceptor = std::move( rhs.m_acceptor );
+				NetServer& NetServer::operator=(NetServer && rhs) {
+					if( this != &rhs ) {
+						m_acceptor = std::move( rhs.m_acceptor );
+					}
 					return *this;
 				}
 

@@ -20,6 +20,7 @@ namespace daw {
 					uint8_t & minor( );
 					HttpVersion( HttpVersion const & ) = default;
 					HttpVersion& operator=(HttpVersion const &) = default;
+					HttpVersion& operator=(HttpVersion && rhs);
 					~HttpVersion( ) = default;
 
 					HttpVersion( );
