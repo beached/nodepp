@@ -41,7 +41,6 @@ namespace daw {
 				return *this;
 			}
 
-
 			std::string const & Error::get( std::string const & name ) const {
 				return m_keyvalues.at( name );
 			}

@@ -1,5 +1,4 @@
 #include <boost/asio.hpp>
-#include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
 #include <memory>
 #include <utility>
@@ -76,8 +75,12 @@ namespace daw {
 
 				void NetServer::start_accept( ) {
 					auto socket = NetSocketStream( base::ServiceHandle::get( ) );
-					auto handle = boost::bind( &NetServer::handle_accept, this, socket, boost::asio::placeholders::error );
-					m_acceptor->async_accept( socket.socket( ), handle );
+					
+					auto handler = [&,socket]( boost::system::error_code const & err ) mutable {
+						handle_accept( std::move( socket ), err );
+					};
+
+					m_acceptor->async_accept( socket.socket( ), handler );
 				}
 
 				NetServer& NetServer::listen( uint16_t port ) {

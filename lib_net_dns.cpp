@@ -36,13 +36,13 @@ namespace daw {
 				}
 
 				namespace {
-					void resolve_handler( NetDns * const net_dns, boost::system::error_code const & err, boost::asio::ip::tcp::resolver::iterator it ) {
+					void resolve_handler( NetDns & net_dns, boost::system::error_code const & err, boost::asio::ip::tcp::resolver::iterator it ) {
 						if( !err ) {
-							net_dns->emit( "resolved", it );
+							net_dns.emit( "resolved", it );
 						} else {
 							auto error = base::Error( err );
 							error.add( "where", "NetDns::resolve" );
-							net_dns->emit( "error", error );
+							net_dns.emit( "error", error );
 						}
 
 					}
@@ -50,14 +50,22 @@ namespace daw {
 
 				NetDns& NetDns::resolve( std::string const & address ) { 
 					auto query = tcp::resolver::query( address, "", boost::asio::ip::resolver_query_base::numeric_host );
-					auto handler = boost::bind( resolve_handler, this, boost::asio::placeholders::error, boost::asio::placeholders::iterator );
+
+					auto handler = [&]( boost::system::error_code const & err, boost::asio::ip::tcp::resolver::iterator it ) {
+						resolve_handler( *this, err, it );
+					};
+
 					m_resolver->async_resolve( query, handler );
 					return *this;
 				}
 
 				NetDns& NetDns::resolve( std::string const & address, uint16_t port ) {
 					auto query = tcp::resolver::query( address, boost::lexical_cast<std::string>( port ), boost::asio::ip::resolver_query_base::numeric_host );
-					auto handler = boost::bind( resolve_handler, this, boost::asio::placeholders::error, boost::asio::placeholders::iterator );
+
+					auto handler = [&]( boost::system::error_code const & err, boost::asio::ip::tcp::resolver::iterator it ) {
+						resolve_handler( *this, err, it );
+					};
+
 					m_resolver->async_resolve( query, handler );
 					return *this;
 				}

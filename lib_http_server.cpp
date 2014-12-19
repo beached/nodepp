@@ -66,11 +66,12 @@ namespace daw {
 
 				HttpServer& HttpServer::listen_on( uint16_t port ) {
 					m_netserver.when_connected( [&]( lib::net::NetSocketStream socket ) {
-							handle_connection( std::move( socket ) );
-						} ).when_error( std::bind( &HttpServer::handle_error, this, std::placeholders::_1 ) )
-						.when_listening( [&]( boost::asio::ip::tcp::endpoint endpoint ) {
-							emit( "listening", endpoint );
-						} ).listen( port );
+						handle_connection( std::move( socket ) );
+					} ).when_error( [&]( base::Error error ) {
+						handle_error( std::move( error ) );
+					} ).when_listening( [&]( boost::asio::ip::tcp::endpoint endpoint ) {
+						emit( "listening", endpoint );
+					} ).listen( port );
 					return *this;
 				}
 
