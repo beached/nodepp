@@ -18,20 +18,6 @@ namespace daw {
 				using namespace daw::nodepp;
 				using namespace boost::asio::ip;
 
-				namespace {
-					void emit_error( NetServer& net_server, boost::system::error_code const & err, std::string where ) {
-						auto error = base::Error( err );
-						error.add( "where", where );
-						net_server.emit( "error", error );
-					}
-
-					void emit_error( NetServer& net_server, std::exception_ptr err, std::string description, std::string where ) {
-						auto error = base::Error( description, std::move( err ) );
-						error.add( "where", where );
-						net_server.emit( "error", error );
-					}
-				}	// namespace anonymous
-
 				std::vector<std::string> const & NetServer::valid_events( ) const {
 					static auto const result = [&]( ) {
 						std::vector<std::string> local{ "listening", "connection", "close" };
@@ -41,34 +27,36 @@ namespace daw {
 					return result;
 				}
 
-				NetServer::NetServer( ): EventEmitter( ), m_acceptor( std::make_shared<boost::asio::ip::tcp::acceptor>( base::ServiceHandle::get( ) ) ) { }
+				void NetServer::emit_listening( boost::asio::ip::tcp::endpoint endpoint ) {
+					emit( "listening", std::move( endpoint ) );
+				}
+
+				void NetServer::emit_connection( NetSocketStream socket ) {
+					emit( "connection", std::move( socket ) );
+				}
 				
-				NetServer::~NetServer( ) { }
+				void NetServer::emit_close( ) {
+					emit( "close" );
+				}
+
+				NetServer::NetServer( ): EventEmitter( ), m_acceptor( std::make_shared<boost::asio::ip::tcp::acceptor>( base::ServiceHandle::get( ) ) ) { }			
 
 				NetServer::NetServer( NetServer&& other ) : EventEmitter( std::move( other ) ), m_acceptor( std::move( other.m_acceptor ) ) { }
 
-				NetServer& NetServer::operator=(NetServer&& rhs) {
-					if( this != &rhs ) {
-						m_acceptor = std::move( rhs.m_acceptor );
-					}
+				NetServer& NetServer::operator=(NetServer rhs) {
+					m_acceptor = std::move( rhs.m_acceptor );
 					return *this;
-				}
-
-				namespace {
-					void emit_connection( NetServer& server, NetSocketStream socket ) {
-						server.emit( "connection", socket );
-					}
 				}
 
 				void NetServer::handle_accept( NetSocketStream socket, boost::system::error_code const & err ) {
 					if( !err ) {
 						try {
-							emit_connection( *this, std::move( socket ) );
+							emit_connection( std::move( socket ) );
 						} catch( ... ) {
-							emit_error( *this, std::current_exception( ) , "Running connection listeners", "NetServer::listen#emit_connection" );
+							emit_error( std::current_exception( ) , "Running connection listeners", "NetServer::listen#emit_connection" );
 						}
 					} else {
-						emit_error( *this, err, "NetServer::listen" );
+						emit_error( err, "NetServer::listen" );
 					}
 					start_accept( );
 				}	
@@ -83,61 +71,45 @@ namespace daw {
 					m_acceptor->async_accept( socket.socket( ), handler );
 				}
 
-				NetServer& NetServer::listen( uint16_t port ) {
+				void NetServer::listen( uint16_t port ) {
 					auto endpoint = boost::asio::ip::tcp::endpoint( boost::asio::ip::tcp::v4( ), port );
 					m_acceptor->open( endpoint.protocol( ) );
 					m_acceptor->set_option( boost::asio::ip::tcp::acceptor::reuse_address( true ) );					
 					m_acceptor->bind( endpoint );
 					m_acceptor->listen( );
 					start_accept( );
-					emit( "listening", endpoint );
-					return *this;
+					emit_listening( std::move( endpoint ) );
 				}
-				NetServer& NetServer::listen( uint16_t, std::string hostname, uint16_t ) { throw std::runtime_error( "Method not implemented" ); }
-				NetServer& NetServer::listen( std::string ) { throw std::runtime_error( "Method not implemented" ); }
-				NetServer& NetServer::close( ) { throw std::runtime_error( "Method not implemented" ); }
+				void NetServer::listen( uint16_t, std::string hostname, uint16_t ) { throw std::runtime_error( "Method not implemented" ); }
+				void NetServer::listen( std::string ) { throw std::runtime_error( "Method not implemented" ); }
+				void NetServer::close( ) { throw std::runtime_error( "Method not implemented" ); }
 				daw::nodepp::lib::net::NetAddress const & NetServer::address( ) const { throw std::runtime_error( "Method not implemented" ); }
-				NetServer& NetServer::unref( ) { throw std::runtime_error( "Method not implemented" ); }
-				NetServer& NetServer::ref( ) { throw std::runtime_error( "Method not implemented" ); }
-				NetServer& NetServer::set_max_connections( uint16_t ) { throw std::runtime_error( "Method not implemented" ); }
-				NetServer& NetServer::get_connections( std::function<void( base::Error err, uint16_t count )> callback ) { throw std::runtime_error( "Method not implemented" ); }
+				void NetServer::unref( ) { throw std::runtime_error( "Method not implemented" ); }
+				void NetServer::ref( ) { throw std::runtime_error( "Method not implemented" ); }
+				void NetServer::set_max_connections( uint16_t ) { throw std::runtime_error( "Method not implemented" ); }
+				void NetServer::get_connections( std::function<void( base::Error err, uint16_t count )> callback ) { throw std::runtime_error( "Method not implemented" ); }
 
 
 				// Event callbacks
 				
-				NetServer& NetServer::when_connected( std::function<void( NetSocketStream socket )> listener ) {
+				void NetServer::when_connected( std::function<void( NetSocketStream socket )> listener ) {
 					add_listener( "connection", listener );
-					return *this;
 				}
 
-				NetServer& NetServer::when_error( std::function<void( base::Error )> listener ) {
-					add_listener( "error", listener );
-					return *this;
-				}
-
-				NetServer& NetServer::when_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener ) {
+				void NetServer::when_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener ) {
 					add_listener( "listening", listener );
-					return *this;
 				}
 
-				NetServer& NetServer::when_next_error( std::function<void( base::Error )> listener ) {
-					add_listener( "error", listener, true );
-					return *this;
-				}
-
-				NetServer& NetServer::when_next_connection( std::function<void( NetSocketStream socket_ptr )> listener ) {
+				void NetServer::when_next_connection( std::function<void( NetSocketStream socket_ptr )> listener ) {
 					add_listener( "connection", listener, true );
-					return *this;
 				}
 
-				NetServer& NetServer::when_next_listening( std::function<void( )> listener ) {
+				void NetServer::when_next_listening( std::function<void( )> listener ) {
 					add_listener( "listening", listener, true );
-					return *this;
 				}
 
-				NetServer& NetServer::on_closed( std::function<void( )> listener ) {
+				void NetServer::when_closed( std::function<void( )> listener ) {
 					add_listener( "close", listener, true );
-					return *this;
 				}
 
 			}	// namespace net

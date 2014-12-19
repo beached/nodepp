@@ -19,7 +19,9 @@ namespace daw {
 					/*using handler_type = std::function < void( const boost::system::error_code&, boost::asio::ip::tcp::resolver::iterator ) >;*/
 					using handler_argument_t = boost::asio::ip::tcp::resolver::iterator;
 				private:
-					std::unique_ptr<boost::asio::ip::tcp::resolver> m_resolver;					
+					std::unique_ptr<boost::asio::ip::tcp::resolver> m_resolver;	
+
+					void handle_resolve( boost::system::error_code const & err, boost::asio::ip::tcp::resolver::iterator it );
 				public:
 
 					virtual std::vector<std::string> const & valid_events( ) const override;
@@ -37,27 +39,21 @@ namespace daw {
 					//////////////////////////////////////////////////////////////////////////
 					// Summary: resolve name or ip address and call callback of form
 					// void(boost::system::error_code, boost::asio::ip::tcp::resolver::iterator)
-					NetDns& resolve( std::string const& address );
-					NetDns& resolve( std::string const& address, uint16_t port );
+					void resolve( std::string const& address );
+					void resolve( std::string const& address, uint16_t port );
 					
-					//////////////////////////////////////////////////////////////////////////
-					/// Summary: Event emitted when an error occurs
-					/// Inherited from EventEmitter
-					virtual NetDns& when_error( std::function<void( base::Error )> listener ) override;
 					
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when name resolution is complete
-					virtual NetDns& when_resolved( std::function<void( boost::asio::ip::tcp::resolver::iterator )> listener );
-
-					//////////////////////////////////////////////////////////////////////////
-					/// Summary: Event emitted when an error occurs
-					/// Inherited from EventEmitter
-					virtual NetDns& when_next_error( std::function<void( base::Error )> listener ) override;
+					virtual void when_resolved( std::function<void( boost::asio::ip::tcp::resolver::iterator )> listener );
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when name resolution is complete
-					virtual NetDns& when_next_resolved( std::function<void( boost::asio::ip::tcp::resolver::iterator )> listener );
+					virtual void when_next_resolved( std::function<void( boost::asio::ip::tcp::resolver::iterator )> listener );
 
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when async resolve is complete
+					virtual void emit_resolved( boost::asio::ip::tcp::resolver::iterator it );
 				};	// class NetDns
 			}	// namespace net
 		}	// namespace lib

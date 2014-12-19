@@ -28,61 +28,54 @@ namespace daw {
 				public:
 					NetServer( );
 					NetServer( NetServer const & ) = default;
-					NetServer& operator=(NetServer const &) = default;
 					NetServer( NetServer&& other );
-					NetServer& operator=(NetServer&& rhs);
-					virtual ~NetServer( );
+					NetServer& operator=(NetServer rhs);
+					virtual ~NetServer( ) = default;
 					
 					virtual std::vector<std::string> const & valid_events( ) const override;
 
-					NetServer& listen( uint16_t port );
-					NetServer& listen( uint16_t port, std::string hostname, uint16_t backlog = 511 );										
-					NetServer& listen( std::string socket_path );					
-					NetServer& close( );
+					void listen( uint16_t port );
+					void listen( uint16_t port, std::string hostname, uint16_t backlog = 511 );										
+					void listen( std::string socket_path );					
+					void close( );
 					
 
 					daw::nodepp::lib::net::NetAddress const& address( ) const;
-					NetServer& unref( );
-					NetServer& ref( );
-					NetServer& set_max_connections( uint16_t value );
+					void unref( );
+					void ref( );
+					void set_max_connections( uint16_t value );
 
-					NetServer& get_connections( std::function<void( daw::nodepp::base::Error err, uint16_t count )> callback );
+					void get_connections( std::function<void( daw::nodepp::base::Error err, uint16_t count )> callback );
 
 					// Event callbacks
 					
 					//////////////////////////////////////////////////////////////////////////
-					/// Summary: Event emitted when an error occurs
-					/// Inherited from EventEmitter
-					virtual NetServer& when_error( std::function<void( base::Error )> listener ) override;
-
-					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when a connection is established
-					NetServer& when_connected( std::function<void( NetSocketStream socket )> listener );					
+					virtual void when_connected( std::function<void( NetSocketStream socket )> listener );					
 					
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when the server is bound after calling 
 					/// listen( ... )
-					NetServer& when_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener );
-
-					//////////////////////////////////////////////////////////////////////////
-					/// Summary: Event emitted when an error occurs
-					/// Inherited from EventEmitter
-					virtual NetServer& when_next_error( std::function<void( base::Error )> listener ) override;
+					virtual void when_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener );
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when a connection is established
-					NetServer& when_next_connection( std::function<void( NetSocketStream socket )> listener );
+					virtual void when_next_connection( std::function<void( NetSocketStream socket )> listener );
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when the server is bound after calling 
 					/// listen( ... )
-					NetServer& when_next_listening( std::function<void( )> listener );
+					virtual void when_next_listening( std::function<void( )> listener );
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when the server closes and all connections 
 					/// are closed
-					NetServer& on_closed( std::function<void( )> listener );
+					virtual void when_closed( std::function<void( )> listener );
 
+				protected:
+					virtual void emit_listening( boost::asio::ip::tcp::endpoint endpoint );
+					virtual void emit_connection( NetSocketStream socket );
+					virtual void emit_close( );
 				};	// class server
 
 			}	// namespace net

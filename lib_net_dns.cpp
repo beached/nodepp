@@ -35,59 +35,44 @@ namespace daw {
 					return *this;
 				}
 
-				namespace {
-					void resolve_handler( NetDns & net_dns, boost::system::error_code const & err, boost::asio::ip::tcp::resolver::iterator it ) {
-						if( !err ) {
-							net_dns.emit( "resolved", it );
-						} else {
-							auto error = base::Error( err );
-							error.add( "where", "NetDns::resolve" );
-							net_dns.emit( "error", error );
-						}
+				void NetDns::emit_resolved( boost::asio::ip::tcp::resolver::iterator it ) {
+					emit( "resolved", std::move( it ) );
+				}				
 
+				void NetDns::handle_resolve( boost::system::error_code const & err, boost::asio::ip::tcp::resolver::iterator it ) {
+					if( !err ) {
+						emit_resolved( std::move( it ) );
+					} else {
+						emit_error( err, "NetDns::resolve" );
 					}
 				}
 
-				NetDns& NetDns::resolve( std::string const & address ) { 
+				void NetDns::resolve( std::string const & address ) { 
 					auto query = tcp::resolver::query( address, "", boost::asio::ip::resolver_query_base::numeric_host );
 
 					auto handler = [&]( boost::system::error_code const & err, boost::asio::ip::tcp::resolver::iterator it ) {
-						resolve_handler( *this, err, it );
+						handle_resolve( err, std::move( it ) );
 					};
 
 					m_resolver->async_resolve( query, handler );
-					return *this;
 				}
 
-				NetDns& NetDns::resolve( std::string const & address, uint16_t port ) {
+				void NetDns::resolve( std::string const & address, uint16_t port ) {
 					auto query = tcp::resolver::query( address, boost::lexical_cast<std::string>( port ), boost::asio::ip::resolver_query_base::numeric_host );
 
 					auto handler = [&]( boost::system::error_code const & err, boost::asio::ip::tcp::resolver::iterator it ) {
-						resolve_handler( *this, err, it );
+						handle_resolve( err, std::move( it ) );
 					};
 
 					m_resolver->async_resolve( query, handler );
-					return *this;
 				}
 
-				NetDns& NetDns::when_error( std::function<void( base::Error )> listener ) {
-					add_listener( "error", listener );
-					return *this;
-				}
-
-				NetDns& NetDns::when_resolved( std::function<void( boost::asio::ip::tcp::resolver::iterator)> listener ) {
+				void NetDns::when_resolved( std::function<void( boost::asio::ip::tcp::resolver::iterator)> listener ) {
 					add_listener( "resolved", listener );
-					return *this;
 				}
 
-				NetDns& NetDns::when_next_error( std::function<void( base::Error )> listener ) {
-					add_listener( "error", listener, true );
-					return *this;
-				}
-
-				NetDns& NetDns::when_next_resolved( std::function<void( boost::asio::ip::tcp::resolver::iterator )> listener ) {
+				void NetDns::when_next_resolved( std::function<void( boost::asio::ip::tcp::resolver::iterator )> listener ) {
 					add_listener( "resolved", listener, true );
-					return *this;
 				}
 
 			}	// namespace net

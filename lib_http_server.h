@@ -31,32 +31,32 @@ namespace daw {
 
 					virtual std::vector<std::string> const & valid_events( ) const override;
 
-					HttpServer& listen_on( uint16_t port );
+					void listen_on( uint16_t port );
 
-					HttpServer& listen_on( uint16_t port, std::string hostname, uint16_t backlog = 511 );
+					void listen_on( uint16_t port, std::string hostname, uint16_t backlog = 511 );
 					
 					template<typename Listener>
-					HttpServer& listen_on( uint16_t port, std::string hostname, uint16_t backlog, Listener listener ) {
-						return base::rollback_event_on_exception( this, "listening", listener, [&]( ) {
-							return listen_on( port, hostname, backlog );
+					void listen_on( uint16_t port, std::string hostname, uint16_t backlog, Listener listener ) {
+						base::rollback_event_on_exception( this, "listening", listener, [&]( ) {
+							listen_on( port, hostname, backlog );
 						} );
 					}
 
-					HttpServer& listen_on( std::string path );
+					void listen_on( std::string path );
 					
 					template<typename Listener>
-					HttpServer& listen_on( std::string path, Listener listener ) {
-						return base::rollback_event_on_exception( this, "listening", listener, [&]( ) {
-							return listen_on( path );
+					void listen_on( std::string path, Listener listener ) {
+						base::rollback_event_on_exception( this, "listening", listener, [&]( ) {
+							listen_on( path );
 						} );
 					}
 
-					HttpServer& listen_on( base::ServiceHandle handle );
+					void listen_on( base::ServiceHandle handle );
 					
 					template<typename Listener>
-					HttpServer& listen_on( base::ServiceHandle handle, Listener listener ) {
-						return base::rollback_event_on_exception( this, "listening", listener, [&]( ) {
-							return listen_on( std::move( handle ) );
+					void listen_on( base::ServiceHandle handle, Listener listener ) {
+						base::rollback_event_on_exception( this, "listening", listener, [&]( ) {
+							listen_on( std::move( handle ) );
 						} );
 					}
 
@@ -64,20 +64,25 @@ namespace daw {
 					size_t const & max_header_count( ) const;
 
 					template<typename Listener>
-					HttpServer& set_timeout( size_t msecs, Listener listener ) {
+					void set_timeout( size_t msecs, Listener listener ) {
 						throw std::runtime_error( "Method not implemented" );
 					}					
 					
-					HttpServer& when_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener );
-					HttpServer& when_next_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener );
+					void when_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener );
+					void when_next_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener );
 
-					HttpServer& when_client_connected( std::function<void( HttpConnection )> listener );
-					HttpServer& when_next_client_connected( std::function<void( HttpConnection )> listener );
+					void when_client_connected( std::function<void( HttpConnection )> listener );
+					void when_next_client_connected( std::function<void( HttpConnection )> listener );
 
-					HttpServer& when_closed( std::function<void( )> listener );
-					HttpServer& when_next_close( std::function<void( )> listener );
+					void when_closed( std::function<void( )> listener );
+					void when_next_close( std::function<void( )> listener );
 
 					size_t timeout( ) const;
+
+				protected:
+					virtual void emit_connection( HttpConnection connection );
+					virtual void emit_close( );
+					virtual void emit_listening( boost::asio::ip::tcp::endpoint endpoint );
 				};	// class Server
 			}	// namespace http
 		}	// namespace lib

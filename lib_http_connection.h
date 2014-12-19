@@ -25,21 +25,26 @@ namespace daw {
 					HttpConnection( lib::net::NetSocketStream socket );
 					HttpConnection( HttpConnection && );
 					HttpConnection& operator=( HttpConnection );
-					virtual ~HttpConnection( );
+					virtual ~HttpConnection( ) = default;
 
 					std::vector<std::string> const & valid_events( ) const;
 
 					// Event callbacks															
-					HttpConnection& when_error( std::function<void( base::Error )> listener );
-					HttpConnection& when_next_error( std::function<void( base::Error )> listener );
+					virtual void when_listener_added( std::function<void( std::string, base::Callback )> listener );
+					virtual void when_listener_removed( std::function<void( std::string, base::Callback )> listener );
+					virtual void when_error( std::function<void( base::Error )> listener );
 
-					HttpConnection& when_client_error( std::function<void( base::Error )> listener );
-					HttpConnection& when_next_client_error( std::function<void( base::Error )> listener );
+					virtual void when_next_listener_added( std::function<void( std::string, base::Callback )> listener );
+					virtual void when_next_listener_removed( std::function<void( std::string, base::Callback )> listener );
+					virtual void when_next_error( std::function<void( base::Error )> listener );
 
-					HttpConnection& when_request_made( std::function<void( std::shared_ptr<HttpClientRequest>, HttpServerResponse )> listener );
-					HttpConnection& when_next_request_made( std::function<void( std::shared_ptr<HttpClientRequest>, HttpServerResponse )> listener );
+					virtual void when_client_error( std::function<void( base::Error )> listener );
+					virtual void when_next_client_error( std::function<void( base::Error )> listener );
 
-					HttpConnection& on_closed( std::function<void( )> listener );	// Only once as it is called on the way out				
+					virtual void when_request_made( std::function<void( std::shared_ptr<HttpClientRequest>, HttpServerResponse )> listener );
+					virtual void when_next_request_made( std::function<void( std::shared_ptr<HttpClientRequest>, HttpServerResponse )> listener );
+
+					void when_closed( std::function<void( )> listener );	// Only once as it is called on the way out				
 					void close( );
 
 					lib::net::NetSocketStream& socket( );

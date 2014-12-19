@@ -27,13 +27,13 @@ namespace daw {
 				public:
 					HttpServerResponseImpl( lib::net::NetSocketStream socket  );
 					HttpServerResponseImpl( HttpServerResponseImpl const & ) = delete;
-					~HttpServerResponseImpl( ) = default;
+					virtual ~HttpServerResponseImpl( ) = default;
 					HttpServerResponseImpl& operator=(HttpServerResponseImpl const &) = delete;
 					HttpServerResponseImpl( HttpServerResponseImpl&& other ) = delete;
 					HttpServerResponseImpl& operator=(HttpServerResponseImpl && rhs) = delete;
 
-					virtual HttpServerResponseImpl& write( base::data_t const & data ) override;
-					virtual HttpServerResponseImpl& write( std::string const & data, base::Encoding const & encoding = base::Encoding( ) ) override;
+					virtual void write( base::data_t const & data ) override;
+					virtual void write( std::string const & data, base::Encoding const & encoding = base::Encoding( ) ) override;
 					virtual void end( ) override;
 					virtual void end( base::data_t const & data ) override;
 					virtual void end( std::string const & data, base::Encoding const & encoding = base::Encoding( ) ) override;
@@ -53,29 +53,7 @@ namespace daw {
 					bool is_closed( ) const;
 					bool can_write( ) const;
 
-					HttpServerResponseImpl& add_header( std::string header_name, std::string header_value );
-
-					//////////////////////////////////////////////////////////////////////////
-					/// Summary: Event emitted when a write is completed
-					/// Inherited from StreamWritable
-					virtual HttpServerResponseImpl& when_a_write_completes( std::function<void( )> listener ) override;
-
-					//////////////////////////////////////////////////////////////////////////
-					/// Summary: Event emitted when end( ... ) has been called and all data
-					/// has been flushed
-					/// Inherited from StreamWritable
-					virtual HttpServerResponseImpl& when_all_writes_complete( std::function<void( )> listener ) override;
-
-					//////////////////////////////////////////////////////////////////////////
-					/// Summary: Event emitted when end( ... ) has been called and all data
-					/// has been flushed
-					/// Inherited from StreamWritable
-					virtual HttpServerResponseImpl& when_next_all_writes_complete( std::function<void( )> listener ) override;
-
-					//////////////////////////////////////////////////////////////////////////
-					/// Summary: Event emitted when the next write is completed
-					/// Inherited from StreamWritable
-					virtual HttpServerResponseImpl& when_next_write_completes( std::function<void( )> listener ) override;
+					void add_header( std::string header_name, std::string header_value );
 
 				};	// struct HttpServerResponse						
 
@@ -89,20 +67,20 @@ namespace daw {
 					m_socket( std::move( socket ) ) {
 
 					m_socket.when_a_write_completes( [&]( ) {
-						emit( "drain" );
-					} ).when_all_writes_complete( [&]( ) {
-						emit( "finish" );
+						emit_drain( );
+					} );
+
+					m_socket.when_all_writes_complete( [&]( ) {
+						emit_finish( );
 					} );
 				}
 
-				HttpServerResponseImpl& HttpServerResponseImpl::write( base::data_t const & data ) {
+				void HttpServerResponseImpl::write( base::data_t const & data ) {
 					m_body.insert( std::end( m_body ), std::begin( data ), std::end( data ) );
-					return *this;
 				}
 
-				HttpServerResponseImpl& HttpServerResponseImpl::write( std::string const & data, base::Encoding const & ) {
+				void HttpServerResponseImpl::write( std::string const & data, base::Encoding const & ) {
 					m_body.insert( std::end( m_body ), std::begin( data ), std::end( data ) );
-					return *this;
 				}
 
 				void HttpServerResponseImpl::clear_body( ) {
@@ -217,32 +195,9 @@ namespace daw {
 					return m_socket.is_open( );
 				}
 
-				HttpServerResponseImpl& HttpServerResponseImpl::add_header( std::string header_name, std::string header_value ) {
+				void HttpServerResponseImpl::add_header( std::string header_name, std::string header_value ) {
 					m_headers.add( std::move( header_name ), std::move( header_value ) );
-					return *this;
 				}
-
-				HttpServerResponseImpl& HttpServerResponseImpl::when_all_writes_complete( std::function<void( )> listener ) {
-					add_listener( "finish", listener );
-					return *this;
-				}
-
-				HttpServerResponseImpl& HttpServerResponseImpl::when_next_all_writes_complete( std::function<void( )> listener ) {
-					add_listener( "finish", listener, true );
-					return *this;
-				}
-
-				HttpServerResponseImpl& HttpServerResponseImpl::when_a_write_completes( std::function<void( )> listener ) {
-					add_listener( "drain", listener );
-					return *this;
-				}
-
-				HttpServerResponseImpl& HttpServerResponseImpl::when_next_write_completes( std::function<void( )> listener ) {
-					add_listener( "drain", listener, true );
-					return *this;
-				}
-
-				HttpServerResponse::~HttpServerResponse( ) { }
 
 				HttpServerResponse::HttpServerResponse( lib::net::NetSocketStream socket ) : m_impl( std::make_shared<HttpServerResponseImpl>( std::move( socket ) ) ) { }
 
@@ -253,15 +208,12 @@ namespace daw {
 					return *this;
 				}
 
-
-				HttpServerResponse& HttpServerResponse::write( base::data_t const & data ) {
+				void HttpServerResponse::write( base::data_t const & data ) {
 					m_impl->write( data );
-					return *this;
 				}
 
-				HttpServerResponse& HttpServerResponse::write( std::string const & data, base::Encoding const & encoding ) {
+				void HttpServerResponse::write( std::string const & data, base::Encoding const & encoding ) {
 					m_impl->write( data, encoding );
-					return *this;
 				}
 
 				void HttpServerResponse::end( ) {
@@ -323,46 +275,49 @@ namespace daw {
 					return m_impl->can_write( );
 				}
 
-				HttpServerResponse& HttpServerResponse::add_header( std::string header_name, std::string header_value ) {
+				void HttpServerResponse::add_header( std::string header_name, std::string header_value ) {
 					m_impl->add_header( std::move( header_name ), std::move( header_value ) );
-					return *this;
 				}
 
-
-				//////////////////////////////////////////////////////////////////////////
-				/// Summary: Event emitted when a write is completed
-				/// Inherited from StreamWritable
-				HttpServerResponse& HttpServerResponse::when_a_write_completes( std::function<void( )> listener ) {
+				void HttpServerResponse::when_a_write_completes( std::function<void( )> listener ) {
 					m_impl->when_a_write_completes( listener );
-					return *this;
 				}
 
-				//////////////////////////////////////////////////////////////////////////
-				/// Summary: Event emitted when end( ... ) has been called and all data
-				/// has been flushed
-				/// Inherited from StreamWritable
-				HttpServerResponse& HttpServerResponse::when_all_writes_complete( std::function<void( )> listener ) {
+				void HttpServerResponse::when_all_writes_complete( std::function<void( )> listener ) {
 					m_impl->when_all_writes_complete( listener );
-					return *this;
 				}
 
-				//////////////////////////////////////////////////////////////////////////
-				/// Summary: Event emitted when end( ... ) has been called and all data
-				/// has been flushed
-				/// Inherited from StreamWritable
-				HttpServerResponse& HttpServerResponse::when_next_all_writes_complete( std::function<void( )> listener ) {
+				void HttpServerResponse::when_next_all_writes_complete( std::function<void( )> listener ) {
 					m_impl->when_next_all_writes_complete( listener );
-					return *this;
 				}
 
-				//////////////////////////////////////////////////////////////////////////
-				/// Summary: Event emitted when the next write is completed
-				/// Inherited from StreamWritable
-				HttpServerResponse& HttpServerResponse::when_next_write_completes( std::function<void( )> listener ) {
+				void HttpServerResponse::when_next_write_completes( std::function<void( )> listener ) {
 					m_impl->when_next_write_completes( listener );
-					return *this;
 				}
 
+				void HttpServerResponse::when_listener_added( std::function<void( std::string, base::Callback )> listener ) {
+					m_impl->when_listener_added( listener );
+				}
+
+				void HttpServerResponse::when_listener_removed( std::function<void( std::string, base::Callback )> listener ) {
+					m_impl->when_listener_removed( listener );
+				}
+
+				void HttpServerResponse::when_error( std::function<void( base::Error )> listener ) {
+					m_impl->when_error( listener );
+				}
+
+				void HttpServerResponse::when_next_listener_added( std::function<void( std::string, base::Callback )> listener ) {
+					m_impl->when_next_listener_added( listener );
+				}
+
+				void HttpServerResponse::when_next_listener_removed( std::function<void( std::string, base::Callback )> listener ) {
+					m_impl->when_next_listener_removed( listener );
+				}
+
+				void HttpServerResponse::when_next_error( std::function<void( base::Error )> listener ) {
+					m_impl->when_next_error( listener );
+				}
 
 			}	// namespace http
 		}	// namespace lib

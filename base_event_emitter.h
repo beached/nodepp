@@ -1,14 +1,16 @@
 #pragma once
 
+#include <boost/asio/error.hpp>
+#include <memory>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
-#include <memory>
 #include <utility>
 #include <vector>
+
 #include "base_callback.h"
-#include "base_service_handle.h"
 #include "base_error.h"
+#include "base_service_handle.h"
 #include "range_algorithm.h"
 
 namespace daw {
@@ -55,7 +57,7 @@ namespace daw {
 					if( !at_max_listeners( event ) ) {
 						auto callback = Callback( listener );
 						if( event != "newListener" ) {
-							emit( "newListener", event, callback );
+							emit_new_listener(event, callback );							
 						}
 						listeners( )[event].emplace_back( run_once, callback );
 						return callback.id( );
@@ -66,13 +68,13 @@ namespace daw {
 				}
 
 				template<typename Listener>
-				EventEmitter& on( std::string event, Listener listener ) {
+				void on( std::string event, Listener listener ) {
 					add_listener( event, listener );
 					return *this;
 				}
 
 				template<typename Listener>
-				EventEmitter& once( std::string event, Listener listener ) {
+				void once( std::string event, Listener listener ) {
 					add_listener( event, listener, true );
 					return *this;
 				}
@@ -83,30 +85,29 @@ namespace daw {
 				EventEmitter( );
 				virtual ~EventEmitter( );
 				EventEmitter( EventEmitter const & ) = default;
-				EventEmitter& operator=(EventEmitter const &) = default;
 				EventEmitter( EventEmitter && other );
-				EventEmitter& operator=(EventEmitter && rhs);
+				EventEmitter& operator=(EventEmitter rhs);
 
 				void swap( EventEmitter& rhs );
 
 
-				virtual EventEmitter& when_listener_added( std::function<void( std::string, Callback )> listener );
-				virtual EventEmitter& when_listener_removed( std::function<void( std::string, Callback )> listener );
-				virtual EventEmitter& when_error( std::function<void( base::Error )> listener );
+				virtual void when_listener_added( std::function<void( std::string, Callback )> listener );
+				virtual void when_listener_removed( std::function<void( std::string, Callback )> listener );
+				virtual void when_error( std::function<void( base::Error )> listener );
 
-				virtual EventEmitter& when_next_listener_added( std::function<void( std::string, Callback )> listener );
-				virtual EventEmitter& when_next_listener_removed( std::function<void( std::string, Callback )> listener );
-				virtual EventEmitter& when_next_error( std::function<void( base::Error )> listener );
+				virtual void when_next_listener_added( std::function<void( std::string, Callback )> listener );
+				virtual void when_next_listener_removed( std::function<void( std::string, Callback )> listener );
+				virtual void when_next_error( std::function<void( base::Error )> listener );
 
-				EventEmitter& remove_listener( std::string event, callback_id_t id );
+				void remove_listener( std::string event, callback_id_t id );
 
-				EventEmitter& remove_listener( std::string event, Callback listener );
+				void remove_listener( std::string event, Callback listener );
 
-				EventEmitter& remove_all_listeners( );
+				void remove_all_listeners( );
 
-				EventEmitter& remove_all_listeners( std::string event );
+				void remove_all_listeners( std::string event );
 
-				EventEmitter& set_max_listeners( size_t max_listeners );
+				void set_max_listeners( size_t max_listeners );
 
 				listener_list_t listeners( std::string event );
 				listener_list_t const listeners( std::string event ) const;
@@ -140,6 +141,18 @@ namespace daw {
 					base::ServiceHandle::get( ).run( );
 				}
 
+				private:
+					void emit_error( base::Error error );
+				protected:
+
+				virtual void emit_error( std::string description, std::string where );
+				virtual void emit_error( std::string where, base::Error child );				
+				virtual void emit_error( boost::system::error_code const & err, std::string where );
+				virtual void emit_error( std::exception_ptr ex, std::string description, std::string where );
+
+				virtual void emit_new_listener( std::string event, Callback listener );
+				virtual void emit_remove_listener( std::string event, Callback listener );
+				
 			};	// class EventEmitter
 
 			template<typename This, typename Listener, typename Action>
