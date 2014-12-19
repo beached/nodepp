@@ -70,13 +70,11 @@ namespace daw {
 				template<typename Listener>
 				void on( std::string event, Listener listener ) {
 					add_listener( event, listener );
-					return *this;
 				}
 
 				template<typename Listener>
 				void once( std::string event, Listener listener ) {
 					add_listener( event, listener, true );
-					return *this;
 				}
 
 			public:

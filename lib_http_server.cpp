@@ -20,14 +20,13 @@ namespace daw {
 				using namespace daw::nodepp;
 
 
-				HttpServer::HttpServer( ) : base::EventEmitter( ), m_netserver( ), m_connections( std::make_shared<std::list<HttpConnection>>( ) ) { }
+				HttpServer::HttpServer( ) : base::EventEmitter( ), m_netserver( ) { }
 
-				HttpServer::HttpServer( HttpServer&& other ) : base::EventEmitter( std::move( other ) ), m_netserver( std::move( other.m_netserver ) ), m_connections( std::move( other.m_connections ) ) { }
+				HttpServer::HttpServer( HttpServer&& other ) : base::EventEmitter( std::move( other ) ), m_netserver( std::move( other.m_netserver ) ) { }
 
 				HttpServer& HttpServer::operator=(HttpServer && rhs) {
 					if( this != &rhs ) {
 						m_netserver = std::move( rhs.m_netserver );
-						m_connections = std::move( rhs.m_connections );
 					}
 					return *this;
 				}
