@@ -83,7 +83,7 @@ namespace daw {
 				NetServer& NetServer::listen( uint16_t port ) {
 					auto endpoint = boost::asio::ip::tcp::endpoint( boost::asio::ip::tcp::v4( ), port );
 					m_acceptor->open( endpoint.protocol( ) );
-					m_acceptor->set_option( boost::asio::ip::tcp::acceptor::reuse_address( true ) );
+					//m_acceptor->set_option( boost::asio::ip::tcp::acceptor::reuse_address( true ) );
 					m_acceptor->bind( endpoint );
 					m_acceptor->listen( );
 					start_accept( );
