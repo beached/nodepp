@@ -23,6 +23,9 @@ namespace daw {
 					StreamReadable( StreamReadable const & ) = default;
 					StreamReadable& operator=( StreamReadable const & ) = default;
 					virtual ~StreamReadable( ) = default;
+					StreamReadable( StreamReadable && other );
+					StreamReadable& operator=(StreamReadable && rhs);
+
 					virtual base::data_t read( ) = 0;
 					virtual base::data_t read( size_t bytes ) = 0;
 
@@ -70,7 +73,8 @@ namespace daw {
 					StreamWritable( StreamWritable const & ) = default;
 					StreamWritable& operator=( StreamWritable const & ) = default;
 					virtual ~StreamWritable( ) = default;
-
+					StreamWritable( StreamWritable && other );
+					StreamWritable& operator=(StreamWritable && rhs);
 					virtual std::vector<std::string> const & valid_events( ) const override;
 					virtual void write( base::data_t const & chunk ) = 0;
 					virtual void write( std::string const & chunk, base::Encoding const & encoding ) = 0;
@@ -147,8 +151,13 @@ namespace daw {
 				class Stream: public StreamReadable, public StreamWritable {
 				public:
 					Stream( ) = default;
+					Stream( Stream const & ) = default;
+					Stream& operator=(Stream const &) = default;
+					Stream( Stream && other );
+					Stream& operator=(Stream && rhs);
 					virtual std::vector<std::string> const & valid_events( ) const override;
 					virtual ~Stream( ) = default;
+
 				};
 
 				//////////////////////////////////////////////////////////////////////////

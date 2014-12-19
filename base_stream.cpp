@@ -126,6 +126,34 @@ namespace daw {
 					return result;
 				}
 
+				Stream::Stream( Stream && other ) : StreamReadable( std::move( other ) ), StreamWritable( std::move( other ) ) { }
+
+				Stream& Stream::operator=(Stream && rhs) {
+					if( this != &rhs ) {
+
+					}
+					return *this;
+				}
+
+				StreamWritable::StreamWritable( StreamWritable && other ) : base::EventEmitter( std::move( other ) ) { }
+
+				StreamWritable& StreamWritable::operator=(StreamWritable && rhs) {
+					if( this != &rhs ) {
+
+					}
+					return *this;
+				}
+
+				StreamReadable::StreamReadable( StreamReadable && other ) : base::EventEmitter( std::move( other ) ) { }
+
+				StreamReadable& StreamReadable::operator=(StreamReadable && rhs) {
+					if( this != &rhs ) {
+
+					}
+					return *this;
+				}
+
+
 			}	// namespace stream
 		}	// namespace base
 	}	// namespace nodepp

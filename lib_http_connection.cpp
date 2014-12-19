@@ -55,7 +55,7 @@ namespace daw {
 						void close( );
 
 						lib::net::NetSocketStream& socket( );
-						lib::net::NetSocketStream const & socket( ) const;
+						lib::net::NetSocketStream const & socket( ) const;						
 
 					protected:
 						virtual void emit_close( );
@@ -143,6 +143,7 @@ namespace daw {
 					lib::net::NetSocketStream const & HttpConnectionImpl::socket( ) const {
 						return m_socket;
 					}
+
 				}	// namespace impl
 
 
@@ -201,13 +202,23 @@ namespace daw {
 					m_impl->when_next_request_made( listener );
 				}
 
-				void HttpConnection::when_closed( std::function<void( )> listener ) {	// Only once as it is called on the way out				
-					m_impl->when_closed( listener );
+				void HttpConnection::when_closed( std::function<void( )> listener ) {	// Only once as it is called on the way out
+					auto handler = [&]( ) {
+						auto self = get_ptr( );
+						listener( );
+					};
+					m_impl->when_closed( handler );
 				}
 
 				void HttpConnection::close( ) {
 					m_impl->close( );
 				}
+
+				std::shared_ptr<HttpConnection> HttpConnection::get_ptr( ) {
+					return shared_from_this( );
+				}
+
+
 
 				lib::net::NetSocketStream& HttpConnection::socket( ) { return m_impl->socket( ); }
 				lib::net::NetSocketStream const & HttpConnection::socket( ) const { return m_impl->socket( ); }

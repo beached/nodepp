@@ -38,7 +38,7 @@ namespace daw {
 					return result;
 				}
 
-				void HttpServer::emit_connection( HttpConnection connection ) {
+				void HttpServer::emit_connection( std::shared_ptr<HttpConnection> connection ) {
 					emit( "connection", std::move( connection ) );
 				}
 				
@@ -51,22 +51,15 @@ namespace daw {
 				}
 				
 				void HttpServer::handle_connection( lib::net::NetSocketStream socket ) {
-					daw::algorithm::erase_remove_if( m_connections, []( std::pair<bool, HttpConnection> const & item ) {
-						return item.first;
-					} );
+					
+					auto connection = std::make_shared<HttpConnection>( std::move( socket ) );
 
-					auto connection_ptr = m_connections.emplace( m_connections.begin( ), std::make_pair<bool, HttpConnection>( false, HttpConnection( std::move( socket ) ) ) );
-
-					connection_ptr->second.when_error( [&]( base::Error error ) {
+					connection->when_error( [&]( base::Error error ) {
 						emit_error( "HttpServer::handle_connection", std::move( error ) );
 					} );
-					
-					connection_ptr->second.when_closed( [connection_ptr]( ) mutable {
-						connection_ptr->first = true;
-					} );
-					
+										
 					try {
-						emit_connection( connection_ptr->second );
+						emit_connection( connection->get_ptr( ) );
 					} catch( ... ) {
 						emit_error( std::current_exception( ), "Running connection listeners", "HttpServer::handle_connection" );
 					}
@@ -113,11 +106,17 @@ namespace daw {
 				}
 
 				void HttpServer::when_client_connected( std::function<void( HttpConnection )> listener ) {
-					add_listener( "connection", listener );
+					auto handler = [listener]( std::shared_ptr<HttpConnection> con ) {
+						listener( *con );
+					};
+					add_listener( "connection", handler );
 				}
 
 				void HttpServer::when_next_client_connected( std::function<void( HttpConnection )> listener ) {
-					add_listener( "connection", listener, true );
+					auto handler = [listener]( std::shared_ptr<HttpConnection> con ) {
+						listener( *con );
+					};
+					add_listener( "connection", handler, true );
 				}
 			} // namespace http
 		}	// namespace lib

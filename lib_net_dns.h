@@ -51,6 +51,7 @@ namespace daw {
 					/// Summary: Event emitted when name resolution is complete
 					virtual void when_next_resolved( std::function<void( boost::asio::ip::tcp::resolver::iterator )> listener );
 
+				protected:
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when async resolve is complete
 					virtual void emit_resolved( boost::asio::ip::tcp::resolver::iterator it );

@@ -21,7 +21,6 @@ namespace daw {
 				emit_error( std::move( err ) );
 			}
 
-
 			void EventEmitter::emit_error( std::string where, base::Error child ) { 
 				base::Error err( "Child Error" );
 				err.add( "where", std::move( where ) );
@@ -71,9 +70,13 @@ namespace daw {
 				return result;				
 			}
 
-			EventEmitter::EventEmitter( ) :m_listeners( std::make_shared<listeners_t>( ) ), m_max_listeners( 10 ) { }
+			EventEmitter::EventEmitter( ) :
+				m_listeners( std::make_shared<listeners_t>( ) ), 
+				m_max_listeners( 10 ) { }
 
-			EventEmitter::EventEmitter( EventEmitter && other ): m_listeners( std::move( other.m_listeners ) ), m_max_listeners( std::move( other.m_max_listeners ) ) { }
+			EventEmitter::EventEmitter( EventEmitter && other ):
+				m_listeners( std::move( other.m_listeners ) ), 
+				m_max_listeners( std::move( other.m_max_listeners ) ) { }
 
 			EventEmitter& EventEmitter::operator=( EventEmitter rhs ) {
 				m_listeners = std::move( rhs.m_listeners );

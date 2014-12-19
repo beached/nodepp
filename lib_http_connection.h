@@ -16,7 +16,7 @@ namespace daw {
 
 				enum class HttpConnectionState { Request, Message };
 
-				class HttpConnection {
+				class HttpConnection: public std::enable_shared_from_this<HttpConnection> {
 					std::shared_ptr<impl::HttpConnectionImpl> m_impl;
 
 				public:
@@ -27,7 +27,7 @@ namespace daw {
 					HttpConnection& operator=( HttpConnection );
 					virtual ~HttpConnection( ) = default;
 
-					std::vector<std::string> const & valid_events( ) const;
+					std::vector<std::string> const & valid_events( ) const;					
 
 					// Event callbacks															
 					virtual void when_listener_added( std::function<void( std::string, base::Callback )> listener );
@@ -46,6 +46,8 @@ namespace daw {
 
 					void when_closed( std::function<void( )> listener );	// Only once as it is called on the way out				
 					void close( );
+
+					std::shared_ptr<HttpConnection> get_ptr( );
 
 					lib::net::NetSocketStream& socket( );
 					lib::net::NetSocketStream const & socket( ) const;

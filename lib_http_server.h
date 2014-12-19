@@ -80,7 +80,7 @@ namespace daw {
 					size_t timeout( ) const;
 
 				protected:
-					virtual void emit_connection( HttpConnection connection );
+					virtual void emit_connection( std::shared_ptr<HttpConnection> connection );
 					virtual void emit_close( );
 					virtual void emit_listening( boost::asio::ip::tcp::endpoint endpoint );
 				};	// class Server
