@@ -10,7 +10,6 @@ int main( int, char const ** ) {
 	using namespace daw::nodepp;
 
 	auto server = lib::http::HttpServer( );
-
 	server.when_listening( []( boost::asio::ip::tcp::endpoint endpoint ) {
 		std::cout << "Server listening on " << endpoint << "\n";
 	} ).when_client_connected( []( lib::http::HttpConnection client_connection ) {

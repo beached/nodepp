@@ -18,16 +18,16 @@ namespace daw {
 				// Requires:	lib::net::NetServer
 				class HttpServer: public base::EventEmitter {
 					lib::net::NetServer m_netserver;
+					std::shared_ptr<std::list<HttpConnection>> m_connections;
 					void handle_connection( lib::net::NetSocketStream socket );
 					void handle_error( base::Error error );					
 				public:
 					HttpServer( );
 
 					HttpServer( HttpServer&& other );
-					HttpServer& operator=(HttpServer&& rhs);
+					HttpServer& operator=(HttpServer rhs);
 					HttpServer( HttpServer const & ) = default;
-					HttpServer& operator=(HttpServer const &) = default;
-					virtual ~HttpServer( );					
+					virtual ~HttpServer( ) = default;
 
 					virtual std::vector<std::string> const & valid_events( ) const override;
 

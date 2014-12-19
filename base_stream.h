@@ -139,7 +139,9 @@ namespace daw {
 				// Requires:	StreamReadable, StreamWritable
 				class Stream: public StreamReadable, public StreamWritable {
 				public:
+					Stream( ) = default;
 					virtual std::vector<std::string> const & valid_events( ) const override;
+					virtual ~Stream( ) = default;
 				};
 
 				//////////////////////////////////////////////////////////////////////////

@@ -18,18 +18,15 @@ namespace daw {
 				using namespace daw::nodepp;
 
 
-				HttpServer::HttpServer( ) : base::EventEmitter( ), m_netserver( ) { }
+				HttpServer::HttpServer( ) : base::EventEmitter( ), m_netserver( ), m_connections( std::make_shared<std::list<HttpConnection>>( ) ) { }
 
-				HttpServer::HttpServer( HttpServer&& other ) : base::EventEmitter( std::move( other ) ), m_netserver( std::move( other.m_netserver ) ) { }
+				HttpServer::HttpServer( HttpServer&& other ) : base::EventEmitter( std::move( other ) ), m_netserver( std::move( other.m_netserver ) ), m_connections( std::move( other.m_connections ) ) { }
 
-				HttpServer& HttpServer::operator=(HttpServer&& rhs) {
-					if( this != &rhs ) {
-						m_netserver = std::move( rhs.m_netserver );
-					}
+				HttpServer& HttpServer::operator=(HttpServer rhs) {
+					m_netserver = std::move( rhs.m_netserver );
+					m_connections = std::move( rhs.m_connections );
 					return *this;
 				}
-
-				HttpServer::~HttpServer( ) { }
 
 				std::vector<std::string> const & HttpServer::valid_events( ) const {
 					static auto const result = [&]( ) {
@@ -46,16 +43,20 @@ namespace daw {
 				}
 
 				void HttpServer::handle_connection( lib::net::NetSocketStream socket ) {
-					auto connection = HttpConnection( std::move( socket ) );
-					
-					connection.when_error( [&]( base::Error error ) {
+					auto connections = m_connections;
+					auto connection_ptr = connections->emplace( connections->begin( ), std::move( socket ) );
+					connection_ptr->when_error( [&]( base::Error error ) {
 						auto err = base::Error( "Error in connection" );
 						err.add( "where", "HttpServer::handle_connection" )
 							.child( std::move( error ) );
 						emit( "error", std::move( err ) );
+					} ).on_closed( [connections, connection_ptr]( ) mutable { 
+						base::ServiceHandle::get( ).post( [connections, connection_ptr]( ) mutable {
+							connections->erase( connection_ptr );
+						} );
 					} );
 
-					emit_connection( *this, std::move( connection ) );
+					emit_connection( *this, *connection_ptr );
 				}
 
 				void HttpServer::handle_error( base::Error error ) {

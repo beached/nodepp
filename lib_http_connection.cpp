@@ -41,7 +41,9 @@ namespace daw {
 						HttpConnectionImpl& operator=(HttpConnectionImpl const &) = delete;
 						HttpConnectionImpl( HttpConnectionImpl && ) = delete;
 						HttpConnectionImpl& operator=(HttpConnectionImpl &&) = delete;
-						virtual ~HttpConnectionImpl( ) = default;
+						virtual ~HttpConnectionImpl( ) {
+							std::cerr << "~HttpConnectionImpl( )\n";
+						}
 
 						virtual std::vector<std::string> const & valid_events( ) const override;
 

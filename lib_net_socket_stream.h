@@ -21,8 +21,7 @@ namespace daw {
 		namespace lib {
 			namespace net {		
 				namespace impl { class NetSocketStreamImpl; }
-				using namespace daw::nodepp;
-
+				using namespace daw::nodepp;				
 
 				class NetSocketStream: public base::stream::Stream {
 					std::shared_ptr<impl::NetSocketStreamImpl> m_impl;
@@ -30,10 +29,10 @@ namespace daw {
 					NetSocketStream( );
 					explicit NetSocketStream( boost::asio::io_service& io_service, size_t max_read_size = 8192 );
 
-					NetSocketStream( NetSocketStream const & ) = default;
+					NetSocketStream( NetSocketStream const & rhs);
 					NetSocketStream( NetSocketStream&& other );
 					NetSocketStream& operator=(NetSocketStream rhs);
-					virtual ~NetSocketStream( );
+					virtual ~NetSocketStream( ) = default;
 
 
 					enum class ReadUntil { newline, buffer_full, predicate, next_byte, regex, values };

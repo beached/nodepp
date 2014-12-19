@@ -41,7 +41,7 @@ namespace daw {
 					class NetSocketStreamImpl: public base::stream::Stream {
 					private:
 						boost::asio::ip::tcp::socket m_socket;
-						boost::asio::streambuf m_response_buffer;
+						size_t m_max_read_size;
 						base::data_t m_response_buffers;
 						std::size_t m_bytes_read;
 						std::size_t m_bytes_written;
@@ -55,8 +55,8 @@ namespace daw {
 
 						void inc_outstanding_writes( );
 						bool dec_outstanding_writes( );
-						void handle_read( boost::system::error_code const & err, std::size_t bytes_transfered );
-						void handle_write( write_buffer buff, boost::system::error_code const & err );
+						void handle_read( std::shared_ptr<boost::asio::streambuf> read_buffer, boost::system::error_code const & err, std::size_t bytes_transfered );
+						void handle_write( write_buffer buff, boost::system::error_code const & err, size_t bytes_transfered );
 
 						NetSocketStreamImpl& write( write_buffer buff );
 						friend NetSocketStreamImpl& operator<<(NetSocketStreamImpl&, std::string const &);
@@ -78,7 +78,7 @@ namespace daw {
 						NetSocketStreamImpl& operator=(NetSocketStreamImpl const &) = delete;
 						NetSocketStreamImpl( NetSocketStreamImpl&& other ) = delete;
 						NetSocketStreamImpl& operator=(NetSocketStreamImpl&& rhs) = delete;
-						virtual ~NetSocketStreamImpl( ) = default;
+						virtual ~NetSocketStreamImpl( );
 
 						boost::asio::ip::tcp::socket & socket( );
 						boost::asio::ip::tcp::socket const & socket( ) const;
@@ -104,7 +104,7 @@ namespace daw {
 
 						bool is_open( ) const;
 
-						void read_async( );
+						void read_async( std::shared_ptr<boost::asio::streambuf> read_buffer = nullptr );
 
 						// StreamReadable Interface
 						virtual base::data_t read( ) override;
