@@ -52,8 +52,6 @@ namespace daw {
 				virtual listeners_t & listeners( ) = 0;
 				virtual listener_list_t listeners( std::string event ) = 0;
 				virtual size_t listener_count( std::string event ) = 0;
-				virtual void tap( std::function<void( std::string, size_t )> listner ) = 0;
-				virtual void untap( ) = 0;
 				virtual void emit_error( std::string description, std::string where ) = 0;
 				virtual void emit_error( std::string where, base::Error child ) = 0;
 				virtual void emit_error( boost::system::error_code const & err, std::string where ) = 0;
@@ -97,11 +95,8 @@ namespace daw {
 						throw std::runtime_error( "Empty event name passed to emit" );
 					}
 					assert( daw::algorithm::contains( this->valid_events( ), event ) );
-					auto& callbacks = listeners( )[event];
-					if( !listeners( )["tap"].empty( ) ) {
-						listeners( )["tap"][0].second.exec( event, callbacks.size( ) );
-					}
 
+					auto& callbacks = listeners( )[event];
 					for( auto& callback : callbacks ) {
 						if( !callback.second.empty( ) ) {
 							callback.second.exec( std::forward<Args>( args )... );
