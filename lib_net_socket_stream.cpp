@@ -237,11 +237,11 @@ namespace daw {
 						m_read_predicate.reset( );
 					}
 
-					void NetSocketStreamImpl::when_connected( std::function<void( )> listener ) {
+					void NetSocketStreamImpl::on_connected( std::function<void( )> listener ) {
 						add_listener( "connect", listener );
 					}
 
-					void NetSocketStreamImpl::when_next_connected( std::function<void( )> listener ) {
+					void NetSocketStreamImpl::on_next_connected( std::function<void( )> listener ) {
 						add_listener( "connect", listener, true );
 					}
 
@@ -565,76 +565,76 @@ namespace daw {
 
 				// Event callbacks
 
-				void NetSocketStream::when_connected( std::function<void( )> listener ) {
-					m_impl->when_connected( listener );
+				void NetSocketStream::on_connected( std::function<void( )> listener ) {
+					m_impl->on_connected( listener );
 				}
 
-				void NetSocketStream::when_error( std::function<void( base::Error )> listener ) { 
-					m_impl->when_error( listener );
-				}
-
-				// StreamReadable callbacks
-
-				void NetSocketStream::when_data_recv( std::function<void( std::shared_ptr<base::data_t>, bool )> listener ) { 
-					m_impl->when_data_recv( listener );
-				}
-
-				void NetSocketStream::when_eof( std::function<void( )> listener ) { 
-					m_impl->when_eof( listener );
-				}
-
-				void NetSocketStream::when_closed( std::function<void( )> listener ) { 
-					m_impl->when_closed( listener );
-				}
-
-				void NetSocketStream::when_a_write_completes( std::function<void( )> listener ) { 
-					m_impl->when_a_write_completes( listener );
-				}
-
-				void NetSocketStream::when_all_writes_complete( std::function<void( )> listener ) { 
-					m_impl->when_all_writes_complete( listener );
-				}
-
-				void NetSocketStream::when_next_connected( std::function<void( )> listener ) {
-					m_impl->when_next_connected( listener );
-				}
-
-				void NetSocketStream::when_next_error( std::function<void( base::Error )> listener ) {
-					m_impl->when_next_error( listener );
+				void NetSocketStream::on_error( std::function<void( base::Error )> listener ) { 
+					m_impl->on_error( listener );
 				}
 
 				// StreamReadable callbacks
 
-				void NetSocketStream::when_next_data_recv( std::function<void( std::shared_ptr<base::data_t>, bool )> listener ) { 
-					m_impl->when_next_data_recv( listener );
+				void NetSocketStream::on_data_recv( std::function<void( std::shared_ptr<base::data_t>, bool )> listener ) { 
+					m_impl->on_data_recv( listener );
 				}
 
-				void NetSocketStream::when_next_eof( std::function<void( )> listener ) {
-					m_impl->when_next_eof( listener );
+				void NetSocketStream::on_eof( std::function<void( )> listener ) { 
+					m_impl->on_eof( listener );
 				}
 
-				void NetSocketStream::when_next_all_writes_complete( std::function<void( )> listener ) {
-					m_impl->when_next_all_writes_complete( listener );
+				void NetSocketStream::on_closed( std::function<void( )> listener ) { 
+					m_impl->on_closed( listener );
 				}
 
-				void NetSocketStream::when_next_write_completes( std::function<void( )> listener ) {
-					m_impl->when_next_write_completes( listener );
+				void NetSocketStream::on_a_write_completes( std::function<void( )> listener ) { 
+					m_impl->on_a_write_completes( listener );
 				}
 
-				void NetSocketStream::when_listener_added( std::function<void( std::string, base::Callback )> listener ) {
-					m_impl->when_listener_added( listener );
+				void NetSocketStream::on_all_writes_complete( std::function<void( )> listener ) { 
+					m_impl->on_all_writes_complete( listener );
 				}
 
-				void NetSocketStream::when_listener_removed( std::function<void( std::string, base::Callback )> listener ) {
-					m_impl->when_listener_removed( listener );
+				void NetSocketStream::on_next_connected( std::function<void( )> listener ) {
+					m_impl->on_next_connected( listener );
 				}
 
-				void NetSocketStream::when_next_listener_added( std::function<void( std::string, base::Callback )> listener ) {
-					m_impl->when_next_listener_added( listener );
+				void NetSocketStream::on_next_error( std::function<void( base::Error )> listener ) {
+					m_impl->on_next_error( listener );
 				}
 
-				void NetSocketStream::when_next_listener_removed( std::function<void( std::string, base::Callback )> listener ) {
-					m_impl->when_next_listener_removed( listener );
+				// StreamReadable callbacks
+
+				void NetSocketStream::on_next_data_recv( std::function<void( std::shared_ptr<base::data_t>, bool )> listener ) { 
+					m_impl->on_next_data_recv( listener );
+				}
+
+				void NetSocketStream::on_next_eof( std::function<void( )> listener ) {
+					m_impl->on_next_eof( listener );
+				}
+
+				void NetSocketStream::on_next_all_writes_complete( std::function<void( )> listener ) {
+					m_impl->on_next_all_writes_complete( listener );
+				}
+
+				void NetSocketStream::on_next_write_completes( std::function<void( )> listener ) {
+					m_impl->on_next_write_completes( listener );
+				}
+
+				void NetSocketStream::on_listener_added( std::function<void( std::string, base::Callback )> listener ) {
+					m_impl->on_listener_added( listener );
+				}
+
+				void NetSocketStream::on_listener_removed( std::function<void( std::string, base::Callback )> listener ) {
+					m_impl->on_listener_removed( listener );
+				}
+
+				void NetSocketStream::on_next_listener_added( std::function<void( std::string, base::Callback )> listener ) {
+					m_impl->on_next_listener_added( listener );
+				}
+
+				void NetSocketStream::on_next_listener_removed( std::function<void( std::string, base::Callback )> listener ) {
+					m_impl->on_next_listener_removed( listener );
 				}
 
 				NetSocketStream& operator<<(NetSocketStream& net_socket, std::string const & value) {

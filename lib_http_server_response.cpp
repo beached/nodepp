@@ -66,11 +66,11 @@ namespace daw {
 					m_body_sent( false ),
 					m_socket( std::move( socket ) ) {
 
-					m_socket.when_a_write_completes( [&]( ) {
+					m_socket.on_a_write_completes( [&]( ) {
 						emit_drain( );
 					} );
 
-					m_socket.when_all_writes_complete( [&]( ) {
+					m_socket.on_all_writes_complete( [&]( ) {
 						emit_finish( );
 					} );
 				}
@@ -285,44 +285,44 @@ namespace daw {
 					m_impl->add_header( std::move( header_name ), std::move( header_value ) );
 				}
 
-				void HttpServerResponse::when_a_write_completes( std::function<void( )> listener ) {
-					m_impl->when_a_write_completes( listener );
+				void HttpServerResponse::on_a_write_completes( std::function<void( )> listener ) {
+					m_impl->on_a_write_completes( listener );
 				}
 
-				void HttpServerResponse::when_all_writes_complete( std::function<void( )> listener ) {
-					m_impl->when_all_writes_complete( listener );
+				void HttpServerResponse::on_all_writes_complete( std::function<void( )> listener ) {
+					m_impl->on_all_writes_complete( listener );
 				}
 
-				void HttpServerResponse::when_next_all_writes_complete( std::function<void( )> listener ) {
-					m_impl->when_next_all_writes_complete( listener );
+				void HttpServerResponse::on_next_all_writes_complete( std::function<void( )> listener ) {
+					m_impl->on_next_all_writes_complete( listener );
 				}
 
-				void HttpServerResponse::when_next_write_completes( std::function<void( )> listener ) {
-					m_impl->when_next_write_completes( listener );
+				void HttpServerResponse::on_next_write_completes( std::function<void( )> listener ) {
+					m_impl->on_next_write_completes( listener );
 				}
 
-				void HttpServerResponse::when_listener_added( std::function<void( std::string, base::Callback )> listener ) {
-					m_impl->when_listener_added( listener );
+				void HttpServerResponse::on_listener_added( std::function<void( std::string, base::Callback )> listener ) {
+					m_impl->on_listener_added( listener );
 				}
 
-				void HttpServerResponse::when_listener_removed( std::function<void( std::string, base::Callback )> listener ) {
-					m_impl->when_listener_removed( listener );
+				void HttpServerResponse::on_listener_removed( std::function<void( std::string, base::Callback )> listener ) {
+					m_impl->on_listener_removed( listener );
 				}
 
-				void HttpServerResponse::when_error( std::function<void( base::Error )> listener ) {
-					m_impl->when_error( listener );
+				void HttpServerResponse::on_error( std::function<void( base::Error )> listener ) {
+					m_impl->on_error( listener );
 				}
 
-				void HttpServerResponse::when_next_listener_added( std::function<void( std::string, base::Callback )> listener ) {
-					m_impl->when_next_listener_added( listener );
+				void HttpServerResponse::on_next_listener_added( std::function<void( std::string, base::Callback )> listener ) {
+					m_impl->on_next_listener_added( listener );
 				}
 
-				void HttpServerResponse::when_next_listener_removed( std::function<void( std::string, base::Callback )> listener ) {
-					m_impl->when_next_listener_removed( listener );
+				void HttpServerResponse::on_next_listener_removed( std::function<void( std::string, base::Callback )> listener ) {
+					m_impl->on_next_listener_removed( listener );
 				}
 
-				void HttpServerResponse::when_next_error( std::function<void( base::Error )> listener ) {
-					m_impl->when_next_error( listener );
+				void HttpServerResponse::on_next_error( std::function<void( base::Error )> listener ) {
+					m_impl->on_next_error( listener );
 				}
 
 			}	// namespace http

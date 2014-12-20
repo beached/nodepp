@@ -20,21 +20,20 @@ namespace daw {
 				// Summary:		A TCP Server class
 				// Requires:	base::EventEmitter, base::options_t,
 				//				lib::net::NetAddress, base::Error
-				class NetServer: public daw::nodepp::base::EventEmitter {
+				class NetServer {
 					std::shared_ptr<boost::asio::ip::tcp::acceptor> m_acceptor;
+					std::weak_ptr<base::EventEmitter> m_emitter;
 
 					void handle_accept( NetSocketStream socket, boost::system::error_code const & err );
 					void start_accept( );					
 				public:
-					NetServer( );
+					NetServer( std::weak_ptr<base::EventEmitter> emitter );
 					NetServer( NetServer const & ) = default;
 					NetServer( NetServer&& other );
 					NetServer& operator=(NetServer && rhs);
 					NetServer& operator=(NetServer const &) = default;
 					virtual ~NetServer( ) = default;
 					
-					virtual std::vector<std::string> const & valid_events( ) const override;
-
 					void listen( uint16_t port );
 					void listen( uint16_t port, std::string hostname, uint16_t backlog = 511 );										
 					void listen( std::string socket_path );					
@@ -52,26 +51,26 @@ namespace daw {
 					
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when a connection is established
-					virtual void when_connected( std::function<void( NetSocketStream socket )> listener );					
+					virtual void on_connected( std::function<void( NetSocketStream socket )> listener );					
 					
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when the server is bound after calling 
 					/// listen( ... )
-					virtual void when_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener );
+					virtual void on_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener );
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when a connection is established
-					virtual void when_next_connection( std::function<void( NetSocketStream socket )> listener );
+					virtual void on_next_connection( std::function<void( NetSocketStream socket )> listener );
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when the server is bound after calling 
 					/// listen( ... )
-					virtual void when_next_listening( std::function<void( )> listener );
+					virtual void on_next_listening( std::function<void( )> listener );
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when the server closes and all connections 
 					/// are closed
-					virtual void when_closed( std::function<void( )> listener );
+					virtual void on_closed( std::function<void( )> listener );
 
 				protected:
 					virtual void emit_listening( boost::asio::ip::tcp::endpoint endpoint );

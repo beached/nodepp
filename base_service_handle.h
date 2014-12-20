@@ -10,6 +10,7 @@ namespace daw {
 			class ServiceHandle {
 			public:
 				static boost::asio::io_service& get( );
+				static void run( );
 			};	// class ServiceHandle
 		}	// namespace base
 	}	// namespace nodepp

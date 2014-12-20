@@ -45,13 +45,13 @@ namespace daw {
 
 						virtual std::vector<std::string> const & valid_events( ) const override;
 
-						virtual void when_client_error( std::function<void( base::Error )> listener );
-						virtual void when_next_client_error( std::function<void( base::Error )> listener );
+						virtual void on_client_error( std::function<void( base::Error )> listener );
+						virtual void on_next_client_error( std::function<void( base::Error )> listener );
 
-						virtual void when_request_made( std::function<void( std::shared_ptr<HttpClientRequest>, HttpServerResponse )> listener );
-						virtual void when_next_request_made( std::function<void( std::shared_ptr<HttpClientRequest>, HttpServerResponse )> listener );
+						virtual void on_request_made( std::function<void( std::shared_ptr<HttpClientRequest>, HttpServerResponse )> listener );
+						virtual void on_next_request_made( std::function<void( std::shared_ptr<HttpClientRequest>, HttpServerResponse )> listener );
 
-						virtual void when_closed( std::function<void( )> listener );	// Only once as it is called on the way out				
+						virtual void on_closed( std::function<void( )> listener );	// Only once as it is called on the way out				
 						void close( );
 
 						lib::net::NetSocketStream& socket( );
@@ -65,7 +65,7 @@ namespace daw {
 					};	// class HttpConnectionImpl
 
 					HttpConnectionImpl::HttpConnectionImpl( lib::net::NetSocketStream socket ) : m_socket( std::move( socket ) ) {
-						m_socket.when_next_data_recv( [&]( std::shared_ptr<base::data_t> data_buffer, bool ) mutable {
+						m_socket.on_next_data_recv( [&]( std::shared_ptr<base::data_t> data_buffer, bool ) mutable {
 							auto req = parse_http_request( data_buffer->begin( ), data_buffer->end( ) );
 							data_buffer.reset( );
 							if( req ) {
@@ -75,11 +75,11 @@ namespace daw {
 							}
 						} );
 
-						m_socket.when_closed( [&]( ) {
+						m_socket.on_closed( [&]( ) {
 							emit_close( );
 						} );
 
-						m_socket.when_error( [&]( base::Error error ) {
+						m_socket.on_error( [&]( base::Error error ) {
 							emit_error( "HttpConnectionImpl::HttpConnectionImpl", std::move( error ) );
 						} );
 
@@ -117,23 +117,23 @@ namespace daw {
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when the connection is closed
-					void HttpConnectionImpl::when_closed( std::function<void( )> listener ) {
+					void HttpConnectionImpl::on_closed( std::function<void( )> listener ) {
 						add_listener( "close", listener, true );
 					}
 
-					void HttpConnectionImpl::when_client_error( std::function<void( base::Error )> listener ) {
+					void HttpConnectionImpl::on_client_error( std::function<void( base::Error )> listener ) {
 						add_listener( "clientError", listener );
 					}
 
-					void HttpConnectionImpl::when_next_client_error( std::function<void( base::Error )> listener ) {
+					void HttpConnectionImpl::on_next_client_error( std::function<void( base::Error )> listener ) {
 						add_listener( "clientError", listener, true );
 					}
 
-					void HttpConnectionImpl::when_request_made( std::function<void( std::shared_ptr<HttpClientRequest>, HttpServerResponse )> listener ) {
+					void HttpConnectionImpl::on_request_made( std::function<void( std::shared_ptr<HttpClientRequest>, HttpServerResponse )> listener ) {
 						add_listener( "request", listener );
 					}
 
-					void HttpConnectionImpl::when_next_request_made( std::function<void( std::shared_ptr<HttpClientRequest>, HttpServerResponse )> listener ) {
+					void HttpConnectionImpl::on_next_request_made( std::function<void( std::shared_ptr<HttpClientRequest>, HttpServerResponse )> listener ) {
 						add_listener( "request", listener, true );
 					}
 
@@ -168,48 +168,48 @@ namespace daw {
 
 				// Event callbacks
 				
-				void HttpConnection::when_listener_added( std::function<void( std::string, base::Callback )> listener ) {
-					m_impl->when_listener_added( listener );
+				void HttpConnection::on_listener_added( std::function<void( std::string, base::Callback )> listener ) {
+					m_impl->on_listener_added( listener );
 				}
 
-				void HttpConnection::when_listener_removed( std::function<void( std::string, base::Callback )> listener ) {
-					m_impl->when_listener_removed( listener );
+				void HttpConnection::on_listener_removed( std::function<void( std::string, base::Callback )> listener ) {
+					m_impl->on_listener_removed( listener );
 				}
 
-				void HttpConnection::when_error( std::function<void( base::Error )> listener ) {
-					m_impl->when_error( listener );
+				void HttpConnection::on_error( std::function<void( base::Error )> listener ) {
+					m_impl->on_error( listener );
 				}
 
-				void HttpConnection::when_next_listener_added( std::function<void( std::string, base::Callback )> listener ) {
-					m_impl->when_next_listener_added( listener );
+				void HttpConnection::on_next_listener_added( std::function<void( std::string, base::Callback )> listener ) {
+					m_impl->on_next_listener_added( listener );
 				}
 
-				void HttpConnection::when_next_listener_removed( std::function<void( std::string, base::Callback )> listener ) {
-					m_impl->when_next_listener_removed( listener );
+				void HttpConnection::on_next_listener_removed( std::function<void( std::string, base::Callback )> listener ) {
+					m_impl->on_next_listener_removed( listener );
 				}
 
-				void HttpConnection::when_next_error( std::function<void( base::Error )> listener ) {
-					m_impl->when_next_error( listener );
+				void HttpConnection::on_next_error( std::function<void( base::Error )> listener ) {
+					m_impl->on_next_error( listener );
 				}
 
-				void HttpConnection::when_client_error( std::function<void( base::Error )> listener ) {
-					m_impl->when_client_error( listener );
+				void HttpConnection::on_client_error( std::function<void( base::Error )> listener ) {
+					m_impl->on_client_error( listener );
 				}
 
-				void HttpConnection::when_next_client_error( std::function<void( base::Error )> listener ) {
-					m_impl->when_next_client_error( listener );
+				void HttpConnection::on_next_client_error( std::function<void( base::Error )> listener ) {
+					m_impl->on_next_client_error( listener );
 				}
 
-				void HttpConnection::when_request_made( std::function<void( std::shared_ptr<HttpClientRequest>, HttpServerResponse )> listener ) {
-					m_impl->when_request_made( listener );
+				void HttpConnection::on_request_made( std::function<void( std::shared_ptr<HttpClientRequest>, HttpServerResponse )> listener ) {
+					m_impl->on_request_made( listener );
 				}
 
-				void HttpConnection::when_next_request_made( std::function<void( std::shared_ptr<HttpClientRequest>, HttpServerResponse )> listener ) {
-					m_impl->when_next_request_made( listener );
+				void HttpConnection::on_next_request_made( std::function<void( std::shared_ptr<HttpClientRequest>, HttpServerResponse )> listener ) {
+					m_impl->on_next_request_made( listener );
 				}
 
-				void HttpConnection::when_closed( std::function<void( )> listener ) {	// Only once as it is called on the way out
-					m_impl->when_closed( listener );
+				void HttpConnection::on_closed( std::function<void( )> listener ) {	// Only once as it is called on the way out
+					m_impl->on_closed( listener );
 				}
 
 				void HttpConnection::close( ) {

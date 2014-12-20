@@ -138,11 +138,11 @@ namespace daw {
 
 						//////////////////////////////////////////////////////////////////////////
 						/// Summary: Event emitted when a connection is established
-						virtual void when_connected( std::function<void( )> listener );
+						virtual void on_connected( std::function<void( )> listener );
 
 						//////////////////////////////////////////////////////////////////////////
 						/// Summary: Event emitted when a connection is established
-						virtual void when_next_connected( std::function<void( )> listener );
+						virtual void on_next_connected( std::function<void( )> listener );
 
 
 					protected:

@@ -55,7 +55,7 @@ namespace daw {
 					
 					std::shared_ptr<HttpConnection> connection( new HttpConnection( std::move( socket ) ) );
 
-					connection->when_error( [&]( base::Error error ) {
+					connection->on_error( [&]( base::Error error ) {
 						emit_error( "HttpServer::handle_connection", std::move( error ) );
 					} );
 										
@@ -71,15 +71,15 @@ namespace daw {
 				}
 
 				void HttpServer::listen_on( uint16_t port ) {
-					m_netserver.when_connected( [&]( lib::net::NetSocketStream socket ) {
+					m_netserver.on_connected( [&]( lib::net::NetSocketStream socket ) {
 						handle_connection( std::move( socket ) );
 					} );
 
-					m_netserver.when_error( [&]( base::Error error ) {
+					m_netserver.on_error( [&]( base::Error error ) {
 						handle_error( std::move( error ) );
 					} );
 
-					m_netserver.when_listening( [&]( boost::asio::ip::tcp::endpoint endpoint ) {
+					m_netserver.on_listening( [&]( boost::asio::ip::tcp::endpoint endpoint ) {
 						emit_listening( std::move( endpoint ) );
 					} );
 					
@@ -98,22 +98,22 @@ namespace daw {
 
 				size_t HttpServer::timeout( ) const { throw std::runtime_error( "Method not implemented" ); }
 
-				void HttpServer::when_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener ) {
+				void HttpServer::on_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener ) {
 					add_listener( "listening", listener );
 				}
 
-				void HttpServer::when_next_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener ) {
+				void HttpServer::on_next_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener ) {
 					add_listener( "listening", listener, true );
 				}
 
-				void HttpServer::when_client_connected( std::function<void( HttpConnection )> listener ) {
+				void HttpServer::on_client_connected( std::function<void( HttpConnection )> listener ) {
 					auto handler = [listener]( std::shared_ptr<HttpConnection> con ) {
 						listener( *con );
 					};
 					add_listener( "connection", handler );
 				}
 
-				void HttpServer::when_next_client_connected( std::function<void( HttpConnection )> listener ) {
+				void HttpServer::on_next_client_connected( std::function<void( HttpConnection )> listener ) {
 					auto handler = [listener]( std::shared_ptr<HttpConnection> con ) {
 						listener( *con );
 					};

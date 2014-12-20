@@ -99,79 +99,79 @@ namespace daw {
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when a connection is established
-					void when_connected( std::function<void( )> listener );
+					void on_connected( std::function<void( )> listener );
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when an error occurs
 					/// Inherited from EventEmitter
-					void when_error( std::function<void( base::Error )> listener );
+					void on_error( std::function<void( base::Error )> listener );
 
 					// StreamReadable callbacks
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when data is received
 					/// Inherited from StreamReadable
-					void when_data_recv( std::function<void( std::shared_ptr<base::data_t>, bool )> listener );
+					void on_data_recv( std::function<void( std::shared_ptr<base::data_t>, bool )> listener );
 					
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when of of stream is read.
 					/// Inherited from StreamReadable
-					void when_eof( std::function<void( )> listener );
+					void on_eof( std::function<void( )> listener );
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when the stream is closed
 					/// Inherited from StreamReadable
-					void when_closed( std::function<void( )> listener );
+					void on_closed( std::function<void( )> listener );
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when a write is completed
 					/// Inherited from StreamWritable
-					void when_a_write_completes( std::function<void( )> listener );
+					void on_a_write_completes( std::function<void( )> listener );
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when end( ... ) has been called and all data
 					/// has been flushed
 					/// Inherited from StreamWritable
-					void when_all_writes_complete( std::function<void( )> listener );					
+					void on_all_writes_complete( std::function<void( )> listener );					
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when a connection is established
-					void when_next_connected( std::function<void( )> listener );
+					void on_next_connected( std::function<void( )> listener );
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when an error occurs
 					/// Inherited from EventEmitter
-					void when_next_error( std::function<void( base::Error )> listener );
+					void on_next_error( std::function<void( base::Error )> listener );
 
 					// StreamReadable callbacks
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when data is received
 					/// Inherited from StreamReadable
-					void when_next_data_recv( std::function<void( std::shared_ptr<base::data_t>, bool )> listener );
+					void on_next_data_recv( std::function<void( std::shared_ptr<base::data_t>, bool )> listener );
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when of of stream is read.
 					/// Inherited from StreamReadable
-					void when_next_eof( std::function<void( )> listener );
+					void on_next_eof( std::function<void( )> listener );
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when end( ... ) has been called and all data
 					/// has been flushed
 					/// Inherited from StreamWritable
-					void when_next_all_writes_complete( std::function<void( )> listener );	
+					void on_next_all_writes_complete( std::function<void( )> listener );	
 					
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when the next write is completed
 					/// Inherited from StreamWritable
-					void when_next_write_completes( std::function<void( )> listener );
+					void on_next_write_completes( std::function<void( )> listener );
 
 
-					void when_listener_added( std::function<void( std::string, base::Callback )> listener );
-					void when_listener_removed( std::function<void( std::string, base::Callback )> listener );
+					void on_listener_added( std::function<void( std::string, base::Callback )> listener );
+					void on_listener_removed( std::function<void( std::string, base::Callback )> listener );
 
-					void when_next_listener_added( std::function<void( std::string, base::Callback )> listener );
-					void when_next_listener_removed( std::function<void( std::string, base::Callback )> listener );
+					void on_next_listener_added( std::function<void( std::string, base::Callback )> listener );
+					void on_next_listener_removed( std::function<void( std::string, base::Callback )> listener );
 
 				};	// class NetSocketStream
 				

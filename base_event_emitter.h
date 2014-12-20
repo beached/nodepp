@@ -30,36 +30,53 @@ namespace daw {
 				}
 			}
 
-			struct IEventEmitter { 
+			//////////////////////////////////////////////////////////////////////////
+			/// Summary:	Allows for the dispatch of events to subscribed listeners
+			///				Callbacks can be be c-style function pointers, lambda's or 
+			///				std::function with the correct signature.
+			///	Requires:	base::Callback
+			///	
+			struct EventEmitter: std::enable_shared_from_this<EventEmitter> {
 				using listener_list_t = std::vector < std::pair<bool, Callback> > ;
 				using listeners_t = std::unordered_map < std::string, listener_list_t > ;
 				using callback_id_t = Callback::id_t;
+			private:
+				std::shared_ptr<std::unordered_map<std::string, listener_list_t>> m_listeners;
+				size_t m_max_listeners;
 
-				virtual ~IEventEmitter( ) = default;
+				void emit_error( base::Error error );
 
-				virtual std::vector<std::string> const & valid_events( ) const = 0;
-				virtual void when_listener_added( std::function<void( std::string, Callback )> listener ) = 0;
-				virtual void when_listener_removed( std::function<void( std::string, Callback )> listener ) = 0;
-				virtual void when_error( std::function<void( base::Error )> listener ) = 0;
-				virtual void when_next_listener_added( std::function<void( std::string, Callback )> listener ) = 0;
-				virtual void when_next_listener_removed( std::function<void( std::string, Callback )> listener ) = 0;
-				virtual void when_next_error( std::function<void( base::Error )> listener ) = 0;
-				virtual void remove_listener( std::string event, callback_id_t id ) = 0;
-				virtual void remove_listener( std::string event, Callback listener ) = 0;
-				virtual void remove_all_listeners( ) = 0;
-				virtual void remove_all_listeners( std::string event ) = 0;
-				virtual void set_max_listeners( size_t max_listeners ) = 0;
-				virtual listeners_t & listeners( ) = 0;
-				virtual listener_list_t listeners( std::string event ) = 0;
-				virtual size_t listener_count( std::string event ) = 0;
-				virtual void emit_error( std::string description, std::string where ) = 0;
-				virtual void emit_error( std::string where, base::Error child ) = 0;
-				virtual void emit_error( boost::system::error_code const & err, std::string where ) = 0;
-				virtual void emit_error( std::exception_ptr ex, std::string description, std::string where ) = 0;
-				virtual void emit_new_listener( std::string event, Callback listener ) = 0;
-				virtual void emit_remove_listener( std::string event, Callback listener ) = 0;
-				virtual bool event_is_valid( std::string const & event ) const = 0;
-				virtual bool at_max_listeners( std::string event ) = 0;
+			public:
+				virtual ~EventEmitter( ) = default;
+				EventEmitter( EventEmitter const & ) = default;
+				EventEmitter& operator=(EventEmitter const &) = default;
+				EventEmitter( );
+				EventEmitter( EventEmitter && other );
+				EventEmitter& operator=(EventEmitter && rhs);
+				void swap( EventEmitter& rhs );
+
+				std::shared_ptr<EventEmitter> get_ptr( );
+
+				virtual void on_listener_added( std::function<void( std::string, Callback )> listener );
+				virtual void on_listener_removed( std::function<void( std::string, Callback )> listener );
+				virtual void on_error( std::function<void( base::Error )> listener );
+
+				virtual void on_next_listener_added( std::function<void( std::string, Callback )> listener );
+				virtual void on_next_listener_removed( std::function<void( std::string, Callback )> listener );
+				virtual void on_next_error( std::function<void( base::Error )> listener );
+
+				virtual void remove_listener( std::string event, callback_id_t id );
+
+				virtual void remove_listener( std::string event, Callback listener );
+
+				virtual void remove_all_listeners( );
+
+				virtual void remove_all_listeners( std::string event );
+
+				virtual void set_max_listeners( size_t max_listeners );
+				virtual listeners_t & listeners( );
+				virtual listener_list_t listeners( std::string event );
+				virtual size_t listener_count( std::string event );
 
 				template<typename Listener>
 				callback_id_t add_listener( std::string event, Listener listener, bool run_once = false ) {
@@ -69,7 +86,7 @@ namespace daw {
 					if( !at_max_listeners( event ) ) {
 						auto callback = Callback( listener );
 						if( event != "newListener" ) {
-							emit_new_listener( event, callback );
+							emit_listener_added( event, callback );
 						}
 						listeners( )[event].emplace_back( run_once, callback );
 						return callback.id( );
@@ -85,7 +102,7 @@ namespace daw {
 				}
 
 				template<typename Listener>
-				void once( std::string event, Listener listener ) {
+				void on_next( std::string event, Listener listener ) {
 					add_listener( event, listener, true );
 				}
 
@@ -94,7 +111,6 @@ namespace daw {
 					if( event.empty( ) ) {
 						throw std::runtime_error( "Empty event name passed to emit" );
 					}
-					assert( daw::algorithm::contains( this->valid_events( ), event ) );
 
 					auto& callbacks = listeners( )[event];
 					for( auto& callback : callbacks ) {
@@ -106,65 +122,15 @@ namespace daw {
 						return item.first;
 					} );
 				}
-			
-			};
 
-			//////////////////////////////////////////////////////////////////////////
-			/// Summary:	Allows for the dispatch of events to subscribed listeners
-			///				Callbacks can be be c-style function pointers, lambda's or 
-			///				std::function with the correct signature.
-			///	Requires:	base::Callback
-			///	
-			class EventEmitter: public IEventEmitter {
-				std::shared_ptr<std::unordered_map<std::string, listener_list_t>> m_listeners;
-				size_t m_max_listeners;
+				virtual void emit_error( std::string description, std::string where );
+				virtual void emit_error( std::string where, base::Error child );
+				virtual void emit_error( boost::system::error_code const & err, std::string where );
+				virtual void emit_error( std::exception_ptr ex, std::string description, std::string where );
 
-				void emit_error( base::Error error );
-
-			public:
-				EventEmitter( );
-				virtual ~EventEmitter( ) = default;
-				EventEmitter( EventEmitter const & ) = default;
-				EventEmitter( EventEmitter && other );
-				EventEmitter& operator=(EventEmitter const &) = default;
-				EventEmitter& operator=(EventEmitter && rhs);
-
-				void swap( EventEmitter& rhs );
-
-				virtual std::vector<std::string> const & valid_events( ) const override;
-
-				virtual void when_listener_added( std::function<void( std::string, Callback )> listener ) override;
-				virtual void when_listener_removed( std::function<void( std::string, Callback )> listener ) override;
-				virtual void when_error( std::function<void( base::Error )> listener ) override;
-
-				virtual void when_next_listener_added( std::function<void( std::string, Callback )> listener ) override;
-				virtual void when_next_listener_removed( std::function<void( std::string, Callback )> listener ) override;
-				virtual void when_next_error( std::function<void( base::Error )> listener ) override;
-
-				virtual void remove_listener( std::string event, callback_id_t id ) override;
-
-				virtual void remove_listener( std::string event, Callback listener ) override;
-
-				virtual void remove_all_listeners( ) override;
-
-				virtual void remove_all_listeners( std::string event ) override;
-
-				virtual void set_max_listeners( size_t max_listeners ) override;
-				virtual listeners_t & listeners( ) override;
-				virtual listener_list_t listeners( std::string event ) override;
-				virtual size_t listener_count( std::string event ) override;
-
-				virtual void emit_error( std::string description, std::string where ) override;
-				virtual void emit_error( std::string where, base::Error child ) override;
-				virtual void emit_error( boost::system::error_code const & err, std::string where ) override;
-				virtual void emit_error( std::exception_ptr ex, std::string description, std::string where ) override;
-
-				virtual void emit_new_listener( std::string event, Callback listener ) override;
-				virtual void emit_remove_listener( std::string event, Callback listener ) override;
-				virtual bool at_max_listeners( std::string event ) override;
-				virtual bool event_is_valid( std::string const & event ) const override;
-
-				void run( );				
+				virtual void emit_listener_added( std::string event, Callback listener );
+				virtual void emit_listener_removed( std::string event, Callback listener );
+				virtual bool at_max_listeners( std::string event );
 			};	// class EventEmitter
 
 			template<typename This, typename Listener, typename Action>

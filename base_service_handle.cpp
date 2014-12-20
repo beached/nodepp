@@ -9,6 +9,10 @@ namespace daw {
 				static boost::asio::io_service result;
 				return result;
 			}
+
+			void ServiceHandle::run( ) {
+				get( )::run( );
+			}
 		}	// namespace base
 	}	// namespace nodepp
 }	// namespace daw

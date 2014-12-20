@@ -45,11 +45,11 @@ namespace daw {
 					
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when name resolution is complete
-					virtual void when_resolved( std::function<void( boost::asio::ip::tcp::resolver::iterator )> listener );
+					virtual void on_resolved( std::function<void( boost::asio::ip::tcp::resolver::iterator )> listener );
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when name resolution is complete
-					virtual void when_next_resolved( std::function<void( boost::asio::ip::tcp::resolver::iterator )> listener );
+					virtual void on_next_resolved( std::function<void( boost::asio::ip::tcp::resolver::iterator )> listener );
 
 				protected:
 					//////////////////////////////////////////////////////////////////////////

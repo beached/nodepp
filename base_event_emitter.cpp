@@ -71,21 +71,16 @@ namespace daw {
 				emit_error( std::move( err ) );
 			}
 
-			void EventEmitter::emit_new_listener( std::string event, Callback listener ) {
-				emit( "newListener", std::move( event ), std::move( listener ) );
+			void EventEmitter::emit_listener_added( std::string event, Callback listener ) {
+				emit( "listener_added", std::move( event ), std::move( listener ) );
 			}
 
-			void EventEmitter::emit_remove_listener( std::string event, Callback listener ) {
-				emit( "removeListener", std::move( event ), std::move( listener ) );
+			void EventEmitter::emit_listener_removed( std::string event, Callback listener ) {
+				emit( "listener_removed", std::move( event ), std::move( listener ) );
 			}
 
 			std::unordered_map<std::string, EventEmitter::listener_list_t> & EventEmitter::listeners( ) {
 				return *m_listeners;
-			}
-
-			std::vector<std::string> const & EventEmitter::valid_events( ) const {
-				static auto const result = std::vector < std::string > { "newListener", "removeListener", "error" };
-				return result;
 			}
 
 			bool EventEmitter::at_max_listeners( std::string event ) {
@@ -98,34 +93,34 @@ namespace daw {
 				daw::algorithm::erase_remove_if( listeners( )[event], [&]( std::pair<bool, Callback> const & item ) {
 					if( item.second.id( ) == id ) {
 						// TODO verify if this needs to be outside loop
-						emit_remove_listener( event, item.second );
+						emit_listener_removed( event, item.second );
 						return true;
 					}
 					return false;
 				} );
 			}
 
-			void EventEmitter::when_listener_added( std::function<void( std::string, Callback )> listener ) {
-				add_listener( "newListener", listener );
+			void EventEmitter::on_listener_added( std::function<void( std::string, Callback )> listener ) {
+				add_listener( "listener_added", listener );
 			}
 
-			void EventEmitter::when_listener_removed( std::function<void( std::string, Callback )> listener ) {
-				add_listener( "removeListener", listener );
+			void EventEmitter::on_listener_removed( std::function<void( std::string, Callback )> listener ) {
+				add_listener( "listener_removed", listener );
 			}
 			
-			void EventEmitter::when_error( std::function<void( base::Error )> listener ) {
+			void EventEmitter::on_error( std::function<void( base::Error )> listener ) {
 				add_listener( "error", listener );
 			}
 
-			void EventEmitter::when_next_listener_added( std::function<void( std::string, Callback )> listener ) {
-				add_listener( "newListener", listener, true );
+			void EventEmitter::on_next_listener_added( std::function<void( std::string, Callback )> listener ) {
+				add_listener( "listener_added", listener, true );
 			}
 
-			void EventEmitter::when_next_listener_removed( std::function<void( std::string, Callback )> listener ) {
-				add_listener( "removeListener", listener, true );
+			void EventEmitter::on_next_listener_removed( std::function<void( std::string, Callback )> listener ) {
+				add_listener( "listener_removed", listener, true );
 			}
 
-			void EventEmitter::when_next_error( std::function<void( base::Error )> listener ) {
+			void EventEmitter::on_next_error( std::function<void( base::Error )> listener ) {
 				add_listener( "error", listener, true );
 			}
 
@@ -153,12 +148,8 @@ namespace daw {
 				return listeners( event ).size( );
 			}
 
-			void EventEmitter::run( ) {
-				base::ServiceHandle::get( ).run( );
-			}
-
-			bool EventEmitter::event_is_valid( std::string const & event ) const {
-				return daw::algorithm::contains( valid_events( ), event );
+			std::shared_ptr<EventEmitter> EventEmitter::get_ptr( ) {
+				return shared_from_this( );
 			}
 
 		}	// namespace base

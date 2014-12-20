@@ -16,20 +16,20 @@ namespace daw {
 				//////////////////////////////////////////////////////////////////////////
 				// Summary:		An HTTP Server class 
 				// Requires:	lib::net::NetServer
-				class HttpServer: public base::EventEmitter {
+				class HttpServer {
 					lib::net::NetServer m_netserver;
+					std::shared_ptr<base::EventEmitter> m_emitter;
+
 					void handle_connection( lib::net::NetSocketStream socket );
 					void handle_error( base::Error error );					
 				public:
-					HttpServer( );
+					HttpServer( std::shared_ptr<base::EventEmitter> m_emitter = std::make_shared<base::EventEmitter>( ) );
 
 					HttpServer( HttpServer&& other );
 					HttpServer& operator=(HttpServer const &) = default;
 					HttpServer& operator=(HttpServer && rhs);
 					HttpServer( HttpServer const & ) = default;
 					virtual ~HttpServer( ) = default;
-
-					virtual std::vector<std::string> const & valid_events( ) const override;
 
 					void listen_on( uint16_t port );
 
@@ -68,14 +68,14 @@ namespace daw {
 						throw std::runtime_error( "Method not implemented" );
 					}					
 					
-					void when_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener );
-					void when_next_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener );
+					void on_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener );
+					void on_next_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener );
 
-					void when_client_connected( std::function<void( HttpConnection )> listener );
-					void when_next_client_connected( std::function<void( HttpConnection )> listener );
+					void on_client_connected( std::function<void( HttpConnection )> listener );
+					void on_next_client_connected( std::function<void( HttpConnection )> listener );
 
-					void when_closed( std::function<void( )> listener );
-					void when_next_close( std::function<void( )> listener );
+					void on_closed( std::function<void( )> listener );
+					void on_next_close( std::function<void( )> listener );
 
 					size_t timeout( ) const;
 

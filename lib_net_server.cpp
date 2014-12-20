@@ -94,23 +94,23 @@ namespace daw {
 
 				// Event callbacks
 				
-				void NetServer::when_connected( std::function<void( NetSocketStream socket )> listener ) {
+				void NetServer::on_connected( std::function<void( NetSocketStream socket )> listener ) {
 					add_listener( "connection", listener );
 				}
 
-				void NetServer::when_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener ) {
+				void NetServer::on_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener ) {
 					add_listener( "listening", listener );
 				}
 
-				void NetServer::when_next_connection( std::function<void( NetSocketStream socket_ptr )> listener ) {
+				void NetServer::on_next_connection( std::function<void( NetSocketStream socket_ptr )> listener ) {
 					add_listener( "connection", listener, true );
 				}
 
-				void NetServer::when_next_listening( std::function<void( )> listener ) {
+				void NetServer::on_next_listening( std::function<void( )> listener ) {
 					add_listener( "listening", listener, true );
 				}
 
-				void NetServer::when_closed( std::function<void( )> listener ) {
+				void NetServer::on_closed( std::function<void( )> listener ) {
 					add_listener( "close", listener, true );
 				}
 

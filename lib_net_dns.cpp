@@ -67,11 +67,11 @@ namespace daw {
 					m_resolver->async_resolve( query, handler );
 				}
 
-				void NetDns::when_resolved( std::function<void( boost::asio::ip::tcp::resolver::iterator)> listener ) {
+				void NetDns::on_resolved( std::function<void( boost::asio::ip::tcp::resolver::iterator)> listener ) {
 					add_listener( "resolved", listener );
 				}
 
-				void NetDns::when_next_resolved( std::function<void( boost::asio::ip::tcp::resolver::iterator )> listener ) {
+				void NetDns::on_next_resolved( std::function<void( boost::asio::ip::tcp::resolver::iterator )> listener ) {
 					add_listener( "resolved", listener, true );
 				}
 

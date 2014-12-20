@@ -60,32 +60,32 @@ namespace daw {
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when a write is completed
 					/// Inherited from StreamWritable
-					virtual void when_a_write_completes( std::function<void( )> listener ) override;
+					virtual void on_a_write_completes( std::function<void( )> listener );
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when end( ... ) has been called and all data
 					/// has been flushed
 					/// Inherited from StreamWritable
-					virtual void when_all_writes_complete( std::function<void( )> listener ) override;
+					virtual void on_all_writes_complete( std::function<void( )> listener );
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when end( ... ) has been called and all data
 					/// has been flushed
 					/// Inherited from StreamWritable
-					virtual void when_next_all_writes_complete( std::function<void( )> listener ) override;
+					virtual void on_next_all_writes_complete( std::function<void( )> listener );
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when the next write is completed
 					/// Inherited from StreamWritable
-					virtual void when_next_write_completes( std::function<void( )> listener ) override;
+					virtual void on_next_write_completes( std::function<void( )> listener );
 
-					virtual void when_listener_added( std::function<void( std::string, base::Callback )> listener ) override;
-					virtual void when_listener_removed( std::function<void( std::string, base::Callback )> listener ) override;
-					virtual void when_error( std::function<void( base::Error )> listener ) override;
+					virtual void on_listener_added( std::function<void( std::string, base::Callback )> listener );
+					virtual void on_listener_removed( std::function<void( std::string, base::Callback )> listener );
+					virtual void on_error( std::function<void( base::Error )> listener );
 
-					virtual void when_next_listener_added( std::function<void( std::string, base::Callback )> listener ) override;
-					virtual void when_next_listener_removed( std::function<void( std::string, base::Callback )> listener ) override;
-					virtual void when_next_error( std::function<void( base::Error )> listener ) override;
+					virtual void on_next_listener_added( std::function<void( std::string, base::Callback )> listener );
+					virtual void on_next_listener_removed( std::function<void( std::string, base::Callback )> listener );
+					virtual void on_next_error( std::function<void( base::Error )> listener );
 
 				};	// struct ServerResponse			
 			}	// namespace http
