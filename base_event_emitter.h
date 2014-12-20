@@ -138,8 +138,6 @@ namespace daw {
 
 				virtual std::vector<std::string> const & valid_events( ) const override;
 
-
-
 				virtual void when_listener_added( std::function<void( std::string, Callback )> listener ) override;
 				virtual void when_listener_removed( std::function<void( std::string, Callback )> listener ) override;
 				virtual void when_error( std::function<void( base::Error )> listener ) override;
@@ -161,8 +159,6 @@ namespace daw {
 				virtual listener_list_t listeners( std::string event ) override;
 				virtual size_t listener_count( std::string event ) override;
 
-				virtual void tap( std::function<void( std::string, size_t )> listner ) override;
-				virtual void untap( ) override;
 				virtual void emit_error( std::string description, std::string where ) override;
 				virtual void emit_error( std::string where, base::Error child ) override;
 				virtual void emit_error( boost::system::error_code const & err, std::string where ) override;
