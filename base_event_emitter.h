@@ -65,7 +65,7 @@ namespace daw {
 					size_t listener_count( std::string event );
 
 					template<typename Listener>
-					callback_id_t add_listener( std::string event, Listener listener, bool run_once = false ) {
+					callback_id_t add_listener( std::string event, Listener listener, bool run_once = false ) {						
 						if( event.empty( ) ) {
 							throw std::runtime_error( "Empty event name passed to add_listener" );
 						}

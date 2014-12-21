@@ -81,63 +81,67 @@ namespace daw {
 
 					// Event callbacks				
 					NetServerImpl& NetServerImpl::on_connection( std::function<void( NetSocketStream socket )> listener ) {
-						m_emitter->add_listener( "connection", listener );
+						emitter( )->add_listener( "connection", listener );
 						return *this;
 					}
 
 					NetServerImpl& NetServerImpl::on_next_connection( std::function<void( NetSocketStream socket_ptr )> listener ) {
-						m_emitter->add_listener( "connection", listener, true );
+						emitter( )->add_listener( "connection", listener, true );
 						return *this;
 					}
 
 					NetServerImpl& NetServerImpl::on_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener ) {
-						m_emitter->add_listener( "listening", listener );
+						emitter( )->add_listener( "listening", listener );
 						return *this;
 					}
 
 					NetServerImpl& NetServerImpl::on_next_listening( std::function<void( )> listener ) {
-						m_emitter->add_listener( "listening", listener, true );
+						emitter( )->add_listener( "listening", listener, true );
 						return *this;
 					}
 
 					NetServerImpl& NetServerImpl::on_closed( std::function<void( )> listener ) {
-						m_emitter->add_listener( "close", listener, true );
+						emitter( )->add_listener( "close", listener, true );
 						return *this;
 					}
 
-					void NetServerImpl::handle_accept( std::shared_ptr<NetServerImpl> self, NetSocketStream socket, boost::system::error_code const & err ) {
-						if( !err ) {
-							try {
-								self->emit_connection( socket );
-							} catch( ... ) {
-								self->emit_error( std::current_exception( ), "Running connection listeners", "NetServerImpl::listen#emit_connection" );
+					void NetServerImpl::handle_accept( std::weak_ptr<NetServerImpl> obj, NetSocketStream socket, boost::system::error_code const & err ) {
+						if( !obj.expired( ) ) {
+							auto self = obj.lock( );
+							if( !err ) {
+								try {
+									self->emit_connection( socket );
+								} catch( ... ) {
+									self->emit_error( std::current_exception( ), "Running connection listeners", "NetServerImpl::listen#emit_connection" );
+								}
+							} else {
+								self->emit_error( err, "NetServerImpl::listen" );
 							}
-						} else {
-							self->emit_error( err, "NetServerImpl::listen" );
+							self->start_accept( );
 						}
-						self->start_accept( );
 					}
 
 					void NetServerImpl::start_accept( ) {
 						auto socket = create_net_socket_stream( );
 
-						auto handler = [&, socket]( boost::system::error_code const & err ) mutable {
-							handle_accept( get_ptr( ), std::move( socket ), err );
+						std::weak_ptr<NetServerImpl> self = get_ptr( );
+						auto handler = [self, socket]( boost::system::error_code const & err ) {
+							handle_accept( self, socket, err );
 						};
 
 						m_acceptor->async_accept( socket->socket( ), handler );
 					}
 
 					void NetServerImpl::emit_connection( NetSocketStream socket ) {
-						m_emitter->emit( "connection", std::move( socket ) );
+						emitter( )->emit( "connection", std::move( socket ) );
 					}
 
 					void NetServerImpl::emit_listening( boost::asio::ip::tcp::endpoint endpoint ) {
-						m_emitter->emit( "listening", std::move( endpoint ) );
+						emitter( )->emit( "listening", std::move( endpoint ) );
 					}
 
 					void NetServerImpl::emit_closed( ) {
-						m_emitter->emit( "closed" );
+						emitter( )->emit( "closed" );
 					}
 
 				}	// namespace impl

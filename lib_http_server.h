@@ -28,8 +28,8 @@ namespace daw {
 						lib::net::NetServer m_netserver;
 						base::EventEmitter m_emitter;
 
-						static void handle_connection( std::shared_ptr<HttpServerImpl> self, lib::net::NetSocketStream socket );
-						static void handle_error( std::shared_ptr<HttpServerImpl> self, base::Error error );
+						static void handle_connection( std::weak_ptr<HttpServerImpl> obj, lib::net::NetSocketStream socket );
+						static void handle_error( std::weak_ptr<HttpServerImpl> obj, base::Error error );
 						HttpServerImpl( base::EventEmitter emitter );
 					public:
 						friend lib::http::HttpServer lib::http::create_http_server( base::EventEmitter );

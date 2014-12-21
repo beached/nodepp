@@ -83,7 +83,7 @@ namespace daw {
 
 					private:
 
-						static void handle_accept( std::shared_ptr<NetServerImpl> self, NetSocketStream socket, boost::system::error_code const & err );
+						static void handle_accept( std::weak_ptr<NetServerImpl> obj, NetSocketStream socket, boost::system::error_code const & err );
 
 						void start_accept( );
 

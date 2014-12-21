@@ -63,12 +63,12 @@ namespace daw {
 					}
 	
 					NetDnsImpl& NetDnsImpl::on_resolved( std::function<void( boost::asio::ip::tcp::resolver::iterator )> listener ) {
-						m_emitter->add_listener( "resolved", listener );
+						emitter( )->add_listener( "resolved", listener );
 						return *this;
 					}
 	
 					NetDnsImpl& NetDnsImpl::on_next_resolved( std::function<void( boost::asio::ip::tcp::resolver::iterator )> listener ) {
-						m_emitter->add_listener( "resolved", listener, true );
+						emitter( )->add_listener( "resolved", listener, true );
 						return *this;
 					}
 	
@@ -81,7 +81,7 @@ namespace daw {
 					}
 	
 					void NetDnsImpl::emit_resolved( boost::asio::ip::tcp::resolver::iterator it ) {						
-						m_emitter->emit( "resolved", std::move( it ) );						
+						emitter( )->emit( "resolved", std::move( it ) );
 					}
 				}	// namespace impl
 

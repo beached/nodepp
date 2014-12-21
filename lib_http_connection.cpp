@@ -62,15 +62,15 @@ namespace daw {
 					}
 
 					void HttpConnectionImpl::emit_closed( ) {
-						m_emitter->emit( "closed" );
+						emitter( )->emit( "closed" );
 					}
 
 					void HttpConnectionImpl::emit_client_error( base::Error error ) {
-						m_emitter->emit( "client_error", std::move( error ) );
+						emitter( )->emit( "client_error", std::move( error ) );
 					}
 
 					void HttpConnectionImpl::emit_request_made( std::shared_ptr<HttpClientRequest> request, HttpServerResponse response ) {
-						m_emitter->emit( "request_made", std::move( request ), std::move( response ) );
+						emitter( )->emit( "request_made", std::move( request ), std::move( response ) );
 					}
 
 
@@ -79,27 +79,27 @@ namespace daw {
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when the connection is closed
 					HttpConnectionImpl& HttpConnectionImpl::on_closed( std::function<void( )> listener ) {
-						m_emitter->add_listener( "closed", listener, true );
+						emitter( )->add_listener( "closed", listener, true );
 						return *this;
 					}
 
 					HttpConnectionImpl& HttpConnectionImpl::on_client_error( std::function<void( base::Error )> listener ) {
-						m_emitter->add_listener( "client_error", listener );
+						emitter( )->add_listener( "client_error", listener );
 						return *this;
 					}
 
 					HttpConnectionImpl& HttpConnectionImpl::on_next_client_error( std::function<void( base::Error )> listener ) {
-						m_emitter->add_listener( "client_error", listener, true );
+						emitter( )->add_listener( "client_error", listener, true );
 						return *this;
 					}
 
 					HttpConnectionImpl& HttpConnectionImpl::on_request_made( std::function<void( std::shared_ptr<HttpClientRequest>, HttpServerResponse )> listener ) {
-						m_emitter->add_listener( "request_made", listener );
+						emitter( )->add_listener( "request_made", listener );
 						return *this;
 					}
 
 					HttpConnectionImpl& HttpConnectionImpl::on_next_request_made( std::function<void( std::shared_ptr<HttpClientRequest>, HttpServerResponse )> listener ) {
-						m_emitter->add_listener( "request_made", listener, true );
+						emitter( )->add_listener( "request_made", listener, true );
 						return *this;
 					}
 

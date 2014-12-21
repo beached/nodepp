@@ -142,76 +142,85 @@ namespace daw {
 						(*m_outstanding_writes)++;
 					}
 
-					void NetSocketStreamImpl::handle_connect( std::shared_ptr<NetSocketStreamImpl> self, boost::system::error_code const & err, tcp::resolver::iterator it ) {
-						if( !err ) {
-							try {
-								self->emit_connect( );
-							} catch( ... ) {
-								self->emit_error( std::current_exception( ), "Running connect listeners", "NetSocketStreamImpl::connect_handler" );
-							}
-						} else {
-							self->emit_error( err, "NetSocketStreamImpl::connect" );
-						}
-					}
-
-					void NetSocketStreamImpl::handle_read( std::shared_ptr<NetSocketStreamImpl> self, std::shared_ptr<boost::asio::streambuf> read_buffer, boost::system::error_code const & err, std::size_t bytes_transfered ) {
-						try {
-							read_buffer->commit( bytes_transfered );
-							if( 0 < bytes_transfered ) {
-								std::istream resp( read_buffer.get( ) );
-								auto new_data = std::make_shared<base::data_t>( bytes_transfered );
-								resp.read( new_data->data( ), static_cast<std::streamsize>(bytes_transfered) );
-								read_buffer->consume( bytes_transfered );
-								if( 0 < self->m_emitter->listener_count( "data" ) ) {
-
-									{
-										// Handle when the emitter comes after the data starts pouring in.  This might be best placed in newEvent
-										// have not decided
-										if( !self->m_response_buffers.empty( ) ) {
-											auto buff = std::make_shared<base::data_t>( get_clear_buffer( self->m_response_buffers, self->m_response_buffers.size( ), 0 ) );
-											self->emit_data_recv( std::move( buff ), false );
-										}
-									}
-									bool end_of_file = err && 2 == err.value( );
-
-									self->emit_data_recv( std::move( new_data ), end_of_file );
-								} else {	// Queue up for a			
-									daw::copy_vect_and_set( *new_data, self->m_response_buffers, bytes_transfered, static_cast<base::data_t::value_type>(0) );
-								}
-								self->m_bytes_read += bytes_transfered;
-							}
-
+					void NetSocketStreamImpl::handle_connect( std::weak_ptr<NetSocketStreamImpl> obj, boost::system::error_code const & err, tcp::resolver::iterator it ) {
+						if( !obj.expired( ) ) {
+							auto self = obj.lock( );
 							if( !err ) {
-								if( !self->m_state.closed ) {
-									self->read_async( read_buffer );
+								try {
+									self->emit_connect( );
+								} catch( ... ) {
+									self->emit_error( std::current_exception( ), "Running connect listeners", "NetSocketStreamImpl::connect_handler" );
 								}
-							} else if( 2 != err.value( ) ) {
-								self->emit_error( err, "NetSocket::read" );
+							} else {
+								self->emit_error( err, "NetSocketStreamImpl::connect" );
 							}
-						} catch( std::exception const & ex ) {
-							std::cerr << "Exception: " << ex.what( ) << " in read handler\n";
 						}
 					}
 
-					void NetSocketStreamImpl::handle_write( std::shared_ptr<NetSocketStreamImpl> self, write_buffer buff, boost::system::error_code const & err, size_t bytes_transfered ) { // TODO see if we need buff, maybe lifetime issue
-						self->m_bytes_written += bytes_transfered;
-						if( !err ) {
-							self->emit_write_completion( );
-						} else {
-							self->emit_error( err, "NetSocket::write" );
+					void NetSocketStreamImpl::handle_read( std::weak_ptr<NetSocketStreamImpl> obj, std::shared_ptr<boost::asio::streambuf> read_buffer, boost::system::error_code const & err, std::size_t bytes_transfered ) {
+						if( !obj.expired( ) ) {
+							auto self = obj.lock( );
+							try {
+								read_buffer->commit( bytes_transfered );
+								if( 0 < bytes_transfered ) {
+									std::istream resp( read_buffer.get( ) );
+									auto new_data = std::make_shared<base::data_t>( bytes_transfered );
+									resp.read( new_data->data( ), static_cast<std::streamsize>(bytes_transfered) );
+									read_buffer->consume( bytes_transfered );
+									if( 0 < self->emitter( )->listener_count( "data" ) ) {
+
+										{
+											// Handle when the emitter comes after the data starts pouring in.  This might be best placed in newEvent
+											// have not decided
+											if( !self->m_response_buffers.empty( ) ) {
+												auto buff = std::make_shared<base::data_t>( get_clear_buffer( self->m_response_buffers, self->m_response_buffers.size( ), 0 ) );
+												self->emit_data_recv( std::move( buff ), false );
+											}
+										}
+										bool end_of_file = err && 2 == err.value( );
+
+										self->emit_data_recv( std::move( new_data ), end_of_file );
+									} else {	// Queue up for a			
+										daw::copy_vect_and_set( *new_data, self->m_response_buffers, bytes_transfered, static_cast<base::data_t::value_type>(0) );
+									}
+									self->m_bytes_read += bytes_transfered;
+								}
+
+								if( !err ) {
+									if( !self->m_state.closed ) {
+										self->read_async( read_buffer );
+									}
+								} else if( 2 != err.value( ) ) {
+									self->emit_error( err, "NetSocket::read" );
+								}
+							} catch( std::exception const & ex ) {
+								std::cerr << "Exception: " << ex.what( ) << " in read handler\n";
+							}
 						}
-						if( self->dec_outstanding_writes( ) ) {
-							self->emit_all_writes_completed( );
+					}
+
+					void NetSocketStreamImpl::handle_write( std::weak_ptr<NetSocketStreamImpl> obj, write_buffer buff, boost::system::error_code const & err, size_t bytes_transfered ) { // TODO see if we need buff, maybe lifetime issue
+						if( !obj.expired( ) ) {
+							auto self = obj.lock( );
+							self->m_bytes_written += bytes_transfered;
+							if( !err ) {
+								self->emit_write_completion( );
+							} else {
+								self->emit_error( err, "NetSocket::write" );
+							}
+							if( self->dec_outstanding_writes( ) ) {
+								self->emit_all_writes_completed( );
+							}
 						}
 					}
 
 
 					void NetSocketStreamImpl::emit_connect( ) {
-						m_emitter->emit( "connect" );
+						emitter( )->emit( "connect" );
 					}
 
 					void NetSocketStreamImpl::emit_timeout( ) {
-						m_emitter->emit( "timeout" );
+						emitter( )->emit( "timeout" );
 					}
 
 					void NetSocketStreamImpl::write_async( write_buffer buff ) {
@@ -268,12 +277,12 @@ namespace daw {
 					}
 
 					NetSocketStreamImpl& NetSocketStreamImpl::on_connected( std::function<void( )> listener ) {
-						m_emitter->add_listener( "connect", listener );
+						emitter( )->add_listener( "connect", listener );
 						return *this;
 					}
 
 					NetSocketStreamImpl& NetSocketStreamImpl::on_next_connected( std::function<void( )> listener ) {
-						m_emitter->add_listener( "connect", listener, true );
+						emitter( )->add_listener( "connect", listener, true );
 						return *this;
 					}
 
