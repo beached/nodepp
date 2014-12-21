@@ -48,29 +48,31 @@ namespace daw {
 						HttpServerResponseImpl& operator=(HttpServerResponseImpl && rhs) = delete;
 	
 						std::shared_ptr<HttpServerResponseImpl> get_ptr( );
-	
-						void write( base::data_t const & data );
-						void write( boost::string_ref data, base::Encoding const & encoding = base::Encoding( ) );
-						void end( );
-						void end( base::data_t const & data );
-						void end( boost::string_ref data, base::Encoding const & encoding = base::Encoding( ) );
+						
+						base::EventEmitter& emitter( );
+
+						HttpServerResponseImpl& write( base::data_t const & data );
+						HttpServerResponseImpl& write( boost::string_ref data, base::Encoding const & encoding = base::Encoding( ) );
+						HttpServerResponseImpl& end( );
+						HttpServerResponseImpl& end( base::data_t const & data );
+						HttpServerResponseImpl& end( boost::string_ref data, base::Encoding const & encoding = base::Encoding( ) );
 	
 						void close( );
 	
 						HttpHeaders& headers( );
 						HttpHeaders const & headers( ) const;
 	
-						void send_status( uint16_t status_code = 200 );
-						void send_headers( );
-						void send_body( );
-						void clear_body( );
+						HttpServerResponseImpl& send_status( uint16_t status_code = 200 );
+						HttpServerResponseImpl& send_headers( );
+						HttpServerResponseImpl& send_body( );
+						HttpServerResponseImpl& clear_body( );
 						bool send( );
-						void reset( );
+						HttpServerResponseImpl& reset( );
 						bool is_open( );
 						bool is_closed( ) const;
 						bool can_write( ) const;
 	
-						void add_header( std::string header_name, std::string header_value );
+						HttpServerResponseImpl& add_header( std::string header_name, std::string header_value );
 						
 					};	// struct HttpServerResponseImpl						
 				}	// namespace impl								

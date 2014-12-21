@@ -40,9 +40,6 @@ namespace daw {
 					}	// namespace anonymous
 
 					NetSocketStreamImpl::NetSocketStreamImpl( base::EventEmitter emitter ) :
-						base::StandardEvents<NetSocketStreamImpl>( emitter ),
-						base::stream::StreamReadableEvents<NetSocketStreamImpl>( emitter ),
-						base::stream::StreamWritableEvents<NetSocketStreamImpl>( emitter ),
 						m_socket( base::ServiceHandle::get( ) ),
 						m_emitter( std::move( emitter ) ),
 						m_state( ),
@@ -53,9 +50,6 @@ namespace daw {
 						m_bytes_written( 0 ) { }
 
 					NetSocketStreamImpl::NetSocketStreamImpl( boost::asio::io_service& io_service, std::size_t max_read_size, base::EventEmitter emitter ) :
-						base::StandardEvents<NetSocketStreamImpl>( emitter ),
-						base::stream::StreamReadableEvents<NetSocketStreamImpl>( emitter ),
-						base::stream::StreamWritableEvents<NetSocketStreamImpl>( emitter ),
 						m_socket( io_service ),
 						m_emitter( std::move( emitter ) ),
 						m_state( ),
@@ -66,9 +60,6 @@ namespace daw {
 						m_bytes_written( 0 ) { }
 
 					NetSocketStreamImpl::NetSocketStreamImpl( NetSocketStreamImpl && other ) :
-						base::StandardEvents<NetSocketStreamImpl>( std::move( other ) ),
-						base::stream::StreamReadableEvents<NetSocketStreamImpl>( std::move( other ) ),
-						base::stream::StreamWritableEvents<NetSocketStreamImpl>( std::move( other ) ),
 						m_socket( std::move( other.m_socket ) ),
 						m_emitter( std::move( other.m_emitter ) ),
 						m_state( std::move( other.m_state ) ),
@@ -108,39 +99,40 @@ namespace daw {
 						return shared_from_this( );
 					}
 
+					base::EventEmitter& NetSocketStreamImpl::emitter( ) {
+						return m_emitter;
+					}
 
-
-
-					void NetSocketStreamImpl::set_read_mode( NetSocketStreamImpl::ReadUntil mode ) {
+					NetSocketStreamImpl& NetSocketStreamImpl::set_read_mode( NetSocketStreamImpl::ReadUntil mode ) {
 						m_read_options.read_mode = std::move( mode );
+						return *this;
 					}
 
 					NetSocketStreamImpl::ReadUntil const& NetSocketStreamImpl::current_read_mode( ) const {
 						return m_read_options.read_mode;
 					}
 
-					void NetSocketStreamImpl::set_read_predicate( NetSocketStreamImpl::match_function_t read_predicate ) {
+					NetSocketStreamImpl& NetSocketStreamImpl::set_read_predicate( NetSocketStreamImpl::match_function_t read_predicate ) {
 						m_read_options.read_predicate = daw::make_unique<NetSocketStreamImpl::match_function_t>( read_predicate );
 						m_read_options.read_mode = NetSocketStreamImpl::ReadUntil::predicate;
+						return *this;
 					}
 
-					void NetSocketStreamImpl::clear_read_predicate( ) {
+					NetSocketStreamImpl& NetSocketStreamImpl::clear_read_predicate( ) {
 						if( ReadUntil::predicate == m_read_options.read_mode ) {
 							m_read_options.read_mode = ReadUntil::newline;
 						}
 						m_read_options.read_until_values.clear( );
 						m_read_options.read_predicate.reset( );
+						return *this;
 					}
 
-					void NetSocketStreamImpl::set_read_until_values( std::string values, bool is_regex ) {
+					NetSocketStreamImpl& NetSocketStreamImpl::set_read_until_values( std::string values, bool is_regex ) {
 						m_read_options.read_mode = is_regex ? NetSocketStreamImpl::ReadUntil::regex : NetSocketStreamImpl::ReadUntil::values;
 						m_read_options.read_until_values = std::move( values );
 						m_read_options.read_predicate.reset( );
+						return *this;
 					}
-
-
-					//////////////////////////////////////////////////////////////////////////
-
 
 					bool NetSocketStreamImpl::dec_outstanding_writes( ) {
 						return 0 == --(*m_outstanding_writes);
@@ -237,11 +229,9 @@ namespace daw {
 						boost::asio::async_write( m_socket, buff.asio_buff( ), handler );
 					}
 
-
-
-					void NetSocketStreamImpl::read_async( std::shared_ptr<boost::asio::streambuf> read_buffer ) {
+					NetSocketStreamImpl&  NetSocketStreamImpl::read_async( std::shared_ptr<boost::asio::streambuf> read_buffer ) {
 						if( m_state.closed ) {
-							return;
+							return *this;
 						}
 						if( !read_buffer ) {
 							read_buffer = std::make_shared<boost::asio::streambuf>( m_read_options.max_read_size );
@@ -274,20 +264,21 @@ namespace daw {
 						default:
 							throw std::runtime_error( "read until method not implemented" );
 						}
-
+						return *this;
 					}
 
-
-					void NetSocketStreamImpl::on_connected( std::function<void( )> listener ) {
+					NetSocketStreamImpl& NetSocketStreamImpl::on_connected( std::function<void( )> listener ) {
 						m_emitter->add_listener( "connect", listener );
+						return *this;
 					}
 
-					void NetSocketStreamImpl::on_next_connected( std::function<void( )> listener ) {
+					NetSocketStreamImpl& NetSocketStreamImpl::on_next_connected( std::function<void( )> listener ) {
 						m_emitter->add_listener( "connect", listener, true );
+						return *this;
 					}
 
 
-					void NetSocketStreamImpl::connect( std::string host, uint16_t port ) {
+					NetSocketStreamImpl&  NetSocketStreamImpl::connect( std::string host, uint16_t port ) {
 						tcp::resolver resolver( base::ServiceHandle::get( ) );
 
 						auto self = get_ptr( );
@@ -296,9 +287,10 @@ namespace daw {
 						};
 
 						boost::asio::async_connect( m_socket, resolver.resolve( { host, boost::lexical_cast<std::string>(port) } ), handler );
+						return *this;
 					}
 
-					void NetSocketStreamImpl::connect( std::string path ) { throw std::runtime_error( "Method not implemented" ); }
+					NetSocketStreamImpl&  NetSocketStreamImpl::connect( std::string path ) { throw std::runtime_error( "Method not implemented" ); }
 
 					std::size_t& NetSocketStreamImpl::buffer_size( ) { throw std::runtime_error( "Method not implemented" ); }
 
@@ -310,31 +302,36 @@ namespace daw {
 						return m_socket;
 					}
 
-					void NetSocketStreamImpl::write_async( base::data_t const & chunk ) {
+					NetSocketStreamImpl&  NetSocketStreamImpl::write_async( base::data_t const & chunk ) {
 						write_async( write_buffer( chunk ) );
+						return *this;
 					}
 
-					void NetSocketStreamImpl::write_async( boost::string_ref chunk, base::Encoding const & ) {
+					NetSocketStreamImpl&  NetSocketStreamImpl::write_async( boost::string_ref chunk, base::Encoding const & ) {
 						write_async( write_buffer( chunk ) );
+						return *this;
 					}
 
-					void NetSocketStreamImpl::end( ) {
+					NetSocketStreamImpl&  NetSocketStreamImpl::end( ) {
 						m_state.end = true;
 						try {
 							m_socket.shutdown( boost::asio::ip::tcp::socket::shutdown_send );
 						} catch( ... ) {
 							emit_error( std::current_exception( ), "Error calling shutdown on socket", "NetSocketStreamImplImpl::end( )" );
 						}
+						return *this;
 					}
 
-					void NetSocketStreamImpl::end( base::data_t const & chunk ) {
+					NetSocketStreamImpl&  NetSocketStreamImpl::end( base::data_t const & chunk ) {
 						write_async( chunk );
 						end( );
+						return *this;
 					}
 
-					void NetSocketStreamImpl::end( boost::string_ref chunk, base::Encoding const & encoding ) {
+					NetSocketStreamImpl&  NetSocketStreamImpl::end( boost::string_ref chunk, base::Encoding const & encoding ) {
 						write_async( chunk, encoding );
 						end( );
+						return *this;
 					}
 
 					void NetSocketStreamImpl::close( bool emit_cb ) {
@@ -354,11 +351,11 @@ namespace daw {
 						m_socket.cancel( );
 					}
 
-					void NetSocketStreamImpl::set_timeout( int32_t ) { throw std::runtime_error( "Method not implemented" ); }
+					NetSocketStreamImpl&  NetSocketStreamImpl::set_timeout( int32_t ) { throw std::runtime_error( "Method not implemented" ); }
 
-					void NetSocketStreamImpl::set_no_delay( bool ) { throw std::runtime_error( "Method not implemented" ); }
+					NetSocketStreamImpl&  NetSocketStreamImpl::set_no_delay( bool ) { throw std::runtime_error( "Method not implemented" ); }
 
-					void NetSocketStreamImpl::set_keep_alive( bool, int32_t ) { throw std::runtime_error( "Method not implemented" ); }
+					NetSocketStreamImpl&  NetSocketStreamImpl::set_keep_alive( bool, int32_t ) { throw std::runtime_error( "Method not implemented" ); }
 
 					std::string NetSocketStreamImpl::remote_address( ) const {
 						return m_socket.remote_endpoint( ).address( ).to_string( );

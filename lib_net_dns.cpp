@@ -19,12 +19,10 @@ namespace daw {
 					using namespace daw::nodepp;
 	
 					NetDnsImpl::NetDnsImpl( base::EventEmitter emitter ) :
-						base::StandardEvents<NetDnsImpl>( emitter ),
 						m_resolver( daw::make_unique<boost::asio::ip::tcp::resolver>( base::ServiceHandle::get( ) ) ),
 						m_emitter( emitter ) { }
 	
 					NetDnsImpl::NetDnsImpl( NetDnsImpl&& other ):
-						base::StandardEvents<NetDnsImpl>( std::move( other ) ),
 						m_resolver( std::move( other.m_resolver ) ),
 						m_emitter( std::move( other.m_emitter ) ) { }
 	
@@ -40,6 +38,10 @@ namespace daw {
 						return shared_from_this( );
 					}
 	
+					base::EventEmitter& NetDnsImpl::emitter( ) {
+						return m_emitter;
+					}
+
 					void NetDnsImpl::resolve( boost::string_ref address ) {
 						auto query = tcp::resolver::query( address.to_string( ), "", boost::asio::ip::resolver_query_base::numeric_host );
 	
@@ -60,12 +62,14 @@ namespace daw {
 						m_resolver->async_resolve( query, handler );
 					}
 	
-					void NetDnsImpl::on_resolved( std::function<void( boost::asio::ip::tcp::resolver::iterator )> listener ) {
+					NetDnsImpl& NetDnsImpl::on_resolved( std::function<void( boost::asio::ip::tcp::resolver::iterator )> listener ) {
 						m_emitter->add_listener( "resolved", listener );
+						return *this;
 					}
 	
-					void NetDnsImpl::on_next_resolved( std::function<void( boost::asio::ip::tcp::resolver::iterator )> listener ) {
+					NetDnsImpl& NetDnsImpl::on_next_resolved( std::function<void( boost::asio::ip::tcp::resolver::iterator )> listener ) {
 						m_emitter->add_listener( "resolved", listener, true );
+						return *this;
 					}
 	
 					void NetDnsImpl::handle_resolve( std::shared_ptr<NetDnsImpl> self, boost::system::error_code const & err, boost::asio::ip::tcp::resolver::iterator it ) {

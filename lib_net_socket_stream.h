@@ -74,20 +74,22 @@ namespace daw {
 							NetSocketStreamImpl& operator=(NetSocketStreamImpl const &) = default;
 	
 							std::shared_ptr<NetSocketStreamImpl> get_ptr( );
-	
-							void read_async( std::shared_ptr<boost::asio::streambuf> read_buffer = nullptr );
+
+							base::EventEmitter& emitter( );
+
+							NetSocketStreamImpl&  read_async( std::shared_ptr<boost::asio::streambuf> read_buffer = nullptr );
 							base::data_t read( );
 							base::data_t read( std::size_t bytes );
 	
-							void write_async( base::data_t const & chunk );
-							void write_async( boost::string_ref chunk, base::Encoding const & encoding = base::Encoding( ) );
+							NetSocketStreamImpl& write_async( base::data_t const & chunk );
+							NetSocketStreamImpl& write_async( boost::string_ref chunk, base::Encoding const & encoding = base::Encoding( ) );
 	
-							void end( );
-							void end( base::data_t const & chunk );
-							void end( boost::string_ref chunk, base::Encoding const & encoding = base::Encoding( ) );
+							NetSocketStreamImpl& end( );
+							NetSocketStreamImpl& end( base::data_t const & chunk );
+							NetSocketStreamImpl& end( boost::string_ref chunk, base::Encoding const & encoding = base::Encoding( ) );
 	
-							void connect( std::string host, uint16_t port );
-							void connect( std::string path );
+							NetSocketStreamImpl& connect( std::string host, uint16_t port );
+							NetSocketStreamImpl& connect( std::string path );
 	
 							void close( bool emit_cb = true );
 							void cancel( );
@@ -96,20 +98,20 @@ namespace daw {
 							bool is_closed( ) const;
 							bool can_write( ) const;
 	
-							void set_read_mode( NetSocketStreamImpl::ReadUntil mode );
+							NetSocketStreamImpl& set_read_mode( NetSocketStreamImpl::ReadUntil mode );
 							ReadUntil const& current_read_mode( ) const;
-							void set_read_predicate( std::function < std::pair<NetSocketStreamImpl::match_iterator_t, bool>( NetSocketStreamImpl::match_iterator_t begin, NetSocketStreamImpl::match_iterator_t end ) > match_function );
-							void clear_read_predicate( );
-							void set_read_until_values( std::string values, bool is_regex );
+							NetSocketStreamImpl& set_read_predicate( std::function < std::pair<NetSocketStreamImpl::match_iterator_t, bool>( NetSocketStreamImpl::match_iterator_t begin, NetSocketStreamImpl::match_iterator_t end ) > match_function );
+							NetSocketStreamImpl& clear_read_predicate( );
+							NetSocketStreamImpl& set_read_until_values( std::string values, bool is_regex );
 							boost::asio::ip::tcp::socket & socket( );						
 	
 	
 							std::size_t& buffer_size( );
 	
-							void set_timeout( int32_t value );
+							NetSocketStreamImpl& set_timeout( int32_t value );
 	
-							void set_no_delay( bool noDelay );
-							void set_keep_alive( bool keep_alive, int32_t initial_delay );
+							NetSocketStreamImpl& set_no_delay( bool noDelay );
+							NetSocketStreamImpl& set_keep_alive( bool keep_alive, int32_t initial_delay );
 	
 							std::string remote_address( ) const;
 							std::string local_address( ) const;
@@ -124,11 +126,11 @@ namespace daw {
 	
 							//////////////////////////////////////////////////////////////////////////
 							/// Summary: Event emitted when a connection is established
-							void on_connected( std::function<void( )> listener );
+							NetSocketStreamImpl& on_connected( std::function<void( )> listener );
 	
 							//////////////////////////////////////////////////////////////////////////
 							/// Summary: Event emitted when a connection is established
-							void on_next_connected( std::function<void( )> listener );
+							NetSocketStreamImpl& on_next_connected( std::function<void( )> listener );
 	
 							//////////////////////////////////////////////////////////////////////////
 							/// StreamReadable

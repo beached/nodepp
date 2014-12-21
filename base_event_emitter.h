@@ -120,51 +120,62 @@ namespace daw {
 			// Allows one to have the Events defined in event emitter
 			template<typename Child>
 			class StandardEvents {
-				EventEmitter m_emitter;
+				Child& child( ) {
+					return *static_cast<Child*>(this);
+				}
+
+				EventEmitter& emitter( ) {
+					return child( ).emitter( );
+				}
+
 				void emit_error( base::Error error ) {
-					m_emitter->emit( "error", std::move( error ) );
+					emitter( )->emit( "error", std::move( error ) );
 				}
 			public:
-				StandardEvents( EventEmitter emitter ) : m_emitter( std::move( emitter ) ) { }
-
 				//////////////////////////////////////////////////////////////////////////
 				/// Summary: Callback is for when error's occur
-				void on_error( std::function<void( base::Error )> listener ) {
-					m_emitter->add_listener( "error", listener );
+				Child& on_error( std::function<void( base::Error )> listener ) {
+					emitter( )->add_listener( "error", listener );
+					return child( );
 				}
 
 				//////////////////////////////////////////////////////////////////////////
 				/// Summary: Callback is for the next error
-				void on_next_error( std::function<void( base::Error )> listener ) {
-					m_emitter->add_listener( "error", listener, true );
+				Child& on_next_error( std::function<void( base::Error )> listener ) {
+					emitter( )->add_listener( "error", listener, true );
+					return child( );
 				}
 
 				//////////////////////////////////////////////////////////////////////////
 				/// Summary:	Callback is called whenever a new listener is added for 
 				///				any callback
-				void on_listener_added( std::function<void( std::string, Callback )> listener ) {
-					m_emitter->add_listener( "listener_added", listener );
+				Child& on_listener_added( std::function<void( std::string, Callback )> listener ) {
+					emitter( )->add_listener( "listener_added", listener );
+					return child( );
 				}
 
 				//////////////////////////////////////////////////////////////////////////
 				/// Summary:	Callback is called when the next new listener is added
 				///				for any callback
-				void on_next_listener_added( std::function<void( std::string, Callback )> listener ) {
-					m_emitter->add_listener( "listener_added", listener, true );
+				Child& on_next_listener_added( std::function<void( std::string, Callback )> listener ) {
+					emitter( )->add_listener( "listener_added", listener, true );
+					return child( );
 				}
 
 				//////////////////////////////////////////////////////////////////////////
 				/// Summary: Callback is called whenever a listener is removed for 
 				/// any callback
-				void on_listener_removed( std::function<void( std::string, Callback )> listener ) {
-					m_emitter->add_listener( "listener_removed", listener );
+				Child& on_listener_removed( std::function<void( std::string, Callback )> listener ) {
+					emitter( )->add_listener( "listener_removed", listener );
+					return child( );
 				}
 
 				//////////////////////////////////////////////////////////////////////////
 				/// Summary: Callback is called the next time a listener is removed for 
 				/// any callback
-				void on_next_listener_removed( std::function<void( std::string, Callback )> listener ) {
-					m_emitter->add_listener( "listener_removed", listener, true );
+				Child& on_next_listener_removed( std::function<void( std::string, Callback )> listener ) {
+					emitter( )->add_listener( "listener_removed", listener, true );
+					return child( );
 				}
 
 			protected:
@@ -209,15 +220,15 @@ namespace daw {
 				/// Summary:	Emit an event with the callback and event name of a newly
 				///				added event
 				void emit_listener_added( std::string event, Callback listener ) {
-					m_emitter->emit_listener_added( event, )
-						m_emitter->emit( "listener_added", std::move( event ), std::move( listener ) );
+					emitter( )->emit_listener_added( event, )
+						emitter( )->emit( "listener_added", std::move( event ), std::move( listener ) );
 				}
 
 				//////////////////////////////////////////////////////////////////////////
 				/// Summary:	Emit an event with the callback and event name of an event
 				///				that has been removed
 				void emit_listener_removed( std::string event, Callback listener ) {
-					m_emitter->emit( "listener_removed", std::move( event ), std::move( listener ) );
+					emitter( )->emit( "listener_removed", std::move( event ), std::move( listener ) );
 				}
 			};	// class StandardEvents
 

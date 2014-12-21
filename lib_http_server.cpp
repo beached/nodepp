@@ -22,12 +22,10 @@ namespace daw {
 					using namespace daw::nodepp;
 
 					HttpServerImpl::HttpServerImpl( base::EventEmitter emitter ) :
-						base::StandardEvents<HttpServerImpl>( emitter ),
-						m_netserver( ),
+						m_netserver( lib::net::create_net_server( emitter ) ),
 						m_emitter( emitter ) { }
 
 					HttpServerImpl::HttpServerImpl( HttpServerImpl&& other ) :
-						base::StandardEvents<HttpServerImpl>( std::move( other ) ),
 						m_netserver( std::move( other.m_netserver ) ),
 						m_emitter( std::move( other.m_emitter ) ) { }
 
@@ -41,6 +39,10 @@ namespace daw {
 
 					std::shared_ptr<HttpServerImpl> HttpServerImpl::get_ptr( ) {
 						return shared_from_this( );
+					}
+
+					base::EventEmitter& HttpServerImpl::emitter( ) {
+						return m_emitter;
 					}
 
 					void HttpServerImpl::emit_connection( HttpConnection connection ) {
@@ -74,19 +76,24 @@ namespace daw {
 					}
 
 					void HttpServerImpl::listen_on( uint16_t port ) {
-						m_netserver.on_connection( [&]( lib::net::NetSocketStream socket ) {
-							handle_connection( get_ptr( ), std::move( socket ) );
+						std::weak_ptr<HttpServerImpl> self = get_ptr( );
+						m_netserver->on_connection( [self]( lib::net::NetSocketStream socket ) {
+							if( !self.expired( ) ) {
+								auto self_l = self.lock( );
+								self_l->handle_connection( self_l, std::move( socket ) );
+							}
+						} ).on_error( [self]( base::Error error ) {
+							if( !self.expired( ) ) {
+								auto self_l = self.lock( );
+								self_l->handle_error( self_l, std::move( error ) );
+							}
+						} ).on_listening( [self]( boost::asio::ip::tcp::endpoint endpoint ) {
+							if( !self.expired( ) ) {
+								self.lock( )->emit_listening( std::move( endpoint ) );
+							}
 						} );
 
-						m_netserver.on_error( [&]( base::Error error ) {
-							handle_error( get_ptr( ), std::move( error ) );
-						} );
-
-						m_netserver.on_listening( [&]( boost::asio::ip::tcp::endpoint endpoint ) {
-							emit_listening( std::move( endpoint ) );
-						} );
-
-						m_netserver.listen( port );
+						m_netserver->listen( port );
 					}
 
 					void HttpServerImpl::listen_on( uint16_t, std::string, uint16_t ) { throw std::runtime_error( "Method not implemented" ); }
@@ -101,26 +108,30 @@ namespace daw {
 
 					size_t HttpServerImpl::timeout( ) const { throw std::runtime_error( "Method not implemented" ); }
 
-					void HttpServerImpl::on_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener ) {
+					HttpServerImpl& HttpServerImpl::on_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener ) {
 						m_emitter->add_listener( "listening", listener );
+						return *this;
 					}
 
-					void HttpServerImpl::on_next_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener ) {
+					HttpServerImpl& HttpServerImpl::on_next_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener ) {
 						m_emitter->add_listener( "listening", listener, true );
+						return *this;
 					}
 
-					void HttpServerImpl::on_client_connected( std::function<void( HttpConnection )> listener ) {
+					HttpServerImpl& HttpServerImpl::on_client_connected( std::function<void( HttpConnection )> listener ) {
 						auto handler = [listener]( std::shared_ptr<HttpConnection> con ) {
 							listener( *con );
 						};
 						m_emitter->add_listener( "connection", handler );
+						return *this;
 					}
 
-					void HttpServerImpl::on_next_client_connected( std::function<void( HttpConnection )> listener ) {
+					HttpServerImpl& HttpServerImpl::on_next_client_connected( std::function<void( HttpConnection )> listener ) {
 						auto handler = [listener]( std::shared_ptr<HttpConnection> con ) {
 							listener( *con );
 						};
 						m_emitter->add_listener( "connection", handler, true );
+						return *this;
 					}
 				}	// namespace impl
 

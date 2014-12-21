@@ -19,7 +19,6 @@ namespace daw {
 				namespace impl {
 
 					HttpServerResponseImpl::HttpServerResponseImpl( lib::net::NetSocketStream socket, base::EventEmitter emitter ) :
-						base::stream::StreamWritableEvents<HttpServerResponseImpl>( emitter ),
 						m_emitter( emitter ),
 						m_socket( std::move( socket ) ),
 						m_version( 1, 1 ),
@@ -47,16 +46,23 @@ namespace daw {
 						return shared_from_this( );
 					}
 
-					void HttpServerResponseImpl::write( base::data_t const & data ) {
-						m_body.insert( std::end( m_body ), std::begin( data ), std::end( data ) );
+					base::EventEmitter& HttpServerResponseImpl::emitter( ) {
+						return m_emitter;
 					}
 
-					void HttpServerResponseImpl::write( boost::string_ref data, base::Encoding const & ) {
+					HttpServerResponseImpl& HttpServerResponseImpl::write( base::data_t const & data ) {
 						m_body.insert( std::end( m_body ), std::begin( data ), std::end( data ) );
+						return *this;
 					}
 
-					void HttpServerResponseImpl::clear_body( ) {
+					HttpServerResponseImpl& HttpServerResponseImpl::write( boost::string_ref data, base::Encoding const & ) {
+						m_body.insert( std::end( m_body ), std::begin( data ), std::end( data ) );
+						return *this;
+					}
+
+					HttpServerResponseImpl& HttpServerResponseImpl::clear_body( ) {
 						m_body.clear( );
+						return *this;
 					}
 
 					HttpHeaders& HttpServerResponseImpl::headers( ) {
@@ -67,12 +73,13 @@ namespace daw {
 						return m_headers;
 					}
 
-					void HttpServerResponseImpl::send_status( uint16_t status_code ) {
+					HttpServerResponseImpl& HttpServerResponseImpl::send_status( uint16_t status_code ) {
 						auto status = HttpStatusCodes( status_code );
 						std::string msg = "HTTP/" + m_version.to_string( ) + " " + std::to_string( status.first ) + " " + status.second + "\r\n";
 						//auto msg = daw::string::string_format( "HTTP/{0} {1} {2}\r\n", m_version.to_string( ), status.first, status.second );
 						m_socket->write_async( msg ); // TODO make faster
 						m_status_sent = true;
+						return *this;
 					}
 
 					namespace {
@@ -93,20 +100,24 @@ namespace daw {
 						}
 					}
 
-					void HttpServerResponseImpl::send_headers( ) {
+					HttpServerResponseImpl& HttpServerResponseImpl::send_headers( ) {
 						auto& dte = m_headers["Date"];
 						if( dte.empty( ) ) {
 							dte = gmt_timestamp( );
 						}
 						m_socket->write_async( m_headers.to_string( ) );
 						m_headers_sent = true;
+						return *this;
 					}
-					void HttpServerResponseImpl::send_body( ) {
+
+					HttpServerResponseImpl& HttpServerResponseImpl::send_body( ) {
 						HttpHeader content_header( "Content-Length", boost::lexical_cast<std::string>(m_body.size( )) );
 						m_socket->write_async( content_header.to_string( ) );
 						m_socket->write_async( "\r\n\r\n" );
 						m_socket->write_async( m_body );
 						m_body_sent = true;
+						return *this;
+
 					}
 
 					bool HttpServerResponseImpl::send( ) {
@@ -126,19 +137,22 @@ namespace daw {
 						return result;
 					}
 
-					void HttpServerResponseImpl::end( ) {
+					HttpServerResponseImpl& HttpServerResponseImpl::end( ) {
 						send( );
 						m_socket->end( );
+						return *this;
 					}
 
-					void HttpServerResponseImpl::end( base::data_t const & data ) {
+					HttpServerResponseImpl& HttpServerResponseImpl::end( base::data_t const & data ) {
 						write( data );
 						end( );
+						return *this;
 					}
 
-					void HttpServerResponseImpl::end( boost::string_ref data, base::Encoding const & encoding ) {
+					HttpServerResponseImpl& HttpServerResponseImpl::end( boost::string_ref data, base::Encoding const & encoding ) {
 						write( data, encoding );
 						end( );
+						return *this;
 					}
 
 					void HttpServerResponseImpl::close( ) {
@@ -147,12 +161,13 @@ namespace daw {
 						}
 					}
 
-					void HttpServerResponseImpl::reset( ) {
+					HttpServerResponseImpl& HttpServerResponseImpl::reset( ) {
 						m_status_sent = false;
 						m_headers.headers.clear( );
 						m_headers_sent = false;
 						clear_body( );
 						m_body_sent = false;
+						return *this;
 					}
 
 					bool HttpServerResponseImpl::is_closed( ) const {
@@ -167,8 +182,9 @@ namespace daw {
 						return m_socket->is_open( );
 					}
 
-					void HttpServerResponseImpl::add_header( std::string header_name, std::string header_value ) {
+					HttpServerResponseImpl& HttpServerResponseImpl::add_header( std::string header_name, std::string header_value ) {
 						m_headers.add( std::move( header_name ), std::move( header_value ) );
+						return *this;
 					}
 
 				}	// namespace impl

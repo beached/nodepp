@@ -12,58 +12,68 @@ namespace daw {
 			namespace stream {
 				using namespace daw::nodepp;
 
-				template<typename Class>
+				template<typename Child>
 				class StreamReadableEvents {
-					base::EventEmitter m_emitter;
+					Child& child( ) {
+						return *static_cast<Child*>(this);
+					}
+
+					EventEmitter& emitter( ) {
+						return child( ).emitter( );
+					}
 				public:
-					StreamReadableEvents( base::EventEmitter emitter ) : m_emitter( std::move( emitter ) ) { }
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Event emitted when data is received
-					void on_data_recv( std::function<void( std::shared_ptr<base::data_t>, bool )> listener ) {
-						m_emitter->add_listener( "data_recv", listener );
+					Child& on_data_recv( std::function<void( std::shared_ptr<base::data_t>, bool )> listener ) {
+						emitter( )->add_listener( "data_recv", listener );
+						return child( );
 					}
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Event emitted when data is received
-					void on_next_data_recv( std::function<void( std::shared_ptr<base::data_t>, bool )> listener ) {
-						m_emitter->add_listener( "data_recv", listener, true );
+					Child& on_next_data_recv( std::function<void( std::shared_ptr<base::data_t>, bool )> listener ) {
+						emitter( )->add_listener( "data_recv", listener, true );
+						return child( );
 					}
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Event emitted when of of stream is read.
-					void on_eof( std::function<void( )> listener ) {
-						m_emitter->add_listener( "eof", listener );
+					Child& on_eof( std::function<void( )> listener ) {
+						emitter( )->add_listener( "eof", listener );
+						return child( );
 					}
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Event emitted when of of stream is read.
-					void on_next_eof( std::function<void( )> listener ) {
-						m_emitter->add_listener( "eof", listener, true );
+					Child& on_next_eof( std::function<void( )> listener ) {
+						emitter( )->add_listener( "eof", listener, true );
+						return child( );
 					}
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Event emitted when the stream is closed
-					void on_closed( std::function<void( )> listener ) {
-						m_emitter->add_listener( "closed", listener );
+					Child& on_closed( std::function<void( )> listener ) {
+						emitter( )->add_listener( "closed", listener );
+						return child( );
 					}
 				protected:
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Emit an event with the data received and whether the eof
 					///				has been reached
 					void emit_data_recv( std::shared_ptr<base::data_t> buffer, bool end_of_file ) {
-						m_emitter->emit( "data_recv", std::move( buffer ), end_of_file );
+						emitter( )->emit( "data_recv", std::move( buffer ), end_of_file );
 					}
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when the eof has been reached
 					void emit_eof( ) {
-						m_emitter->emit( "eof" );
+						emitter( )->emit( "eof" );
 					}
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when the socket is closed
 					void emit_closed( ) {
-						m_emitter->emit( "closed" );
+						emitter( )->emit( "closed" );
 					}
 				};
 
@@ -78,42 +88,52 @@ namespace daw {
 					virtual base::data_t read( size_t bytes ) = 0;
 				};	// class StreamReadable
 
-				template<typename Class>
+
+
+				template<typename Child>
 				class StreamWritableEvents {
-					base::EventEmitter m_emitter;
+					Child& child( ) {
+						return *static_cast<Child*>(this);
+					}
+
+					EventEmitter& emitter( ) {
+						return child( ).emitter( );
+					}
 				public:
-					StreamWritableEvents( base::EventEmitter emitter ) : m_emitter( std::move(emitter ) ) { }
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Event emitted when a pending write is completed
-					void on_write_completion( std::function<void( )> listener ) {
-						m_emitter->add_listener( "write_completion", listener );
+					Child& on_write_completion( std::function<void( )> listener ) {
+						emitter( )->add_listener( "write_completion", listener );
+						return child( );
 					}
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Event emitted when the next pending write is completed
-					void on_next_write_completion( std::function<void( )> listener ) {
-						m_emitter->add_listener( "write_completion", listener );
+					Child& on_next_write_completion( std::function<void( )> listener ) {
+						emitter( )->add_listener( "write_completion", listener );
+						return child( );
 					}
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Event emitted when end( ... ) has been called and all
 					///				data has been flushed
-					void on_all_writes_completed( std::function<void( )> listener ) {
-						m_emitter->add_listener( "all_writes_completed", listener );
+					Child& on_all_writes_completed( std::function<void( )> listener ) {
+						emitter( )->add_listener( "all_writes_completed", listener );
+						return child( );
 					}
 				
 				protected:
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Event emitted when an async write completes
 					void emit_write_completion( ) {
-						m_emitter->emit( "write_completion" );
+						emitter( )->emit( "write_completion" );
 					}
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	All async writes have completed
 					void emit_all_writes_completed( ) {
-						m_emitter->emit( "all_writes_completed" );
+						emitter( )->emit( "all_writes_completed" );
 					}
 
 				};

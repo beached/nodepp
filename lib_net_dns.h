@@ -39,7 +39,7 @@ namespace daw {
 						NetDnsImpl& operator=(NetDnsImpl const & rhs) = delete;
 	
 						std::shared_ptr<NetDnsImpl> get_ptr( );
-	
+						base::EventEmitter& emitter( );
 						//////////////////////////////////////////////////////////////////////////
 						// Summary: resolve name or ip address and call callback of form
 						// void(boost::system::error_code, boost::asio::ip::tcp::resolver::iterator)
@@ -50,11 +50,11 @@ namespace daw {
 	
 						//////////////////////////////////////////////////////////////////////////
 						/// Summary: Event emitted when name resolution is complete
-						virtual void on_resolved( std::function<void( boost::asio::ip::tcp::resolver::iterator )> listener );
+						NetDnsImpl& on_resolved( std::function<void( boost::asio::ip::tcp::resolver::iterator )> listener );
 	
 						//////////////////////////////////////////////////////////////////////////
 						/// Summary: Event emitted when name resolution is complete
-						virtual void on_next_resolved( std::function<void( boost::asio::ip::tcp::resolver::iterator )> listener );
+						NetDnsImpl& on_next_resolved( std::function<void( boost::asio::ip::tcp::resolver::iterator )> listener );
 	
 					private:
 						std::unique_ptr<boost::asio::ip::tcp::resolver> m_resolver;

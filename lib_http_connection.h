@@ -35,18 +35,20 @@ namespace daw {
 						
 						~HttpConnectionImpl( ) = default;
 
-						void on_client_error( std::function<void( base::Error )> listener );
-						void on_next_client_error( std::function<void( base::Error )> listener );
+						std::shared_ptr<HttpConnectionImpl> get_ptr( );
+						base::EventEmitter& emitter( );
 
-						void on_request_made( std::function<void( std::shared_ptr<HttpClientRequest>, HttpServerResponse )> listener );
-						void on_next_request_made( std::function<void( std::shared_ptr<HttpClientRequest>, HttpServerResponse )> listener );
+						HttpConnectionImpl& on_client_error( std::function<void( base::Error )> listener );
+						HttpConnectionImpl& on_next_client_error( std::function<void( base::Error )> listener );
 
-						void on_closed( std::function<void( )> listener );	// Only once as it is called on the way out				
+						HttpConnectionImpl& on_request_made( std::function<void( std::shared_ptr<HttpClientRequest>, HttpServerResponse )> listener );
+						HttpConnectionImpl& on_next_request_made( std::function<void( std::shared_ptr<HttpClientRequest>, HttpServerResponse )> listener );
+
+						HttpConnectionImpl& on_closed( std::function<void( )> listener );	// Only once as it is called on the way out				
 						void close( );
 
 						lib::net::NetSocketStream socket( );
 
-						std::shared_ptr<HttpConnectionImpl> get_ptr( );
 					protected:
 						void emit_closed( );
 						void emit_client_error( base::Error error );

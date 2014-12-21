@@ -41,6 +41,7 @@ namespace daw {
 						~HttpServerImpl( ) = default;
 
 						std::shared_ptr<HttpServerImpl> get_ptr( );
+						base::EventEmitter& emitter( );
 
 						void listen_on( uint16_t port );
 
@@ -79,14 +80,14 @@ namespace daw {
 							throw std::runtime_error( "Method not implemented" );
 						}
 
-						void on_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener );
-						void on_next_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener );
+						HttpServerImpl& on_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener );
+						HttpServerImpl& on_next_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener );
 
-						void on_client_connected( std::function<void( HttpConnection )> listener );
-						void on_next_client_connected( std::function<void( HttpConnection )> listener );
+						HttpServerImpl& on_client_connected( std::function<void( HttpConnection )> listener );
+						HttpServerImpl& on_next_client_connected( std::function<void( HttpConnection )> listener );
 
-						void on_closed( std::function<void( )> listener );
-						void on_next_close( std::function<void( )> listener );
+						HttpServerImpl& on_closed( std::function<void( )> listener );
+						HttpServerImpl& on_next_close( std::function<void( )> listener );
 
 						size_t timeout( ) const;
 

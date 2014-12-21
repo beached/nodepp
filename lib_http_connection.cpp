@@ -33,7 +33,6 @@ namespace daw {
 
 
 					HttpConnectionImpl::HttpConnectionImpl( lib::net::NetSocketStream socket, base::EventEmitter emitter ) :
-						base::StandardEvents<HttpConnectionImpl>( emitter ),
 						m_emitter( emitter ),
 						m_socket( socket ) {
 
@@ -45,19 +44,17 @@ namespace daw {
 							} else {
 								err400( m_socket );
 							}
-						} );
-
-						m_socket->on_closed( [&]( ) {
+						} ).on_closed( [&]( ) {
 							emit_closed( );
-						} );
-
-						m_socket->on_error( [&]( base::Error error ) {
+						} ).on_error( [&]( base::Error error ) {
 							emit_error( "HttpConnectionImpl::HttpConnectionImpl", std::move( error ) );
-						} );
-
-						m_socket->set_read_until_values( R"((\r\n|\n){2})", true );
+						} ).set_read_until_values( R"((\r\n|\n){2})", true );
 
 						m_socket->read_async( );
+					}
+
+					base::EventEmitter& HttpConnectionImpl::emitter( ) {
+						return m_emitter;
 					}
 
 					void HttpConnectionImpl::close( ) {
@@ -81,24 +78,29 @@ namespace daw {
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when the connection is closed
-					void HttpConnectionImpl::on_closed( std::function<void( )> listener ) {
+					HttpConnectionImpl& HttpConnectionImpl::on_closed( std::function<void( )> listener ) {
 						m_emitter->add_listener( "closed", listener, true );
+						return *this;
 					}
 
-					void HttpConnectionImpl::on_client_error( std::function<void( base::Error )> listener ) {
+					HttpConnectionImpl& HttpConnectionImpl::on_client_error( std::function<void( base::Error )> listener ) {
 						m_emitter->add_listener( "client_error", listener );
+						return *this;
 					}
 
-					void HttpConnectionImpl::on_next_client_error( std::function<void( base::Error )> listener ) {
+					HttpConnectionImpl& HttpConnectionImpl::on_next_client_error( std::function<void( base::Error )> listener ) {
 						m_emitter->add_listener( "client_error", listener, true );
+						return *this;
 					}
 
-					void HttpConnectionImpl::on_request_made( std::function<void( std::shared_ptr<HttpClientRequest>, HttpServerResponse )> listener ) {
+					HttpConnectionImpl& HttpConnectionImpl::on_request_made( std::function<void( std::shared_ptr<HttpClientRequest>, HttpServerResponse )> listener ) {
 						m_emitter->add_listener( "request_made", listener );
+						return *this;
 					}
 
-					void HttpConnectionImpl::on_next_request_made( std::function<void( std::shared_ptr<HttpClientRequest>, HttpServerResponse )> listener ) {
+					HttpConnectionImpl& HttpConnectionImpl::on_next_request_made( std::function<void( std::shared_ptr<HttpClientRequest>, HttpServerResponse )> listener ) {
 						m_emitter->add_listener( "request_made", listener, true );
+						return *this;
 					}
 
 					lib::net::NetSocketStream HttpConnectionImpl::socket( ) {
