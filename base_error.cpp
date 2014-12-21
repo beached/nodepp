@@ -38,16 +38,16 @@ namespace daw {
 				if( m_frozen ) {
 					throw std::runtime_error( "Attempt to change a frozen error." );
 				}
-				m_keyvalues[name] = std::move( value );
+				m_keyvalues[name.to_string( )] = std::move( value );
 				return *this;
 			}
 
 			boost::string_ref Error::get( boost::string_ref name ) const {
-				return m_keyvalues.at( name );
+				return m_keyvalues.at( name.to_string( ) );
 			}
 
 			std::string & Error::get( boost::string_ref name ) {
-				return m_keyvalues[name];
+				return m_keyvalues[name.to_string( )];
 			}
 
 			void Error::freeze( ) {

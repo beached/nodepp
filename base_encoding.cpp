@@ -19,7 +19,7 @@ namespace daw {
 				if( !is_valid_encoding( rhs ) ) {
 					throw std::runtime_error( "Encoding is not valid" );
 				}
-				m_encoding = rhs;
+				m_encoding = rhs.to_string( );
 				return *this;
 			}
 
@@ -41,7 +41,7 @@ namespace daw {
 				m_encoding = encoding;
 			}
 
-			bool Encoding::is_valid_encoding( std::string  ) {
+			bool Encoding::is_valid_encoding( boost::string_ref ) {
 				// TODO: validate the encoding
 				return true;
 			}

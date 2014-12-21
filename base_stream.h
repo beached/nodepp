@@ -14,9 +14,9 @@ namespace daw {
 
 				template<typename Class>
 				class StreamReadableEvents {
-					base::SharedEventEmitter m_emitter;
+					base::EventEmitter m_emitter;
 				public:
-					StreamReadableEvents( std::shared_ptr<base::EventEmitter> emitter ) : m_emitter( std::move( emitter ) ) { }
+					StreamReadableEvents( base::EventEmitter emitter ) : m_emitter( std::move( emitter ) ) { }
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Event emitted when data is received
 					void on_data_recv( std::function<void( std::shared_ptr<base::data_t>, bool )> listener ) {
@@ -71,25 +71,18 @@ namespace daw {
 				// Summary:		Readable stream class.
 				// Requires:	base::EventEmitter, base::Encoding, data_t, options_t, 
 				//				base::stream::StreamWriteable
-				class StreamReadable: public StreamReadableEvents<StreamReadable> {
-				public:
-					StreamReadable( base::SharedEventEmitter emitter );
-					StreamReadable( StreamReadable const & ) = default;
-					StreamReadable& operator=( StreamReadable const & ) = default;
+				template<typename Class>
+				struct StreamReadable {
 					virtual ~StreamReadable( ) = default;
-					StreamReadable( StreamReadable && other );
-					StreamReadable& operator=(StreamReadable && rhs);
-
 					virtual base::data_t read( ) = 0;
 					virtual base::data_t read( size_t bytes ) = 0;
-
 				};	// class StreamReadable
 
 				template<typename Class>
 				class StreamWritableEvents {
-					base::SharedEventEmitter m_emitter;
+					base::EventEmitter m_emitter;
 				public:
-					StreamWritableEvents( base::SharedEventEmitter emitter ) : m_emitter( std::move(emitter ) ) { }
+					StreamWritableEvents( base::EventEmitter emitter ) : m_emitter( std::move(emitter ) ) { }
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Event emitted when a pending write is completed
@@ -113,59 +106,50 @@ namespace daw {
 				protected:
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Event emitted when an async write completes
-					void emit_write_completion( );
+					void emit_write_completion( ) {
+						m_emitter->emit( "write_completion" );
+					}
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	All async writes have completed
-					void emit_all_writes_completed( );
+					void emit_all_writes_completed( ) {
+						m_emitter->emit( "all_writes_completed" );
+					}
 
 				};
 
 				//////////////////////////////////////////////////////////////////////////
 				// Summary:		Writable stream class.
 				// Requires:	base::EventEmitter, data_t				 
-				struct StreamWritable: public StreamWritableEvents<StreamWritable> {
-					StreamWritable( std::weak_ptr<EventEmitter> emitter );
-					StreamWritable( StreamWritable const & ) = default;
-					StreamWritable& operator=( StreamWritable const & ) = default;
+				template<typename Class>
+				struct StreamWritable {
 					virtual ~StreamWritable( ) = default;
-					StreamWritable( StreamWritable && other );
-					StreamWritable& operator=(StreamWritable && rhs);
-					
 					virtual void write( base::data_t const & chunk ) = 0;
 					virtual void write( boost::string_ref chunk, base::Encoding const & encoding ) = 0;
 					virtual void end( ) = 0;
 					virtual void end( base::data_t const & chunk ) = 0;
 					virtual void end( boost::string_ref chunk, base::Encoding const & encoding ) = 0;
 					
-					template<typename Listener>
-					bool write( base::data_t const & chunk, Listener listener ) {
-						return base::rollback_event_on_exception( this, "drain", listener, [&]( ) {
-							return write( chunk );
-						} );
-					}
-
-					template<typename Listener>
-					bool end( base::data_t const & chunk, Listener listener ) {
-						return base::rollback_event_on_exception( this, "finish", listener, [&]( ) {
-							return end( chunk );
-						} );
-					}
-
 				};	// class StreamWriteable
 
-				StreamWritable& operator<<(StreamWritable& stream, boost::string_ref value);
-				StreamWritable& operator<<(StreamWritable& stream, base::data_t const & value);
+				template<typename Class>
+				StreamWritable<Class>& operator<<(StreamWritable<Class>& stream, boost::string_ref value) {
+					stream.write( value, base::Encoding( ) );
+					return stream;
+				}
+
+
+				template<typename Class>
+				StreamWritable<Class>& operator<<(StreamWritable<Class>& stream, base::data_t const & value) {
+					stream.write( value );
+					return stream;
+				}
 
 				//////////////////////////////////////////////////////////////////////////
 				// Summary:		A duplex stream
 				// Requires:	StreamReadable, StreamWritable
-				class Stream: public StreamReadable, public StreamWritable {
-					Stream( std::weak_ptr<EventEmitter> emitter );
-					Stream( Stream const & ) = default;
-					Stream& operator=(Stream const &) = default;
-					Stream( Stream && other );
-					Stream& operator=(Stream && rhs);
+				template<typename Class>
+				class Stream: public StreamReadable<Class>, public StreamWritable<Class> { 
 					virtual ~Stream( ) = default;
 				};
 				

@@ -9,13 +9,13 @@
 int main( int, char const ** ) {
 	using namespace daw::nodepp;
 
-	auto server = lib::http::HttpServer( );
+	auto server = lib::http::create_http_server( );
 	
-	server.on_listening( []( boost::asio::ip::tcp::endpoint endpoint ) {
+	server->on_listening( []( boost::asio::ip::tcp::endpoint endpoint ) {
 		std::cout << "Server listening on " << endpoint << "\n";
 	} );
 
-	server.on_client_connected( []( lib::http::HttpConnection client_connection ) {
+	server->on_client_connected( []( lib::http::HttpConnection client_connection ) {
 		client_connection->on_request_made( []( std::shared_ptr<lib::http::HttpClientRequest> request, lib::http::HttpServerResponse response ) {
 			response->on_all_writes_completed( [response]( ) mutable { 
 				response->close( );
@@ -27,11 +27,11 @@ int main( int, char const ** ) {
 		} );
 	} );
 
-	server.on_error( []( base::Error error ) {
+	server->on_error( []( base::Error error ) {
 		std::cerr << error << std::endl;
 	} );
 
-	server.listen_on( 8080 );
+	server->listen_on( 8080 );
 
 	base::ServiceHandle::run( );
 

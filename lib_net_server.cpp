@@ -19,7 +19,7 @@ namespace daw {
 				using namespace boost::asio::ip;
 
 
-				NetServer::NetServer( std::shared_ptr<base::EventEmitter> emitter ) :
+				NetServer::NetServer( base::EventEmitter emitter ) :
 					base::StandardEvents<NetServer>( emitter ),
 					m_acceptor( std::make_shared<boost::asio::ip::tcp::acceptor>( base::ServiceHandle::get( ) ) ),
 					m_emitter( emitter ) { }			
@@ -76,11 +76,11 @@ namespace daw {
 				}
 
 				// Event callbacks				
-				void NetServer::on_connection( std::function<void( SharedNetSocketStream socket )> listener ) {
+				void NetServer::on_connection( std::function<void( NetSocketStream socket )> listener ) {
 					m_emitter->add_listener( "connection", listener );
 				}
 
-				void NetServer::on_next_connection( std::function<void( SharedNetSocketStream socket_ptr )> listener ) {
+				void NetServer::on_next_connection( std::function<void( NetSocketStream socket_ptr )> listener ) {
 					m_emitter->add_listener( "connection", listener, true );
 				}
 
@@ -96,33 +96,30 @@ namespace daw {
 					m_emitter->add_listener( "close", listener, true );
 				}
 
-				void NetServer::handle_accept( std::weak_ptr<NetServer> obj, std::shared_ptr<NetSocketStream> socket, boost::system::error_code const & err ) {
-					if( !obj.expired( ) ) {
-						auto server = obj.lock( );
-						if( !err ) {
-							try {
-								server->emit_connection( socket );
-							} catch( ... ) {
-								server->emit_error( std::current_exception( ), "Running connection listeners", "NetServer::listen#emit_connection" );
-							}
-						} else {
-							server->emit_error( err, "NetServer::listen" );
+				void NetServer::handle_accept( std::shared_ptr<NetServer> self, NetSocketStream socket, boost::system::error_code const & err ) {
+					if( !err ) {
+						try {
+							self->emit_connection( socket );
+						} catch( ... ) {
+							self->emit_error( std::current_exception( ), "Running connection listeners", "NetServer::listen#emit_connection" );
 						}
-						server->start_accept( );
+					} else {
+						self->emit_error( err, "NetServer::listen" );
 					}
+					self->start_accept( );
 				}
 
 				void NetServer::start_accept( ) {
-					auto socket = create_shared_socket( );
+					auto socket = create_net_socket_stream( );
 
 					auto handler = [&, socket]( boost::system::error_code const & err ) mutable {
-						handle_accept( shared_from_this( ), std::move( socket ), err );
+						handle_accept( get_ptr( ), std::move( socket ), err );
 					};
 
 					m_acceptor->async_accept( socket->socket( ), handler );
 				}
 
-				void NetServer::emit_connection( SharedNetSocketStream socket ) {
+				void NetServer::emit_connection( NetSocketStream socket ) {
 					m_emitter->emit( "connection", std::move( socket ) );
 				}
 

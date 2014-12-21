@@ -11,7 +11,7 @@ namespace daw {
 			}
 
 			void ServiceHandle::run( ) {
-				get( )::run( );
+				get( ).run( );
 			}
 		}	// namespace base
 	}	// namespace nodepp

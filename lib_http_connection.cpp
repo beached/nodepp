@@ -13,7 +13,7 @@ namespace daw {
 				using namespace daw::nodepp;
 				namespace impl {
 					namespace {
-						void err400( lib::net::SharedNetSocketStream socket ) {
+						void err400( lib::net::NetSocketStream socket ) {
 							// 400 bad request
 							socket->write_async( "HTTP/1.1 400 Bad Request\r\nConnection: close\r\n" );
 							std::stringstream stream;
@@ -32,7 +32,7 @@ namespace daw {
 					}	// namespace anonymous
 
 
-					HttpConnectionImpl::HttpConnectionImpl( lib::net::SharedNetSocketStream socket, base::SharedEventEmitter emitter ) :
+					HttpConnectionImpl::HttpConnectionImpl( lib::net::NetSocketStream socket, base::EventEmitter emitter ) :
 						base::StandardEvents<HttpConnectionImpl>( emitter ),
 						m_emitter( emitter ),
 						m_socket( socket ) {
@@ -101,7 +101,7 @@ namespace daw {
 						m_emitter->add_listener( "request_made", listener, true );
 					}
 
-					lib::net::SharedNetSocketStream HttpConnectionImpl::socket( ) {
+					lib::net::NetSocketStream HttpConnectionImpl::socket( ) {
 						return m_socket;
 					}
 
@@ -110,6 +110,10 @@ namespace daw {
 					}
 
 				}	// namespace impl
+
+				HttpConnection create_http_connection( lib::net::NetSocketStream socket, base::EventEmitter emitter ) {
+					return HttpConnection( new impl::HttpConnectionImpl( std::move( socket ), std::move( emitter ) ) );
+				}
 
 			} // namespace http
 		}	// namespace lib

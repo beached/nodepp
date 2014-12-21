@@ -23,12 +23,12 @@ namespace daw {
 					class HttpServerResponseImpl;
 				}
 				using HttpServerResponse = std::shared_ptr < impl::HttpServerResponseImpl >;
-				HttpServerResponse create_http_server_response( lib::net::SharedNetSocketStream, base::SharedEventEmitter );
+				HttpServerResponse create_http_server_response( lib::net::NetSocketStream socket, base::EventEmitter emitter = base::create_event_emitter( ) );
 
 				namespace impl {
 					class HttpServerResponseImpl: public std::enable_shared_from_this < HttpServerResponseImpl >, public base::stream::StreamWritableEvents<HttpServerResponseImpl> {
-						base::SharedEventEmitter m_emitter;
-						lib::net::SharedNetSocketStream m_socket;
+						base::EventEmitter m_emitter;
+						lib::net::NetSocketStream m_socket;
 						HttpVersion m_version;
 						HttpHeaders m_headers;
 						base::data_t m_body;
@@ -36,9 +36,9 @@ namespace daw {
 						bool m_headers_sent;
 						bool m_body_sent;
 						
-						HttpServerResponseImpl( lib::net::SharedNetSocketStream socket, base::SharedEventEmitter emitter );
+						HttpServerResponseImpl( lib::net::NetSocketStream socket, base::EventEmitter emitter );
 					public:
-						friend HttpServerResponse lib::http::create_http_server_response( lib::net::SharedNetSocketStream, base::SharedEventEmitter );
+						friend HttpServerResponse lib::http::create_http_server_response( lib::net::NetSocketStream, base::EventEmitter );
 
 						HttpServerResponseImpl( HttpServerResponseImpl const & ) = delete;
 						~HttpServerResponseImpl( ) = default;
@@ -73,11 +73,7 @@ namespace daw {
 						void add_header( std::string header_name, std::string header_value );
 						
 					};	// struct HttpServerResponseImpl						
-				}	// namespace impl				
-
-				HttpServerResponse create_http_server_response( lib::net::SharedNetSocketStream socket, base::SharedEventEmitter emitter = base::create_shared_event_emitter( ) ) {
-					return HttpServerResponse( new impl::HttpServerResponseImpl( std::move( socket ), std::move( emitter ) ) );
-				}
+				}	// namespace impl								
 
 			}	// namespace http
 		}	// namespace lib

@@ -197,7 +197,6 @@
     <ClCompile Include="base_encoding.cpp" />
     <ClCompile Include="base_error.cpp" />
     <ClCompile Include="base_event_emitter.cpp" />
-    <ClCompile Include="base_stream.cpp" />
     <ClCompile Include="lib_http_connection.cpp" />
     <ClCompile Include="lib_http_request.cpp" />
     <ClCompile Include="lib_http_server_response.cpp" />

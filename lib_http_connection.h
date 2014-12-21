@@ -15,16 +15,16 @@ namespace daw {
 
 				namespace impl { class HttpConnectionImpl; }
 				using HttpConnection = std::shared_ptr < impl::HttpConnectionImpl > ;
-				HttpConnection create_http_connection( lib::net::SharedNetSocketStream );
+				HttpConnection create_http_connection( lib::net::NetSocketStream socket, base::EventEmitter emitter = base::create_event_emitter( ) );
 								
 				namespace impl {
 					class HttpConnectionImpl: public std::enable_shared_from_this<HttpConnectionImpl>, public base::StandardEvents<HttpConnectionImpl> {
-						lib::net::SharedNetSocketStream m_socket;
-						base::SharedEventEmitter m_emitter;
+						lib::net::NetSocketStream m_socket;
+						base::EventEmitter m_emitter;
 
-						HttpConnectionImpl( lib::net::SharedNetSocketStream socket, base::SharedEventEmitter emitter = base::create_shared_event_emitter( ) );
+						HttpConnectionImpl( lib::net::NetSocketStream socket, base::EventEmitter emitter );
 					public:
-						friend HttpConnection lib::http::create_http_connection( lib::net::SharedNetSocketStream );
+						friend HttpConnection lib::http::create_http_connection( lib::net::NetSocketStream, base::EventEmitter emitter );
 
 						HttpConnectionImpl( ) = delete;
 						
@@ -44,7 +44,7 @@ namespace daw {
 						void on_closed( std::function<void( )> listener );	// Only once as it is called on the way out				
 						void close( );
 
-						lib::net::SharedNetSocketStream socket( );
+						lib::net::NetSocketStream socket( );
 
 						std::shared_ptr<HttpConnectionImpl> get_ptr( );
 					protected:
@@ -54,9 +54,6 @@ namespace daw {
 					};	// class HttpConnectionImpl
 				}	// namespace impl
 
-				HttpConnection create_http_connection( lib::net::SharedNetSocketStream socket ) {
-					return HttpConnection( new impl::HttpConnectionImpl( std::move( socket ) ) );
-				}
 			} // namespace http
 		}	// namespace lib
 	}	// namespace nodepp

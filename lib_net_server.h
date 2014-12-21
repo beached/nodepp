@@ -21,7 +21,7 @@ namespace daw {
 				// Requires:	base::EventEmitter, base::options_t,
 				//				lib::net::NetAddress, base::Error
 				struct NetServer: public std::enable_shared_from_this<NetServer>, public base::StandardEvents<NetServer> {
-					NetServer( std::shared_ptr<base::EventEmitter> emitter = std::make_shared<base::EventEmitter>( ) );
+					NetServer( base::EventEmitter emitter = base::create_event_emitter( ) );
 					NetServer( NetServer const & ) = default;
 					NetServer( NetServer&& other );
 					NetServer& operator=(NetServer && rhs);
@@ -45,11 +45,11 @@ namespace daw {
 					
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Event emitted when a connection is established
-					void on_connection( std::function<void( SharedNetSocketStream socket )> listener );
+					void on_connection( std::function<void( NetSocketStream socket )> listener );
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Event emitted when a connection is established
-					void on_next_connection( std::function<void( SharedNetSocketStream socket )> listener );
+					void on_next_connection( std::function<void( NetSocketStream socket )> listener );
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Event emitted when the server is bound after calling 
@@ -68,15 +68,15 @@ namespace daw {
 
 				private:
 					std::shared_ptr<boost::asio::ip::tcp::acceptor> m_acceptor;
-					std::shared_ptr<base::EventEmitter> m_emitter;
+					base::EventEmitter m_emitter;
 
-					static void handle_accept( std::weak_ptr<NetServer> obj, std::shared_ptr<NetSocketStream> socket, boost::system::error_code const & err );
+					static void handle_accept( std::shared_ptr<NetServer> self, NetSocketStream socket, boost::system::error_code const & err );
 					
 					void start_accept( );
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Event emitted when a connection is established
-					void emit_connection( SharedNetSocketStream socket );
+					void emit_connection( NetSocketStream socket );
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Event emitted when the server is bound after calling 

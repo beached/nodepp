@@ -17,123 +17,115 @@ namespace daw {
 	namespace nodepp {
 		namespace base {
 			namespace impl {
-				template<typename T>
-				T const & make_const( T const & val ) {
-					return val;
-				}
-
-				template<typename T>
-				T append_vector( T v1, T const & v2 ) {
-					v1.reserve( v1.size( ) + v2.size( ) );
-					std::copy( std::begin( v2 ), std::end( v2 ), std::back_inserter( v1 ) );
-					return v1;
-				}
+				struct EventEmitterImpl;
 			}
+			
+			using EventEmitter = std::shared_ptr < impl::EventEmitterImpl > ;
 
-			//////////////////////////////////////////////////////////////////////////
-			/// Summary:	Allows for the dispatch of events to subscribed listeners
-			///				Callbacks can be be c-style function pointers, lambda's or 
-			///				std::function with the correct signature.
-			///	Requires:	base::Callback
-			///	
-			struct EventEmitter: std::enable_shared_from_this<EventEmitter> {
-				using listener_list_t = std::vector < std::pair<bool, Callback> > ;
-				using listeners_t = std::unordered_map < std::string, listener_list_t > ;
-				using callback_id_t = Callback::id_t;
-			private:
-				std::shared_ptr<std::unordered_map<std::string, listener_list_t>> m_listeners;
-				size_t m_max_listeners;
-			public:
-				~EventEmitter( ) = default;
-				EventEmitter( EventEmitter const & ) = default;
-				EventEmitter& operator=(EventEmitter const &) = default;
-				EventEmitter( );
-				EventEmitter( EventEmitter && other );
-				EventEmitter& operator=(EventEmitter && rhs);
-				void swap( EventEmitter& rhs );
+			EventEmitter create_event_emitter( );
 
-				std::shared_ptr<EventEmitter> get_ptr( );				
+			namespace impl {
+				//////////////////////////////////////////////////////////////////////////
+				/// Summary:	Allows for the dispatch of events to subscribed listeners
+				///				Callbacks can be be c-style function pointers, lambda's or 
+				///				std::function with the correct signature.
+				///	Requires:	base::Callback
+				///	
+				struct EventEmitterImpl: std::enable_shared_from_this < EventEmitterImpl > {
+					using listener_list_t = std::vector < std::pair<bool, Callback> > ;
+					using listeners_t = std::unordered_map < std::string, listener_list_t > ;
+					using callback_id_t = Callback::id_t;
+				private:
+					std::shared_ptr<std::unordered_map<std::string, listener_list_t>> m_listeners;
+					size_t m_max_listeners;
+					EventEmitterImpl( );
+				public:
+					friend base::EventEmitter base::create_event_emitter( );
 
-				void remove_listener( std::string event, callback_id_t id );
+					~EventEmitterImpl( ) = default;
+					EventEmitterImpl( EventEmitterImpl const & ) = default;
+					EventEmitterImpl& operator=(EventEmitterImpl const &) = default;					
+					EventEmitterImpl( EventEmitterImpl && other );
+					EventEmitterImpl& operator=(EventEmitterImpl && rhs);
+					void swap( EventEmitterImpl& rhs );
 
-				void remove_listener( std::string event, Callback listener );
+					std::shared_ptr<EventEmitterImpl> get_ptr( );
 
-				void remove_all_listeners( );
+					void remove_listener( std::string event, callback_id_t id );
 
-				void remove_all_listeners( std::string event );
+					void remove_listener( std::string event, Callback listener );
 
-				void set_max_listeners( size_t max_listeners );
-				listeners_t & listeners( );
-				listener_list_t listeners( std::string event );
-				size_t listener_count( std::string event );
+					void remove_all_listeners( );
 
-				template<typename Listener>
-				callback_id_t add_listener( std::string event, Listener listener, bool run_once = false ) {
-					if( event.empty( ) ) {
-						throw std::runtime_error( "Empty event name passed to add_listener" );
-					}
-					if( !at_max_listeners( event ) ) {
-						auto callback = Callback( listener );
-						if( event != "newListener" ) {
-							emit_listener_added( event, callback );
+					void remove_all_listeners( std::string event );
+
+					void set_max_listeners( size_t max_listeners );
+					listeners_t & listeners( );
+					listener_list_t listeners( std::string event );
+					size_t listener_count( std::string event );
+
+					template<typename Listener>
+					callback_id_t add_listener( std::string event, Listener listener, bool run_once = false ) {
+						if( event.empty( ) ) {
+							throw std::runtime_error( "Empty event name passed to add_listener" );
 						}
-						listeners( )[event].emplace_back( run_once, callback );
-						return callback.id( );
-					} else {
-						// TODO: implement logging to fail gracefully.  For now throw
-						throw std::runtime_error( "Max listeners reached for event" );
-					}
-				}
-
-				template<typename Listener>
-				void on( std::string event, Listener listener ) {
-					add_listener( event, listener );
-				}
-
-				template<typename Listener>
-				void on_next( std::string event, Listener listener ) {
-					add_listener( event, listener, true );
-				}
-
-				template<typename... Args>
-				void emit( std::string event, Args&&... args ) {
-					if( event.empty( ) ) {
-						throw std::runtime_error( "Empty event name passed to emit" );
-					}
-
-					auto& callbacks = listeners( )[event];
-					for( auto& callback : callbacks ) {
-						if( !callback.second.empty( ) ) {
-							callback.second.exec( std::forward<Args>( args )... );
+						if( !at_max_listeners( event ) ) {
+							auto callback = Callback( listener );
+							if( event != "newListener" ) {
+								emit_listener_added( event, callback );
+							}
+							listeners( )[event].emplace_back( run_once, callback );
+							return callback.id( );
+						} else {
+							// TODO: implement logging to fail gracefully.  For now throw
+							throw std::runtime_error( "Max listeners reached for event" );
 						}
 					}
-					daw::algorithm::erase_remove_if( callbacks, []( std::pair<bool, Callback> const & item ) {
-						return item.first;
-					} );
-				}
 
-				void emit_listener_added( std::string event, Callback listener );
-				void emit_listener_removed( std::string event, Callback listener );
+					template<typename Listener>
+					void on( std::string event, Listener listener ) {
+						add_listener( event, listener );
+					}
 
-				bool at_max_listeners( std::string event );
-			};	// class EventEmitter
+					template<typename Listener>
+					void on_next( std::string event, Listener listener ) {
+						add_listener( event, listener, true );
+					}
 
-			using SharedEventEmitter = std::shared_ptr < EventEmitter > ;
+					template<typename... Args>
+					void emit( std::string event, Args&&... args ) {
+						if( event.empty( ) ) {
+							throw std::runtime_error( "Empty event name passed to emit" );
+						}
 
-			template<typename... Args>
-			SharedEventEmitter create_shared_event_emitter( Args... args ) {
-				return SharedEventEmitter( new EventEmitter( std::forward<Args>( args )... ) );
-			}
+						auto& callbacks = listeners( )[event];
+						for( auto& callback : callbacks ) {
+							if( !callback.second.empty( ) ) {
+								callback.second.exec( std::forward<Args>( args )... );
+							}
+						}
+						daw::algorithm::erase_remove_if( callbacks, []( std::pair<bool, Callback> const & item ) {
+							return item.first;
+						} );
+					}
+
+					void emit_listener_added( std::string event, Callback listener );
+					void emit_listener_removed( std::string event, Callback listener );
+
+					bool at_max_listeners( std::string event );
+				};	// class EventEmitterImpl
+			}	// namespace impl
+			
 			//////////////////////////////////////////////////////////////////////////
 			// Allows one to have the Events defined in event emitter
 			template<typename Child>
 			class StandardEvents {
-				SharedEventEmitter m_emitter;
+				EventEmitter m_emitter;
 				void emit_error( base::Error error ) {
 					m_emitter->emit( "error", std::move( error ) );
 				}
 			public:
-				StandardEvents( SharedEventEmitter emitter ) : m_emitter( std::move( emitter ) ) { }
+				StandardEvents( EventEmitter emitter ) : m_emitter( std::move( emitter ) ) { }
 
 				//////////////////////////////////////////////////////////////////////////
 				/// Summary: Callback is for when error's occur
@@ -218,7 +210,7 @@ namespace daw {
 				///				added event
 				void emit_listener_added( std::string event, Callback listener ) {
 					m_emitter->emit_listener_added( event, )
-					m_emitter->emit( "listener_added", std::move( event ), std::move( listener ) );
+						m_emitter->emit( "listener_added", std::move( event ), std::move( listener ) );
 				}
 
 				//////////////////////////////////////////////////////////////////////////

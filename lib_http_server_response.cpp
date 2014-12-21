@@ -18,7 +18,7 @@ namespace daw {
 				using namespace daw::nodepp;
 				namespace impl {
 
-					HttpServerResponseImpl::HttpServerResponseImpl( lib::net::SharedNetSocketStream socket, base::SharedEventEmitter emitter ) :
+					HttpServerResponseImpl::HttpServerResponseImpl( lib::net::NetSocketStream socket, base::EventEmitter emitter ) :
 						base::stream::StreamWritableEvents<HttpServerResponseImpl>( emitter ),
 						m_emitter( emitter ),
 						m_socket( std::move( socket ) ),
@@ -172,6 +172,10 @@ namespace daw {
 					}
 
 				}	// namespace impl
+
+				HttpServerResponse create_http_server_response( lib::net::NetSocketStream socket, base::EventEmitter emitter ) {
+					return HttpServerResponse( new impl::HttpServerResponseImpl( std::move( socket ), std::move( emitter ) ) );
+				}
 			}	// namespace http
 		}	// namespace lib
 	}	// namespace nodepp

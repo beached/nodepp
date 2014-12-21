@@ -27,7 +27,7 @@ namespace daw {
 
 				boost::string_ref operator()( ) const;
 				void set( std::string encoding );
-				static bool is_valid_encoding( std::string encoding );
+				static bool is_valid_encoding( boost::string_ref encoding );
 
 				operator std::string( ) const {
 					return m_encoding;
