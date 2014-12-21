@@ -16,14 +16,14 @@ int main( int, char const ** ) {
 	} );
 
 	server.on_client_connected( []( lib::http::HttpConnection client_connection ) {
-		client_connection.on_request_made( []( std::shared_ptr<lib::http::HttpClientRequest> request, lib::http::HttpServerResponse response ) {
-			response.on_all_writes_complete( [response]( ) mutable { 
-				response.close( );
+		client_connection->on_request_made( []( std::shared_ptr<lib::http::HttpClientRequest> request, lib::http::HttpServerResponse response ) {
+			response->on_all_writes_completed( [response]( ) mutable { 
+				response->close( );
 			} );
-			response.send_status( 200 );
-			response.add_header( "Content-Type", "text/html" );
-			response.add_header( "Connection", "close" );
-			response.end( R"(<p>Hello World!</p>)" );
+			response->send_status( 200 );
+			response->add_header( "Content-Type", "text/html" );
+			response->add_header( "Connection", "close" );
+			response->end( R"(<p>Hello World!</p>)" );
 		} );
 	} );
 
@@ -33,7 +33,7 @@ int main( int, char const ** ) {
 
 	server.listen_on( 8080 );
 
-	server.run( );
+	base::ServiceHandle::run( );
 
 	return EXIT_SUCCESS;
 }

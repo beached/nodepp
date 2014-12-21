@@ -34,7 +34,7 @@ namespace daw {
 			}
 
 
-			Error& Error::add( std::string const & name, std::string value ) {
+			Error& Error::add( boost::string_ref name, std::string value ) {
 				if( m_frozen ) {
 					throw std::runtime_error( "Attempt to change a frozen error." );
 				}
@@ -42,11 +42,11 @@ namespace daw {
 				return *this;
 			}
 
-			std::string const & Error::get( std::string const & name ) const {
+			boost::string_ref Error::get( boost::string_ref name ) const {
 				return m_keyvalues.at( name );
 			}
 
-			std::string & Error::get( std::string const & name ) {
+			std::string & Error::get( boost::string_ref name ) {
 				return m_keyvalues[name];
 			}
 

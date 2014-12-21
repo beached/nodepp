@@ -29,7 +29,7 @@ namespace daw {
 				
 				template<typename Listener>
 				NetServer create_connection( uint16_t port, std::string host = "", Listener listener ) {
-					return create_connection( options ).on( "connect", port, host );
+					return create_connection( options ).on( "connect", std::move( port ), std::move( host ) );
 
 				}
 

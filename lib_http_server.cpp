@@ -20,40 +20,34 @@ namespace daw {
 				using namespace daw::nodepp;
 
 
-				HttpServer::HttpServer( ) : base::EventEmitter( ), m_netserver( ) { }
+				HttpServer::HttpServer( std::shared_ptr<base::EventEmitter> emitter ) :base::StandardEvents<HttpServer>( emitter ), m_netserver( ), m_emitter( emitter ) { }
 
-				HttpServer::HttpServer( HttpServer&& other ) : base::EventEmitter( std::move( other ) ), m_netserver( std::move( other.m_netserver ) ) { }
+				HttpServer::HttpServer( HttpServer&& other ) :base::StandardEvents<HttpServer>( std::move( other ) ), m_netserver( std::move( other.m_netserver ) ), m_emitter( std::move( other.m_emitter ) ) { }
 
 				HttpServer& HttpServer::operator=(HttpServer && rhs) {
 					if( this != &rhs ) {
 						m_netserver = std::move( rhs.m_netserver );
+						m_emitter = std::move( rhs.m_emitter );
 					}
 					return *this;
 				}
 
-				std::vector<std::string> const & HttpServer::valid_events( ) const {
-					static auto const result = [&]( ) {
-						std::vector<std::string> local{ "connection", "close", "listening" };
-						return base::impl::append_vector( local, base::EventEmitter::valid_events( ) );
-					}();
-					return result;
-				}
 
-				void HttpServer::emit_connection( std::shared_ptr<HttpConnection> connection ) {
-					emit( "connection", connection );
+				void HttpServer::emit_connection( HttpConnection connection ) {
+					m_emitter->emit( "connection", connection );
 				}
 				
 				void HttpServer::emit_close( ) {
-					emit( "close" );
+					m_emitter->emit( "close" );
 				}
 
 				void HttpServer::emit_listening( boost::asio::ip::tcp::endpoint endpoint ) {
-					emit( "listening", std::move( endpoint ) );
+					m_emitter->emit( "listening", std::move( endpoint ) );
 				}
 				
-				void HttpServer::handle_connection( lib::net::NetSocketStream socket ) {
+				void HttpServer::handle_connection( lib::net::SharedNetSocketStream socket ) {
 					
-					std::shared_ptr<HttpConnection> connection( new HttpConnection( std::move( socket ) ) );
+					auto connection = create_http_connection( std::move( socket ) );
 
 					connection->on_error( [&]( base::Error error ) {
 						emit_error( "HttpServer::handle_connection", std::move( error ) );
@@ -71,7 +65,7 @@ namespace daw {
 				}
 
 				void HttpServer::listen_on( uint16_t port ) {
-					m_netserver.on_connected( [&]( lib::net::NetSocketStream socket ) {
+					m_netserver.on_connection( [&]( lib::net::NetSocketStream socket ) {
 						handle_connection( std::move( socket ) );
 					} );
 
@@ -99,26 +93,27 @@ namespace daw {
 				size_t HttpServer::timeout( ) const { throw std::runtime_error( "Method not implemented" ); }
 
 				void HttpServer::on_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener ) {
-					add_listener( "listening", listener );
+					m_emitter->add_listener( "listening", listener );
 				}
 
 				void HttpServer::on_next_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener ) {
-					add_listener( "listening", listener, true );
+					m_emitter->add_listener( "listening", listener, true );
 				}
 
 				void HttpServer::on_client_connected( std::function<void( HttpConnection )> listener ) {
 					auto handler = [listener]( std::shared_ptr<HttpConnection> con ) {
 						listener( *con );
 					};
-					add_listener( "connection", handler );
+					m_emitter->add_listener( "connection", handler );
 				}
 
 				void HttpServer::on_next_client_connected( std::function<void( HttpConnection )> listener ) {
 					auto handler = [listener]( std::shared_ptr<HttpConnection> con ) {
 						listener( *con );
 					};
-					add_listener( "connection", handler, true );
+					m_emitter->add_listener( "connection", handler, true );
 				}
+
 			} // namespace http
 		}	// namespace lib
 	}	// namespace nodepp

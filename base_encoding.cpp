@@ -15,7 +15,7 @@ namespace daw {
 
 			Encoding::Encoding( std::string encoding ) : m_encoding( encoding ) { }
 
-			Encoding& Encoding::operator = (std::string const & rhs) {
+			Encoding& Encoding::operator = (boost::string_ref rhs) {
 				if( !is_valid_encoding( rhs ) ) {
 					throw std::runtime_error( "Encoding is not valid" );
 				}
@@ -32,7 +32,7 @@ namespace daw {
 			}
 
 
-			std::string const & Encoding::operator()( ) const { return m_encoding; }
+			boost::string_ref Encoding::operator()( ) const { return m_encoding; }
 
 			void Encoding::set( std::string encoding ) {
 				if( !is_valid_encoding( encoding ) ) {

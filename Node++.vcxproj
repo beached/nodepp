@@ -178,10 +178,9 @@
     <ClInclude Include="base_service_handle.h" />
     <ClInclude Include="lib_net_dns.h" />
     <ClInclude Include="lib_net_server.h" />
-    <ClInclude Include="lib_net_socket_stream.h" />
     <ClInclude Include="base_stream.h" />
     <ClInclude Include="base_types.h" />
-    <ClInclude Include="lib_net_socket_stream_impl.h" />
+    <ClInclude Include="lib_net_socket_stream.h" />
     <ClInclude Include="load_library.h" />
     <ClInclude Include="load_library_posix.h" />
     <ClInclude Include="load_library_windows.h" />

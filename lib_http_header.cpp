@@ -33,14 +33,14 @@ namespace daw {
 					return *this;
 				}
 
-				std::vector<HttpHeader>::iterator HttpHeaders::find( std::string const & header_name ) {
+				std::vector<HttpHeader>::iterator HttpHeaders::find( boost::string_ref header_name ) {
 					auto it = std::find_if( std::begin( headers ), std::end( headers ), [&header_name]( HttpHeader const & item ) {
 						return 0 == header_name.compare( item.name );
 					} );					
 					return it;
 				}
 
-				std::vector<HttpHeader>::const_iterator HttpHeaders::find( std::string const & header_name ) const {
+				std::vector<HttpHeader>::const_iterator HttpHeaders::find( boost::string_ref header_name ) const {
 					auto it = std::find_if( std::begin( headers ), std::end( headers ), [&header_name]( HttpHeader const & item ) {
 						return 0 == header_name.compare( item.name );
 					} );
@@ -48,11 +48,11 @@ namespace daw {
 				}
 
 
-				std::string const& HttpHeaders::operator[]( std::string const & header_name ) const {
+				std::string const& HttpHeaders::operator[]( boost::string_ref header_name ) const {
 					return find( header_name )->value;
 				}
 
-				std::string & HttpHeaders::operator[]( std::string const & header_name ) {
+				std::string & HttpHeaders::operator[]( boost::string_ref header_name ) {
 					auto it = find( header_name );
 					if( it == headers.end( ) ) {
 						it = headers.emplace( headers.end( ), header_name, "" );
@@ -60,24 +60,24 @@ namespace daw {
 					return it->value;
 				}
 
-				bool HttpHeaders::exits( std::string const & header_name ) const {
+				bool HttpHeaders::exits( boost::string_ref header_name ) const {
 					return find( header_name ) != headers.cend( );
 				}
 
-				std::string const& HttpHeaders::at( std::string const& header_name ) const {
+				std::string const& HttpHeaders::at( boost::string_ref header_name ) const {
 					auto it = HttpHeaders::find( header_name );
 					if( it != std::end( headers )  ) {
 						return it->value;						
 					}
-					throw std::out_of_range( header_name + " is not a valid header" );
+					throw std::out_of_range( header_name.to_string( ) + " is not a valid header" );
 				}
 
-				std::string & HttpHeaders::at( std::string const& header_name ) {
+				std::string & HttpHeaders::at( boost::string_ref header_name ) {
 					auto it = HttpHeaders::find( header_name );
 					if( it != std::end( headers ) ) {
 						return it->value;
 					}
-					throw std::out_of_range( header_name + " is not a valid header" );
+					throw std::out_of_range( header_name.to_string( ) + " is not a valid header" );
 				}
 
 				std::string HttpHeaders::to_string( ) {

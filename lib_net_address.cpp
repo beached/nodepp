@@ -21,7 +21,7 @@ namespace daw {
 					return *this;
 				}
 
-				std::string const & NetAddress::operator()( ) const {
+				boost::string_ref NetAddress::operator()( ) const {
 					return m_address;
 				}
 

@@ -10,49 +10,53 @@ namespace daw {
 	namespace nodepp {
 		namespace lib {
 			namespace http {
-				namespace impl { class HttpConnectionImpl; }
-
 				using namespace daw::nodepp;
-
 				enum class HttpConnectionState { Request, Message };
 
-				class HttpConnection: public std::enable_shared_from_this<HttpConnection> {
-					std::shared_ptr<impl::HttpConnectionImpl> m_impl;
+				namespace impl { class HttpConnectionImpl; }
+				using HttpConnection = std::shared_ptr < impl::HttpConnectionImpl > ;
+				HttpConnection create_http_connection( lib::net::SharedNetSocketStream );
+								
+				namespace impl {
+					class HttpConnectionImpl: public std::enable_shared_from_this<HttpConnectionImpl>, public base::StandardEvents<HttpConnectionImpl> {
+						lib::net::SharedNetSocketStream m_socket;
+						base::SharedEventEmitter m_emitter;
 
-				public:
-					HttpConnection( ) = delete;
-					HttpConnection( HttpConnection const & ) = default;
-					HttpConnection( lib::net::NetSocketStream socket );
-					HttpConnection( HttpConnection && );
-					HttpConnection& operator=(HttpConnection const &) = default;
-					HttpConnection& operator=( HttpConnection && rhs );
-					virtual ~HttpConnection( ) = default;
+						HttpConnectionImpl( lib::net::SharedNetSocketStream socket, base::SharedEventEmitter emitter = base::create_shared_event_emitter( ) );
+					public:
+						friend HttpConnection lib::http::create_http_connection( lib::net::SharedNetSocketStream );
 
-					std::vector<std::string> const & valid_events( ) const;					
+						HttpConnectionImpl( ) = delete;
+						
+						HttpConnectionImpl( HttpConnectionImpl const & ) = delete;
+						HttpConnectionImpl& operator=(HttpConnectionImpl const &) = delete;
+						HttpConnectionImpl( HttpConnectionImpl && ) = delete;
+						HttpConnectionImpl& operator=(HttpConnectionImpl &&) = delete;
+						
+						~HttpConnectionImpl( ) = default;
 
-					// Event callbacks															
-					virtual void on_listener_added( std::function<void( std::string, base::Callback )> listener );
-					virtual void on_listener_removed( std::function<void( std::string, base::Callback )> listener );
-					virtual void on_error( std::function<void( base::Error )> listener );
+						void on_client_error( std::function<void( base::Error )> listener );
+						void on_next_client_error( std::function<void( base::Error )> listener );
 
-					virtual void on_next_listener_added( std::function<void( std::string, base::Callback )> listener );
-					virtual void on_next_listener_removed( std::function<void( std::string, base::Callback )> listener );
-					virtual void on_next_error( std::function<void( base::Error )> listener );
+						void on_request_made( std::function<void( std::shared_ptr<HttpClientRequest>, HttpServerResponse )> listener );
+						void on_next_request_made( std::function<void( std::shared_ptr<HttpClientRequest>, HttpServerResponse )> listener );
 
-					virtual void on_client_error( std::function<void( base::Error )> listener );
-					virtual void on_next_client_error( std::function<void( base::Error )> listener );
+						void on_closed( std::function<void( )> listener );	// Only once as it is called on the way out				
+						void close( );
 
-					virtual void on_request_made( std::function<void( std::shared_ptr<HttpClientRequest>, HttpServerResponse )> listener );
-					virtual void on_next_request_made( std::function<void( std::shared_ptr<HttpClientRequest>, HttpServerResponse )> listener );
+						lib::net::SharedNetSocketStream socket( );
 
-					void on_closed( std::function<void( )> listener );	// Only once as it is called on the way out				
-					void close( );
+						std::shared_ptr<HttpConnectionImpl> get_ptr( );
+					protected:
+						void emit_closed( );
+						void emit_client_error( base::Error error );
+						void emit_request_made( std::shared_ptr<HttpClientRequest> request, HttpServerResponse response );
+					};	// class HttpConnectionImpl
+				}	// namespace impl
 
-					std::shared_ptr<HttpConnection> get_ptr( );
-
-					lib::net::NetSocketStream& socket( );
-					lib::net::NetSocketStream const & socket( ) const;
-				};	// class HttpConnection
+				HttpConnection create_http_connection( lib::net::SharedNetSocketStream socket ) {
+					return HttpConnection( new impl::HttpConnectionImpl( std::move( socket ) ) );
+				}
 			} // namespace http
 		}	// namespace lib
 	}	// namespace nodepp

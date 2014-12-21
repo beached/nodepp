@@ -1,5 +1,5 @@
 #pragma once
-
+#include <boost/utility/string_ref.hpp>
 #include <cstdint>
 #include <string>
 
@@ -19,75 +19,66 @@ namespace daw {
 		namespace lib {
 			namespace http {
 				using namespace daw::nodepp;
-				class HttpServerResponseImpl;
-				//////////////////////////////////////////////////////////////////////////
-				// Summary:	Contains the data needed to respond to a client request				
-				class HttpServerResponse: public base::stream::StreamWritable {
-					std::shared_ptr<HttpServerResponseImpl> m_impl;
-				public:
-					HttpServerResponse( ) = delete;
-					HttpServerResponse( HttpServerResponse const & ) = default;
-					virtual ~HttpServerResponse( ) = default;
-					HttpServerResponse( lib::net::NetSocketStream socket );
+				namespace impl {
+					class HttpServerResponseImpl;
+				}
+				using HttpServerResponse = std::shared_ptr < impl::HttpServerResponseImpl >;
+				HttpServerResponse create_http_server_response( lib::net::SharedNetSocketStream, base::SharedEventEmitter );
 
-					HttpServerResponse( HttpServerResponse && other );
-					HttpServerResponse& operator=(HttpServerResponse const &) = default;
-					HttpServerResponse& operator=(HttpServerResponse && rhs);
+				namespace impl {
+					class HttpServerResponseImpl: public std::enable_shared_from_this < HttpServerResponseImpl >, public base::stream::StreamWritableEvents<HttpServerResponseImpl> {
+						base::SharedEventEmitter m_emitter;
+						lib::net::SharedNetSocketStream m_socket;
+						HttpVersion m_version;
+						HttpHeaders m_headers;
+						base::data_t m_body;
+						bool m_status_sent;
+						bool m_headers_sent;
+						bool m_body_sent;
+						
+						HttpServerResponseImpl( lib::net::SharedNetSocketStream socket, base::SharedEventEmitter emitter );
+					public:
+						friend HttpServerResponse lib::http::create_http_server_response( lib::net::SharedNetSocketStream, base::SharedEventEmitter );
 
-					virtual void write( base::data_t const & data ) override;
-					virtual void write( std::string const & data, base::Encoding const & encoding = base::Encoding( ) ) override;
-					virtual void end( ) override;
-					virtual void end( base::data_t const & data ) override;
-					virtual void end( std::string const & data, base::Encoding const & encoding = base::Encoding( ) ) override;
+						HttpServerResponseImpl( HttpServerResponseImpl const & ) = delete;
+						~HttpServerResponseImpl( ) = default;
+						HttpServerResponseImpl& operator=(HttpServerResponseImpl const &) = delete;;
+	
+						HttpServerResponseImpl( HttpServerResponseImpl&& other ) = delete;
+						HttpServerResponseImpl& operator=(HttpServerResponseImpl && rhs) = delete;
+	
+						std::shared_ptr<HttpServerResponseImpl> get_ptr( );
+	
+						void write( base::data_t const & data );
+						void write( boost::string_ref data, base::Encoding const & encoding = base::Encoding( ) );
+						void end( );
+						void end( base::data_t const & data );
+						void end( boost::string_ref data, base::Encoding const & encoding = base::Encoding( ) );
+	
+						void close( );
+	
+						HttpHeaders& headers( );
+						HttpHeaders const & headers( ) const;
+	
+						void send_status( uint16_t status_code = 200 );
+						void send_headers( );
+						void send_body( );
+						void clear_body( );
+						bool send( );
+						void reset( );
+						bool is_open( );
+						bool is_closed( ) const;
+						bool can_write( ) const;
+	
+						void add_header( std::string header_name, std::string header_value );
+						
+					};	// struct HttpServerResponseImpl						
+				}	// namespace impl				
 
-					void close( );
+				HttpServerResponse create_http_server_response( lib::net::SharedNetSocketStream socket, base::SharedEventEmitter emitter = base::create_shared_event_emitter( ) ) {
+					return HttpServerResponse( new impl::HttpServerResponseImpl( std::move( socket ), std::move( emitter ) ) );
+				}
 
-					HttpHeaders& headers( );
-					HttpHeaders const & headers( ) const;
-
-					void send_status( uint16_t status_code = 200 );
-					void send_headers( );
-					void send_body( );
-					void clear_body( );
-					bool send( );
-					void reset( );
-					bool is_open( );
-					bool is_closed( ) const;
-					bool can_write( ) const;
-
-					void add_header( std::string header_name, std::string header_value );
-				
-					//////////////////////////////////////////////////////////////////////////
-					/// Summary: Event emitted when a write is completed
-					/// Inherited from StreamWritable
-					virtual void on_a_write_completes( std::function<void( )> listener );
-
-					//////////////////////////////////////////////////////////////////////////
-					/// Summary: Event emitted when end( ... ) has been called and all data
-					/// has been flushed
-					/// Inherited from StreamWritable
-					virtual void on_all_writes_complete( std::function<void( )> listener );
-
-					//////////////////////////////////////////////////////////////////////////
-					/// Summary: Event emitted when end( ... ) has been called and all data
-					/// has been flushed
-					/// Inherited from StreamWritable
-					virtual void on_next_all_writes_complete( std::function<void( )> listener );
-
-					//////////////////////////////////////////////////////////////////////////
-					/// Summary: Event emitted when the next write is completed
-					/// Inherited from StreamWritable
-					virtual void on_next_write_completes( std::function<void( )> listener );
-
-					virtual void on_listener_added( std::function<void( std::string, base::Callback )> listener );
-					virtual void on_listener_removed( std::function<void( std::string, base::Callback )> listener );
-					virtual void on_error( std::function<void( base::Error )> listener );
-
-					virtual void on_next_listener_added( std::function<void( std::string, base::Callback )> listener );
-					virtual void on_next_listener_removed( std::function<void( std::string, base::Callback )> listener );
-					virtual void on_next_error( std::function<void( base::Error )> listener );
-
-				};	// struct ServerResponse			
 			}	// namespace http
 		}	// namespace lib
 	}	// namespace nodepp

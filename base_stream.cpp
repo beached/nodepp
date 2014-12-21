@@ -1,3 +1,4 @@
+#include <boost/utility/string_ref.hpp>
 #include <string>
 
 #include "base_event_emitter.h"
@@ -92,8 +93,9 @@ namespace daw {
 				void StreamWritable::on_next_unpipe( std::function<void( StreamReadable& )> listener ) { 
 					m_emitter->add_listener( "unpipe", listener, true );
 				}
+				
 
-				StreamWritable& operator<<(StreamWritable& stream, std::string const & value) {
+				StreamWritable& operator<<(StreamWritable& stream, boost::string_ref value) {
 					stream.write( value, base::Encoding( ) );
 					return stream;
 				}

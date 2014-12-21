@@ -11,12 +11,10 @@ namespace daw {
 	namespace nodepp {
 		namespace base {	
 			EventEmitter::EventEmitter( ) :
-				IEventEmitter( ),
 				m_listeners( std::make_shared<listeners_t>( ) ),
 				m_max_listeners( 10 ) { }
 
 			EventEmitter::EventEmitter( EventEmitter && other ):
-				IEventEmitter( std::move( other ) ),
 				m_listeners( std::move( other.m_listeners ) ),
 				m_max_listeners( std::move( other.m_max_listeners ) ) {
 				std::cerr << "EventEmitter::EventEmitter( EventEmmiter && )\n";
@@ -38,47 +36,6 @@ namespace daw {
 				swap( m_max_listeners, rhs.m_max_listeners );
 			}
 
-			void EventEmitter::emit_error( base::Error error ) {
-				emit( "error", std::move( error ) );
-			}
-
-			void EventEmitter::emit_error( std::string description, std::string where ) {
-				base::Error err( description );
-				err.add( "where", std::move( where ) );
-
-				emit_error( std::move( err ) );
-			}
-
-			void EventEmitter::emit_error( std::string where, base::Error child ) { 
-				base::Error err( "Child Error" );
-				err.add( "where", std::move( where ) );
-				err.child( std::move( child ) );
-				
-				emit_error( std::move( err ) );
-			}
-
-			void EventEmitter::emit_error( boost::system::error_code const & error, std::string where ) {
-				base::Error err( error );
-				err.add( "where", where );
-
-				emit_error( std::move( err ) );
-			}
-
-			void EventEmitter::emit_error( std::exception_ptr ex, std::string description, std::string where ) {
-				base::Error err( description, ex );
-				err.add( "where", where );
-
-				emit_error( std::move( err ) );
-			}
-
-			void EventEmitter::emit_listener_added( std::string event, Callback listener ) {
-				emit( "listener_added", std::move( event ), std::move( listener ) );
-			}
-
-			void EventEmitter::emit_listener_removed( std::string event, Callback listener ) {
-				emit( "listener_removed", std::move( event ), std::move( listener ) );
-			}
-
 			std::unordered_map<std::string, EventEmitter::listener_list_t> & EventEmitter::listeners( ) {
 				return *m_listeners;
 			}
@@ -98,31 +55,7 @@ namespace daw {
 					}
 					return false;
 				} );
-			}
-
-			void EventEmitter::on_listener_added( std::function<void( std::string, Callback )> listener ) {
-				add_listener( "listener_added", listener );
-			}
-
-			void EventEmitter::on_listener_removed( std::function<void( std::string, Callback )> listener ) {
-				add_listener( "listener_removed", listener );
-			}
-			
-			void EventEmitter::on_error( std::function<void( base::Error )> listener ) {
-				add_listener( "error", listener );
-			}
-
-			void EventEmitter::on_next_listener_added( std::function<void( std::string, Callback )> listener ) {
-				add_listener( "listener_added", listener, true );
-			}
-
-			void EventEmitter::on_next_listener_removed( std::function<void( std::string, Callback )> listener ) {
-				add_listener( "listener_removed", listener, true );
-			}
-
-			void EventEmitter::on_next_error( std::function<void( base::Error )> listener ) {
-				add_listener( "error", listener, true );
-			}
+			}			
 
 			void EventEmitter::remove_listener( std::string event, Callback listener ) {
 				return remove_listener( event, listener.id( ) );
@@ -151,6 +84,15 @@ namespace daw {
 			std::shared_ptr<EventEmitter> EventEmitter::get_ptr( ) {
 				return shared_from_this( );
 			}
+
+			void EventEmitter::emit_listener_added( std::string event, Callback listener ) {
+				emit( "listener_added", std::move( event ), std::move( listener ) );
+			}
+
+			void EventEmitter::emit_listener_removed( std::string event, Callback listener ) {
+				emit( "listener_removed", std::move( event ), std::move( listener ) );
+			}
+
 
 		}	// namespace base
 	}	// namespace nodepp

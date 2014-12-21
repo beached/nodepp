@@ -1,5 +1,5 @@
 #pragma once
-
+#include <boost/utility/string_ref.hpp>
 #include <cassert>
 #include <functional>
 #include <limits>
@@ -290,7 +290,7 @@ namespace daw {
 	}
 
 	template<typename Iterator>
-	Iterator find_buff( Iterator first, Iterator last, std::string const & key ) {
+	Iterator find_buff( Iterator first, Iterator last, boost::string_ref key ) {
 		auto it = advance( first, last, static_cast<typename Iterator::difference_type>(key.size( )) );
 		if( it == last ) {
 			return last;
@@ -315,7 +315,7 @@ namespace daw {
 	}
 
 // 	template<typename Iterator>
-// 	bool equal( Iterator first, Iterator last, std::string const & value ) {
+// 	bool equal( Iterator first, Iterator last, boost::string_ref value ) {
 // 		if( static_cast<size_t>(std::distance( first, last )) != value.size( ) ) {
 // 			return false;
 // 		}
@@ -328,7 +328,7 @@ namespace daw {
 // 	}
 
 	template<typename Iterator>
-	bool equal_nc( Iterator first, Iterator last, std::string const & upper_value ) {
+	bool equal_nc( Iterator first, Iterator last, boost::string_ref upper_value ) {
 		if( static_cast<size_t>(std::distance( first, last )) != upper_value.size( ) ) {
 			return false;
 		}

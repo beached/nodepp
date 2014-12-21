@@ -1,5 +1,5 @@
 #pragma once
-
+#include <boost/utility/string_ref.hpp>
 #include <string>
 #include <vector>
 
@@ -27,16 +27,16 @@ namespace daw {
 					HttpHeaders( HttpHeaders const & ) = default;
 					HttpHeaders( HttpHeaders && other );
 					HttpHeaders& operator=(HttpHeaders && rhs);
-					std::vector<HttpHeader>::iterator find( std::string const & header_name );
-					std::vector<HttpHeader>::const_iterator find( std::string const & header_name ) const;
+					std::vector<HttpHeader>::iterator find( boost::string_ref header_name );
+					std::vector<HttpHeader>::const_iterator find( boost::string_ref header_name ) const;
 
-					std::string const& operator[]( std::string const & header_name ) const;
-					std::string & operator[]( std::string const & header_name );
+					std::string const& operator[]( boost::string_ref header_name ) const;
+					std::string & operator[]( boost::string_ref header_name );
 
-					std::string const& at( std::string const & header_name ) const;
-					std::string & at( std::string const & header_name );
+					std::string const& at( boost::string_ref header_name ) const;
+					std::string & at( boost::string_ref header_name );
 
-					bool exits( std::string const & header_name ) const;
+					bool exits( boost::string_ref header_name ) const;
 					std::string to_string( );
 
 					HttpHeaders& add( std::string header_name, std::string header_value );

@@ -1,5 +1,5 @@
 #pragma once
-
+#include <boost/utility/string_ref.hpp>
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -21,11 +21,11 @@ namespace daw {
 				Encoding& operator=(Encoding const &) = default;
 				Encoding( Encoding && other );
 				Encoding& operator=(Encoding && rhs);
-				Encoding& operator=(std::string const & rhs);
+				Encoding& operator=(boost::string_ref rhs);
 
 				~Encoding( ) = default;
 
-				std::string const & operator()( ) const;
+				boost::string_ref operator()( ) const;
 				void set( std::string encoding );
 				static bool is_valid_encoding( std::string encoding );
 

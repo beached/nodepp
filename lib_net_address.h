@@ -1,5 +1,5 @@
 #pragma once
-
+#include <boost/utility/string_ref.hpp>
 #include <string>
 
 namespace daw {
@@ -19,7 +19,7 @@ namespace daw {
 					NetAddress& operator=(NetAddress && rhs);
 
 
-					std::string const & operator()( ) const;
+					boost::string_ref operator()( ) const;
 
 					static bool is_valid( std::string address );
 				};	// class NetAddress;

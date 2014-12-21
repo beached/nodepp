@@ -14,35 +14,27 @@ namespace daw {
 		namespace lib {
 			namespace net {
 				using namespace daw::nodepp;
-				class NetDns: public base::EventEmitter  {
-				public:
-					/*using handler_type = std::function < void( const boost::system::error_code&, boost::asio::ip::tcp::resolver::iterator ) >;*/
+				struct NetDns: public std::enable_shared_from_this<NetDns>, public base::StandardEvents < NetDns > {
 					using handler_argument_t = boost::asio::ip::tcp::resolver::iterator;
-				private:
-					std::unique_ptr<boost::asio::ip::tcp::resolver> m_resolver;	
 
-					void handle_resolve( boost::system::error_code const & err, boost::asio::ip::tcp::resolver::iterator it );
-				public:
-
-					virtual std::vector<std::string> const & valid_events( ) const override;
-
-					virtual ~NetDns( ) = default;
-					NetDns( NetDns const & ) = delete;
-					NetDns& operator=(NetDns const & rhs) = delete;
-					
-					NetDns( );
+					NetDns( base::SharedEventEmitter = base::create_shared_event_emitter( ) );
 					NetDns( NetDns&& other );
 					NetDns& operator=(NetDns && rhs);
-					
-					// Event callbacks
-					
+
+					~NetDns( ) = default;
+					NetDns( NetDns const & ) = delete;
+					NetDns& operator=(NetDns const & rhs) = delete;
+
+					std::shared_ptr<NetDns> get_ptr( );
+
 					//////////////////////////////////////////////////////////////////////////
 					// Summary: resolve name or ip address and call callback of form
 					// void(boost::system::error_code, boost::asio::ip::tcp::resolver::iterator)
-					void resolve( std::string const& address );
-					void resolve( std::string const& address, uint16_t port );
-					
-					
+					void resolve( boost::string_ref address );
+					void resolve( boost::string_ref address, uint16_t port );
+
+					// Event callbacks
+
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when name resolution is complete
 					virtual void on_resolved( std::function<void( boost::asio::ip::tcp::resolver::iterator )> listener );
@@ -51,11 +43,24 @@ namespace daw {
 					/// Summary: Event emitted when name resolution is complete
 					virtual void on_next_resolved( std::function<void( boost::asio::ip::tcp::resolver::iterator )> listener );
 
-				protected:
+				private:
+					std::unique_ptr<boost::asio::ip::tcp::resolver> m_resolver;
+					base::SharedEventEmitter m_emitter;
+
+					void handle_resolve( boost::system::error_code const & err, boost::asio::ip::tcp::resolver::iterator it );
+
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when async resolve is complete
 					virtual void emit_resolved( boost::asio::ip::tcp::resolver::iterator it );
 				};	// class NetDns
+
+				using SharedNetDns = std::shared_ptr < NetDns > ;
+
+				template<typename... Args>
+				SharedNetDns create_shared_net_dns( Args... args ) {
+					return SharedNetDns( new NetDns( std::forward<Args>( args )... ) );
+				}
+
 			}	// namespace net
 		}	// namespace lib
 	}	// namespace nodepp

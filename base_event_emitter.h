@@ -43,11 +43,8 @@ namespace daw {
 			private:
 				std::shared_ptr<std::unordered_map<std::string, listener_list_t>> m_listeners;
 				size_t m_max_listeners;
-
-				void emit_error( base::Error error );
-
 			public:
-				virtual ~EventEmitter( ) = default;
+				~EventEmitter( ) = default;
 				EventEmitter( EventEmitter const & ) = default;
 				EventEmitter& operator=(EventEmitter const &) = default;
 				EventEmitter( );
@@ -55,28 +52,20 @@ namespace daw {
 				EventEmitter& operator=(EventEmitter && rhs);
 				void swap( EventEmitter& rhs );
 
-				std::shared_ptr<EventEmitter> get_ptr( );
+				std::shared_ptr<EventEmitter> get_ptr( );				
 
-				virtual void on_listener_added( std::function<void( std::string, Callback )> listener );
-				virtual void on_listener_removed( std::function<void( std::string, Callback )> listener );
-				virtual void on_error( std::function<void( base::Error )> listener );
+				void remove_listener( std::string event, callback_id_t id );
 
-				virtual void on_next_listener_added( std::function<void( std::string, Callback )> listener );
-				virtual void on_next_listener_removed( std::function<void( std::string, Callback )> listener );
-				virtual void on_next_error( std::function<void( base::Error )> listener );
+				void remove_listener( std::string event, Callback listener );
 
-				virtual void remove_listener( std::string event, callback_id_t id );
+				void remove_all_listeners( );
 
-				virtual void remove_listener( std::string event, Callback listener );
+				void remove_all_listeners( std::string event );
 
-				virtual void remove_all_listeners( );
-
-				virtual void remove_all_listeners( std::string event );
-
-				virtual void set_max_listeners( size_t max_listeners );
-				virtual listeners_t & listeners( );
-				virtual listener_list_t listeners( std::string event );
-				virtual size_t listener_count( std::string event );
+				void set_max_listeners( size_t max_listeners );
+				listeners_t & listeners( );
+				listener_list_t listeners( std::string event );
+				size_t listener_count( std::string event );
 
 				template<typename Listener>
 				callback_id_t add_listener( std::string event, Listener listener, bool run_once = false ) {
@@ -123,15 +112,122 @@ namespace daw {
 					} );
 				}
 
-				virtual void emit_error( std::string description, std::string where );
-				virtual void emit_error( std::string where, base::Error child );
-				virtual void emit_error( boost::system::error_code const & err, std::string where );
-				virtual void emit_error( std::exception_ptr ex, std::string description, std::string where );
+				void emit_listener_added( std::string event, Callback listener );
+				void emit_listener_removed( std::string event, Callback listener );
 
-				virtual void emit_listener_added( std::string event, Callback listener );
-				virtual void emit_listener_removed( std::string event, Callback listener );
-				virtual bool at_max_listeners( std::string event );
+				bool at_max_listeners( std::string event );
 			};	// class EventEmitter
+
+			using SharedEventEmitter = std::shared_ptr < EventEmitter > ;
+
+			template<typename... Args>
+			SharedEventEmitter create_shared_event_emitter( Args... args ) {
+				return SharedEventEmitter( new EventEmitter( std::forward<Args>( args )... ) );
+			}
+			//////////////////////////////////////////////////////////////////////////
+			// Allows one to have the Events defined in event emitter
+			template<typename Child>
+			class StandardEvents {
+				SharedEventEmitter m_emitter;
+				void emit_error( base::Error error ) {
+					m_emitter->emit( "error", std::move( error ) );
+				}
+			public:
+				StandardEvents( SharedEventEmitter emitter ) : m_emitter( std::move( emitter ) ) { }
+
+				//////////////////////////////////////////////////////////////////////////
+				/// Summary: Callback is for when error's occur
+				void on_error( std::function<void( base::Error )> listener ) {
+					m_emitter->add_listener( "error", listener );
+				}
+
+				//////////////////////////////////////////////////////////////////////////
+				/// Summary: Callback is for the next error
+				void on_next_error( std::function<void( base::Error )> listener ) {
+					m_emitter->add_listener( "error", listener, true );
+				}
+
+				//////////////////////////////////////////////////////////////////////////
+				/// Summary:	Callback is called whenever a new listener is added for 
+				///				any callback
+				void on_listener_added( std::function<void( std::string, Callback )> listener ) {
+					m_emitter->add_listener( "listener_added", listener );
+				}
+
+				//////////////////////////////////////////////////////////////////////////
+				/// Summary:	Callback is called when the next new listener is added
+				///				for any callback
+				void on_next_listener_added( std::function<void( std::string, Callback )> listener ) {
+					m_emitter->add_listener( "listener_added", listener, true );
+				}
+
+				//////////////////////////////////////////////////////////////////////////
+				/// Summary: Callback is called whenever a listener is removed for 
+				/// any callback
+				void on_listener_removed( std::function<void( std::string, Callback )> listener ) {
+					m_emitter->add_listener( "listener_removed", listener );
+				}
+
+				//////////////////////////////////////////////////////////////////////////
+				/// Summary: Callback is called the next time a listener is removed for 
+				/// any callback
+				void on_next_listener_removed( std::function<void( std::string, Callback )> listener ) {
+					m_emitter->add_listener( "listener_removed", listener, true );
+				}
+
+			protected:
+				//////////////////////////////////////////////////////////////////////////
+				/// Summary: Emit an error event
+				void emit_error( std::string description, std::string where ) {
+					base::Error err( description );
+					err.add( "where", std::move( where ) );
+
+					emit_error( std::move( err ) );
+				}
+
+				//////////////////////////////////////////////////////////////////////////
+				/// Summary: Emit an error event
+				void emit_error( std::string where, base::Error child ) {
+					base::Error err( "Child Error" );
+					err.add( "where", std::move( where ) );
+					err.child( std::move( child ) );
+
+					emit_error( std::move( err ) );
+				}
+
+				//////////////////////////////////////////////////////////////////////////
+				/// Summary: Emit an error event
+				void emit_error( boost::system::error_code const & error, std::string where ) {
+					base::Error err( error );
+					err.add( "where", where );
+
+					emit_error( std::move( err ) );
+				}
+
+				//////////////////////////////////////////////////////////////////////////
+				/// Summary: Emit an error event
+				void emit_error( std::exception_ptr ex, std::string description, std::string where ) {
+					base::Error err( description, ex );
+					err.add( "where", where );
+
+					emit_error( std::move( err ) );
+				}
+
+				//////////////////////////////////////////////////////////////////////////
+				/// Summary:	Emit an event with the callback and event name of a newly
+				///				added event
+				void emit_listener_added( std::string event, Callback listener ) {
+					m_emitter->emit_listener_added( event, )
+					m_emitter->emit( "listener_added", std::move( event ), std::move( listener ) );
+				}
+
+				//////////////////////////////////////////////////////////////////////////
+				/// Summary:	Emit an event with the callback and event name of an event
+				///				that has been removed
+				void emit_listener_removed( std::string event, Callback listener ) {
+					m_emitter->emit( "listener_removed", std::move( event ), std::move( listener ) );
+				}
+			};	// class StandardEvents
 
 			template<typename This, typename Listener, typename Action>
 			static auto rollback_event_on_exception( This me, std::string event, Listener listener, Action action_to_try, bool run_listener_once = false ) -> decltype(action_to_try( )) {

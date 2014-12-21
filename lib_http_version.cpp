@@ -11,40 +11,40 @@ namespace daw {
 			namespace http {
 				using namespace daw::nodepp;
 				namespace {
-					std::pair<uint8_t, uint8_t> parse_string( std::string const & version ) {
+					std::pair<uint8_t, uint8_t> parse_string( boost::string_ref version ) {
 						int major, minor;
-						std::istringstream iss( version );
+						std::istringstream iss( version.to_string() );
 						iss >> major >> minor;	// TODO fix, doesn't account for . but assumes whitespace
 						if( major < 0 && major > std::numeric_limits<uint8_t>::max( ) ) {
-							throw std::invalid_argument( "Major version is out of range: " + version );
+							throw std::invalid_argument( "Major version is out of range: " + version.to_string() );
 						} else if( minor < 0 && minor > std::numeric_limits<uint8_t>::max( ) ) {
-							throw std::invalid_argument( "Minor version is out of range: " + version );
+							throw std::invalid_argument( "Minor version is out of range: " + version.to_string() );
 						}
 						return{ major, minor };
 					}
 				}	// namespace anonymous
 
-				uint8_t const & HttpVersion::major( ) const {
+				uint_fast8_t const & HttpVersion::major( ) const {
 					return m_version.first;
 				}
 
-				uint8_t & HttpVersion::major( ) {
+				uint_fast8_t & HttpVersion::major( ) {
 					return m_version.first;
 				}
 
-				uint8_t const & HttpVersion::minor( ) const {
+				uint_fast8_t const & HttpVersion::minor( ) const {
 					return m_version.second;
 				}
 
-				uint8_t & HttpVersion::minor( ) {
+				uint_fast8_t & HttpVersion::minor( ) {
 					return m_version.second;
 				}
 
 				HttpVersion::HttpVersion( ) : m_version( 0, 0 ), m_is_valid( false ) { }
 
-				HttpVersion::HttpVersion( uint8_t const & Major, uint8_t const & Minor ) : m_version( Major, Minor ), m_is_valid( true ) { }
+				HttpVersion::HttpVersion( uint_fast8_t Major, uint_fast8_t Minor ) : m_version( Major, Minor ), m_is_valid( true ) { }
 
-				HttpVersion::HttpVersion( std::string const & version ) : m_version( 0, 0 ), m_is_valid( true ) { 
+				HttpVersion::HttpVersion( boost::string_ref version ) : m_version( 0, 0 ), m_is_valid( true ) { 
 					try {
 						m_version = parse_string( version );
 					} catch( std::exception const & ) {
@@ -52,7 +52,7 @@ namespace daw {
 					}
 				}
 
-				HttpVersion& HttpVersion::operator=(std::string const & version) {
+				HttpVersion& HttpVersion::operator=(boost::string_ref version) {
 					m_version = parse_string( version );
 					return *this;
 				}

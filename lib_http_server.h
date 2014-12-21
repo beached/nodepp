@@ -16,20 +16,20 @@ namespace daw {
 				//////////////////////////////////////////////////////////////////////////
 				// Summary:		An HTTP Server class 
 				// Requires:	lib::net::NetServer
-				class HttpServer {
+				class HttpServer: public base::StandardEvents<HttpServer> {
 					lib::net::NetServer m_netserver;
-					std::shared_ptr<base::EventEmitter> m_emitter;
+					base::SharedEventEmitter m_emitter;
 
-					void handle_connection( lib::net::NetSocketStream socket );
+					void handle_connection( lib::net::SharedNetSocketStream socket );
 					void handle_error( base::Error error );					
 				public:
-					HttpServer( std::shared_ptr<base::EventEmitter> m_emitter = std::make_shared<base::EventEmitter>( ) );
+					HttpServer( base::SharedEventEmitter m_emitter = base::create_shared_event_emitter( ) );
 
 					HttpServer( HttpServer&& other );
 					HttpServer& operator=(HttpServer const &) = default;
 					HttpServer& operator=(HttpServer && rhs);
 					HttpServer( HttpServer const & ) = default;
-					virtual ~HttpServer( ) = default;
+					~HttpServer( ) = default;
 
 					void listen_on( uint16_t port );
 
@@ -80,9 +80,9 @@ namespace daw {
 					size_t timeout( ) const;
 
 				protected:
-					virtual void emit_connection( std::shared_ptr<HttpConnection> connection );
-					virtual void emit_close( );
-					virtual void emit_listening( boost::asio::ip::tcp::endpoint endpoint );
+					void emit_connection( HttpConnection connection );
+					void emit_close( );
+					void emit_listening( boost::asio::ip::tcp::endpoint endpoint );
 				};	// class Server
 			}	// namespace http
 		}	// namespace lib

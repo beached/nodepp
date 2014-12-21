@@ -1,5 +1,5 @@
 #pragma once
-
+#include <boost/utility/string_ref.hpp>
 #include <boost/system/error_code.hpp>
 #include <iostream>
 #include <map>
@@ -28,9 +28,9 @@ namespace daw {
 				Error& operator=(Error const &) = default;
 				Error& operator=(Error && rhs);
 
-				Error& add( std::string const & name, std::string value );
-				std::string const & get( std::string const & name ) const;
-				std::string & get( std::string const & name );
+				Error& add( boost::string_ref name, std::string value );
+				boost::string_ref get( boost::string_ref name ) const;
+				std::string & get( boost::string_ref name );
 				Error & child( ) const;
 				bool has_child( ) const;
 				Error& clear_child( );
