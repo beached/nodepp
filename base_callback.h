@@ -54,11 +54,10 @@ namespace daw {
 						auto callback = boost::any_cast<cb_type>(m_callback);
 						callback( std::forward<Args>( args )... );
 					} catch( boost::bad_any_cast const & ) {
-						throw std::runtime_error( "Type of event listener does not match.  This shouldn't happen" );						
-						catch( std::exception const & ex ) {
+						throw std::runtime_error( "Type of event listener does not match.  This shouldn't happen" );
+					} catch( std::exception const & ex ) {
 							auto msg = ex.what( );
 							throw std::runtime_error( msg );
-						}
 					} catch( ... ) {
 						// Callback has let an exception raise through.  Abort and report
 
