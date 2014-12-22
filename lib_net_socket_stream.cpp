@@ -160,6 +160,8 @@ namespace daw {
 						if( !obj.expired( ) ) {
 							auto self = obj.lock( );
 							try {
+								auto& response_buffers = self->m_response_buffers;
+
 								read_buffer->commit( bytes_transfered );
 								if( 0 < bytes_transfered ) {
 									std::istream resp( read_buffer.get( ) );
@@ -171,8 +173,8 @@ namespace daw {
 										{
 											// Handle when the emitter comes after the data starts pouring in.  This might be best placed in newEvent
 											// have not decided
-											if( !self->m_response_buffers.empty( ) ) {
-												auto buff = std::make_shared<base::data_t>( self->m_response_buffers.cbegin( ), self->m_response_buffers.cend( ) );
+											if( !response_buffers.empty( ) ) {
+												auto buff = std::make_shared<base::data_t>( response_buffers.cbegin( ), response_buffers.cend( ) );
 												self->m_response_buffers.resize( 0 );
 												self->emit_data_received( buff, false );
 											}
@@ -193,8 +195,8 @@ namespace daw {
 								} else if( 2 != err.value( ) ) {
 									self->emit_error( err, "NetSocket::read" );
 								}
-							} catch( std::exception const & ex ) {
-								std::cerr << "Exception: " << ex.what( ) << " in read handler\n";
+							} catch( ... ) {
+								self->emit_error( std::current_exception( ), "Exception in read handler", "NetSocketStreamImpl::handle_read" );
 							}
 						}
 					}

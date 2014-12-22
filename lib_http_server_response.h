@@ -58,7 +58,8 @@ namespace daw {
 						HttpServerResponseImpl& end( boost::string_ref data, base::Encoding const & encoding = base::Encoding( ) );
 	
 						void close( );
-	
+						HttpServerResponseImpl& start( );
+
 						HttpHeaders& headers( );
 						HttpHeaders const & headers( ) const;
 	

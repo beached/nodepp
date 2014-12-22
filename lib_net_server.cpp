@@ -101,7 +101,7 @@ namespace daw {
 					}
 
 					NetServerImpl& NetServerImpl::on_closed( std::function<void( )> listener ) {
-						emitter( )->add_listener( "close", listener, true );
+						emitter( )->add_listener( "closed", listener, true );
 						return *this;
 					}
 

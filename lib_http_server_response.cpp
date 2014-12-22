@@ -42,6 +42,11 @@ namespace daw {
 						} );
 					}
 
+					HttpServerResponseImpl& HttpServerResponseImpl::start( ) {
+
+						return *this;
+					}
+
 					std::shared_ptr<HttpServerResponseImpl> HttpServerResponseImpl::get_ptr( ) {
 						return shared_from_this( );
 					}

@@ -27,6 +27,7 @@ namespace daw {
 					class HttpServerImpl: public std::enable_shared_from_this<HttpServerImpl>, public base::StandardEvents < HttpServerImpl > {
 						lib::net::NetServer m_netserver;
 						base::EventEmitter m_emitter;
+						std::list<HttpConnection> m_connections;
 
 						static void handle_connection( std::weak_ptr<HttpServerImpl> obj, lib::net::NetSocketStream socket );
 						static void handle_error( std::weak_ptr<HttpServerImpl> obj, base::Error error );
@@ -87,13 +88,13 @@ namespace daw {
 						HttpServerImpl& on_next_client_connected( std::function<void( HttpConnection )> listener );
 
 						HttpServerImpl& on_closed( std::function<void( )> listener );
-						HttpServerImpl& on_next_close( std::function<void( )> listener );
+						HttpServerImpl& on_next_closed( std::function<void( )> listener );
 
 						size_t timeout( ) const;
 
 					protected:
-						void emit_connection( HttpConnection connection );
-						void emit_close( );
+						void emit_client_connected( HttpConnection connection );
+						void emit_closed( );
 						void emit_listening( boost::asio::ip::tcp::endpoint endpoint );
 					};	// class Server
 				}	// namespace impl

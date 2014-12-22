@@ -34,31 +34,35 @@ namespace daw {
 
 					HttpConnectionImpl::HttpConnectionImpl( lib::net::NetSocketStream socket, base::EventEmitter emitter ) :
 						m_socket( std::move( socket ) ),
-						m_emitter( emitter ) {
+						m_emitter( emitter ) { }
 
-						std::weak_ptr<HttpConnectionImpl> obj = get_ptr( );
-						m_socket->on_next_data_received( [obj]( std::shared_ptr<base::data_t> data_buffer, bool ) mutable {
+					HttpConnectionImpl& HttpConnectionImpl::start( ) {
+						std::weak_ptr<HttpConnectionImpl> obj( get_ptr( ) );
+
+						m_socket->on_next_data_received( [obj] ( std::shared_ptr<base::data_t> data_buffer, bool ) mutable {
 							if( !obj.expired( ) ) {
 								auto self = obj.lock( );
-								auto req = parse_http_request( data_buffer->begin( ), data_buffer->end( ) );
+								auto request = parse_http_request( data_buffer->begin( ), data_buffer->end( ) );
 								data_buffer.reset( );
-								if( req ) {
-									self->emit_request_made( req, create_http_server_response( self->m_socket ) );
+								if( request ) {
+									auto response = create_http_server_response( self->m_socket );
+									self->emit_request_made( request, response );
 								} else {
 									err400( self->m_socket );
 								}
 							}
-						} ).on_closed( [obj]( ) mutable {
+						} ).on_closed( [obj]( ) {
 							if( !obj.expired( ) ) {
 								obj.lock( )->emit_closed( );
 							}
-						} ).on_error( [obj]( base::Error error ) mutable {
+						} ).on_error( [obj]( base::Error error ) {
 							if( !obj.expired( ) ) {
 								obj.lock( )->emit_error( "HttpConnectionImpl::HttpConnectionImpl", error );
-							}
+							}							
 						} ).set_read_until_values( R"((\r\n|\n){2})", true );
 
 						m_socket->read_async( );
+						return *this;
 					}
 
 					HttpConnectionImpl::HttpConnectionImpl( HttpConnectionImpl && other ) : m_socket( std::move( other.m_socket ) ), m_emitter( std::move( other.m_emitter ) ) { }
