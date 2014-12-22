@@ -26,25 +26,19 @@ namespace daw {
 						m_body( ),
 						m_status_sent( false ),
 						m_headers_sent( false ),
-						m_body_sent( false ) {
+						m_body_sent( false ) { }
 
+					void HttpServerResponseImpl::start( ) {
 						std::weak_ptr<HttpServerResponseImpl> obj( get_ptr( ) );
 						m_socket->on_write_completion( [obj]( ) {
 							if( !obj.expired( ) ) {
 								obj.lock( )->emit_write_completion( );
 							}
-						} );
-
-						m_socket->on_all_writes_completed( [&]( ) {
+						} ).on_all_writes_completed( [obj]( ) {
 							if( !obj.expired( ) ) {
 								obj.lock( )->emit_all_writes_completed( );
 							}
 						} );
-					}
-
-					HttpServerResponseImpl& HttpServerResponseImpl::start( ) {
-
-						return *this;
 					}
 
 					std::shared_ptr<HttpServerResponseImpl> HttpServerResponseImpl::get_ptr( ) {

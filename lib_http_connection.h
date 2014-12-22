@@ -46,7 +46,7 @@ namespace daw {
 
 						HttpConnectionImpl& on_closed( std::function<void( )> listener );	// Only once as it is called on the way out				
 						void close( );
-						HttpConnectionImpl& start( );
+						void start( );
 						lib::net::NetSocketStream socket( );
 
 					protected:

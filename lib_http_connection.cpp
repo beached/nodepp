@@ -36,7 +36,7 @@ namespace daw {
 						m_socket( std::move( socket ) ),
 						m_emitter( emitter ) { }
 
-					HttpConnectionImpl& HttpConnectionImpl::start( ) {
+					void HttpConnectionImpl::start( ) {
 						std::weak_ptr<HttpConnectionImpl> obj( get_ptr( ) );
 
 						m_socket->on_next_data_received( [obj] ( std::shared_ptr<base::data_t> data_buffer, bool ) mutable {
@@ -46,6 +46,7 @@ namespace daw {
 								data_buffer.reset( );
 								if( request ) {
 									auto response = create_http_server_response( self->m_socket );
+									response->start( );
 									self->emit_request_made( request, response );
 								} else {
 									err400( self->m_socket );
@@ -62,7 +63,6 @@ namespace daw {
 						} ).set_read_until_values( R"((\r\n|\n){2})", true );
 
 						m_socket->read_async( );
-						return *this;
 					}
 
 					HttpConnectionImpl::HttpConnectionImpl( HttpConnectionImpl && other ) : m_socket( std::move( other.m_socket ) ), m_emitter( std::move( other.m_emitter ) ) { }
