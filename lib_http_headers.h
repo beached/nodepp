@@ -14,6 +14,7 @@ namespace daw {
 
 					HttpHeader( );
 					HttpHeader( std::string Name, std::string Value );
+					HttpHeader( boost::string_ref Name, boost::string_ref Value );
 					std::string to_string( ) const;
 					bool empty( ) const;
 				};

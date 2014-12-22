@@ -10,7 +10,8 @@ namespace daw {
 			namespace http {
 				HttpHeader::HttpHeader( ) : name{ }, value{ } { }
 
-				HttpHeader::HttpHeader( std::string Name, std::string Value ) : name( Name ), value( Value ) { }
+				HttpHeader::HttpHeader( std::string Name, std::string Value ) : name( std::move( Name ) ), value( std::move( Value ) ) { }
+				HttpHeader::HttpHeader( boost::string_ref Name, boost::string_ref Value ) : name( Name.to_string( ) ), value( Value.to_string( ) ) { }
 
 				std::string HttpHeader::to_string( ) const {
 					return name + ": " + value;
