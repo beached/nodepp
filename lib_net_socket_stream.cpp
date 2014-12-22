@@ -343,7 +343,7 @@ namespace daw {
 						m_state.end = true;
 						try {
 							m_socket.shutdown( boost::asio::ip::tcp::socket::shutdown_both );
-							m_socket = boost::asio::ip::tcp::socket( base::ServiceHandle::get( ) );
+							m_socket.close( );
 						} catch( ... ) {
 							//emit_error( std::current_exception( ), "Error calling shutdown on socket", "NetSocketStreamImplImpl::close( )" );
 						}
