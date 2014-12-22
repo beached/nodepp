@@ -10,7 +10,6 @@ find_package(Threads REQUIRED)
 set(SOURCE_FILES
 		base_callback.cpp
 		base_callback.h
-		base_data.h
 		base_encoding.cpp
 		base_enoding.h
 		base_error.cpp
@@ -19,7 +18,6 @@ set(SOURCE_FILES
 		base_event_emitter.h
 		base_service_handle.cpp
 		base_service_handle.h
-		base_stream.cpp
 		base_stream.h
 		base_types.h
 		base_url.h
@@ -48,7 +46,6 @@ set(SOURCE_FILES
 		lib_net_server.h
 		lib_net_socket_stream.cpp
 		lib_net_socket_stream.h
-		lib_net_socket_stream_impl.h
 		load_library.cpp
 		load_library.h
 		load_library_posix.cpp
@@ -67,6 +64,7 @@ set(SOURCE_FILES
 add_executable(NodePP ${SOURCE_FILES})
 
 target_link_libraries(NodePP  ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+
 
 
 

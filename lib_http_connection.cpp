@@ -33,8 +33,8 @@ namespace daw {
 
 
 					HttpConnectionImpl::HttpConnectionImpl( lib::net::NetSocketStream socket, base::EventEmitter emitter ) :
-						m_emitter( emitter ),
-						m_socket( std::move( socket ) ) {
+						m_socket( std::move( socket ) ),
+						m_emitter( emitter ) {
 
 						std::weak_ptr<HttpConnectionImpl> obj = get_ptr( );
 						m_socket->on_next_data_received( [obj]( std::shared_ptr<base::data_t> data_buffer, bool ) mutable {
@@ -61,12 +61,12 @@ namespace daw {
 						m_socket->read_async( );
 					}
 
-					HttpConnectionImpl::HttpConnectionImpl( HttpConnectionImpl && other ) : m_emitter( std::move( other.m_emitter ) ), m_socket( std::move( other.m_socket ) ) { }
+					HttpConnectionImpl::HttpConnectionImpl( HttpConnectionImpl && other ) : m_socket( std::move( other.m_socket ) ), m_emitter( std::move( other.m_emitter ) ) { }
 
 					HttpConnectionImpl& HttpConnectionImpl::operator = (HttpConnectionImpl && rhs) {
 						if( this != &rhs ) {
-							m_emitter = std::move( rhs.m_emitter );
 							m_socket = std::move( rhs.m_socket );
+							m_emitter = std::move( rhs.m_emitter );
 						}
 						return *this;
 					}

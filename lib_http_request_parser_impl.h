@@ -45,7 +45,7 @@ namespace daw {
 					using qi::raw;
 					using spirit::int_;
 					using spirit::omit;
-
+					namespace {
 					struct method_parse_symbol_: qi::symbols < char, daw::nodepp::lib::http::HttpRequestMethod > {
 						method_parse_symbol_( ) {
 							add
@@ -60,6 +60,7 @@ namespace daw {
 								;
 						}
 					} method_parse_symbol;
+					}	// namespace anonymous
 
 					template <typename Iterator>
 					struct parse_grammar: qi::grammar < Iterator, daw::nodepp::lib::http::HttpClientRequest( ) > {

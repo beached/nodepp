@@ -64,7 +64,7 @@ namespace daw {
 	
 						//////////////////////////////////////////////////////////////////////////
 						/// Summary: Event emitted when async resolve is complete
-						virtual void emit_resolved( boost::asio::ip::tcp::resolver::iterator it );
+						void emit_resolved( boost::asio::ip::tcp::resolver::iterator it );
 					};	// class NetDnsImpl
 				}	// namespace impl		
 

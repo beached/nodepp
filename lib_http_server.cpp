@@ -65,8 +65,8 @@ namespace daw {
 
 							connection->on_error( [obj]( base::Error error ) {
 								if( !obj.expired( ) ) {
-									auto self = obj.lock( );
-									self->emit_error( "HttpServerImpl::handle_connection", std::move( error ) );
+									auto self_l = obj.lock( );
+									self_l->emit_error( "HttpServerImpl::handle_connection", std::move( error ) );
 								}
 							} );
 

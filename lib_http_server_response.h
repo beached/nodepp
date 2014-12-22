@@ -42,7 +42,7 @@ namespace daw {
 
 						HttpServerResponseImpl( HttpServerResponseImpl const & ) = delete;
 						~HttpServerResponseImpl( ) = default;
-						HttpServerResponseImpl& operator=(HttpServerResponseImpl const &) = delete;;
+						HttpServerResponseImpl& operator=(HttpServerResponseImpl const &) = delete;
 	
 						HttpServerResponseImpl( HttpServerResponseImpl&& other ) = delete;
 						HttpServerResponseImpl& operator=(HttpServerResponseImpl && rhs) = delete;
