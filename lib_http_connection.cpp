@@ -34,24 +34,43 @@ namespace daw {
 
 					HttpConnectionImpl::HttpConnectionImpl( lib::net::NetSocketStream socket, base::EventEmitter emitter ) :
 						m_emitter( emitter ),
-						m_socket( socket ) {
+						m_socket( std::move( socket ) ) {
 
-						m_socket->on_next_data_recv( [&]( std::shared_ptr<base::data_t> data_buffer, bool ) mutable {
-							auto req = parse_http_request( data_buffer->begin( ), data_buffer->end( ) );
-							data_buffer.reset( );
-							if( req ) {
-								emit_request_made( std::move( req ), create_http_server_response( m_socket ) );
-							} else {
-								err400( m_socket );
+						std::weak_ptr<HttpConnectionImpl> obj = get_ptr( );
+						m_socket->on_next_data_received( [obj]( std::shared_ptr<base::data_t> data_buffer, bool ) mutable {
+							if( !obj.expired( ) ) {
+								auto self = obj.lock( );
+								auto req = parse_http_request( data_buffer->begin( ), data_buffer->end( ) );
+								data_buffer.reset( );
+								if( req ) {
+									self->emit_request_made( req, create_http_server_response( self->m_socket ) );
+								} else {
+									err400( self->m_socket );
+								}
 							}
-						} ).on_closed( [&]( ) {
-							emit_closed( );
-						} ).on_error( [&]( base::Error error ) {
-							emit_error( "HttpConnectionImpl::HttpConnectionImpl", std::move( error ) );
+						} ).on_closed( [obj]( ) mutable {
+							if( !obj.expired( ) ) {
+								obj.lock( )->emit_closed( );
+							}
+						} ).on_error( [obj]( base::Error error ) mutable {
+							if( !obj.expired( ) ) {
+								obj.lock( )->emit_error( "HttpConnectionImpl::HttpConnectionImpl", error );
+							}
 						} ).set_read_until_values( R"((\r\n|\n){2})", true );
 
 						m_socket->read_async( );
 					}
+
+					HttpConnectionImpl::HttpConnectionImpl( HttpConnectionImpl && other ) : m_emitter( std::move( other.m_emitter ) ), m_socket( std::move( other.m_socket ) ) { }
+
+					HttpConnectionImpl& HttpConnectionImpl::operator = (HttpConnectionImpl && rhs) {
+						if( this != &rhs ) {
+							m_emitter = std::move( rhs.m_emitter );
+							m_socket = std::move( rhs.m_socket );
+						}
+						return *this;
+					}
+
 
 					base::EventEmitter& HttpConnectionImpl::emitter( ) {
 						return m_emitter;
@@ -66,11 +85,11 @@ namespace daw {
 					}
 
 					void HttpConnectionImpl::emit_client_error( base::Error error ) {
-						emitter( )->emit( "client_error", std::move( error ) );
+						emitter( )->emit( "client_error", error );
 					}
 
 					void HttpConnectionImpl::emit_request_made( std::shared_ptr<HttpClientRequest> request, HttpServerResponse response ) {
-						emitter( )->emit( "request_made", std::move( request ), std::move( response ) );
+						emitter( )->emit( "request_made", request, response );
 					}
 
 
@@ -114,7 +133,7 @@ namespace daw {
 				}	// namespace impl
 
 				HttpConnection create_http_connection( lib::net::NetSocketStream socket, base::EventEmitter emitter ) {
-					return HttpConnection( new impl::HttpConnectionImpl( std::move( socket ), std::move( emitter ) ) );
+					return HttpConnection( new impl::HttpConnectionImpl( socket, emitter ) );
 				}
 
 			} // namespace http

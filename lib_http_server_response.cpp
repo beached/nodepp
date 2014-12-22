@@ -190,7 +190,7 @@ namespace daw {
 				}	// namespace impl
 
 				HttpServerResponse create_http_server_response( lib::net::NetSocketStream socket, base::EventEmitter emitter ) {
-					return HttpServerResponse( new impl::HttpServerResponseImpl( std::move( socket ), std::move( emitter ) ) );
+					return HttpServerResponse( new impl::HttpServerResponseImpl( socket, emitter ) );
 				}
 			}	// namespace http
 		}	// namespace lib

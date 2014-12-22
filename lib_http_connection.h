@@ -30,8 +30,8 @@ namespace daw {
 						
 						HttpConnectionImpl( HttpConnectionImpl const & ) = delete;
 						HttpConnectionImpl& operator=(HttpConnectionImpl const &) = delete;
-						HttpConnectionImpl( HttpConnectionImpl && ) = delete;
-						HttpConnectionImpl& operator=(HttpConnectionImpl &&) = delete;
+						HttpConnectionImpl( HttpConnectionImpl && );
+						HttpConnectionImpl& operator=(HttpConnectionImpl &&);
 						
 						~HttpConnectionImpl( ) = default;
 

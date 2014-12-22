@@ -92,7 +92,6 @@ namespace daw {
 						} catch( std::exception const & ) {
 							// Do nothing, we don't usually care.  It's gone, move on
 						}
-						std::cerr << "NetSocketStreamImplImpl::~NetSocketStreamImplImpl( )\n";
 					}
 
 					std::shared_ptr<NetSocketStreamImpl> NetSocketStreamImpl::get_ptr( ) {
@@ -104,7 +103,7 @@ namespace daw {
 					}
 
 					NetSocketStreamImpl& NetSocketStreamImpl::set_read_mode( NetSocketStreamImpl::ReadUntil mode ) {
-						m_read_options.read_mode = std::move( mode );
+						m_read_options.read_mode =  mode;
 						return *this;
 					}
 
@@ -167,21 +166,22 @@ namespace daw {
 									auto new_data = std::make_shared<base::data_t>( bytes_transfered );
 									resp.read( new_data->data( ), static_cast<std::streamsize>(bytes_transfered) );
 									read_buffer->consume( bytes_transfered );
-									if( 0 < self->emitter( )->listener_count( "data" ) ) {
+									if( 0 < self->emitter( )->listener_count( "data_received" ) ) {
 
 										{
 											// Handle when the emitter comes after the data starts pouring in.  This might be best placed in newEvent
 											// have not decided
 											if( !self->m_response_buffers.empty( ) ) {
-												auto buff = std::make_shared<base::data_t>( get_clear_buffer( self->m_response_buffers, self->m_response_buffers.size( ), 0 ) );
-												self->emit_data_recv( std::move( buff ), false );
+												auto buff = std::make_shared<base::data_t>( self->m_response_buffers.cbegin( ), self->m_response_buffers.cend( ) );
+												self->m_response_buffers.resize( 0 );
+												self->emit_data_received( buff, false );
 											}
 										}
 										bool end_of_file = err && 2 == err.value( );
 
-										self->emit_data_recv( std::move( new_data ), end_of_file );
-									} else {	// Queue up for a			
-										daw::copy_vect_and_set( *new_data, self->m_response_buffers, bytes_transfered, static_cast<base::data_t::value_type>(0) );
+										self->emit_data_received( new_data, end_of_file );
+									} else {	// Queue up for a													
+										self->m_response_buffers.insert( self->m_response_buffers.cend( ), new_data->cbegin( ), new_data->cend( ) );
 									}
 									self->m_bytes_read += bytes_transfered;
 								}
@@ -428,11 +428,11 @@ namespace daw {
 				}	// namespace impl
 
 				NetSocketStream create_net_socket_stream( base::EventEmitter emitter ) {
-					return NetSocketStream( new impl::NetSocketStreamImpl( std::move( emitter ) ) );
+					return NetSocketStream( new impl::NetSocketStreamImpl( emitter ) );
 				}
 
 				NetSocketStream create_net_socket_stream( boost::asio::io_service& io_service, std::size_t max_read_size, base::EventEmitter emitter ) {
-					return NetSocketStream( new impl::NetSocketStreamImpl( io_service, max_read_size, std::move( emitter ) ) );
+					return NetSocketStream( new impl::NetSocketStreamImpl( io_service, max_read_size, emitter ) );
 				}
 
 

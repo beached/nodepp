@@ -124,8 +124,8 @@ namespace daw {
 					}
 
 					HttpServerImpl& HttpServerImpl::on_client_connected( std::function<void( HttpConnection )> listener ) {
-						auto handler = [listener]( std::shared_ptr<HttpConnection> con ) {
-							listener( *con );
+						auto handler = [listener]( HttpConnection con ) {
+							listener( con );
 						};
 						emitter( )->add_listener( "connection", handler );
 						return *this;

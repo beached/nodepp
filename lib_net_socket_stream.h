@@ -146,8 +146,8 @@ namespace daw {
 	
 							void write_async( write_buffer buff );
 	
-							virtual void emit_connect( );
-							virtual void emit_timeout( );
+							void emit_connect( );
+							void emit_timeout( );
 	
 						};	// struct NetSocketStreamImpl
 

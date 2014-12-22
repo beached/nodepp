@@ -24,15 +24,15 @@ namespace daw {
 				public:
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Event emitted when data is received
-					Child& on_data_recv( std::function<void( std::shared_ptr<base::data_t>, bool )> listener ) {
-						emitter( )->add_listener( "data_recv", listener );
+					Child& don_data_received( std::function<void( std::shared_ptr<base::data_t>, bool )> listener ) {
+						emitter( )->add_listener( "data_received", listener );
 						return child( );
 					}
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Event emitted when data is received
-					Child& on_next_data_recv( std::function<void( std::shared_ptr<base::data_t>, bool )> listener ) {
-						emitter( )->add_listener( "data_recv", listener, true );
+					Child& on_next_data_received( std::function<void( std::shared_ptr<base::data_t>, bool )> listener ) {
+						emitter( )->add_listener( "data_received", listener, true );
 						return child( );
 					}
 
@@ -60,8 +60,8 @@ namespace daw {
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Emit an event with the data received and whether the eof
 					///				has been reached
-					void emit_data_recv( std::shared_ptr<base::data_t> buffer, bool end_of_file ) {
-						emitter( )->emit( "data_recv", std::move( buffer ), end_of_file );
+					void emit_data_received( std::shared_ptr<base::data_t> buffer, bool end_of_file ) {
+						emitter( )->emit( "data_received", std::move( buffer ), end_of_file );
 					}
 
 					//////////////////////////////////////////////////////////////////////////

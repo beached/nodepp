@@ -50,8 +50,20 @@ namespace daw {
 				template<typename... Args>
 				void exec( Args&&... args ) {					
 					using cb_type = std::function < void( typename std::remove_reference<Args>::type... ) >;
-					auto callback = boost::any_cast<cb_type>(m_callback);
-					callback( std::forward<Args>( args )... );
+					try {
+						auto callback = boost::any_cast<cb_type>(m_callback);
+						callback( std::forward<Args>( args )... );
+					} catch( boost::bad_any_cast const & ) {
+						throw std::runtime_error( "Type of event listener does not match.  This shouldn't happen" );						
+						catch( std::exception const & ex ) {
+							auto msg = ex.what( );
+							throw std::runtime_error( msg );
+						}
+					} catch( ... ) {
+						// Callback has let an exception raise through.  Abort and report
+
+						std::rethrow_exception( std::current_exception( ) );
+					}
 				}
 
 			};
