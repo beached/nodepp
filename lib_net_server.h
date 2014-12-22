@@ -81,12 +81,6 @@ namespace daw {
 						/// are closed
 						NetServerImpl& on_closed( std::function<void( )> listener );
 
-					private:
-
-						static void handle_accept( std::weak_ptr<NetServerImpl> obj, NetSocketStream socket, boost::system::error_code const & err );
-
-						void start_accept( );
-
 						//////////////////////////////////////////////////////////////////////////
 						/// Summary:	Event emitted when a connection is established
 						void emit_connection( NetSocketStream socket );
@@ -100,7 +94,14 @@ namespace daw {
 						/// Summary:	Event emitted when the server is bound after calling 
 						///				listen( ... )
 						void emit_closed( );
-					};	// class server
+
+					private:
+
+						static void handle_accept( std::weak_ptr<NetServerImpl> obj, NetSocketStream socket, boost::system::error_code const & err );
+
+						void start_accept( );
+
+					};	// class NetServerImpl
 				}	// namespace impl
 
 			}	// namespace net

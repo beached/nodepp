@@ -30,7 +30,7 @@ namespace daw {
 						std::list<HttpConnection> m_connections;
 
 						static void handle_connection( std::weak_ptr<HttpServerImpl> obj, lib::net::NetSocketStream socket );
-						static void handle_error( std::weak_ptr<HttpServerImpl> obj, base::Error error );
+
 						HttpServerImpl( base::EventEmitter emitter );
 					public:
 						friend lib::http::HttpServer lib::http::create_http_server( base::EventEmitter );

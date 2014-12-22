@@ -134,7 +134,10 @@ namespace daw {
 	
 							//////////////////////////////////////////////////////////////////////////
 							/// StreamReadable
-							
+
+							void emit_connect( );
+							void emit_timeout( );
+
 						private:				
 	
 							bool dec_outstanding_writes( );
@@ -145,9 +148,6 @@ namespace daw {
 							static void handle_write( std::weak_ptr<NetSocketStreamImpl> obj, write_buffer buff, boost::system::error_code const & err, size_t bytes_transfered );
 	
 							void write_async( write_buffer buff );
-	
-							void emit_connect( );
-							void emit_timeout( );
 	
 						};	// struct NetSocketStreamImpl
 

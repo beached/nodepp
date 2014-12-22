@@ -122,16 +122,15 @@ namespace daw {
 			class StandardEvents {
 				Child& child( ) {
 					return *static_cast<Child*>(this);
-				}
-
-				EventEmitter& emitter( ) {
-					return child( ).emitter( );
-				}
+				}				
 
 				void emit_error( base::Error error ) {
 					emitter( )->emit( "error", std::move( error ) );
 				}
 			public:
+				EventEmitter& emitter( ) {
+					return child( ).emitter( );
+				}
 				//////////////////////////////////////////////////////////////////////////
 				/// Summary: Callback is for when error's occur
 				Child& on_error( std::function<void( base::Error )> listener ) {
@@ -178,7 +177,21 @@ namespace daw {
 					return child( );
 				}
 
-			protected:
+				template<typename StandardEventsChild>
+				Child& delegate_error_to( std::weak_ptr<StandardEventsChild> error_destination, std::string where ) {
+					on_error( [error_destination, where]( base::Error error ) mutable {
+						if( !error_destination.expired( ) ) {
+							error_destination.lock( )->emit_error( where, std::move( error ) );
+						}
+					} );
+					return child( );
+				}
+
+				template<typename StandardEventsChild>
+				Child& delegate_error_to( std::shared_ptr<StandardEventsChild> error_destination, std::string where ) {
+					return delegate_error_to( std::weak_ptr<StandardEventsChild>( error_destination ), std::move( where ) );
+				}
+			
 				//////////////////////////////////////////////////////////////////////////
 				/// Summary: Emit an error event
 				void emit_error( boost::string_ref description, boost::string_ref where ) {
@@ -231,7 +244,7 @@ namespace daw {
 				}
 
 				template<typename Class, typename Func>
-				static void emit_error_on_throw( std::shared_ptr<Class> self, std::string err_description, std::string where, Func func ) {
+				static void emit_error_on_throw( std::shared_ptr<Class> self, boost::string_ref err_description, boost::string_ref where, Func func ) {
 					try {
 						func( );
 					} catch( ... ) {
@@ -240,7 +253,7 @@ namespace daw {
 				}
 
 				template<typename Class, typename Func>
-				static void run_if_valid( std::weak_ptr<Class> obj, std::string err_description, std::string where, Func func ) {
+				static void run_if_valid( std::weak_ptr<Class> obj, boost::string_ref err_description, boost::string_ref where, Func func ) {
 					if( !obj.expired( ) ) {
 						auto self = obj.lock( );
 						emit_error_on_throw( self, err_description, where, [&]( ) {
@@ -248,7 +261,18 @@ namespace daw {
 						} );
 					}
 				}
-			};	// class StandardEvents
+
+				template<typename... Args, typename DestinationType>
+				Child& delegate_to( boost::string_ref source_event, std::weak_ptr<DestinationType> destination_obj, std::string destination_event ) {
+					emitter( )->on( source_event, [destination_obj, destination_event]( Args... args ) {
+						if( !destination_obj.expired( ) ) {
+							destination_obj.lock( )->emitter( )->emit( destination_event, std::move( args )... );
+						}
+					} );
+					return child( );
+				}
+
+			};	// class StandardEvents			
 
 			template<typename This, typename Listener, typename Action>
 			static auto rollback_event_on_exception( This me, boost::string_ref event, Listener listener, Action action_to_try, bool run_listener_once = false ) -> decltype(action_to_try( )) {

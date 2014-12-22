@@ -49,7 +49,6 @@ namespace daw {
 						void start( );
 						lib::net::NetSocketStream socket( );
 
-					protected:
 						void emit_closed( );
 						void emit_client_error( base::Error error );
 						void emit_request_made( std::shared_ptr<HttpClientRequest> request, HttpServerResponse response );

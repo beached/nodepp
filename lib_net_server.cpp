@@ -109,7 +109,7 @@ namespace daw {
 						run_if_valid( obj, "Exception while accepting connections", "NetServerImpl::handle_accept", [&]( std::shared_ptr<NetServerImpl>& self ) {
 							if( !err ) {
 								try {
-									self->emit_connection( socket );
+									self->emit_connection( std::move( socket ) );
 								} catch( ... ) {
 									self->emit_error( std::current_exception( ), "Running connection listeners", "NetServerImpl::listen#emit_connection" );
 								}
@@ -124,8 +124,8 @@ namespace daw {
 						auto socket = create_net_socket_stream( );
 
 						std::weak_ptr<NetServerImpl> obj = get_ptr( );
-						auto handler = [obj, socket]( boost::system::error_code const & err ) {
-							handle_accept( obj, socket, err );
+						auto handler = [obj, socket]( boost::system::error_code const & err ) mutable {
+							handle_accept( obj, std::move( socket ), err );
 						};
 
 						m_acceptor->async_accept( socket->socket( ), handler );

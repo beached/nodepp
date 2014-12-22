@@ -13,84 +13,6 @@ namespace daw {
 				using namespace daw::nodepp;
 
 				template<typename Child>
-				class StreamReadableEvents {
-					Child& child( ) {
-						return *static_cast<Child*>(this);
-					}
-
-					EventEmitter& emitter( ) {
-						return child( ).emitter( );
-					}
-				public:
-					//////////////////////////////////////////////////////////////////////////
-					/// Summary:	Event emitted when data is received
-					Child& don_data_received( std::function<void( std::shared_ptr<base::data_t>, bool )> listener ) {
-						emitter( )->add_listener( "data_received", listener );
-						return child( );
-					}
-
-					//////////////////////////////////////////////////////////////////////////
-					/// Summary:	Event emitted when data is received
-					Child& on_next_data_received( std::function<void( std::shared_ptr<base::data_t>, bool )> listener ) {
-						emitter( )->add_listener( "data_received", listener, true );
-						return child( );
-					}
-
-					//////////////////////////////////////////////////////////////////////////
-					/// Summary:	Event emitted when of of stream is read.
-					Child& on_eof( std::function<void( )> listener ) {
-						emitter( )->add_listener( "eof", listener );
-						return child( );
-					}
-
-					//////////////////////////////////////////////////////////////////////////
-					/// Summary:	Event emitted when of of stream is read.
-					Child& on_next_eof( std::function<void( )> listener ) {
-						emitter( )->add_listener( "eof", listener, true );
-						return child( );
-					}
-
-					//////////////////////////////////////////////////////////////////////////
-					/// Summary:	Event emitted when the stream is closed
-					Child& on_closed( std::function<void( )> listener ) {
-						emitter( )->add_listener( "closed", listener );
-						return child( );
-					}
-				protected:
-					//////////////////////////////////////////////////////////////////////////
-					/// Summary:	Emit an event with the data received and whether the eof
-					///				has been reached
-					void emit_data_received( std::shared_ptr<base::data_t> buffer, bool end_of_file ) {
-						emitter( )->emit( "data_received", std::move( buffer ), end_of_file );
-					}
-
-					//////////////////////////////////////////////////////////////////////////
-					/// Summary: Event emitted when the eof has been reached
-					void emit_eof( ) {
-						emitter( )->emit( "eof" );
-					}
-
-					//////////////////////////////////////////////////////////////////////////
-					/// Summary: Event emitted when the socket is closed
-					void emit_closed( ) {
-						emitter( )->emit( "closed" );
-					}
-				};
-
-				//////////////////////////////////////////////////////////////////////////
-				// Summary:		Readable stream class.
-				// Requires:	base::EventEmitter, base::Encoding, data_t, options_t, 
-				//				base::stream::StreamWriteable
-				template<typename Class>
-				struct StreamReadable {
-					virtual ~StreamReadable( ) = default;
-					virtual base::data_t read( ) = 0;
-					virtual base::data_t read( size_t bytes ) = 0;
-				};	// class StreamReadable
-
-
-
-				template<typename Child>
 				class StreamWritableEvents {
 					Child& child( ) {
 						return *static_cast<Child*>(this);
@@ -122,8 +44,7 @@ namespace daw {
 						emitter( )->add_listener( "all_writes_completed", listener );
 						return child( );
 					}
-				
-				protected:
+
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Event emitted when an async write completes
 					void emit_write_completion( ) {
@@ -136,7 +57,96 @@ namespace daw {
 						emitter( )->emit( "all_writes_completed" );
 					}
 
-				};
+				};	// class StreamWritableEvents
+
+
+				template<typename Child>
+				class StreamReadableEvents {
+					Child& child( ) {
+						return *static_cast<Child*>(this);
+					}
+
+					EventEmitter& emitter( ) {
+						return child( ).emitter( );
+					}
+				public:
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary:	Event emitted when data is received
+					Child& on_data_received( std::function<void( std::shared_ptr<base::data_t>, bool )> listener ) {
+						emitter( )->add_listener( "data_received", listener );
+						return child( );
+					}
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary:	Event emitted when data is received
+					Child& on_next_data_received( std::function<void( std::shared_ptr<base::data_t>, bool )> listener ) {
+						emitter( )->add_listener( "data_received", listener, true );
+						return child( );
+					}
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary:	Event emitted when of of stream is read.
+					Child& on_eof( std::function<void( )> listener ) {
+						emitter( )->add_listener( "eof", listener );
+						return child( );
+					}
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary:	Event emitted when of of stream is read.
+					Child& on_next_eof( std::function<void( )> listener ) {
+						emitter( )->add_listener( "eof", listener, true );
+						return child( );
+					}
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary:	Event emitted when the stream is closed
+					Child& on_closed( std::function<void( )> listener ) {
+						emitter( )->add_listener( "closed", listener );
+						return child( );
+					}
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary:	Emit an event with the data received and whether the eof
+					///				has been reached
+					void emit_data_received( std::shared_ptr<base::data_t> buffer, bool end_of_file ) {
+						emitter( )->emit( "data_received", std::move( buffer ), end_of_file );
+					}
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when the eof has been reached
+					void emit_eof( ) {
+						emitter( )->emit( "eof" );
+					}
+
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary: Event emitted when the socket is closed
+					void emit_closed( ) {
+						emitter( )->emit( "closed" );
+					}
+
+					template<typename StreamWritableObj>
+					Child& pipe_data( std::weak_ptr<StreamWritableObj> stream_writable_obj ) {
+						on_data_received( [stream_writable_obj]( base::data_t buff, bool eof ) {
+							if( !stream_writable_obj.expired( ) ) {
+								stream_writable_obj.lock( )->write( buff );
+							}
+						} );
+					}
+				};	// class StreamReadableEvents
+
+				//////////////////////////////////////////////////////////////////////////
+				// Summary:		Readable stream class.
+				// Requires:	base::EventEmitter, base::Encoding, data_t, options_t, 
+				//				base::stream::StreamWriteable
+				template<typename Class>
+				struct StreamReadable {
+					virtual ~StreamReadable( ) = default;
+					virtual base::data_t read( ) = 0;
+					virtual base::data_t read( size_t bytes ) = 0;
+				};	// class StreamReadable
+
+
+
 
 				//////////////////////////////////////////////////////////////////////////
 				// Summary:		Writable stream class.

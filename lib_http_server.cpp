@@ -64,13 +64,9 @@ namespace daw {
 						run_if_valid( obj, "Exception while connecting", "HttpServerImpl::handle_connection", [&]( std::shared_ptr<HttpServerImpl>& self ) {
 							auto connection = create_http_connection( std::move( socket ) );
 							auto it = self->m_connections.emplace( self->m_connections.end( ), connection );
-
-							connection->on_error( [obj]( base::Error error ) mutable {
-								if( !obj.expired( ) ) {
-									auto self_l = obj.lock( );
-									self_l->emit_error( "HttpServerImpl::handle_connection", std::move( error ) );
-								}
-							} ).on_closed( [it, obj] ( ) mutable { 
+							
+							connection->delegate_error_to( self, "HttpServerImpl::handle_connection" )
+								.on_closed( [it, obj] ( ) mutable { 
 								if( !obj.expired( ) ) {
 									auto self_l = obj.lock( );
 									try {
@@ -89,27 +85,12 @@ namespace daw {
 						} );
 					}
 
-					void HttpServerImpl::handle_error( std::weak_ptr<HttpServerImpl> obj, base::Error error ) {
-						if( !obj.expired( ) ) {
-							obj.lock( )->emit_error( "HttpServerImpl::handle_connection", std::move( error ) );
-						}
-					}
-
 					void HttpServerImpl::listen_on( uint16_t port ) {
 						std::weak_ptr<HttpServerImpl> obj = get_ptr( );
-						m_netserver->on_connection( [obj]( lib::net::NetSocketStream socket ) {
-							if( !obj.expired( ) ) {
-								obj.lock( )->handle_connection( obj, std::move( socket ) );
-							}
-						} ).on_error( [obj]( base::Error error ) {
-							if( !obj.expired( ) ) {
-								obj.lock( )->handle_error( obj, std::move( error ) );
-							}
-						} ).on_listening( [obj]( boost::asio::ip::tcp::endpoint endpoint ) {
-							if( !obj.expired( ) ) {
-								obj.lock( )->emit_listening( std::move( endpoint ) );
-							}
-						} ).listen( port );
+						m_netserver->on_connection( [obj]( lib::net::NetSocketStream socket ) { handle_connection( obj, std::move( socket ) ); } )
+							.delegate_error_to( obj, "HttpServerImpl::listen_on" )
+							.delegate_to<boost::asio::ip::tcp::endpoint>( "listening", obj, "listening" )
+							.listen( port );
 					}
 
 					void HttpServerImpl::listen_on( uint16_t, std::string, uint16_t ) { throw std::runtime_error( "Method not implemented" ); }
