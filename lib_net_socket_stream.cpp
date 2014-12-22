@@ -142,8 +142,7 @@ namespace daw {
 					}
 
 					void NetSocketStreamImpl::handle_connect( std::weak_ptr<NetSocketStreamImpl> obj, boost::system::error_code const & err, tcp::resolver::iterator it ) {
-						if( !obj.expired( ) ) {
-							auto self = obj.lock( );
+						run_if_valid( obj, "Exception while connecting", "NetSocketStreamImpl::handle_connect", [&]( std::shared_ptr<NetSocketStreamImpl> & self ) {
 							if( !err ) {
 								try {
 									self->emit_connect( );
@@ -153,67 +152,61 @@ namespace daw {
 							} else {
 								self->emit_error( err, "NetSocketStreamImpl::connect" );
 							}
-						}
+						} );
 					}
 
 					void NetSocketStreamImpl::handle_read( std::weak_ptr<NetSocketStreamImpl> obj, std::shared_ptr<boost::asio::streambuf> read_buffer, boost::system::error_code const & err, std::size_t bytes_transfered ) {
-						if( !obj.expired( ) ) {
-							auto self = obj.lock( );
-							try {
-								auto& response_buffers = self->m_response_buffers;
+						run_if_valid( obj, "Exception while handling read", "NetSocketStreamImpl::handle_read", [&]( std::shared_ptr<NetSocketStreamImpl>& self ) {
+							auto& response_buffers = self->m_response_buffers;
 
-								read_buffer->commit( bytes_transfered );
-								if( 0 < bytes_transfered ) {
-									std::istream resp( read_buffer.get( ) );
-									auto new_data = std::make_shared<base::data_t>( bytes_transfered );
-									resp.read( new_data->data( ), static_cast<std::streamsize>(bytes_transfered) );
-									read_buffer->consume( bytes_transfered );
-									if( 0 < self->emitter( )->listener_count( "data_received" ) ) {
+							read_buffer->commit( bytes_transfered );
+							if( 0 < bytes_transfered ) {
+								std::istream resp( read_buffer.get( ) );
+								auto new_data = std::make_shared<base::data_t>( bytes_transfered );
+								resp.read( new_data->data( ), static_cast<std::streamsize>(bytes_transfered) );
+								read_buffer->consume( bytes_transfered );
+								if( 0 < self->emitter( )->listener_count( "data_received" ) ) {
 
-										{
-											// Handle when the emitter comes after the data starts pouring in.  This might be best placed in newEvent
-											// have not decided
-											if( !response_buffers.empty( ) ) {
-												auto buff = std::make_shared<base::data_t>( response_buffers.cbegin( ), response_buffers.cend( ) );
-												self->m_response_buffers.resize( 0 );
-												self->emit_data_received( buff, false );
-											}
+									{
+										// Handle when the emitter comes after the data starts pouring in.  This might be best placed in newEvent
+										// have not decided
+										if( !response_buffers.empty( ) ) {
+											auto buff = std::make_shared<base::data_t>( response_buffers.cbegin( ), response_buffers.cend( ) );
+											self->m_response_buffers.resize( 0 );
+											self->emit_data_received( buff, false );
 										}
-										bool end_of_file = err && 2 == err.value( );
-
-										self->emit_data_received( new_data, end_of_file );
-									} else {	// Queue up for a													
-										self->m_response_buffers.insert( self->m_response_buffers.cend( ), new_data->cbegin( ), new_data->cend( ) );
 									}
-									self->m_bytes_read += bytes_transfered;
-								}
+									bool end_of_file = err && 2 == err.value( );
 
-								if( !err ) {
-									if( !self->m_state.closed ) {
-										self->read_async( read_buffer );
-									}
-								} else if( 2 != err.value( ) ) {
-									self->emit_error( err, "NetSocket::read" );
+									self->emit_data_received( new_data, end_of_file );
+								} else {	// Queue up for a													
+									self->m_response_buffers.insert( self->m_response_buffers.cend( ), new_data->cbegin( ), new_data->cend( ) );
 								}
-							} catch( ... ) {
-								self->emit_error( std::current_exception( ), "Exception in read handler", "NetSocketStreamImpl::handle_read" );
+								self->m_bytes_read += bytes_transfered;
 							}
-						}
+
+							if( !err ) {
+								if( !self->m_state.closed ) {
+									self->read_async( read_buffer );
+								}
+							} else if( 2 != err.value( ) ) {
+								self->emit_error( err, "NetSocket::read" );
+							}
+						} );
 					}
 
 					void NetSocketStreamImpl::handle_write( std::weak_ptr<NetSocketStreamImpl> obj, write_buffer buff, boost::system::error_code const & err, size_t bytes_transfered ) { // TODO see if we need buff, maybe lifetime issue
-						if( !obj.expired( ) ) {
-							auto self = obj.lock( );
+						run_if_valid( obj, "Exception while handling write", "NetSocketStreamImpl::handle_write", [&]( std::shared_ptr<NetSocketStreamImpl>& self ) {
 							self->m_bytes_written += bytes_transfered;
 							if( !err ) {
 								self->emit_write_completion( );
 							} else {
-								self->emit_error( err, "NetSocket::write" );
+								self->emit_error( err, "NetSocket::handle_write" );
 							}
 							if( self->dec_outstanding_writes( ) ) {
 								self->emit_all_writes_completed( );
 							}
-						}
+						} );
 					}
 
 

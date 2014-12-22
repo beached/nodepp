@@ -42,24 +42,22 @@ namespace daw {
 						return m_emitter;
 					}
 
+					void NetDnsImpl::resolve( boost::asio::ip::tcp::resolver::query & query ) {
+						std::weak_ptr<NetDnsImpl> obj( get_ptr( ) );
+						
+						m_resolver->async_resolve( query, [obj]( boost::system::error_code const & err, boost::asio::ip::tcp::resolver::iterator it ) {
+							handle_resolve( obj, err, std::move( it ) );
+						} );
+					}
+
 					void NetDnsImpl::resolve( boost::string_ref address ) {
 						auto query = tcp::resolver::query( address.to_string( ), "", boost::asio::ip::resolver_query_base::numeric_host );
-	
-						auto handler = [&]( boost::system::error_code const & err, boost::asio::ip::tcp::resolver::iterator it ) {
-							handle_resolve( get_ptr( ), err, std::move( it ) );
-						};
-	
-						m_resolver->async_resolve( query, handler );
+						resolve( query );
 					}
 	
 					void NetDnsImpl::resolve( boost::string_ref address, uint16_t port ) {
 						auto query = tcp::resolver::query( address.to_string( ), boost::lexical_cast<std::string>(port), boost::asio::ip::resolver_query_base::numeric_host );
-	
-						auto handler = [&]( boost::system::error_code const & err, boost::asio::ip::tcp::resolver::iterator it ) {
-							handle_resolve( get_ptr( ), err, std::move( it ) );
-						};
-	
-						m_resolver->async_resolve( query, handler );
+						resolve( query );
 					}
 	
 					NetDnsImpl& NetDnsImpl::on_resolved( std::function<void( boost::asio::ip::tcp::resolver::iterator )> listener ) {
@@ -72,12 +70,14 @@ namespace daw {
 						return *this;
 					}
 	
-					void NetDnsImpl::handle_resolve( std::shared_ptr<NetDnsImpl> self, boost::system::error_code const & err, boost::asio::ip::tcp::resolver::iterator it ) {
-						if( !err ) {
-							self->emit_resolved( std::move( it ) );
-						} else {
-							self->emit_error( err, "NetDnsImpl::resolve" );
-						}
+					void NetDnsImpl::handle_resolve( std::weak_ptr<NetDnsImpl> obj, boost::system::error_code const & err, boost::asio::ip::tcp::resolver::iterator it ) {
+						run_if_valid( obj, "Exception while resolving dns query", "NetDnsImpl::handle_resolve", [&]( std::shared_ptr<NetDnsImpl>& self ) {
+							if( !err ) {
+								self->emit_resolved( std::move( it ) );
+							} else {
+								self->emit_error( err, "NetDnsImpl::resolve" );
+							}
+						} );
 					}
 	
 					void NetDnsImpl::emit_resolved( boost::asio::ip::tcp::resolver::iterator it ) {						

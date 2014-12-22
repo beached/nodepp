@@ -61,9 +61,7 @@ namespace daw {
 					}
 
 					void HttpServerImpl::handle_connection( std::weak_ptr<HttpServerImpl> obj, lib::net::NetSocketStream socket ) {
-						if( !obj.expired( ) ) {
-							auto self = obj.lock( );
-
+						run_if_valid( obj, "Exception while connecting", "HttpServerImpl::handle_connection", [&]( std::shared_ptr<HttpServerImpl>& self ) {
 							auto connection = create_http_connection( std::move( socket ) );
 							auto it = self->m_connections.emplace( self->m_connections.end( ), connection );
 
@@ -88,7 +86,7 @@ namespace daw {
 							} catch( ... ) {
 								self->emit_error( std::current_exception( ), "Running connection listeners", "HttpServerImpl::handle_connection" );
 							}
-						}
+						} );
 					}
 
 					void HttpServerImpl::handle_error( std::weak_ptr<HttpServerImpl> obj, base::Error error ) {

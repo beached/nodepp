@@ -106,8 +106,7 @@ namespace daw {
 					}
 
 					void NetServerImpl::handle_accept( std::weak_ptr<NetServerImpl> obj, NetSocketStream socket, boost::system::error_code const & err ) {
-						if( !obj.expired( ) ) {
-							auto self = obj.lock( );
+						run_if_valid( obj, "Exception while accepting connections", "NetServerImpl::handle_accept", [&]( std::shared_ptr<NetServerImpl>& self ) {
 							if( !err ) {
 								try {
 									self->emit_connection( socket );
@@ -118,15 +117,15 @@ namespace daw {
 								self->emit_error( err, "NetServerImpl::listen" );
 							}
 							self->start_accept( );
-						}
+						} );
 					}
 
 					void NetServerImpl::start_accept( ) {
 						auto socket = create_net_socket_stream( );
 
-						std::weak_ptr<NetServerImpl> self = get_ptr( );
-						auto handler = [self, socket]( boost::system::error_code const & err ) {
-							handle_accept( self, socket, err );
+						std::weak_ptr<NetServerImpl> obj = get_ptr( );
+						auto handler = [obj, socket]( boost::system::error_code const & err ) {
+							handle_accept( obj, socket, err );
 						};
 
 						m_acceptor->async_accept( socket->socket( ), handler );

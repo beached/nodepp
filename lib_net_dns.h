@@ -45,7 +45,7 @@ namespace daw {
 						// void(boost::system::error_code, boost::asio::ip::tcp::resolver::iterator)
 						void resolve( boost::string_ref address );
 						void resolve( boost::string_ref address, uint16_t port );
-	
+						void resolve( boost::asio::ip::tcp::resolver::query & query );
 						// Event callbacks
 	
 						//////////////////////////////////////////////////////////////////////////
@@ -60,7 +60,7 @@ namespace daw {
 						std::unique_ptr<boost::asio::ip::tcp::resolver> m_resolver;
 						base::EventEmitter m_emitter;
 	
-						static void handle_resolve( std::shared_ptr<NetDnsImpl> self, boost::system::error_code const & err, boost::asio::ip::tcp::resolver::iterator it );
+						static void handle_resolve( std::weak_ptr<NetDnsImpl> obj, boost::system::error_code const & err, boost::asio::ip::tcp::resolver::iterator it );
 	
 						//////////////////////////////////////////////////////////////////////////
 						/// Summary: Event emitted when async resolve is complete

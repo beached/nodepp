@@ -229,6 +229,25 @@ namespace daw {
 				void emit_listener_removed( boost::string_ref event, Callback listener ) {
 					emitter( )->emit( "listener_removed", event, std::move( listener ) );
 				}
+
+				template<typename Class, typename Func>
+				static void emit_error_on_throw( std::shared_ptr<Class> self, std::string err_description, std::string where, Func func ) {
+					try {
+						func( );
+					} catch( ... ) {
+						self->emit_error( std::current_exception( ), err_description, where );
+					}
+				}
+
+				template<typename Class, typename Func>
+				static void run_if_valid( std::weak_ptr<Class> obj, std::string err_description, std::string where, Func func ) {
+					if( !obj.expired( ) ) {
+						auto self = obj.lock( );
+						emit_error_on_throw( self, err_description, where, [&]( ) {
+							func( self );
+						} );
+					}
+				}
 			};	// class StandardEvents
 
 			template<typename This, typename Listener, typename Action>
@@ -242,6 +261,7 @@ namespace daw {
 					std::rethrow_exception( std::current_exception( ) );
 				}
 			}
+			
 		}	// namespace base
 	}	// namespace nodepp
 }	// namespace daw
