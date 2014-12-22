@@ -344,7 +344,7 @@ namespace daw {
 						try {
 							m_socket.shutdown( boost::asio::ip::tcp::socket::shutdown_both );
 						} catch( ... ) {
-							emit_error( std::current_exception( ), "Error calling shutdown on socket", "NetSocketStreamImplImpl::close( )" );
+							//emit_error( std::current_exception( ), "Error calling shutdown on socket", "NetSocketStreamImplImpl::close( )" );
 						}
 						if( emit_cb ) {
 							emit_closed( );
