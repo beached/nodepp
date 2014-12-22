@@ -41,14 +41,14 @@ namespace daw {
 					return *m_listeners;
 				}
 
-				bool EventEmitterImpl::at_max_listeners( std::string event ) {
+				bool EventEmitterImpl::at_max_listeners( boost::string_ref event ) {
 					auto result = 0 != m_max_listeners;
-					result &= listeners( )[event].size( ) >= m_max_listeners;
+					result &= listeners( )[event.to_string()].size( ) >= m_max_listeners;
 					return result;
 				}
 
-				void EventEmitterImpl::remove_listener( std::string event, callback_id_t id ) {
-					daw::algorithm::erase_remove_if( listeners( )[event], [&]( std::pair<bool, Callback> const & item ) {
+				void EventEmitterImpl::remove_listener( boost::string_ref event, callback_id_t id ) {
+					daw::algorithm::erase_remove_if( listeners( )[event.to_string( )], [&]( std::pair<bool, Callback> const & item ) {
 						if( item.second.id( ) == id ) {
 							// TODO verify if this needs to be outside loop
 							emit_listener_removed( event, item.second );
@@ -58,7 +58,7 @@ namespace daw {
 					} );
 				}
 
-				void EventEmitterImpl::remove_listener( std::string event, Callback listener ) {
+				void EventEmitterImpl::remove_listener( boost::string_ref event, Callback listener ) {
 					return remove_listener( event, listener.id( ) );
 				}
 
@@ -66,19 +66,19 @@ namespace daw {
 					listeners( ).clear( );
 				}
 
-				void EventEmitterImpl::remove_all_listeners( std::string event ) {
-					listeners( )[event].clear( );
+				void EventEmitterImpl::remove_all_listeners( boost::string_ref event ) {
+					listeners( )[event.to_string( )].clear( );
 				}
 
 				void EventEmitterImpl::set_max_listeners( size_t max_listeners ) {
 					m_max_listeners = max_listeners;
 				}
 
-				EventEmitterImpl::listener_list_t EventEmitterImpl::listeners( std::string event ) {
-					return listeners( )[event];
+				EventEmitterImpl::listener_list_t EventEmitterImpl::listeners( boost::string_ref event ) {
+					return listeners( )[event.to_string( )];
 				}
 
-				size_t EventEmitterImpl::listener_count( std::string event ) {
+				size_t EventEmitterImpl::listener_count( boost::string_ref event ) {
 					return listeners( event ).size( );
 				}
 
@@ -86,12 +86,12 @@ namespace daw {
 					return shared_from_this( );
 				}
 
-				void EventEmitterImpl::emit_listener_added( std::string event, Callback listener ) {
-					emit( "listener_added", std::move( event ), std::move( listener ) );
+				void EventEmitterImpl::emit_listener_added( boost::string_ref event, Callback listener ) {
+					emit( "listener_added", event, std::move( listener ) );
 				}
 
-				void EventEmitterImpl::emit_listener_removed( std::string event, Callback listener ) {
-					emit( "listener_removed", std::move( event ), std::move( listener ) );
+				void EventEmitterImpl::emit_listener_removed( boost::string_ref event, Callback listener ) {
+					emit( "listener_removed", event, std::move( listener ) );
 				}
 			}	// namespace impl
 

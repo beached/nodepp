@@ -51,21 +51,21 @@ namespace daw {
 
 					std::shared_ptr<EventEmitterImpl> get_ptr( );
 
-					void remove_listener( std::string event, callback_id_t id );
+					void remove_listener( boost::string_ref event, callback_id_t id );
 
-					void remove_listener( std::string event, Callback listener );
+					void remove_listener( boost::string_ref event, Callback listener );
 
 					void remove_all_listeners( );
 
-					void remove_all_listeners( std::string event );
+					void remove_all_listeners( boost::string_ref event );
 
 					void set_max_listeners( size_t max_listeners );
 					listeners_t & listeners( );
-					listener_list_t listeners( std::string event );
-					size_t listener_count( std::string event );
+					listener_list_t listeners( boost::string_ref event );
+					size_t listener_count( boost::string_ref event );
 
 					template<typename Listener>
-					callback_id_t add_listener( std::string event, Listener listener, bool run_once = false ) {						
+					callback_id_t add_listener( boost::string_ref event, Listener listener, bool run_once = false ) {
 						if( event.empty( ) ) {
 							throw std::runtime_error( "Empty event name passed to add_listener" );
 						}
@@ -74,7 +74,7 @@ namespace daw {
 							if( event != "newListener" ) {
 								emit_listener_added( event, callback );
 							}
-							listeners( )[event].emplace_back( run_once, callback );
+							listeners( )[event.to_string()].emplace_back( run_once, callback );
 							return callback.id( );
 						} else {
 							// TODO: implement logging to fail gracefully.  For now throw
@@ -83,22 +83,22 @@ namespace daw {
 					}
 
 					template<typename Listener>
-					void on( std::string event, Listener listener ) {
+					void on( boost::string_ref event, Listener listener ) {
 						add_listener( event, listener );
 					}
 
 					template<typename Listener>
-					void on_next( std::string event, Listener listener ) {
+					void on_next( boost::string_ref event, Listener listener ) {
 						add_listener( event, listener, true );
 					}
 
 					template<typename... Args>
-					void emit( std::string event, Args&&... args ) {
+					void emit( boost::string_ref event, Args&&... args ) {
 						if( event.empty( ) ) {
 							throw std::runtime_error( "Empty event name passed to emit" );
 						}
 
-						auto& callbacks = listeners( )[event];
+						auto& callbacks = listeners( )[event.to_string()];
 						for( auto& callback : callbacks ) {
 							if( !callback.second.empty( ) ) {
 								callback.second.exec( std::forward<Args>( args )... );
@@ -109,10 +109,10 @@ namespace daw {
 						} );
 					}
 
-					void emit_listener_added( std::string event, Callback listener );
-					void emit_listener_removed( std::string event, Callback listener );
+					void emit_listener_added( boost::string_ref event, Callback listener );
+					void emit_listener_removed( boost::string_ref event, Callback listener );
 
-					bool at_max_listeners( std::string event );
+					bool at_max_listeners( boost::string_ref event );
 				};	// class EventEmitterImpl
 			}	// namespace impl
 			
@@ -181,27 +181,8 @@ namespace daw {
 			protected:
 				//////////////////////////////////////////////////////////////////////////
 				/// Summary: Emit an error event
-				void emit_error( std::string description, std::string where ) {
+				void emit_error( boost::string_ref description, boost::string_ref where ) {
 					base::Error err( description );
-					err.add( "where", std::move( where ) );
-
-					emit_error( std::move( err ) );
-				}
-
-				//////////////////////////////////////////////////////////////////////////
-				/// Summary: Emit an error event
-				void emit_error( std::string where, base::Error child ) {
-					base::Error err( "Child Error" );
-					err.add( "where", std::move( where ) );
-					err.child( std::move( child ) );
-
-					emit_error( std::move( err ) );
-				}
-
-				//////////////////////////////////////////////////////////////////////////
-				/// Summary: Emit an error event
-				void emit_error( boost::system::error_code const & error, std::string where ) {
-					base::Error err( error );
 					err.add( "where", where );
 
 					emit_error( std::move( err ) );
@@ -209,7 +190,26 @@ namespace daw {
 
 				//////////////////////////////////////////////////////////////////////////
 				/// Summary: Emit an error event
-				void emit_error( std::exception_ptr ex, std::string description, std::string where ) {
+				void emit_error( boost::string_ref where, base::Error child ) {
+					base::Error err( "Child Error" );
+					err.add( "where", where.to_string() );
+					err.child( std::move( child ) );
+
+					emit_error( std::move( err ) );
+				}
+
+				//////////////////////////////////////////////////////////////////////////
+				/// Summary: Emit an error event
+				void emit_error( boost::system::error_code const & error, boost::string_ref where ) {
+					base::Error err( error );
+					err.add( "where", where.to_string() );
+
+					emit_error( std::move( err ) );
+				}
+
+				//////////////////////////////////////////////////////////////////////////
+				/// Summary: Emit an error event
+				void emit_error( std::exception_ptr ex, boost::string_ref description, boost::string_ref where ) {
 					base::Error err( description, ex );
 					err.add( "where", where );
 
@@ -219,21 +219,20 @@ namespace daw {
 				//////////////////////////////////////////////////////////////////////////
 				/// Summary:	Emit an event with the callback and event name of a newly
 				///				added event
-				void emit_listener_added( std::string event, Callback listener ) {
-					emitter( )->emit_listener_added( event, )
-						emitter( )->emit( "listener_added", std::move( event ), std::move( listener ) );
+				void emit_listener_added( boost::string_ref event, Callback listener ) {
+					emitter( )->emit_listener_added( event, listener );
 				}
 
 				//////////////////////////////////////////////////////////////////////////
 				/// Summary:	Emit an event with the callback and event name of an event
 				///				that has been removed
-				void emit_listener_removed( std::string event, Callback listener ) {
-					emitter( )->emit( "listener_removed", std::move( event ), std::move( listener ) );
+				void emit_listener_removed( boost::string_ref event, Callback listener ) {
+					emitter( )->emit( "listener_removed", event, std::move( listener ) );
 				}
 			};	// class StandardEvents
 
 			template<typename This, typename Listener, typename Action>
-			static auto rollback_event_on_exception( This me, std::string event, Listener listener, Action action_to_try, bool run_listener_once = false ) -> decltype(action_to_try( )) {
+			static auto rollback_event_on_exception( This me, boost::string_ref event, Listener listener, Action action_to_try, bool run_listener_once = false ) -> decltype(action_to_try( )) {
 				auto cb_id = me->add_listener( event, listener, run_listener_once );
 				try {
 					return action_to_try( );

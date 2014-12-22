@@ -20,15 +20,15 @@ namespace daw {
 				std::exception_ptr m_exception;
 			public:
 				Error( ) = delete;
-				Error( std::string description );
+				Error( boost::string_ref description );
 				explicit Error( boost::system::error_code const & err );
 				Error( Error && );
 				Error( Error const & ) = default;
-				Error( std::string description, std::exception_ptr ex_ptr );
+				Error( boost::string_ref description, std::exception_ptr ex_ptr );
 				Error& operator=(Error const &) = default;
 				Error& operator=(Error && rhs);
 
-				Error& add( boost::string_ref name, std::string value );
+				Error& add( boost::string_ref name, boost::string_ref value );
 				boost::string_ref get( boost::string_ref name ) const;
 				std::string & get( boost::string_ref name );
 				Error & child( ) const;
@@ -38,7 +38,7 @@ namespace daw {
 				void freeze( );
 				bool has_exception( ) const;
 				void throw_exception( );
-				std::string to_string( std::string prefix = "" ) const;
+				std::string to_string( boost::string_ref prefix = "" ) const;
 			};	// class Error
 			
 			std::ostream& operator<<(std::ostream& os, Error const & error);

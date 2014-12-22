@@ -7,8 +7,8 @@
 namespace daw {
 	namespace nodepp {
 		namespace base {
-			Error::Error( std::string description ) : m_keyvalues{ }, m_frozen{ false }, m_child{ }, m_exception{ } {
-				m_keyvalues.emplace( "description", description );
+			Error::Error( boost::string_ref description ) : m_keyvalues { }, m_frozen { false }, m_child { }, m_exception { } {
+				m_keyvalues.emplace( "description", description.to_string() );
 			}
 
 			Error::Error( boost::system::error_code const & err ) : m_keyvalues{ }, m_frozen{ false }, m_child{ }, m_exception{ } {
@@ -17,8 +17,8 @@ namespace daw {
 				m_keyvalues.emplace( "error_code", boost::lexical_cast<std::string>(err.value( )) );
  			}
 
-			Error::Error( std::string description, std::exception_ptr ex_ptr ) : m_keyvalues( ), m_frozen( false ), m_child( ), m_exception( std::move( ex_ptr ) ) { 
-				m_keyvalues.emplace( "description", description );
+			Error::Error( boost::string_ref description, std::exception_ptr ex_ptr ) : m_keyvalues( ), m_frozen( false ), m_child( ), m_exception( std::move( ex_ptr ) ) {
+				m_keyvalues.emplace( "description", description.to_string() );
 			}
 
 			Error::Error( Error && other ) : m_keyvalues( std::move( other.m_keyvalues ) ), m_frozen{ std::move( other.m_frozen ) }, m_child{ std::move( other.m_child ) }, m_exception{ std::move( other.m_exception ) } { }
@@ -34,11 +34,11 @@ namespace daw {
 			}
 
 
-			Error& Error::add( boost::string_ref name, std::string value ) {
+			Error& Error::add( boost::string_ref name, boost::string_ref value ) {
 				if( m_frozen ) {
 					throw std::runtime_error( "Attempt to change a frozen error." );
 				}
-				m_keyvalues[name.to_string( )] = std::move( value );
+				m_keyvalues[name.to_string( )] = value.to_string( );
 				return *this;
 			}
 
@@ -94,7 +94,7 @@ namespace daw {
 				return *this;
 			}
 
-			std::string Error::to_string( std::string prefix ) const {
+			std::string Error::to_string( boost::string_ref prefix ) const {
 				std::stringstream ss;
 				ss << "Description: " << m_keyvalues.at( "description" ) << "\n";
 				for( auto const & row : m_keyvalues ) {
@@ -103,7 +103,7 @@ namespace daw {
 					}
 				}
 				if( has_child( ) ) {
-					ss << child( ).to_string( prefix + "	" );
+					ss << child( ).to_string( prefix.to_string() + "	" );
 				}
 				ss << "\n";
 				return ss.str( );
