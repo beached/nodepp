@@ -115,10 +115,6 @@ namespace daw {
 						return m_socket;
 					}
 
-// 					std::shared_ptr<HttpConnectionImpl> HttpConnectionImpl::get_ptr( ) {
-// 						return shared_from_this( );
-// 					}
-
 				}	// namespace impl
 
 				HttpConnection create_http_connection( lib::net::NetSocketStream socket, base::EventEmitter emitter ) {

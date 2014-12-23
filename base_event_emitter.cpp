@@ -83,10 +83,6 @@ namespace daw {
 					return listeners( event ).size( );
 				}
 
-//				std::shared_ptr<EventEmitterImpl> EventEmitterImpl::get_ptr( ) {
-// 					return shared_from_this( );
-// 				}
-
 				void EventEmitterImpl::emit_listener_added( boost::string_ref event, Callback listener ) {
 					emit( "listener_added", event, std::move( listener ) );
 				}

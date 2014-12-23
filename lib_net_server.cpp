@@ -37,10 +37,6 @@ namespace daw {
 						return *this;
 					}
 
-// 					std::shared_ptr<NetServerImpl> NetServerImpl::get_ptr( ) {
-// 						return shared_from_this( );
-// 					}
-
 					base::EventEmitter& NetServerImpl::emitter( ) {
 						return m_emitter;
 					}

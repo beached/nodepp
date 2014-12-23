@@ -43,10 +43,6 @@ namespace daw {
 						}
 					}
 
-// 					std::shared_ptr<HttpServerResponseImpl> HttpServerResponseImpl::get_ptr( ) {
-// 						return shared_from_this( );
-// 					}
-
 					base::EventEmitter& HttpServerResponseImpl::emitter( ) {
 						return m_emitter;
 					}

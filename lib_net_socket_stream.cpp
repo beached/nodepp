@@ -88,15 +88,19 @@ namespace daw {
 					NetSocketStreamImpl::~NetSocketStreamImpl( ) {
 						if( m_pending_writes->has_outstanding() ) {
 							// Wait for writes to complete and then destruct 
-							auto socket = std::move( m_socket );
+							auto socket_m = daw::as_move_only( std::move( m_socket ) );
 							m_socket.reset( );
-							auto outstanding_writes = std::move( m_pending_writes );
+							auto outstanding_writes_m = daw::as_move_only( std::move( m_pending_writes ) );
 							m_pending_writes.reset( );
-							auto wait_for_writes = std::thread( [outstanding_writes,socket]( ) {
+							auto wait_for_writes = std::thread( [outstanding_writes_m,socket_m]( ) mutable {
 								try {
+									auto outstanding_writes = outstanding_writes_m.move_out( );
+									auto socket = socket_m.move_out( );
 									outstanding_writes->wait( 2000 );	// TODO magic number
 									if( socket->is_open( ) ) {
-										socket->close( );
+										boost::system::error_code ec;
+										socket->shutdown( boost::asio::socket_base::shutdown_both, ec );
+										socket->close( ec );
 									}
 								} catch( ... ) {
 									// Nothing we can do and it will take everyone down if we let it through

@@ -365,6 +365,18 @@ namespace daw {
 			return *this;
 		}
 		
+		T& operator*() {
+			return m_value.operator*();
+		}
+
+		T const & operator*() const {
+			return m_value.operator*();
+		}
+
+		T const * operator->() const {
+			return m_value.operator->();
+		}
+
 		~MoveOnly( ) = default;
 
 		std::shared_ptr<T> move_out( ) {
