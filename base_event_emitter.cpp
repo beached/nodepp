@@ -16,27 +16,27 @@ namespace daw {
 					m_max_listeners( 10 ),
 					m_emit_depth( std::make_shared<std::atomic_int_least8_t>( 0 ) ) { }
 
-				EventEmitterImpl::EventEmitterImpl( EventEmitterImpl && other ):
-					m_listeners( std::move( other.m_listeners ) ),
-					m_max_listeners( std::move( other.m_max_listeners ) ),
-					m_emit_depth( std::move( other.m_emit_depth ) ) {
-				}
-
-				EventEmitterImpl& EventEmitterImpl::operator=(EventEmitterImpl && rhs) {
-					if( this != &rhs ) {
-						m_listeners = std::move( rhs.m_listeners );
-						m_max_listeners = std::move( rhs.m_max_listeners );
-						m_emit_depth = std::move( rhs.m_emit_depth );
-					}
-					return *this;
-				}
-
-				void EventEmitterImpl::swap( EventEmitterImpl& rhs ) {
-					using std::swap;
-					swap( m_listeners, rhs.m_listeners );
-					swap( m_max_listeners, rhs.m_max_listeners );
-					swap( m_emit_depth, rhs.m_emit_depth );
-				}
+// 				EventEmitterImpl::EventEmitterImpl( EventEmitterImpl && other ):
+// 					m_listeners( std::move( other.m_listeners ) ),
+// 					m_max_listeners( std::move( other.m_max_listeners ) ),
+// 					m_emit_depth( std::move( other.m_emit_depth ) ) {
+// 				}
+// 
+// 				EventEmitterImpl& EventEmitterImpl::operator=(EventEmitterImpl && rhs) {
+// 					if( this != &rhs ) {
+// 						m_listeners = std::move( rhs.m_listeners );
+// 						m_max_listeners = std::move( rhs.m_max_listeners );
+// 						m_emit_depth = std::move( rhs.m_emit_depth );
+// 					}
+// 					return *this;
+// 				}
+// 
+// 				void EventEmitterImpl::swap( EventEmitterImpl& rhs ) {
+// 					using std::swap;
+// 					swap( m_listeners, rhs.m_listeners );
+// 					swap( m_max_listeners, rhs.m_max_listeners );
+// 					swap( m_emit_depth, rhs.m_emit_depth );
+// 				}
 
 				std::unordered_map<std::string, EventEmitterImpl::listener_list_t> & EventEmitterImpl::listeners( ) {
 					return *m_listeners;

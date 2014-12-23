@@ -50,10 +50,37 @@ namespace daw {
 							struct netsockstream_readoptions_t {
 								ReadUntil read_mode;
 								size_t max_read_size;
-								std::shared_ptr<NetSocketStreamImpl::match_function_t> read_predicate;
+								std::unique_ptr<NetSocketStreamImpl::match_function_t> read_predicate;
 								std::string read_until_values;
-								netsockstream_readoptions_t( ) :read_mode( ReadUntil::newline ), max_read_size( 8192 ), read_predicate( ) { }
-								netsockstream_readoptions_t( size_t max_read_size_ ) :read_mode( ReadUntil::newline ), max_read_size( max_read_size_ ), read_predicate( ) { }
+								
+								netsockstream_readoptions_t( ) :
+									read_mode( ReadUntil::newline ), 
+									max_read_size( 8192 ), 
+									read_predicate( ) { }
+								
+								netsockstream_readoptions_t( size_t max_read_size_ ) :
+									read_mode( ReadUntil::newline ), 
+									max_read_size( max_read_size_ ), 
+									read_predicate( ) { }
+
+								netsockstream_readoptions_t( netsockstream_readoptions_t const & ) = delete;
+								netsockstream_readoptions_t& operator=(netsockstream_readoptions_t const &) = delete;
+								
+								inline netsockstream_readoptions_t( netsockstream_readoptions_t && other ):
+									read_mode( std::move( other.read_mode ) ),
+									max_read_size( std::move( other.max_read_size ) ),
+									read_predicate( std::move( other.read_predicate ) ) { }
+
+								inline netsockstream_readoptions_t& operator=(netsockstream_readoptions_t && rhs) {
+									if( this != &rhs ) {
+										read_mode = std::move( rhs.read_mode );
+										max_read_size = std::move( rhs.max_read_size );
+										read_predicate = std::move( rhs.read_predicate );
+									}
+									return *this;
+								}
+								~netsockstream_readoptions_t( ) = default;
+
 							} m_read_options;
 	
 							std::shared_ptr<daw::thread::Semaphore<int>> m_pending_writes;
@@ -88,8 +115,7 @@ namespace daw {
 							NetSocketStreamImpl& end( base::data_t const & chunk );
 							NetSocketStreamImpl& end( boost::string_ref chunk, base::Encoding const & encoding = base::Encoding( ) );
 	
-							NetSocketStreamImpl& connect( std::string host, uint16_t port );
-							NetSocketStreamImpl& connect( std::string path );
+							NetSocketStreamImpl& connect( boost::string_ref host, uint16_t port );
 	
 							void close( bool emit_cb = true );
 							void cancel( );
@@ -141,8 +167,8 @@ namespace daw {
 						private:				
 
 							static void handle_connect( std::weak_ptr<NetSocketStreamImpl> obj, boost::system::error_code const & err, tcp::resolver::iterator it );
-							static void handle_read( std::weak_ptr<NetSocketStreamImpl> obj, std::shared_ptr<boost::asio::streambuf> read_buffer, boost::system::error_code const & err, std::size_t bytes_transfered );
-							static void handle_write( std::weak_ptr<daw::thread::Semaphore<int>> outstanding_writes, std::weak_ptr<NetSocketStreamImpl> obj, write_buffer buff, boost::system::error_code const & err, size_t bytes_transfered );
+							static void handle_read( std::weak_ptr<NetSocketStreamImpl> obj, std::shared_ptr<boost::asio::streambuf> read_buffer, boost::system::error_code const & err, std::size_t const & bytes_transfered );
+							static void handle_write( std::weak_ptr<daw::thread::Semaphore<int>> outstanding_writes, std::weak_ptr<NetSocketStreamImpl> obj, write_buffer buff, boost::system::error_code const & err, size_t const & bytes_transfered );
 	
 							void write_async( write_buffer buff );
 	

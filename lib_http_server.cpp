@@ -23,7 +23,7 @@ namespace daw {
 
 					HttpServerImpl::HttpServerImpl( base::EventEmitter emitter ) :
 						m_netserver( lib::net::create_net_server( ) ),
-						m_emitter( emitter ),
+						m_emitter( std::move( emitter ) ),
 						m_connections( ) { }
 
 					HttpServerImpl::HttpServerImpl( HttpServerImpl&& other ) :
@@ -58,7 +58,7 @@ namespace daw {
 
 					void HttpServerImpl::handle_connection( std::weak_ptr<HttpServerImpl> obj, lib::net::NetSocketStream socket ) {
 						auto msocket = daw::as_move_only( std::move( socket ) );
-						run_if_valid( obj, "Exception while connecting", "HttpServerImpl::handle_connection", [&,msocket]( std::shared_ptr<HttpServerImpl>& self ) mutable {
+						run_if_valid( obj, "Exception while connecting", "HttpServerImpl::handle_connection", [obj,msocket]( std::shared_ptr<HttpServerImpl>& self ) mutable {
 							auto connection = create_http_connection( msocket.move_out( ) );
 							auto it = self->m_connections.emplace( self->m_connections.end( ), connection );
 							
@@ -84,7 +84,7 @@ namespace daw {
 
 					void HttpServerImpl::listen_on( uint16_t port ) {
 						std::weak_ptr<HttpServerImpl> obj = get_ptr( );
-						m_netserver->on_connection( [obj]( lib::net::NetSocketStream socket ) { handle_connection( obj, socket ); } )
+						m_netserver->on_connection( [obj]( lib::net::NetSocketStream socket ) { handle_connection( obj, std::move( socket ) ); } )
 							.delegate_error_to( obj, "HttpServerImpl::listen_on" )
 							.delegate_to<boost::asio::ip::tcp::endpoint>( "listening", obj, "listening" )
 							.listen( port );

@@ -42,6 +42,7 @@ namespace daw {
 					using listeners_t = std::unordered_map < std::string, listener_list_t > ;
 					using callback_id_t = Callback::id_t;
 				private:
+					const int_least8_t c_max_emit_depth = 100;	// TODO Magic Number
 					std::shared_ptr<std::unordered_map<std::string, listener_list_t>> m_listeners;
 					size_t m_max_listeners;
 					std::shared_ptr<std::atomic_int_least8_t> m_emit_depth;
@@ -50,11 +51,11 @@ namespace daw {
 					friend base::EventEmitter base::create_event_emitter( );
 
 					~EventEmitterImpl( ) = default;
-					EventEmitterImpl( EventEmitterImpl const & ) = default;
-					EventEmitterImpl& operator=(EventEmitterImpl const &) = default;					
-					EventEmitterImpl( EventEmitterImpl && other );
-					EventEmitterImpl& operator=(EventEmitterImpl && rhs);
-					void swap( EventEmitterImpl& rhs );
+					EventEmitterImpl( EventEmitterImpl const & ) = delete;
+					EventEmitterImpl& operator=(EventEmitterImpl const &) = delete;
+					EventEmitterImpl( EventEmitterImpl && other ) = delete;
+					EventEmitterImpl& operator=(EventEmitterImpl && rhs) = delete;
+					//void swap( EventEmitterImpl& rhs );
 
 					void remove_listener( boost::string_ref event, callback_id_t id );
 
@@ -103,10 +104,10 @@ namespace daw {
 							throw std::runtime_error( "Empty event name passed to emit" );
 						}
 
-						auto& callbacks = listeners( )[event.to_string()];
-						if( ++(*m_emit_depth) > 100 ) {	// TODO: fix. Picked a max depth number out of my head
-							throw std::runtime_error( "Max callback recursion reached" );
+						if( ++(*m_emit_depth) > c_max_emit_depth ) {
+							throw std::runtime_error( "Max callback depth reached.  Possible loop" );
 						}
+						auto& callbacks = listeners( )[event.to_string( )];
 						for( auto& callback : callbacks ) {
  							if( !callback.second.empty( ) ) {							
 								callback.second.exec( std::forward<Args>( args )... );

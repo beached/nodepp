@@ -125,63 +125,16 @@ namespace daw {
 					}
 
 					template<typename StreamWritableObj>
-					Child& pipe_data( std::weak_ptr<StreamWritableObj> stream_writable_obj ) {
+					Child& delegate_data_received_to( std::weak_ptr<StreamWritableObj> stream_writable_obj ) {
 						on_data_received( [stream_writable_obj]( base::data_t buff, bool eof ) {
 							if( !stream_writable_obj.expired( ) ) {
 								stream_writable_obj.lock( )->write( buff );
 							}
 						} );
 					}
+
 				};	// class StreamReadableEvents
 
-				//////////////////////////////////////////////////////////////////////////
-				// Summary:		Readable stream class.
-				// Requires:	base::EventEmitter, base::Encoding, data_t, options_t, 
-				//				base::stream::StreamWriteable
-				template<typename Class>
-				struct StreamReadable {
-					virtual ~StreamReadable( ) = default;
-					virtual base::data_t read( ) = 0;
-					virtual base::data_t read( size_t bytes ) = 0;
-				};	// class StreamReadable
-
-
-
-
-				//////////////////////////////////////////////////////////////////////////
-				// Summary:		Writable stream class.
-				// Requires:	base::EventEmitter, data_t				 
-				template<typename Class>
-				struct StreamWritable {
-					virtual ~StreamWritable( ) = default;
-					virtual void write( base::data_t const & chunk ) = 0;
-					virtual void write( boost::string_ref chunk, base::Encoding const & encoding ) = 0;
-					virtual void end( ) = 0;
-					virtual void end( base::data_t const & chunk ) = 0;
-					virtual void end( boost::string_ref chunk, base::Encoding const & encoding ) = 0;
-					
-				};	// class StreamWriteable
-
-				template<typename Class>
-				StreamWritable<Class>& operator<<(StreamWritable<Class>& stream, boost::string_ref value) {
-					stream.write( value, base::Encoding( ) );
-					return stream;
-				}
-
-
-				template<typename Class>
-				StreamWritable<Class>& operator<<(StreamWritable<Class>& stream, base::data_t const & value) {
-					stream.write( value );
-					return stream;
-				}
-
-				//////////////////////////////////////////////////////////////////////////
-				// Summary:		A duplex stream
-				// Requires:	StreamReadable, StreamWritable
-				template<typename Class>
-				class Stream: public StreamReadable<Class>, public StreamWritable<Class> { 
-					virtual ~Stream( ) = default;
-				};
 				
 			}	//namespace stream
 		}	// namespace base
