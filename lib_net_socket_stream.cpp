@@ -101,6 +101,7 @@ namespace daw {
 										boost::system::error_code ec;
 										socket->shutdown( boost::asio::socket_base::shutdown_both, ec );
 										socket->close( ec );
+										socket.reset( );
 									}
 								} catch( ... ) {
 									// Nothing we can do and it will take everyone down if we let it through
@@ -111,7 +112,9 @@ namespace daw {
 						} else {
 							try {
 								if( m_socket->is_open( ) ) {
-									m_socket->close( );
+									boost::system::error_code ec;
+									m_socket->shutdown( boost::asio::socket_base::shutdown_both, ec );
+									m_socket->close( ec );									
 								}
 							} catch( ... ) {
 								// Do nothing, we don't usually care.  It's gone, move on
