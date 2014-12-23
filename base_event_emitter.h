@@ -44,6 +44,7 @@ namespace daw {
 				private:
 					std::shared_ptr<std::unordered_map<std::string, listener_list_t>> m_listeners;
 					size_t m_max_listeners;
+					std::shared_ptr<std::atomic_int_least8_t> m_emit_depth;
 					EventEmitterImpl( );
 				public:
 					friend base::EventEmitter base::create_event_emitter( );
@@ -54,8 +55,6 @@ namespace daw {
 					EventEmitterImpl( EventEmitterImpl && other );
 					EventEmitterImpl& operator=(EventEmitterImpl && rhs);
 					void swap( EventEmitterImpl& rhs );
-
-//					std::shared_ptr<EventEmitterImpl> get_ptr( );
 
 					void remove_listener( boost::string_ref event, callback_id_t id );
 
@@ -105,14 +104,19 @@ namespace daw {
 						}
 
 						auto& callbacks = listeners( )[event.to_string()];
+						if( ++(*m_emit_depth) > 100 ) {	// TODO: fix. Picked a max depth number out of my head
+							throw std::runtime_error( "Max callback recursion reached" );
+						}
 						for( auto& callback : callbacks ) {
  							if( !callback.second.empty( ) ) {							
 								callback.second.exec( std::forward<Args>( args )... );
 							}
 						}
+						--(*m_emit_depth);
 						daw::algorithm::erase_remove_if( callbacks, []( std::pair<bool, Callback> const & item ) {
 							return item.first;
 						} );
+						
 					}
 
 					void emit_listener_added( boost::string_ref event, Callback listener );

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-#include <map>
+#include <unordered_map>
 #include <string>
 #include <utility>
 #include "base_types.h"
@@ -22,7 +22,7 @@ namespace daw {
 				};
 
 				struct HttpClientRequest {
-					using headers_t = std::map < std::string, std::string > ;
+					using headers_t = std::unordered_map < std::string, std::string > ;
 					HttpRequestLine request;
 					headers_t headers;
 				};

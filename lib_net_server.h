@@ -42,7 +42,6 @@ namespace daw {
 						NetServerImpl& operator=(NetServerImpl const &) = default;
 						~NetServerImpl( ) = default;
 
-// 						std::shared_ptr<NetServerImpl> get_ptr( );
 						base::EventEmitter& emitter( );
 
 						void listen( uint16_t port );

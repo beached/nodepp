@@ -2,6 +2,7 @@
 
 #include <boost/asio.hpp>
 #include <cstdint>
+#include <memory>
 #include <string>
 
 #include "base_enoding.h"
@@ -10,7 +11,7 @@
 #include "base_stream.h"
 #include "base_types.h"
 #include "lib_net_socket_stream.h"
-
+#include "semaphore.h"
 
 namespace daw {
 	namespace nodepp {
@@ -34,7 +35,7 @@ namespace daw {
 							using match_iterator_t = boost::asio::buffers_iterator < boost::asio::streambuf::const_buffers_type > ;
 							using match_function_t = std::function < std::pair<match_iterator_t, bool>( match_iterator_t begin, match_iterator_t end ) > ;
 						private:
-							boost::asio::ip::tcp::socket m_socket;
+							std::shared_ptr<boost::asio::ip::tcp::socket> m_socket;
 							base::EventEmitter m_emitter;
 							
 							struct netsockstream_state_t {
@@ -55,10 +56,11 @@ namespace daw {
 								netsockstream_readoptions_t( size_t max_read_size_ ) :read_mode( ReadUntil::newline ), max_read_size( max_read_size_ ), read_predicate( ) { }
 							} m_read_options;
 	
-							std::shared_ptr<std::atomic_int_least32_t> m_outstanding_writes;
+							std::shared_ptr<daw::thread::Semaphore<int>> m_pending_writes;
 							base::data_t m_response_buffers;
 							std::size_t m_bytes_read;
 							std::size_t m_bytes_written;
+
 							NetSocketStreamImpl( base::EventEmitter emitter );
 							NetSocketStreamImpl( boost::asio::io_service& io_service, std::size_t max_read_size, base::EventEmitter emitter );
 
@@ -70,11 +72,9 @@ namespace daw {
 							NetSocketStreamImpl& operator=(NetSocketStreamImpl&& rhs);
 							~NetSocketStreamImpl( );
 	
-							NetSocketStreamImpl( NetSocketStreamImpl const & ) = default;
-							NetSocketStreamImpl& operator=(NetSocketStreamImpl const &) = default;
+							NetSocketStreamImpl( NetSocketStreamImpl const & ) = delete;
+							NetSocketStreamImpl& operator=(NetSocketStreamImpl const &) = delete;
 	
-//							std::shared_ptr<NetSocketStreamImpl> get_ptr( );
-
 							base::EventEmitter& emitter( );
 
 							NetSocketStreamImpl&  read_async( std::shared_ptr<boost::asio::streambuf> read_buffer = nullptr );
@@ -139,13 +139,10 @@ namespace daw {
 							void emit_timeout( );
 
 						private:				
-	
-							bool dec_outstanding_writes( );
-							void inc_outstanding_writes( );
-	
+
 							static void handle_connect( std::weak_ptr<NetSocketStreamImpl> obj, boost::system::error_code const & err, tcp::resolver::iterator it );
 							static void handle_read( std::weak_ptr<NetSocketStreamImpl> obj, std::shared_ptr<boost::asio::streambuf> read_buffer, boost::system::error_code const & err, std::size_t bytes_transfered );
-							static void handle_write( std::weak_ptr<NetSocketStreamImpl> obj, write_buffer buff, boost::system::error_code const & err, size_t bytes_transfered );
+							static void handle_write( std::weak_ptr<daw::thread::Semaphore<int>> outstanding_writes, std::weak_ptr<NetSocketStreamImpl> obj, write_buffer buff, boost::system::error_code const & err, size_t bytes_transfered );
 	
 							void write_async( write_buffer buff );
 	

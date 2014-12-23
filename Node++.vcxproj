@@ -165,6 +165,7 @@
     <ClInclude Include="base_event_emitter.h" />
     <ClInclude Include="base_url.h" />
     <ClInclude Include="base_url_parser_impl.h" />
+    <ClInclude Include="lib_file.h" />
     <ClInclude Include="lib_http.h" />
     <ClInclude Include="lib_http_connection.h" />
     <ClInclude Include="lib_http_headers.h" />
@@ -189,6 +190,7 @@
     <ClInclude Include="plugin_base.h" />
     <ClInclude Include="range_algorithm.h" />
     <ClInclude Include="ref_counted_value.h" />
+    <ClInclude Include="semaphore.h" />
     <ClInclude Include="string.h" />
     <ClInclude Include="utility.h" />
   </ItemGroup>

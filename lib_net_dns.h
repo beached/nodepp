@@ -38,7 +38,6 @@ namespace daw {
 						NetDnsImpl( NetDnsImpl const & ) = delete;
 						NetDnsImpl& operator=(NetDnsImpl const & rhs) = delete;
 	
-// 						std::shared_ptr<NetDnsImpl> get_ptr( );
 						base::EventEmitter& emitter( );
 						//////////////////////////////////////////////////////////////////////////
 						// Summary: resolve name or ip address and call callback of form

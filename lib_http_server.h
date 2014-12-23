@@ -41,7 +41,6 @@ namespace daw {
 						HttpServerImpl( HttpServerImpl const & ) = default;
 						~HttpServerImpl( ) = default;
 
-//						std::shared_ptr<HttpServerImpl> get_ptr( );
 						base::EventEmitter& emitter( );
 
 						void listen_on( uint16_t port );

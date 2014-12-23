@@ -46,9 +46,7 @@ namespace daw {
 	
 						HttpServerResponseImpl( HttpServerResponseImpl&& other ) = delete;
 						HttpServerResponseImpl& operator=(HttpServerResponseImpl && rhs) = delete;
-	
-//						std::shared_ptr<HttpServerResponseImpl> get_ptr( );
-						
+							
 						base::EventEmitter& emitter( );
 
 						HttpServerResponseImpl& write( base::data_t const & data );

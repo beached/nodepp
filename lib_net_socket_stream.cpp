@@ -1,7 +1,9 @@
 #include <boost/asio.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/regex.hpp>
+#include <condition_variable>
 #include <cstdint>
+#include <thread>
 #include <string>
 
 #include "base_enoding.h"
@@ -40,21 +42,21 @@ namespace daw {
 					}	// namespace anonymous
 
 					NetSocketStreamImpl::NetSocketStreamImpl( base::EventEmitter emitter ) :
-						m_socket( base::ServiceHandle::get( ) ),
+						m_socket( std::make_shared<boost::asio::ip::tcp::socket>( base::ServiceHandle::get( ) ) ),
 						m_emitter( std::move( emitter ) ),
 						m_state( ),
 						m_read_options( ),
-						m_outstanding_writes( std::make_shared<std::atomic_int_least32_t>( 0 ) ),
+						m_pending_writes( new daw::thread::Semaphore<int>( ) ),
 						m_response_buffers( ),
 						m_bytes_read( 0 ),
 						m_bytes_written( 0 ) { }
 
 					NetSocketStreamImpl::NetSocketStreamImpl( boost::asio::io_service& io_service, std::size_t max_read_size, base::EventEmitter emitter ) :
-						m_socket( io_service ),
+						m_socket( std::make_shared<boost::asio::ip::tcp::socket>( io_service ) ),
 						m_emitter( std::move( emitter ) ),
 						m_state( ),
 						m_read_options( max_read_size ),
-						m_outstanding_writes( std::make_shared<std::atomic_int_least32_t>( 0 ) ),
+						m_pending_writes( new daw::thread::Semaphore<int>( ) ),
 						m_response_buffers( ),
 						m_bytes_read( 0 ),
 						m_bytes_written( 0 ) { }
@@ -64,7 +66,7 @@ namespace daw {
 						m_emitter( std::move( other.m_emitter ) ),
 						m_state( std::move( other.m_state ) ),
 						m_read_options( std::move( other.m_read_options ) ),
-						m_outstanding_writes( std::move( other.m_outstanding_writes ) ),
+						m_pending_writes( std::move( other.m_pending_writes ) ),
 						m_response_buffers( std::move( other.m_response_buffers ) ),
 						m_bytes_read( std::move( other.m_bytes_read ) ),
 						m_bytes_written( std::move( other.m_bytes_written ) ) { }
@@ -75,7 +77,7 @@ namespace daw {
 							m_emitter = std::move( rhs.m_emitter );
 							m_state = std::move( rhs.m_state );
 							m_read_options = std::move( rhs.m_read_options );
-							m_outstanding_writes = std::move( rhs.m_outstanding_writes );
+							m_pending_writes = std::move( rhs.m_pending_writes );
 							m_response_buffers = std::move( rhs.m_response_buffers );
 							m_bytes_read = std::move( rhs.m_bytes_read );
 							m_bytes_written = std::move( rhs.m_bytes_written );
@@ -84,19 +86,34 @@ namespace daw {
 					}
 
 					NetSocketStreamImpl::~NetSocketStreamImpl( ) {
-						// TODO: determine if we wait on outstanding_writes
-						try {
-							if( m_socket.is_open( ) ) {
-								m_socket.close( );
+						if( m_pending_writes->has_outstanding() ) {
+							// Wait for writes to complete and then destruct 
+							auto socket = std::move( m_socket );
+							m_socket.reset( );
+							auto outstanding_writes = std::move( m_pending_writes );
+							m_pending_writes.reset( );
+							auto wait_for_writes = std::thread( [outstanding_writes,socket]( ) {
+								try {
+									outstanding_writes->wait( 2000 );
+									if( socket->is_open( ) ) {
+										socket->close( );
+									}
+								} catch( ... ) {
+									// Nothing we can do and it will take everyone down if we let it through
+									std::cerr << "";
+								}
+							} );
+							wait_for_writes.detach( );
+						} else {
+							try {
+								if( m_socket->is_open( ) ) {
+									m_socket->close( );
+								}
+							} catch( ... ) {
+								// Do nothing, we don't usually care.  It's gone, move on
 							}
-						} catch( ... ) {
-							// Do nothing, we don't usually care.  It's gone, move on
 						}
 					}
-
-// 					std::shared_ptr<NetSocketStreamImpl> NetSocketStreamImpl::get_ptr( ) {
-// 						return shared_from_this( );
-// 					}
 
 					base::EventEmitter& NetSocketStreamImpl::emitter( ) {
 						return m_emitter;
@@ -132,15 +149,7 @@ namespace daw {
 						m_read_options.read_predicate.reset( );
 						return *this;
 					}
-
-					bool NetSocketStreamImpl::dec_outstanding_writes( ) {
-						return 0 == --(*m_outstanding_writes);
-					}
-
-					void NetSocketStreamImpl::inc_outstanding_writes( ) {
-						(*m_outstanding_writes)++;
-					}
-
+					
 					void NetSocketStreamImpl::handle_connect( std::weak_ptr<NetSocketStreamImpl> obj, boost::system::error_code const & err, tcp::resolver::iterator it ) {
 						run_if_valid( obj, "Exception while connecting", "NetSocketStreamImpl::handle_connect", [&]( std::shared_ptr<NetSocketStreamImpl> & self ) {
 							if( !err ) {
@@ -195,7 +204,7 @@ namespace daw {
 						} );
 					}
 
-					void NetSocketStreamImpl::handle_write( std::weak_ptr<NetSocketStreamImpl> obj, write_buffer buff, boost::system::error_code const & err, size_t bytes_transfered ) { // TODO see if we need buff, maybe lifetime issue
+					void NetSocketStreamImpl::handle_write( std::weak_ptr<daw::thread::Semaphore<int>> outstanding_writes, std::weak_ptr<NetSocketStreamImpl> obj, write_buffer buff, boost::system::error_code const & err, size_t bytes_transfered ) { // TODO see if we need buff, maybe lifetime issue
 						run_if_valid( obj, "Exception while handling write", "NetSocketStreamImpl::handle_write", [&]( std::shared_ptr<NetSocketStreamImpl>& self ) {
 							self->m_bytes_written += bytes_transfered;
 							if( !err ) {
@@ -203,10 +212,15 @@ namespace daw {
 							} else {
 								self->emit_error( err, "NetSocket::handle_write" );
 							}
-							if( self->dec_outstanding_writes( ) ) {
+							if( self->m_pending_writes->dec_counter( ) ) {
 								self->emit_all_writes_completed( );
 							}
 						} );
+						if( obj.expired( ) ) {
+							if( !outstanding_writes.expired( ) ) {
+								outstanding_writes.lock( )->dec_counter( );								
+							}
+						}
 					}
 
 
@@ -225,12 +239,13 @@ namespace daw {
 						m_bytes_written += buff.size( );
 
 						auto self = get_ptr( );
-						auto handler = [self, buff]( boost::system::error_code const & err, size_t bytes_transfered ) mutable {
-							self->handle_write( self, buff, err, bytes_transfered );
+						auto outstanding_writes = m_pending_writes->get_weak_ptr( );
+						auto handler = [outstanding_writes, self, buff]( boost::system::error_code const & err, size_t bytes_transfered ) mutable {
+							self->handle_write( outstanding_writes, self, buff, err, bytes_transfered );
 						};
 
-						inc_outstanding_writes( );
-						boost::asio::async_write( m_socket, buff.asio_buff( ), handler );
+						m_pending_writes->inc_counter( );
+						boost::asio::async_write( *m_socket, buff.asio_buff( ), handler );
 					}
 
 					NetSocketStreamImpl&  NetSocketStreamImpl::read_async( std::shared_ptr<boost::asio::streambuf> read_buffer ) {
@@ -250,19 +265,19 @@ namespace daw {
 						case ReadUntil::next_byte:
 							throw std::runtime_error( "Read Until mode not implemented" );
 						case ReadUntil::buffer_full:
-							boost::asio::async_read( m_socket, *read_buffer, handler );
+							boost::asio::async_read( *m_socket, *read_buffer, handler );
 							break;
 						case ReadUntil::newline:
-							boost::asio::async_read_until( m_socket, *read_buffer, "\n", handler );
+							boost::asio::async_read_until( *m_socket, *read_buffer, "\n", handler );
 							break;
 						case ReadUntil::predicate:
-							boost::asio::async_read_until( m_socket, *read_buffer, *m_read_options.read_predicate, handler );
+							boost::asio::async_read_until( *m_socket, *read_buffer, *m_read_options.read_predicate, handler );
 							break;
 						case ReadUntil::values:
-							boost::asio::async_read_until( m_socket, *read_buffer, m_read_options.read_until_values, handler );
+							boost::asio::async_read_until( *m_socket, *read_buffer, m_read_options.read_until_values, handler );
 							break;
 						case ReadUntil::regex:
-							boost::asio::async_read_until( m_socket, *read_buffer, boost::regex( m_read_options.read_until_values ), handler );
+							boost::asio::async_read_until( *m_socket, *read_buffer, boost::regex( m_read_options.read_until_values ), handler );
 							break;
 
 						default:
@@ -290,7 +305,7 @@ namespace daw {
 							self->handle_connect( self, err, it );
 						};
 
-						boost::asio::async_connect( m_socket, resolver.resolve( { host, boost::lexical_cast<std::string>(port) } ), handler );
+						boost::asio::async_connect( *m_socket, resolver.resolve( { host, boost::lexical_cast<std::string>(port) } ), handler );
 						return *this;
 					}
 
@@ -299,11 +314,11 @@ namespace daw {
 					std::size_t& NetSocketStreamImpl::buffer_size( ) { throw std::runtime_error( "Method not implemented" ); }
 
 					bool NetSocketStreamImpl::is_open( ) const {
-						return m_socket.is_open( );
+						return m_socket->is_open( );
 					}
 
 					boost::asio::ip::tcp::socket & NetSocketStreamImpl::socket( ) {
-						return m_socket;
+						return *m_socket;
 					}
 
 					NetSocketStreamImpl&  NetSocketStreamImpl::write_async( base::data_t const & chunk ) {
@@ -319,7 +334,7 @@ namespace daw {
 					NetSocketStreamImpl&  NetSocketStreamImpl::end( ) {
 						m_state.end = true;
 						try {
-							m_socket.shutdown( boost::asio::ip::tcp::socket::shutdown_send );
+							m_socket->shutdown( boost::asio::ip::tcp::socket::shutdown_send );
 						} catch( ... ) {
 							emit_error( std::current_exception( ), "Error calling shutdown on socket", "NetSocketStreamImplImpl::end( )" );
 						}
@@ -342,8 +357,8 @@ namespace daw {
 						m_state.closed = true;
 						m_state.end = true;
 						try {
-							m_socket.shutdown( boost::asio::ip::tcp::socket::shutdown_both );
-							m_socket.close( );
+							m_socket->shutdown( boost::asio::ip::tcp::socket::shutdown_both );
+							m_socket->close( );
 						} catch( ... ) {
 							//emit_error( std::current_exception( ), "Error calling shutdown on socket", "NetSocketStreamImplImpl::close( )" );
 						}
@@ -353,7 +368,7 @@ namespace daw {
 					}
 
 					void NetSocketStreamImpl::cancel( ) {
-						m_socket.cancel( );
+						m_socket->cancel( );
 					}
 
 					NetSocketStreamImpl&  NetSocketStreamImpl::set_timeout( int32_t ) { throw std::runtime_error( "Method not implemented" ); }
@@ -363,19 +378,19 @@ namespace daw {
 					NetSocketStreamImpl&  NetSocketStreamImpl::set_keep_alive( bool, int32_t ) { throw std::runtime_error( "Method not implemented" ); }
 
 					std::string NetSocketStreamImpl::remote_address( ) const {
-						return m_socket.remote_endpoint( ).address( ).to_string( );
+						return m_socket->remote_endpoint( ).address( ).to_string( );
 					}
 
 					std::string NetSocketStreamImpl::local_address( ) const {
-						return m_socket.local_endpoint( ).address( ).to_string( );
+						return m_socket->local_endpoint( ).address( ).to_string( );
 					}
 
 					uint16_t NetSocketStreamImpl::remote_port( ) const {
-						return m_socket.remote_endpoint( ).port( );
+						return m_socket->remote_endpoint( ).port( );
 					}
 
 					uint16_t NetSocketStreamImpl::local_port( ) const {
-						return m_socket.local_endpoint( ).port( );
+						return m_socket->local_endpoint( ).port( );
 					}
 
 					std::size_t NetSocketStreamImpl::bytes_read( ) const {
