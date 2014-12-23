@@ -99,7 +99,7 @@ namespace daw {
 					}
 
 					template<typename... Args>
-					void emit( boost::string_ref event, Args&&... args ) {
+					void emit( std::string event, Args&&... args ) {						
 						if( event.empty( ) ) {
 							throw std::runtime_error( "Empty event name passed to emit" );
 						}
@@ -107,17 +107,24 @@ namespace daw {
 						if( ++(*m_emit_depth) > c_max_emit_depth ) {
 							throw std::runtime_error( "Max callback depth reached.  Possible loop" );
 						}
-						auto& callbacks = listeners( )[event.to_string( )];
-						for( auto& callback : callbacks ) {
- 							if( !callback.second.empty( ) ) {							
-								callback.second.exec( std::forward<Args>( args )... );
-							}
-						}
-						--(*m_emit_depth);
-						daw::algorithm::erase_remove_if( callbacks, []( std::pair<bool, Callback> const & item ) {
-							return item.first;
-						} );
 						
+						auto obj = get_weak_ptr( );
+						ServiceHandle::get( ).post( [event, obj, args...]( ) {
+							if( !obj.expired( ) ) {
+								auto self = obj.lock( );
+								auto& callbacks = self->listeners( )[event];
+								for( auto& callback : callbacks ) {
+									if( !callback.second.empty( ) ) {
+										callback.second.exec( std::move( args )... );
+									}
+								}
+
+								daw::algorithm::erase_remove_if( callbacks, []( std::pair<bool, Callback> const & item ) {
+									return item.first;
+								} );
+							}
+						} );
+						--(*m_emit_depth);						
 					}
 
 					void emit_listener_added( boost::string_ref event, Callback listener );

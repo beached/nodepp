@@ -14,19 +14,12 @@ namespace daw {
 				namespace impl {
 					namespace {
 						void err400( lib::net::NetSocketStream& socket ) {
-							// 400 bad request
-							socket->write_async( "HTTP/1.1 400 Bad Request\r\nConnection: close\r\n" );
-							std::stringstream stream;
-							stream << "<html><body><h2>Could not parse request</h2>\r\n";
-							stream << "</body></html>\r\n";
-							auto body_str( stream.str( ) );
-							stream.str( "" );
-							stream.clear( );
-							stream << "Content-Type: text/html\r\n";
-							stream << "Content-Length: " << body_str.size( ) << "\r\n\r\n";
-							socket->write_async( stream.str( ) );
+							// 400 bad request							
+							
+							std::string body_str( "<html><body><h2>Could not parse request</h2>\r\n</body></html>\r\n" );							
+							std::string header( "HTTP/1.1 400 Bad Request\r\nConnection: close\r\nContent-Type: text/html\r\nContent-Length: " + std::to_string( body_str.size( ) ) + "\r\n\r\n" );
+							socket->write_async( header + body_str );
 							socket->end( body_str );
-
 						}
 
 					}	// namespace anonymous
