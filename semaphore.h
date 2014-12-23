@@ -26,16 +26,8 @@ namespace daw {
 			Semaphore& operator=(Semaphore&&) = delete;
 			~Semaphore( ) = default;
 
-			std::shared_ptr<Semaphore<Counter>> get_ptr( ) {
-				return shared_from_this( );
-			}
-
-			std::weak_ptr<Semaphore<Counter>> get_weak_ptr( ) {
-				return get_ptr( );
-			}
-
 			bool dec_counter( ) {
-				std::unique_lock<mutex> lck( m_mutex );
+				std::unique_lock<std::mutex> lck( m_mutex );
 				auto result = --m_counter <= 0;
 				lck.unlock( );
 				m_condition.notify_one( );
@@ -43,7 +35,7 @@ namespace daw {
 			}
 
 			bool has_outstanding( ) {
-				std::unique_lock<mutex> lck( m_mutex );
+				std::unique_lock<std::mutex> lck( m_mutex );
 				auto result = m_counter >= 0;
 				lck.unlock( );
 				m_condition.notify_one( );
@@ -51,23 +43,23 @@ namespace daw {
 			}
 
 			void inc_counter( ) {
-				std::unique_lock<mutex> lck( m_mutex );
+				std::unique_lock<std::mutex> lck( m_mutex );
 				++m_counter;
 			}
 
 			void notify( ) {
-				std::unique_lock<mutex> lck( m_mutex );
+				std::unique_lock<std::mutex> lck( m_mutex );
 				m_condition.notify_all( );
 			}
 			
 			void wait( ) {
-				std::unique_lock<mutex> lck( m_mutex );
-				m_condition.wait( lck, [&m_counter]( ) { return m_counter == 0; } );
+				std::unique_lock<std::mutex> lck( m_mutex );
+				m_condition.wait( lck, [&]( ) { return m_counter == 0; } );
 				m_condition.notify_all( );
 			}
 
 			bool wait( size_t timeout_ms ) {
-				std::unique_lock<mutex> lck( m_mutex );
+				std::unique_lock<std::mutex> lck( m_mutex );
 				auto result = m_condition.wait_for( lck, std::chrono::milliseconds( timeout_ms ), [&]( ) { return m_counter == 0; } );
 				m_condition.notify_all( );
 				return result;
