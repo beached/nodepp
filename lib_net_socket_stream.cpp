@@ -336,13 +336,16 @@ namespace daw {
 								if( emit_cb && err ) {
 									emit_error( err, "NetSocketStreamImpl::close#shutdown" );
 								}
-								err = boost::system::error_code( );
-								m_socket->close( err );
-								if( emit_cb && err ) {
-									emit_error( err, "NetSocketStreamImpl::close#close" );
+								if( !m_state.closed ) {
+									err = boost::system::error_code( );
+									m_socket->close( err );
+									if( emit_cb && err ) {
+										emit_error( err, "NetSocketStreamImpl::close#close" );
+									}
 								}
+								m_socket.reset( );
 							}
-							m_socket.reset( );
+							
 						} catch( ... ) {
 							//emit_error( std::current_exception( ), "Error calling shutdown on socket", "NetSocketStreamImplImpl::close( )" );
 						}
