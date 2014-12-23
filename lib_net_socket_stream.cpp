@@ -86,40 +86,41 @@ namespace daw {
 					}
 
 					NetSocketStreamImpl::~NetSocketStreamImpl( ) {
-						if( m_pending_writes->has_outstanding() ) {
-							// Wait for writes to complete and then destruct 
-							auto socket_m = daw::as_move_only( std::move( m_socket ) );
-							m_socket.reset( );
-							auto outstanding_writes_m = daw::as_move_only( std::move( m_pending_writes ) );
-							m_pending_writes.reset( );
-							auto wait_for_writes = std::thread( [outstanding_writes_m,socket_m]( ) mutable {
-								try {
-									auto outstanding_writes = outstanding_writes_m.move_out( );
-									auto socket = socket_m.move_out( );
-									outstanding_writes->wait( 2000 );	// TODO magic number
-									if( socket->is_open( ) ) {
-										boost::system::error_code ec;
-										socket->shutdown( boost::asio::socket_base::shutdown_both, ec );
-										socket->close( ec );
-										socket.reset( );
-									}
-								} catch( ... ) {
-									// Nothing we can do and it will take everyone down if we let it through
-									std::cerr << "";
-								}
-							} );
-							wait_for_writes.detach( );
-						} else {
+// 						if( m_pending_writes->has_outstanding() ) {
+// 							// Wait for writes to complete and then destruct 
+// 							auto socket_m = daw::as_move_only( std::move( m_socket ) );
+// 							m_socket.reset( );
+// 							auto outstanding_writes_m = daw::as_move_only( std::move( m_pending_writes ) );
+// 							m_pending_writes.reset( );
+// 							auto wait_for_writes = std::thread( [outstanding_writes_m,socket_m]( ) mutable {
+// 								try {
+// 									auto outstanding_writes = outstanding_writes_m.move_out( );
+// 									auto socket = socket_m.move_out( );
+// 									outstanding_writes->wait( 2000 );	// TODO magic number
+// 									if( socket->is_open( ) ) {
+// 										boost::system::error_code ec;
+// 										socket->shutdown( boost::asio::socket_base::shutdown_both, ec );
+// 										socket->close( ec );
+// 										socket.reset( );
+// 									}
+// 								} catch( ... ) {
+// 									// Nothing we can do and it will take everyone down if we let it through
+// 									std::cerr << "";
+// 								}
+// 							} );
+// 							wait_for_writes.detach( );
+// 						} else {
 							try {
 								if( m_socket->is_open( ) ) {
 									boost::system::error_code ec;
 									m_socket->shutdown( boost::asio::socket_base::shutdown_both, ec );
 									m_socket->close( ec );									
 								}
+								m_socket.reset( );
 							} catch( ... ) {
 								// Do nothing, we don't usually care.  It's gone, move on
 							}
-						}
+						//}
 					}
 
 					base::EventEmitter& NetSocketStreamImpl::emitter( ) {
