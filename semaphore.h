@@ -4,16 +4,16 @@
 #include <mutex>
 #include <condition_variable>
 
+#include "base_event_emitter.h"
+
 namespace daw {
 	namespace thread {
-
-		using namespace std;
 
 		//////////////////////////////////////////////////////////////////////////
 		// Allows threads to wait for the counter to return to 0 after being 
 		// incremented with reserve and decremented with notify
 		template<typename Counter>
-		class Semaphore : public std::enable_shared_from_this<Semaphore<Counter>> {
+		class Semaphore : public daw::nodepp::base::enable_shared<Semaphore<Counter>> {
 			std::mutex m_mutex;
 			std::condition_variable m_condition;
 			Counter m_counter;
