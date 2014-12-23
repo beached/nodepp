@@ -94,7 +94,7 @@ namespace daw {
 							m_pending_writes.reset( );
 							auto wait_for_writes = std::thread( [outstanding_writes,socket]( ) {
 								try {
-									outstanding_writes->wait( 2000 );
+									outstanding_writes->wait( 2000 );	// TODO magic number
 									if( socket->is_open( ) ) {
 										socket->close( );
 									}
