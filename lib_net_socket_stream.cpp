@@ -333,7 +333,7 @@ namespace daw {
 							if( m_socket && m_socket->is_open( ) ) {
 								boost::system::error_code err;
 								m_socket->shutdown( boost::asio::ip::tcp::socket::shutdown_both, err );
-								if( emit_cb && err ) {
+								if( emit_cb && err && err.value() != 107 ) {	// Already shutdown is ignored
 									emit_error( err, "NetSocketStreamImpl::close#shutdown" );
 								}
 								if( !m_state.closed ) {
