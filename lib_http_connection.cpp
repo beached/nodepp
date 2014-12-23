@@ -32,7 +32,7 @@ namespace daw {
 					}	// namespace anonymous
 
 
-					HttpConnectionImpl::HttpConnectionImpl( lib::net::NetSocketStream socket, base::EventEmitter emitter ) :
+					HttpConnectionImpl::HttpConnectionImpl( lib::net::NetSocketStream&& socket, base::EventEmitter emitter ) :
 						m_socket( std::move( socket ) ),
 						m_emitter( std::move( emitter) ) {
 					}
@@ -40,17 +40,21 @@ namespace daw {
 					void HttpConnectionImpl::start( ) {
 						auto obj = get_weak_ptr( );
 						m_socket->on_next_data_received( [obj] ( std::shared_ptr<base::data_t> data_buffer, bool ) mutable {
-							run_if_valid( obj, "Exception in processing received data", "HttpConnectionImpl::start#on_next_data_received", [&]( std::shared_ptr<HttpConnectionImpl>& self ) {
-								auto request = parse_http_request( data_buffer->begin( ), data_buffer->end( ) );
-								data_buffer.reset( );
-								if( request ) {
-									auto response = create_http_server_response( self->m_socket->get_weak_ptr( ) );
-									response->start( );
-									self->emit_request_made( request, response );
-								} else {
-									err400( self->m_socket );
-								}
-							} );
+							if( data_buffer ) {
+								run_if_valid( obj, "Exception in processing received data", "HttpConnectionImpl::start#on_next_data_received", [&]( std::shared_ptr<HttpConnectionImpl>& self ) {
+									auto request = parse_http_request( data_buffer->begin( ), data_buffer->end( ) );
+									data_buffer.reset( );
+									if( request ) {
+										auto response = create_http_server_response( self->m_socket->get_weak_ptr( ) );
+										response->start( );
+										self->emit_request_made( request, response );
+									} else {
+										err400( self->m_socket );
+									}
+								} );
+							} else {
+								throw std::runtime_error( "Null buffer passed to NetSocketStream->on_data_received event" );
+							}
 						} ).delegate_to( "closed", obj, "closed" )
 							.delegate_error_to( obj, "HttpConnectionImpl::start" )
 							.set_read_until_values( R"((\r\n|\n){2})", true );
@@ -58,14 +62,14 @@ namespace daw {
 						m_socket->read_async( );
 					}
  
-					HttpConnectionImpl::~HttpConnectionImpl( ) { }
-
 					base::EventEmitter& HttpConnectionImpl::emitter( ) {
 						return m_emitter;
 					}
 
 					void HttpConnectionImpl::close( ) {
-						m_socket->close( );
+						if( m_socket ) {
+							m_socket->close( );
+						}
 					}
 
 					void HttpConnectionImpl::emit_closed( ) {
@@ -116,7 +120,7 @@ namespace daw {
 
 				}	// namespace impl
 
-				HttpConnection create_http_connection( lib::net::NetSocketStream socket, base::EventEmitter emitter ) {
+				HttpConnection create_http_connection( lib::net::NetSocketStream&& socket, base::EventEmitter emitter ) {
 					return HttpConnection( new impl::HttpConnectionImpl( std::move( socket ), std::move( emitter ) ) );
 				}
 

@@ -15,16 +15,16 @@ namespace daw {
 
 				namespace impl { class HttpConnectionImpl; }
 				using HttpConnection = std::shared_ptr < impl::HttpConnectionImpl > ;
-				HttpConnection create_http_connection( lib::net::NetSocketStream socket, base::EventEmitter emitter = base::create_event_emitter( ) );
+				HttpConnection create_http_connection( lib::net::NetSocketStream&& socket, base::EventEmitter emitter = base::create_event_emitter( ) );
 								
 				namespace impl {
 					class HttpConnectionImpl: public base::enable_shared<HttpConnectionImpl>, public base::StandardEvents<HttpConnectionImpl> {
 						lib::net::NetSocketStream m_socket;
 						base::EventEmitter m_emitter;
 
-						HttpConnectionImpl( lib::net::NetSocketStream socket, base::EventEmitter emitter );
+						HttpConnectionImpl( lib::net::NetSocketStream && socket, base::EventEmitter emitter );
 					public:
-						friend HttpConnection lib::http::create_http_connection( lib::net::NetSocketStream, base::EventEmitter emitter );
+						friend HttpConnection lib::http::create_http_connection( lib::net::NetSocketStream&&, base::EventEmitter emitter );
 
 						HttpConnectionImpl( ) = delete;
 						
@@ -33,7 +33,7 @@ namespace daw {
 						HttpConnectionImpl( HttpConnectionImpl && ) = delete;
 						HttpConnectionImpl& operator=(HttpConnectionImpl &&) = delete;
 						
-						~HttpConnectionImpl( );
+						~HttpConnectionImpl( ) = default;
 
 						base::EventEmitter& emitter( );
 

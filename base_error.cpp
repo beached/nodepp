@@ -13,8 +13,8 @@ namespace daw {
 
 			Error::Error( boost::system::error_code const & err ) : m_keyvalues{ }, m_frozen{ false }, m_child{ }, m_exception{ } {
 				m_keyvalues.emplace( "description", err.message( ) );
-				m_keyvalues.emplace( "category", boost::lexical_cast<std::string>(err.category( ).name( )) );
-				m_keyvalues.emplace( "error_code", boost::lexical_cast<std::string>(err.value( )) );
+				m_keyvalues.emplace( "category", std::string(err.category( ).name( )) );
+				m_keyvalues.emplace( "error_code", std::to_string(err.value( )) );
  			}
 
 			Error::Error( boost::string_ref description, std::exception_ptr ex_ptr ) : m_keyvalues( ), m_frozen( false ), m_child( ), m_exception( std::move( ex_ptr ) ) {

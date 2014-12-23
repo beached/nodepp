@@ -278,7 +278,7 @@ namespace daw {
 						tcp::resolver resolver( base::ServiceHandle::get( ) );
 
 						auto obj = get_weak_ptr( );
-						boost::asio::async_connect( *m_socket, resolver.resolve( { host.to_string(), boost::lexical_cast<std::string>(port) } ), [obj]( boost::system::error_code const & err, tcp::resolver::iterator it ) {
+						boost::asio::async_connect( *m_socket, resolver.resolve( { host.to_string(), std::to_string(port) } ), [obj]( boost::system::error_code const & err, tcp::resolver::iterator it ) {
 							handle_connect( obj, err, it );
 						} );
 						return *this;

@@ -29,9 +29,9 @@ namespace daw {
 						m_body_sent( false ) { }
 
 					void HttpServerResponseImpl::start( ) {
-						std::weak_ptr<HttpServerResponseImpl> obj( get_ptr( ) );
-						if( !m_socket.expired( ) ) {
-							m_socket.lock( )->on_write_completion( [obj]( ) {
+						auto obj = get_weak_ptr( );
+						on_socket_if_valid( [obj]( lib::net::NetSocketStream socket ) {
+							socket->on_write_completion( [obj]( ) {
 								if( !obj.expired( ) ) {
 									obj.lock( )->emit_write_completion( );
 								}
@@ -40,7 +40,15 @@ namespace daw {
 									obj.lock( )->emit_all_writes_completed( );
 								}
 							} );
+						} );
+					}
+
+					bool HttpServerResponseImpl::on_socket_if_valid( std::function<void( lib::net::NetSocketStream )> action ) {
+						if( m_socket.expired( ) ) {
+							return false;
 						}
+						action( m_socket.lock( ) );
+						return true;
 					}
 
 					base::EventEmitter& HttpServerResponseImpl::emitter( ) {
@@ -73,11 +81,10 @@ namespace daw {
 					HttpServerResponseImpl& HttpServerResponseImpl::send_status( uint16_t status_code ) {
 						auto status = HttpStatusCodes( status_code );
 						std::string msg = "HTTP/" + m_version.to_string( ) + " " + std::to_string( status.first ) + " " + status.second + "\r\n";
-						//auto msg = daw::string::string_format( "HTTP/{0} {1} {2}\r\n", m_version.to_string( ), status.first, status.second );
-						if( !m_socket.expired( ) ) {
-							m_socket.lock( )->write_async( msg ); // TODO make faster
-						}
-						m_status_sent = true;
+
+						m_status_sent = on_socket_if_valid( [&msg]( lib::net::NetSocketStream socket ) {
+							socket->write_async( msg ); // TODO make faster
+						} );
 						return *this;
 					}
 
@@ -100,28 +107,24 @@ namespace daw {
 					}
 
 					HttpServerResponseImpl& HttpServerResponseImpl::send_headers( ) {
-						auto& dte = m_headers["Date"];
-						if( dte.empty( ) ) {
-							dte = gmt_timestamp( );
-						}
-						if( !m_socket.expired( ) ) {
-							m_socket.lock( )->write_async( m_headers.to_string( ) );
-						}
-						m_headers_sent = true;
+						m_headers_sent = on_socket_if_valid( [&]( lib::net::NetSocketStream socket ) {
+							auto& dte = m_headers["Date"];
+							if( dte.empty( ) ) {
+								dte = gmt_timestamp( );
+							}
+							socket->write_async( m_headers.to_string( ) );							
+						} );
 						return *this;
 					}
 
-					HttpServerResponseImpl& HttpServerResponseImpl::send_body( ) {
-						HttpHeader content_header( "Content-Length", boost::lexical_cast<std::string>(m_body.size( )) );
-						if( !m_socket.expired( ) ) {
-							auto socket = m_socket.lock( );
+					HttpServerResponseImpl& HttpServerResponseImpl::send_body( ) {						
+						m_body_sent = on_socket_if_valid( [&]( lib::net::NetSocketStream socket ) {
+							HttpHeader content_header( "Content-Length", std::to_string(m_body.size( )) );
 							socket->write_async( content_header.to_string( ) );
 							socket->write_async( "\r\n\r\n" );
 							socket->write_async( m_body );
-							m_body_sent = true;
-						}
+						} );
 						return *this;
-
 					}
 
 					bool HttpServerResponseImpl::send( ) {
@@ -143,9 +146,7 @@ namespace daw {
 
 					HttpServerResponseImpl& HttpServerResponseImpl::end( ) {
 						send( );
-						if( !m_socket.expired( ) ) {
-							m_socket.lock( )->end( );
-						}
+						on_socket_if_valid( []( lib::net::NetSocketStream socket ) { socket->end( ); } );
 						return *this;
 					}
 
@@ -162,11 +163,10 @@ namespace daw {
 					}
 
 					void HttpServerResponseImpl::close( ) {
-						if( !send( ) ) {
-							if( !m_socket.expired( ) ) {
-								m_socket.lock( )->close( );
-							}
-						}						
+						send( );
+						on_socket_if_valid( []( lib::net::NetSocketStream socket ) {
+							socket->close( );								
+						} );
 					}
 
 					HttpServerResponseImpl& HttpServerResponseImpl::reset( ) {
@@ -179,24 +179,15 @@ namespace daw {
 					}
 
 					bool HttpServerResponseImpl::is_closed( ) const {
-						if( m_socket.expired( ) ) {
-							return true;
-						}
-						return m_socket.lock( )->is_closed( );
+						return m_socket.expired() || m_socket.lock( )->is_closed( );
 					}
 
 					bool HttpServerResponseImpl::can_write( ) const {
-						if( m_socket.expired( ) ) {
-							return false;
-						}
-						return m_socket.lock( )->can_write( );
+						return !m_socket.expired() && m_socket.lock( )->can_write( );
 					}
 
 					bool HttpServerResponseImpl::is_open( ) {
-						if( m_socket.expired( ) ) {
-							return false;
-						}
-						return m_socket.lock( )->is_open( );
+						return !m_socket.expired( ) && m_socket.lock( )->is_open( );
 					}
 
 					HttpServerResponseImpl& HttpServerResponseImpl::add_header( std::string header_name, std::string header_value ) {

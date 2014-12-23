@@ -52,7 +52,7 @@ namespace daw {
 					}
 	
 					void NetDnsImpl::resolve( boost::string_ref address, uint16_t port ) {
-						auto query = tcp::resolver::query( address.to_string( ), boost::lexical_cast<std::string>(port), boost::asio::ip::resolver_query_base::numeric_host );
+						auto query = tcp::resolver::query( address.to_string( ), std::to_string(port), boost::asio::ip::resolver_query_base::numeric_host );
 						resolve( query );
 					}
 	

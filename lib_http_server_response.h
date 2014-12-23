@@ -37,6 +37,9 @@ namespace daw {
 						bool m_body_sent;
 						
 						HttpServerResponseImpl( std::weak_ptr<lib::net::impl::NetSocketStreamImpl> socket, base::EventEmitter emitter );
+						
+						bool on_socket_if_valid( std::function<void( lib::net::NetSocketStream )> action );
+
 					public:
 						friend HttpServerResponse lib::http::create_http_server_response( std::weak_ptr<lib::net::impl::NetSocketStreamImpl>, base::EventEmitter );
 
