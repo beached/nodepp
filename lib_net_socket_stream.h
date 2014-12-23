@@ -31,7 +31,7 @@ namespace daw {
 
 					namespace impl {
 						struct NetSocketStreamImpl: public base::enable_shared<NetSocketStreamImpl>, public base::StandardEvents<NetSocketStreamImpl>, public base::stream::StreamReadableEvents<NetSocketStreamImpl>, public base::stream::StreamWritableEvents<NetSocketStreamImpl> {
-							enum class ReadUntil { newline, buffer_full, predicate, next_byte, regex, values };
+							enum class ReadUntil { newline, buffer_full, predicate, next_byte, regex, values, double_newline };
 							using match_iterator_t = boost::asio::buffers_iterator < boost::asio::streambuf::const_buffers_type > ;
 							using match_function_t = std::function < std::pair<match_iterator_t, bool>( match_iterator_t begin, match_iterator_t end ) > ;
 						private:
@@ -123,7 +123,7 @@ namespace daw {
 							bool is_open( ) const;
 							bool is_closed( ) const;
 							bool can_write( ) const;
-	
+								
 							NetSocketStreamImpl& set_read_mode( NetSocketStreamImpl::ReadUntil mode );
 							ReadUntil const& current_read_mode( ) const;
 							NetSocketStreamImpl& set_read_predicate( std::function < std::pair<NetSocketStreamImpl::match_iterator_t, bool>( NetSocketStreamImpl::match_iterator_t begin, NetSocketStreamImpl::match_iterator_t end ) > match_function );

@@ -57,7 +57,7 @@ namespace daw {
 							}
 						} ).delegate_to( "closed", obj, "closed" )
 							.delegate_error_to( obj, "HttpConnectionImpl::start" )
-							.set_read_until_values( R"((\r\n|\n){2})", true );
+							.set_read_mode( lib::net::impl::NetSocketStreamImpl::ReadUntil::double_newline );
 
 						m_socket->read_async( );
 					}

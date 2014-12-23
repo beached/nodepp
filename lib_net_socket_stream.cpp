@@ -226,39 +226,47 @@ namespace daw {
 					}
 
 					NetSocketStreamImpl&  NetSocketStreamImpl::read_async( std::shared_ptr<boost::asio::streambuf> read_buffer ) {
-						if( m_state.closed ) {
-							return *this;
-						}
-						if( !read_buffer ) {
-							read_buffer = std::make_shared<boost::asio::streambuf>( m_read_options.max_read_size );
-						}
+						try {
+							if( m_state.closed ) {
+								return *this;
+							}
+							if( !read_buffer ) {
+								read_buffer = std::make_shared<boost::asio::streambuf>( m_read_options.max_read_size );
+							}
 
-						auto obj = get_weak_ptr( );
-						auto handler = [obj, read_buffer]( boost::system::error_code const & err, std::size_t bytes_transfered ) mutable {
-							handle_read( obj, read_buffer, err, bytes_transfered );
-						};
+							auto obj = get_weak_ptr( );
+							auto handler = [obj, read_buffer]( boost::system::error_code const & err, std::size_t bytes_transfered ) mutable {
+								handle_read( obj, read_buffer, err, bytes_transfered );
+							};
+							static boost::regex const dbl_newline( R"((?:\r\n|\n){2})" );
 
-						switch( m_read_options.read_mode ) {
-						case ReadUntil::next_byte:
-							throw std::runtime_error( "Read Until mode not implemented" );
-						case ReadUntil::buffer_full:
-							boost::asio::async_read( *m_socket, *read_buffer, handler );
-							break;
-						case ReadUntil::newline:
-							boost::asio::async_read_until( *m_socket, *read_buffer, "\n", handler );
-							break;
-						case ReadUntil::predicate:
-							boost::asio::async_read_until( *m_socket, *read_buffer, *m_read_options.read_predicate, handler );
-							break;
-						case ReadUntil::values:
-							boost::asio::async_read_until( *m_socket, *read_buffer, m_read_options.read_until_values, handler );
-							break;
-						case ReadUntil::regex:
-							boost::asio::async_read_until( *m_socket, *read_buffer, boost::regex( m_read_options.read_until_values ), handler );
-							break;
+							switch( m_read_options.read_mode ) {
+							case ReadUntil::next_byte:
+								throw std::runtime_error( "Read Until mode not implemented" );
+							case ReadUntil::buffer_full:
+								boost::asio::async_read( *m_socket, *read_buffer, handler );
+								break;
+							case ReadUntil::newline:
+								boost::asio::async_read_until( *m_socket, *read_buffer, "\n", handler );
+								break;
+							case ReadUntil::double_newline:
+								boost::asio::async_read_until( *m_socket, *read_buffer, dbl_newline, handler );
+								break;
+							case ReadUntil::predicate:
+								boost::asio::async_read_until( *m_socket, *read_buffer, *m_read_options.read_predicate, handler );
+								break;
+							case ReadUntil::values:
+								boost::asio::async_read_until( *m_socket, *read_buffer, m_read_options.read_until_values, handler );
+								break;
+							case ReadUntil::regex:
+								boost::asio::async_read_until( *m_socket, *read_buffer, boost::regex( m_read_options.read_until_values ), handler );
+								break;
 
-						default:
-							throw std::runtime_error( "read until method not implemented" );
+							default:
+								throw std::runtime_error( "read until method not implemented" );
+							}
+						} catch( ... ) {
+							emit_error( std::current_exception( ), "Exception starting async read", "NetSocketStreamImpl::read_async" );
 						}
 						return *this;
 					}

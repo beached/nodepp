@@ -102,6 +102,15 @@ namespace daw {
 						ss << prefix << "'" << row.first << "',	'" << row.second << "'\n";
 					}
 				}
+				if( m_exception ) {
+					try {
+						std::rethrow_exception( m_exception );
+					} catch( std::exception const & ex ) {
+						ss << "Exception message: " << ex.what( ) << "\n";
+					} catch( ... ) {
+						ss << "Unknown exception\n";
+					}
+				}
 				if( has_child( ) ) {
 					ss << child( ).to_string( prefix.to_string() + "	" );
 				}
