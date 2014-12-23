@@ -18,7 +18,7 @@ namespace daw {
 				HttpConnection create_http_connection( lib::net::NetSocketStream socket, base::EventEmitter emitter = base::create_event_emitter( ) );
 								
 				namespace impl {
-					class HttpConnectionImpl: public base::enabled_shared<HttpConnectionImpl>, public base::StandardEvents<HttpConnectionImpl> {
+					class HttpConnectionImpl: public base::enable_shared<HttpConnectionImpl>, public base::StandardEvents<HttpConnectionImpl> {
 						lib::net::NetSocketStream m_socket;
 						base::EventEmitter m_emitter;
 

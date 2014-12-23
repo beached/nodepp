@@ -30,7 +30,7 @@ namespace daw {
 					NetSocketStream create_net_socket_stream( boost::asio::io_service& io_service, std::size_t max_read_size, base::EventEmitter emitter = base::create_event_emitter( ) );
 
 					namespace impl {
-						struct NetSocketStreamImpl: public base::enabled_shared<NetSocketStreamImpl>, public base::StandardEvents<NetSocketStreamImpl>, public base::stream::StreamReadableEvents<NetSocketStreamImpl>, public base::stream::StreamWritableEvents<NetSocketStreamImpl> {
+						struct NetSocketStreamImpl: public base::enable_shared<NetSocketStreamImpl>, public base::StandardEvents<NetSocketStreamImpl>, public base::stream::StreamReadableEvents<NetSocketStreamImpl>, public base::stream::StreamWritableEvents<NetSocketStreamImpl> {
 							enum class ReadUntil { newline, buffer_full, predicate, next_byte, regex, values };
 							using match_iterator_t = boost::asio::buffers_iterator < boost::asio::streambuf::const_buffers_type > ;
 							using match_function_t = std::function < std::pair<match_iterator_t, bool>( match_iterator_t begin, match_iterator_t end ) > ;

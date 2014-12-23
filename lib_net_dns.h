@@ -23,7 +23,7 @@ namespace daw {
 				NetDns create_net_dns( base::EventEmitter emitter = base::create_event_emitter( ) );
 
 				namespace impl {
-					class NetDnsImpl: public base::enabled_shared<NetDnsImpl>, public base::StandardEvents < NetDnsImpl > {
+					class NetDnsImpl: public base::enable_shared<NetDnsImpl>, public base::StandardEvents < NetDnsImpl > {
 						NetDnsImpl( base::EventEmitter );
 
 					public:

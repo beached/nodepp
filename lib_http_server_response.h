@@ -26,7 +26,7 @@ namespace daw {
 				HttpServerResponse create_http_server_response( std::weak_ptr<lib::net::impl::NetSocketStreamImpl> socket, base::EventEmitter emitter = base::create_event_emitter( ) );
 
 				namespace impl {
-					class HttpServerResponseImpl: public base::enabled_shared< HttpServerResponseImpl >, public base::stream::StreamWritableEvents<HttpServerResponseImpl> {
+					class HttpServerResponseImpl: public base::enable_shared< HttpServerResponseImpl >, public base::stream::StreamWritableEvents<HttpServerResponseImpl> {
 						base::EventEmitter m_emitter;
 						std::weak_ptr<lib::net::impl::NetSocketStreamImpl> m_socket;
 						HttpVersion m_version;

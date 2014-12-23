@@ -29,7 +29,7 @@ namespace daw {
 					// Summary:		A TCP Server class
 					// Requires:	base::EventEmitter, base::options_t,
 					//				lib::net::NetAddress, base::Error
-					class NetServerImpl: public base::enabled_shared<NetServerImpl>, public base::StandardEvents < NetServerImpl > {
+					class NetServerImpl: public base::enable_shared<NetServerImpl>, public base::StandardEvents < NetServerImpl > {
 						std::shared_ptr<boost::asio::ip::tcp::acceptor> m_acceptor;
 						base::EventEmitter m_emitter;
 						NetServerImpl( base::EventEmitter emitter );

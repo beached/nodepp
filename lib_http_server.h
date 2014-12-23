@@ -24,7 +24,7 @@ namespace daw {
 					//////////////////////////////////////////////////////////////////////////
 					// Summary:		An HTTP Server class 
 					// Requires:	lib::net::NetServer
-					class HttpServerImpl: public base::enabled_shared<HttpServerImpl>, public base::StandardEvents < HttpServerImpl > {
+					class HttpServerImpl: public base::enable_shared<HttpServerImpl>, public base::StandardEvents < HttpServerImpl > {
 						lib::net::NetServer m_netserver;
 						base::EventEmitter m_emitter;
 						std::list<HttpConnection> m_connections;

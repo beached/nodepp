@@ -25,7 +25,7 @@ namespace daw {
 			EventEmitter create_event_emitter( );
 
 			template<typename T>
-			struct enabled_shared: public std::enable_shared_from_this< T > {
+			struct enable_shared: public std::enable_shared_from_this< T > {
 				std::shared_ptr<T> get_ptr( ) { return static_cast<T*>(this)->shared_from_this( ); }
 				std::weak_ptr<T> get_weak_ptr( ) { return get_ptr( ); }
 			};
@@ -37,7 +37,7 @@ namespace daw {
 				///				std::function with the correct signature.
 				///	Requires:	base::Callback
 				///	
-				struct EventEmitterImpl: enabled_shared< EventEmitterImpl > {
+				struct EventEmitterImpl: enable_shared< EventEmitterImpl > {
 					using listener_list_t = std::vector < std::pair<bool, Callback> > ;
 					using listeners_t = std::unordered_map < std::string, listener_list_t > ;
 					using callback_id_t = Callback::id_t;
