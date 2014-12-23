@@ -23,7 +23,7 @@ namespace daw {
 				NetDns create_net_dns( base::EventEmitter emitter = base::create_event_emitter( ) );
 
 				namespace impl {
-					class NetDnsImpl: public std::enable_shared_from_this<NetDnsImpl>, public base::StandardEvents < NetDnsImpl > {
+					class NetDnsImpl: public base::enabled_shared<NetDnsImpl>, public base::StandardEvents < NetDnsImpl > {
 						NetDnsImpl( base::EventEmitter );
 
 					public:
@@ -38,7 +38,7 @@ namespace daw {
 						NetDnsImpl( NetDnsImpl const & ) = delete;
 						NetDnsImpl& operator=(NetDnsImpl const & rhs) = delete;
 	
-						std::shared_ptr<NetDnsImpl> get_ptr( );
+// 						std::shared_ptr<NetDnsImpl> get_ptr( );
 						base::EventEmitter& emitter( );
 						//////////////////////////////////////////////////////////////////////////
 						// Summary: resolve name or ip address and call callback of form

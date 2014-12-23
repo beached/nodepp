@@ -29,7 +29,7 @@ namespace daw {
 					// Summary:		A TCP Server class
 					// Requires:	base::EventEmitter, base::options_t,
 					//				lib::net::NetAddress, base::Error
-					class NetServerImpl: public std::enable_shared_from_this<NetServerImpl>, public base::StandardEvents < NetServerImpl > {
+					class NetServerImpl: public base::enabled_shared<NetServerImpl>, public base::StandardEvents < NetServerImpl > {
 						std::shared_ptr<boost::asio::ip::tcp::acceptor> m_acceptor;
 						base::EventEmitter m_emitter;
 						NetServerImpl( base::EventEmitter emitter );
@@ -42,7 +42,7 @@ namespace daw {
 						NetServerImpl& operator=(NetServerImpl const &) = default;
 						~NetServerImpl( ) = default;
 
-						std::shared_ptr<NetServerImpl> get_ptr( );
+// 						std::shared_ptr<NetServerImpl> get_ptr( );
 						base::EventEmitter& emitter( );
 
 						void listen( uint16_t port );
@@ -97,7 +97,7 @@ namespace daw {
 
 					private:
 
-						static void handle_accept( std::weak_ptr<NetServerImpl> obj, NetSocketStream socket, boost::system::error_code const & err );
+						static void handle_accept( std::weak_ptr<NetServerImpl> obj, NetSocketStream&& socket, boost::system::error_code const & err );
 
 						void start_accept( );
 

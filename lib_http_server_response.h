@@ -23,12 +23,12 @@ namespace daw {
 					class HttpServerResponseImpl;
 				}
 				using HttpServerResponse = std::shared_ptr < impl::HttpServerResponseImpl >;
-				HttpServerResponse create_http_server_response( lib::net::NetSocketStream socket, base::EventEmitter emitter = base::create_event_emitter( ) );
+				HttpServerResponse create_http_server_response( std::weak_ptr<lib::net::impl::NetSocketStreamImpl> socket, base::EventEmitter emitter = base::create_event_emitter( ) );
 
 				namespace impl {
-					class HttpServerResponseImpl: public std::enable_shared_from_this < HttpServerResponseImpl >, public base::stream::StreamWritableEvents<HttpServerResponseImpl> {
+					class HttpServerResponseImpl: public base::enabled_shared< HttpServerResponseImpl >, public base::stream::StreamWritableEvents<HttpServerResponseImpl> {
 						base::EventEmitter m_emitter;
-						lib::net::NetSocketStream m_socket;
+						std::weak_ptr<lib::net::impl::NetSocketStreamImpl> m_socket;
 						HttpVersion m_version;
 						HttpHeaders m_headers;
 						base::data_t m_body;
@@ -36,9 +36,9 @@ namespace daw {
 						bool m_headers_sent;
 						bool m_body_sent;
 						
-						HttpServerResponseImpl( lib::net::NetSocketStream socket, base::EventEmitter emitter );
+						HttpServerResponseImpl( std::weak_ptr<lib::net::impl::NetSocketStreamImpl> socket, base::EventEmitter emitter );
 					public:
-						friend HttpServerResponse lib::http::create_http_server_response( lib::net::NetSocketStream, base::EventEmitter );
+						friend HttpServerResponse lib::http::create_http_server_response( std::weak_ptr<lib::net::impl::NetSocketStreamImpl>, base::EventEmitter );
 
 						HttpServerResponseImpl( HttpServerResponseImpl const & ) = delete;
 						~HttpServerResponseImpl( ) = default;
@@ -47,7 +47,7 @@ namespace daw {
 						HttpServerResponseImpl( HttpServerResponseImpl&& other ) = delete;
 						HttpServerResponseImpl& operator=(HttpServerResponseImpl && rhs) = delete;
 	
-						std::shared_ptr<HttpServerResponseImpl> get_ptr( );
+//						std::shared_ptr<HttpServerResponseImpl> get_ptr( );
 						
 						base::EventEmitter& emitter( );
 

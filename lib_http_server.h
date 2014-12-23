@@ -24,7 +24,7 @@ namespace daw {
 					//////////////////////////////////////////////////////////////////////////
 					// Summary:		An HTTP Server class 
 					// Requires:	lib::net::NetServer
-					class HttpServerImpl: public std::enable_shared_from_this<HttpServerImpl>, public base::StandardEvents < HttpServerImpl > {
+					class HttpServerImpl: public base::enabled_shared<HttpServerImpl>, public base::StandardEvents < HttpServerImpl > {
 						lib::net::NetServer m_netserver;
 						base::EventEmitter m_emitter;
 						std::list<HttpConnection> m_connections;
@@ -41,7 +41,7 @@ namespace daw {
 						HttpServerImpl( HttpServerImpl const & ) = default;
 						~HttpServerImpl( ) = default;
 
-						std::shared_ptr<HttpServerImpl> get_ptr( );
+//						std::shared_ptr<HttpServerImpl> get_ptr( );
 						base::EventEmitter& emitter( );
 
 						void listen_on( uint16_t port );

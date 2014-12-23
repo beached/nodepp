@@ -18,7 +18,6 @@ namespace daw {
 				EventEmitterImpl::EventEmitterImpl( EventEmitterImpl && other ):
 					m_listeners( std::move( other.m_listeners ) ),
 					m_max_listeners( std::move( other.m_max_listeners ) ) {
-					std::cerr << "EventEmitterImpl::EventEmitterImpl( EventEmmiter && )\n";
 				}
 
 				EventEmitterImpl& EventEmitterImpl::operator=(EventEmitterImpl && rhs) {
@@ -26,12 +25,10 @@ namespace daw {
 						m_listeners = std::move( rhs.m_listeners );
 						m_max_listeners = std::move( rhs.m_max_listeners );
 					}
-					std::cerr << "EventEmitterImpl::operator=( EventEmitterImpl&& )\n";
 					return *this;
 				}
 
 				void EventEmitterImpl::swap( EventEmitterImpl& rhs ) {
-					std::cerr << "EventEmitterImpl::swap( EventEmitterImpl & )\n";
 					using std::swap;
 					swap( m_listeners, rhs.m_listeners );
 					swap( m_max_listeners, rhs.m_max_listeners );
@@ -82,9 +79,9 @@ namespace daw {
 					return listeners( event ).size( );
 				}
 
-				std::shared_ptr<EventEmitterImpl> EventEmitterImpl::get_ptr( ) {
-					return shared_from_this( );
-				}
+//				std::shared_ptr<EventEmitterImpl> EventEmitterImpl::get_ptr( ) {
+// 					return shared_from_this( );
+// 				}
 
 				void EventEmitterImpl::emit_listener_added( boost::string_ref event, Callback listener ) {
 					emit( "listener_added", event, std::move( listener ) );

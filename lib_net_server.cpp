@@ -37,9 +37,9 @@ namespace daw {
 						return *this;
 					}
 
-					std::shared_ptr<NetServerImpl> NetServerImpl::get_ptr( ) {
-						return shared_from_this( );
-					}
+// 					std::shared_ptr<NetServerImpl> NetServerImpl::get_ptr( ) {
+// 						return shared_from_this( );
+// 					}
 
 					base::EventEmitter& NetServerImpl::emitter( ) {
 						return m_emitter;
@@ -105,11 +105,12 @@ namespace daw {
 						return *this;
 					}
 
-					void NetServerImpl::handle_accept( std::weak_ptr<NetServerImpl> obj, NetSocketStream socket, boost::system::error_code const & err ) {
-						run_if_valid( obj, "Exception while accepting connections", "NetServerImpl::handle_accept", [&]( std::shared_ptr<NetServerImpl>& self ) {
+					void NetServerImpl::handle_accept( std::weak_ptr<NetServerImpl> obj, NetSocketStream&& socket, boost::system::error_code const & err ) {
+						auto msocket = daw::as_move_only( std::move( socket ) );
+						run_if_valid( obj, "Exception while accepting connections", "NetServerImpl::handle_accept", [msocket, &err]( std::shared_ptr<NetServerImpl>& self ) mutable {
 							if( !err ) {
 								try {
-									self->emit_connection( std::move( socket ) );
+									self->emit_connection( msocket.move_out( ) );
 								} catch( ... ) {
 									self->emit_error( std::current_exception( ), "Running connection listeners", "NetServerImpl::listen#emit_connection" );
 								}
@@ -121,18 +122,19 @@ namespace daw {
 					}
 
 					void NetServerImpl::start_accept( ) {
-						auto socket = create_net_socket_stream( );
+						auto socket_sp = create_net_socket_stream( );
+						auto& boost_socket = socket_sp->socket( );
+						auto socket = as_move_only( std::move( socket_sp ) );
 
 						std::weak_ptr<NetServerImpl> obj = get_ptr( );
 						auto handler = [obj, socket]( boost::system::error_code const & err ) mutable {
-							handle_accept( obj, std::move( socket ), err );
-						};
-
-						m_acceptor->async_accept( socket->socket( ), handler );
+							handle_accept( obj, socket.move_out( ), err );
+						};						
+						m_acceptor->async_accept( boost_socket, handler );
 					}
 
 					void NetServerImpl::emit_connection( NetSocketStream socket ) {
-						emitter( )->emit( "connection", std::move( socket ) );
+						emitter( )->emit( "connection", socket );
 					}
 
 					void NetServerImpl::emit_listening( boost::asio::ip::tcp::endpoint endpoint ) {

@@ -62,6 +62,17 @@ namespace daw {
             return std::find_if( std::begin( container ), std::end( container ), pred2 ) != std::end( container );
         }
 
+		template<typename ContainerType, typename Predicate>
+		auto where( ContainerType& container, Predicate pred ) -> std::vector<std::reference_wrapper<typename ContainerType::value_type>> {
+			using ValueType = typename ContainerType::value_type;
+			std::vector<std::reference_wrapper<ValueType>> result;
+			auto res_it = std::back_inserter( result );
+			for( auto& value : container ) {
+				*res_it++ = value;
+			}
+			return result;
+		}
+
 
 
     }	// namespace algorithm

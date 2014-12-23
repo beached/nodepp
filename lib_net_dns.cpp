@@ -34,9 +34,9 @@ namespace daw {
 						return *this;
 					}
 	
-					std::shared_ptr<NetDnsImpl> NetDnsImpl::get_ptr( ) {
-						return shared_from_this( );
-					}
+// 					std::shared_ptr<NetDnsImpl> NetDnsImpl::get_ptr( ) {
+// 						return shared_from_this( );
+// 					}
 	
 					base::EventEmitter& NetDnsImpl::emitter( ) {
 						return m_emitter;

@@ -89,14 +89,14 @@ namespace daw {
 							if( m_socket.is_open( ) ) {
 								m_socket.close( );
 							}
-						} catch( std::exception const & ) {
+						} catch( ... ) {
 							// Do nothing, we don't usually care.  It's gone, move on
 						}
 					}
 
-					std::shared_ptr<NetSocketStreamImpl> NetSocketStreamImpl::get_ptr( ) {
-						return shared_from_this( );
-					}
+// 					std::shared_ptr<NetSocketStreamImpl> NetSocketStreamImpl::get_ptr( ) {
+// 						return shared_from_this( );
+// 					}
 
 					base::EventEmitter& NetSocketStreamImpl::emitter( ) {
 						return m_emitter;

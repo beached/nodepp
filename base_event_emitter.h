@@ -24,6 +24,12 @@ namespace daw {
 
 			EventEmitter create_event_emitter( );
 
+			template<typename T>
+			struct enabled_shared: public std::enable_shared_from_this< T > {
+				std::shared_ptr<T> get_ptr( ) { return static_cast<T*>(this)->shared_from_this( ); }
+				std::weak_ptr<T> get_weak_ptr( ) { return get_ptr( ); }
+			};
+
 			namespace impl {
 				//////////////////////////////////////////////////////////////////////////
 				/// Summary:	Allows for the dispatch of events to subscribed listeners
@@ -31,7 +37,7 @@ namespace daw {
 				///				std::function with the correct signature.
 				///	Requires:	base::Callback
 				///	
-				struct EventEmitterImpl: std::enable_shared_from_this < EventEmitterImpl > {
+				struct EventEmitterImpl: enabled_shared< EventEmitterImpl > {
 					using listener_list_t = std::vector < std::pair<bool, Callback> > ;
 					using listeners_t = std::unordered_map < std::string, listener_list_t > ;
 					using callback_id_t = Callback::id_t;
@@ -49,7 +55,7 @@ namespace daw {
 					EventEmitterImpl& operator=(EventEmitterImpl && rhs);
 					void swap( EventEmitterImpl& rhs );
 
-					std::shared_ptr<EventEmitterImpl> get_ptr( );
+//					std::shared_ptr<EventEmitterImpl> get_ptr( );
 
 					void remove_listener( boost::string_ref event, callback_id_t id );
 
@@ -100,7 +106,7 @@ namespace daw {
 
 						auto& callbacks = listeners( )[event.to_string()];
 						for( auto& callback : callbacks ) {
-							if( !callback.second.empty( ) ) {
+ 							if( !callback.second.empty( ) ) {							
 								callback.second.exec( std::forward<Args>( args )... );
 							}
 						}
@@ -264,11 +270,12 @@ namespace daw {
 
 				template<typename... Args, typename DestinationType>
 				Child& delegate_to( boost::string_ref source_event, std::weak_ptr<DestinationType> destination_obj, std::string destination_event ) {
-					emitter( )->on( source_event, [destination_obj, destination_event]( Args... args ) {
+					auto handler = [destination_obj, destination_event]( Args... args ) {
 						if( !destination_obj.expired( ) ) {
 							destination_obj.lock( )->emitter( )->emit( destination_event, std::move( args )... );
 						}
-					} );
+					};
+					emitter( )->on( source_event, handler );
 					return child( );
 				}
 

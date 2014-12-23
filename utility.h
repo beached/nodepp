@@ -341,5 +341,42 @@ namespace daw {
 		}
 		return true;
 	}
+	//////////////////////////////////////////////////////////////////////////
+	/// Summary:	Use this to move a shared_ptr into a lambda capture by copy
+	///				without creating a loop
+	template<typename T>
+	class MoveOnly {
+		mutable std::shared_ptr<T> m_value;
+	public:
+		MoveOnly( ) = delete;
+		MoveOnly( std::shared_ptr<T>&& val ) : m_value( std::move( val ) ) { 
+			val.reset( );
+		}
+
+		MoveOnly( MoveOnly const & other ) : m_value( std::move( other.m_value ) ) { 
+			other.m_value.reset( );
+		}
+
+		MoveOnly& operator=(MoveOnly const & rhs) {
+			if( this != &rhs ) {
+				m_value = std::move( rhs.m_value );
+				rhs.m_value.reset( );
+			}
+			return *this;
+		}
+		
+		~MoveOnly( ) = default;
+
+		std::shared_ptr<T> move_out( ) {
+			auto result = std::move( m_value );
+			m_value.reset( );
+			return result;
+		}
+	};	// class MoveOnly
+
+	template<typename T>
+	MoveOnly<T> as_move_only( std::shared_ptr<T>&& val ) {
+		return MoveOnly<T>( std::move( val ) );
+	}
 
 }	// namespace daw	

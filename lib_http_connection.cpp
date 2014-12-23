@@ -13,7 +13,7 @@ namespace daw {
 				using namespace daw::nodepp;
 				namespace impl {
 					namespace {
-						void err400( lib::net::NetSocketStream socket ) {
+						void err400( lib::net::NetSocketStream& socket ) {
 							// 400 bad request
 							socket->write_async( "HTTP/1.1 400 Bad Request\r\nConnection: close\r\n" );
 							std::stringstream stream;
@@ -34,7 +34,8 @@ namespace daw {
 
 					HttpConnectionImpl::HttpConnectionImpl( lib::net::NetSocketStream socket, base::EventEmitter emitter ) :
 						m_socket( std::move( socket ) ),
-						m_emitter( std::move( emitter ) ) { }
+						m_emitter( std::move( emitter) ) {
+					}
 
 					void HttpConnectionImpl::start( ) {
 						std::weak_ptr<HttpConnectionImpl> obj( get_ptr( ) );
@@ -46,7 +47,7 @@ namespace daw {
 									auto request = parse_http_request( data_buffer->begin( ), data_buffer->end( ) );
 									data_buffer.reset( );
 									if( request ) {
-										auto response = create_http_server_response( self->m_socket );
+										auto response = create_http_server_response( self->m_socket->get_weak_ptr( ) );
 										response->start( );
 										self->emit_request_made( request, response );
 									} else {
@@ -60,17 +61,8 @@ namespace daw {
 
 						m_socket->read_async( );
 					}
-
-					HttpConnectionImpl::HttpConnectionImpl( HttpConnectionImpl && other ) : m_socket( std::move( other.m_socket ) ), m_emitter( std::move( other.m_emitter ) ) { }
-
-					HttpConnectionImpl& HttpConnectionImpl::operator = (HttpConnectionImpl && rhs) {
-						if( this != &rhs ) {
-							m_socket = std::move( rhs.m_socket );
-							m_emitter = std::move( rhs.m_emitter );
-						}
-						return *this;
-					}
-
+ 
+					HttpConnectionImpl::~HttpConnectionImpl( ) { }
 
 					base::EventEmitter& HttpConnectionImpl::emitter( ) {
 						return m_emitter;
@@ -126,14 +118,14 @@ namespace daw {
 						return m_socket;
 					}
 
-					std::shared_ptr<HttpConnectionImpl> HttpConnectionImpl::get_ptr( ) {
-						return shared_from_this( );
-					}
+// 					std::shared_ptr<HttpConnectionImpl> HttpConnectionImpl::get_ptr( ) {
+// 						return shared_from_this( );
+// 					}
 
 				}	// namespace impl
 
 				HttpConnection create_http_connection( lib::net::NetSocketStream socket, base::EventEmitter emitter ) {
-					return HttpConnection( new impl::HttpConnectionImpl( socket, emitter ) );
+					return HttpConnection( new impl::HttpConnectionImpl( std::move( socket ), std::move( emitter ) ) );
 				}
 
 			} // namespace http
