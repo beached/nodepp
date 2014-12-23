@@ -330,15 +330,17 @@ namespace daw {
 						m_state.closed = true;
 						m_state.end = true;
 						try {
-							boost::system::error_code err;
-							m_socket->shutdown( boost::asio::ip::tcp::socket::shutdown_both, err );
-							if( err ) {
-								emit_error( err, "NetSocketStreamImpl::close#shutdown" );
-							}
-							err = boost::system::error_code( );
-							m_socket->close( err );
-							if( err ) {
-								emit_error( err, "NetSocketStreamImpl::close#shutdown" );
+							if( m_socket && m_socket->is_open( ) ) {
+								boost::system::error_code err;
+								m_socket->shutdown( boost::asio::ip::tcp::socket::shutdown_both, err );
+								if( err ) {
+									emit_error( err, "NetSocketStreamImpl::close#shutdown" );
+								}
+								err = boost::system::error_code( );
+								m_socket->close( err );
+								if( err ) {
+									emit_error( err, "NetSocketStreamImpl::close#shutdown" );
+								}
 							}
 							m_socket.reset( );
 						} catch( ... ) {
