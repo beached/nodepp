@@ -339,7 +339,7 @@ namespace daw {
 								err = boost::system::error_code( );
 								m_socket->close( err );
 								if( emit_cb && err ) {
-									emit_error( err, "NetSocketStreamImpl::close#shutdown" );
+									emit_error( err, "NetSocketStreamImpl::close#close" );
 								}
 							}
 							m_socket.reset( );
