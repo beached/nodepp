@@ -46,7 +46,7 @@ namespace daw {
 						m_acceptor->open( endpoint.protocol( ) );
 						m_acceptor->set_option( boost::asio::ip::tcp::acceptor::reuse_address( true ) );
 						m_acceptor->bind( endpoint );
-						m_acceptor->listen( 2048 );
+						m_acceptor->listen( 511 );
 						start_accept( );
 						emit_listening( std::move( endpoint ) );
 					}
