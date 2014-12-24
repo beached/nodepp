@@ -173,6 +173,7 @@
     <ClInclude Include="lib_http_request_parser_impl.h" />
     <ClInclude Include="lib_http_server.h" />
     <ClInclude Include="lib_http_server_response.h" />
+    <ClInclude Include="lib_http_site.h" />
     <ClInclude Include="lib_http_version.h" />
     <ClInclude Include="lib_net.h" />
     <ClInclude Include="lib_net_address.h" />
@@ -204,6 +205,7 @@
     <ClCompile Include="lib_http_server_response.cpp" />
     <ClCompile Include="lib_http_server.cpp" />
     <ClCompile Include="lib_http_header.cpp" />
+    <ClCompile Include="lib_http_site.cpp" />
     <ClCompile Include="lib_http_statuscodes.cpp" />
     <ClCompile Include="lib_http_version.cpp" />
     <ClCompile Include="lib_net_address.cpp" />

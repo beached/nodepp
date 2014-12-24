@@ -19,6 +19,19 @@ namespace daw {
 			return container;
 		}
 
+		template<typename Container>
+		Container& stable_sort( Container& container ) {
+			std::stable_sort( begin( container ), end( container ) );
+			return container;
+		}
+
+		template<typename Container, typename UnaryPredicate>
+		Container& stable_sort( Container& container, UnaryPredicate pred ) {
+			std::stable_sort( begin( container ), end( container ), pred );
+			return container;
+		}
+
+
 		template<typename Container, typename Value>
 		auto find( Container const & container, Value const & value ) -> decltype(end( container )) {
 			return std::find( begin( container ), end( container ), value );

@@ -11,7 +11,7 @@ namespace daw {
 		namespace lib {
 			namespace http {
 				using namespace daw::nodepp;
-				enum class HttpRequestMethod { Options, Get, Head, Post, Put, Delete, Trace, Connect };
+				enum class HttpRequestMethod { Options, Get, Head, Post, Put, Delete, Trace, Connect, Any };
 				
 				std::string http_request_method_as_string( HttpRequestMethod method );
 

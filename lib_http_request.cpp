@@ -27,6 +27,8 @@ namespace daw {
 						return "Put";
 					case HttpRequestMethod::Trace:
 						return "Trace";
+					case HttpRequestMethod::Any:
+						return "Any";
 					}
 					throw std::runtime_error( "Unrecognized HttpRequestMethod" );
 				}
