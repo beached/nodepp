@@ -11,18 +11,38 @@ namespace daw {
 					HttpSiteImpl::HttpSiteImpl( base::EventEmitter emitter ) { }
 					
 					void HttpSiteImpl::sort_registered( ) {
-						daw::algorithm::sort( m_registered, []( site_registration const & lhs, site_registration const & rhs ) {
-							return lhs.host < rhs.host;
+						daw::algorithm::sort( m_registered, []( HttpSiteImpl::registered_page_t const & lhs, HttpSiteImpl::registered_page_t const & rhs ) {
+							return lhs.first.host < rhs.first.host;
 						} );
 						
-						daw::algorithm::stable_sort( m_registered, []( site_registration const & lhs, site_registration const & rhs ) {
-							return lhs.path < rhs.path;
+						daw::algorithm::stable_sort( m_registered, []( HttpSiteImpl::registered_page_t const & lhs, HttpSiteImpl::registered_page_t const & rhs ) {
+							return lhs.first.path < rhs.first.path;
 						} );
 					}
-					
-					void HttpSiteImpl::create(lib::http::HttpRequestMethod method, boost::string_ref path) { }
-					void HttpSiteImpl::create(boost::string_ref hostname, lib::http::HttpRequestMethod method, boost::string_ref path) { }
+									
 
+					HttpSiteImpl::iterator HttpSiteImpl::create_path( lib::http::HttpRequestMethod method, std::string path, HttpSiteImpl::page_listener_t listener ) {
+						return m_registered.emplace( m_registered.end( ), site_registration( "*", std::move( path ), std::move( method ) ), listener );
+					}
+					HttpSiteImpl::iterator HttpSiteImpl::create_path( std::string hostname, lib::http::HttpRequestMethod method, std::string path, HttpSiteImpl::page_listener_t listener ) {
+						return m_registered.emplace( m_registered.end( ), site_registration( std::move( hostname ), std::move( hostname ), std::move( method ) ), listener );
+					}
+
+					void HttpSiteImpl::remove( iterator item ) {
+						m_registered.erase( item );
+					}
+
+					HttpSiteImpl::iterator HttpSiteImpl::end( ) {
+						return m_registered.end( );
+					}
+					
+					HttpSiteImpl::iterator HttpSiteImpl::best_match( boost::string_ref host, boost::string_ref path, lib::http::HttpRequestMethod method ) {
+						return m_registered.end( );
+					}
+
+					HttpSiteImpl::iterator HttpSiteImpl::best_match( boost::string_ref host, uint16_t error_code ) {
+						return m_registered.end( );
+					}
 
 
 				}	// namespace impl
