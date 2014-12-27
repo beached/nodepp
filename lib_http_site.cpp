@@ -28,21 +28,21 @@ namespace daw {
 					void HttpSiteImpl::set_server_listeners( ) {
 						m_server->on_error( get_weak_ptr( ), "Child" ).on_client_connected( [&]( HttpConnection connection ) {
 							connection->
-								on_error( get_weak_ptr( ), "child connection" );// .
-// 								on_request_made( [&]( HttpClientRequest request, HttpServerResponse response ) {
-// 									auto host = [&]( ) {
-// 										auto host_it = request->headers.find( "host" );
-// 										if( request->headers.end( ) == host_it ) {
-// 											return std::string( "*" );
-// 										}
-// 										return host_it->second;
-// 									}();
-// 									auto listener = best_match( host, request->request.url, request->request.method );
-// 									if( end( ) == listener ) {
-// 										return;
-// 									}
-// 									listener->second( *request, response );
-// 								} );
+								on_error( get_weak_ptr( ), "child connection" )
+								.on_request_made( [&]( HttpClientRequest request, HttpServerResponse response ) {
+									auto host = [&]( ) {
+										auto host_it = request->headers.find( "host" );
+										if( request->headers.end( ) == host_it ) {
+											return std::string( "*" );
+										}
+										return host_it->second;
+									}();
+									auto listener = best_match( host, request->request.url, request->request.method );
+									if( end( ) == listener ) {
+										emit_page_error( request, response, 404 );
+									}
+									listener->second( request, response );
+								} );
 						} );
 					}
 
@@ -72,7 +72,7 @@ namespace daw {
 					}
 
 					HttpSiteImpl::iterator HttpSiteImpl::best_match( boost::string_ref host, boost::string_ref path, HttpClientRequestMethod method ) {
-						throw std::runtime_error( "Method not implemented" );
+						return end( );
 					}
 
 					bool HttpSiteImpl::has_error_handler( uint16_t error_no ) {
@@ -84,7 +84,7 @@ namespace daw {
 						return *this;
 					}
 
-					HttpSiteImpl& HttpSiteImpl::on_any_page_error( std::function < void( HttpClientRequestImpl, HttpServerResponse, uint16_t error_no ) > listener ) {
+					HttpSiteImpl& HttpSiteImpl::on_any_page_error( std::function < void( HttpClientRequest, HttpServerResponse, uint16_t error_no ) > listener ) {
 						m_error_listeners[0] = listener;
 						return *this;
 					}
@@ -94,12 +94,12 @@ namespace daw {
 						return *this;
 					}
 
-					HttpSiteImpl& HttpSiteImpl::on_page_error( uint16_t error_no, std::function < void( HttpClientRequestImpl, HttpServerResponse, uint16_t error_no ) > listener ) {
+					HttpSiteImpl& HttpSiteImpl::on_page_error( uint16_t error_no, std::function < void( HttpClientRequest, HttpServerResponse, uint16_t error_no ) > listener ) {
 						m_error_listeners[error_no] = std::move( listener );
 						return *this;
 					}
 
-					void HttpSiteImpl::default_page_error_listener( HttpClientRequestImpl request, HttpServerResponse response, uint16_t error_no ) {
+					void HttpSiteImpl::default_page_error_listener( HttpClientRequest request, HttpServerResponse response, uint16_t error_no ) {
 						auto msg = HttpStatusCodes( error_no );
 						if( msg.first != error_no ) {
 							msg.first = error_no;
@@ -109,9 +109,9 @@ namespace daw {
 						response->end( "<html><body><h2>" + msg.second + "</h2>\r\n</body></html>\r\n" );
 					}
 
-					void HttpSiteImpl::emit_page_error( HttpClientRequestImpl request, HttpServerResponse response, uint16_t error_no ) {
+					void HttpSiteImpl::emit_page_error( HttpClientRequest request, HttpServerResponse response, uint16_t error_no ) {
 						auto err_it = m_error_listeners.find( error_no );
-						std::function < void( HttpClientRequestImpl, HttpServerResponse, uint16_t )> handler = std::bind( &HttpSiteImpl::default_page_error_listener, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3 );
+						std::function < void( HttpClientRequest, HttpServerResponse, uint16_t )> handler = std::bind( &HttpSiteImpl::default_page_error_listener, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3 );
 
 						if( std::end( m_error_listeners ) != err_it ) {
 							handler = err_it->second;
@@ -122,6 +122,16 @@ namespace daw {
 					}
 
 				}	// namespace impl
+
+				HttpSite create_http_site( base::EventEmitter emitter ) {
+					return std::make_shared<impl::HttpSiteImpl>( std::move( emitter ) );
+				}
+
+				HttpSite create_http_site( HttpServer server, base::EventEmitter emitter ) {
+					return std::make_shared<impl::HttpSiteImpl>( std::move( server ), std::move( emitter ) );
+				}
+
+
 			} // namespace http
 		}	// namespace lib
 	}	// namespace nodepp

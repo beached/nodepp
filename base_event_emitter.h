@@ -147,8 +147,9 @@ namespace daw {
 				}
 			public:
 				EventEmitter& emitter( ) {
-					return child( ).emitter( );	// Love the warning this generates
+					return child( ).emitter( );	// Love the warning this generates.  Don't worry, only one turtle, not infinite
 				}
+
 				//////////////////////////////////////////////////////////////////////////
 				/// Summary: Callback is for when error's occur
 				Child& on_error( std::function<void( base::Error )> listener ) {

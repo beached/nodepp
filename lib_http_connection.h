@@ -40,7 +40,7 @@ namespace daw {
 						HttpConnectionImpl& on_client_error( std::function<void( base::Error )> listener );
 						HttpConnectionImpl& on_next_client_error( std::function<void( base::Error )> listener );
 
-						HttpConnectionImpl& on_request_made( std::function<void( HttpClientRequest, HttpServerResponse )> listener );
+						HttpConnectionImpl& on_request_made( std::function<void( HttpClientRequest	, HttpServerResponse )> listener );
 						HttpConnectionImpl& on_next_request_made( std::function<void( HttpClientRequest, HttpServerResponse )> listener );
 
 						HttpConnectionImpl& on_closed( std::function<void( )> listener );	// Only once as it is called on the way out				
