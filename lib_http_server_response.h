@@ -65,6 +65,7 @@ namespace daw {
 						HttpHeaders const & headers( ) const;
 	
 						HttpServerResponseImpl& send_status( uint16_t status_code = 200 );
+						HttpServerResponseImpl& send_status( uint16_t status_code, boost::string_ref status_msg );
 						HttpServerResponseImpl& send_headers( );
 						HttpServerResponseImpl& send_body( );
 						HttpServerResponseImpl& clear_body( );

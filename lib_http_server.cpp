@@ -62,7 +62,7 @@ namespace daw {
 							auto connection = create_http_connection( msocket.move_out( ) );
 							auto it = self->m_connections.emplace( self->m_connections.end( ), connection );
 							
-							connection->delegate_error_to( self, "HttpServerImpl::handle_connection" )
+							connection->on_error( self, "HttpServerImpl::handle_connection" )
 								.on_closed( [it, obj] ( ) mutable { 
 								if( !obj.expired( ) ) {
 									auto self_l = obj.lock( );
@@ -85,7 +85,7 @@ namespace daw {
 					void HttpServerImpl::listen_on( uint16_t port ) {
 						std::weak_ptr<HttpServerImpl> obj = get_ptr( );
 						m_netserver->on_connection( [obj]( lib::net::NetSocketStream socket ) { handle_connection( obj, std::move( socket ) ); } )
-							.delegate_error_to( obj, "HttpServerImpl::listen_on" )
+							.on_error( obj, "HttpServerImpl::listen_on" )
 							.delegate_to<boost::asio::ip::tcp::endpoint>( "listening", obj, "listening" )
 							.listen( port );
 					}

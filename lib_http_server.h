@@ -91,7 +91,6 @@ namespace daw {
 
 						size_t timeout( ) const;
 
-					protected:
 						void emit_client_connected( HttpConnection connection );
 						void emit_closed( );
 						void emit_listening( boost::asio::ip::tcp::endpoint endpoint );

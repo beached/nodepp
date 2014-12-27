@@ -195,8 +195,10 @@ namespace daw {
 					return child( );
 				}
 
+				//////////////////////////////////////////////////////////////////////////
+				/// Summary: Delegate error callbacks to another error handler
 				template<typename StandardEventsChild>
-				Child& delegate_error_to( std::weak_ptr<StandardEventsChild> error_destination, std::string where ) {
+				Child& on_error( std::weak_ptr<StandardEventsChild> error_destination, std::string where ) {
 					on_error( [error_destination, where]( base::Error error ) mutable {
 						if( !error_destination.expired( ) ) {
 							error_destination.lock( )->emit_error( where, std::move( error ) );
@@ -205,9 +207,11 @@ namespace daw {
 					return child( );
 				}
 
+				//////////////////////////////////////////////////////////////////////////
+				/// Summary: Delegate error callbacks to another error handler
 				template<typename StandardEventsChild>
-				Child& delegate_error_to( std::shared_ptr<StandardEventsChild> error_destination, std::string where ) {
-					return delegate_error_to( std::weak_ptr<StandardEventsChild>( error_destination ), std::move( where ) );
+				Child& on_error( std::shared_ptr<StandardEventsChild> error_destination, std::string where ) {
+					return on_error( std::weak_ptr<StandardEventsChild>( error_destination ), std::move( where ) );
 				}
 			
 				//////////////////////////////////////////////////////////////////////////

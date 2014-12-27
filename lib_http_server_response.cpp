@@ -88,6 +88,16 @@ namespace daw {
 						return *this;
 					}
 
+					HttpServerResponseImpl& HttpServerResponseImpl::send_status( uint16_t status_code, boost::string_ref status_msg ) {
+						std::string msg = "HTTP/" + m_version.to_string( ) + " " + std::to_string( status_code ) + " " + status_msg.to_string( ) + "\r\n";
+
+						m_status_sent = on_socket_if_valid( [&msg]( lib::net::NetSocketStream socket ) {
+							socket->write_async( msg ); // TODO make faster
+						} );
+						return *this;
+					}
+
+
 					namespace {
 						std::string gmt_timestamp( ) {
 							auto now = time( 0 );

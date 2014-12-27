@@ -9,6 +9,7 @@
 #include "base_event_emitter.h"
 #include "lib_http_request.h"
 #include "lib_http_server_response.h"
+#include "lib_http_server.h"
 
 namespace daw {
 	namespace nodepp {
@@ -39,16 +40,18 @@ namespace daw {
 					
 					private:
 						base::EventEmitter m_emitter;
+						HttpServer m_server;
 						registered_pages_t m_registered;
+						std::unordered_map<uint16_t, std::function < void( lib::http::HttpClientRequest, lib::http::HttpServerResponse, uint16_t ) >> m_error_listeners;
 
 						void sort_registered( );
-
+						void default_page_error_listener( lib::http::HttpClientRequest request, lib::http::HttpServerResponse response, uint16_t error_no );
+						void set_server_listeners( );
 					public:
 						HttpSiteImpl( base::EventEmitter emitter );
+						HttpSiteImpl( HttpServer server, base::EventEmitter emitter );
 						iterator create_path( lib::http::HttpRequestMethod method, std::string path, page_listener_t listener );
 						iterator create_path( std::string hostname, lib::http::HttpRequestMethod method, std::string path, page_listener_t listener );
-
-						iterator set_error_page( uint16_t err_code, page_listener_t callback );
 
 						void remove( iterator item );
 
@@ -56,6 +59,31 @@ namespace daw {
 						iterator best_match( boost::string_ref host, boost::string_ref path, lib::http::HttpRequestMethod method );
 						iterator best_match( boost::string_ref host, uint16_t error_code );
 
+						bool has_error_handler( uint16_t error_no );
+						
+						//////////////////////////////////////////////////////////////////////////
+						// Summary:	Use the default error handler for HTTP errors. This is the
+						//			default.
+						HttpSiteImpl& clear_page_error_listeners( );
+
+						//////////////////////////////////////////////////////////////////////////
+						// Summary:	Create a generic error handler
+						HttpSiteImpl& on_any_page_error( std::function < void( lib::http::HttpClientRequest, lib::http::HttpServerResponse, uint16_t error_no ) > listener );
+
+						//////////////////////////////////////////////////////////////////////////
+						// Summary:	Use the default error handler for specific HTTP error.
+						HttpSiteImpl& except_on_page_error( uint16_t error_no );
+
+						//////////////////////////////////////////////////////////////////////////
+						// Summary:	Specify a callback to handle a specific page error
+						HttpSiteImpl& on_page_error( uint16_t error_no, std::function < void( lib::http::HttpClientRequest, lib::http::HttpServerResponse, uint16_t error_no ) > listener );
+						
+						
+						void emit_page_error( lib::http::HttpClientRequest request, lib::http::HttpServerResponse response, uint16_t error_no );
+						void emit_listening( boost::asio::ip::tcp::endpoint endpoint );
+
+						HttpSiteImpl& on_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener );
+						HttpSiteImpl& listen( uint16_t port );
 					};	// class HttpSiteImpl
 				}	// namespace impl
 			} // namespace http

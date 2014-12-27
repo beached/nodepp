@@ -70,7 +70,13 @@ namespace daw {
 						{ 510, "Not Extended" },
 						{ 511, "Network Authentication Required" }
 					};
-					return std::make_pair( code, status_codes.at( code ) );
+					{
+						auto it = status_codes.find( code );
+						if( it != std::end( status_codes ) ) {
+							return { it->first, it->second };
+						}
+					}
+					return { code, "Generic Error" };
 				}
 			}	// namespace http
 		}	// namespace lib
