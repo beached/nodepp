@@ -27,9 +27,14 @@ namespace daw {
 					~HttpHeaders( ) = default;
 					HttpHeaders( HttpHeaders const & ) = default;
 					HttpHeaders( HttpHeaders && other );
-					HttpHeaders& operator=(HttpHeaders && rhs);
+					HttpHeaders& operator=(HttpHeaders && rhs);					
+					std::vector<HttpHeader>::iterator begin( );
+					std::vector<HttpHeader>::iterator end( );
+					std::vector<HttpHeader>::const_iterator cbegin( ) const;
+					std::vector<HttpHeader>::const_iterator cend( ) const;
 					std::vector<HttpHeader>::iterator find( boost::string_ref header_name );
 					std::vector<HttpHeader>::const_iterator find( boost::string_ref header_name ) const;
+
 
 					std::string const& operator[]( boost::string_ref header_name ) const;
 					std::string & operator[]( boost::string_ref header_name );
@@ -41,6 +46,8 @@ namespace daw {
 					std::string to_string( );
 
 					HttpHeaders& add( std::string header_name, std::string header_value );
+
+
 				};
 			}	// namespace http
 		}	// namespace lib

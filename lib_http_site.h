@@ -20,12 +20,12 @@ namespace daw {
 					struct site_registration {
 						std::string host;	// * = any
 						std::string path;	// postfixing with a * means match left
-						lib::http::HttpRequestMethod method;
+						HttpClientRequestMethod method;
 						site_registration( ) = default;
 						site_registration( site_registration const & ) = default;
 						site_registration& operator=(site_registration const &) = default;
 						~site_registration( ) = default;
-						site_registration( std::string Host, std::string Path, lib::http::HttpRequestMethod Method ) : 
+						site_registration( std::string Host, std::string Path, HttpClientRequestMethod Method ) : 
 							host( std::move( Host ) ),
 							path( std::move( Path ) ),
 							method( std::move( Method ) ) { }
@@ -33,7 +33,7 @@ namespace daw {
 
 					class HttpSiteImpl: public base::enable_shared<HttpSiteImpl>, public base::StandardEvents <HttpSiteImpl> {
 					public:
-						using page_listener_t = std::function < void( lib::http::HttpClientRequest, lib::http::HttpServerResponse ) > ;
+						using page_listener_t = std::function < void( HttpClientRequestImpl, HttpServerResponse ) > ;
 						using registered_page_t = std::pair < site_registration, page_listener_t > ;
 						using registered_pages_t = std::vector <registered_page_t> ;
 						using iterator = registered_pages_t::iterator;
@@ -42,22 +42,21 @@ namespace daw {
 						base::EventEmitter m_emitter;
 						HttpServer m_server;
 						registered_pages_t m_registered;
-						std::unordered_map<uint16_t, std::function < void( lib::http::HttpClientRequest, lib::http::HttpServerResponse, uint16_t ) >> m_error_listeners;
+						std::unordered_map<uint16_t, std::function < void( HttpClientRequestImpl, HttpServerResponse, uint16_t ) >> m_error_listeners;
 
 						void sort_registered( );
-						void default_page_error_listener( lib::http::HttpClientRequest request, lib::http::HttpServerResponse response, uint16_t error_no );
+						void default_page_error_listener( HttpClientRequestImpl request, HttpServerResponse response, uint16_t error_no );
 						void set_server_listeners( );
 					public:
 						HttpSiteImpl( base::EventEmitter emitter );
 						HttpSiteImpl( HttpServer server, base::EventEmitter emitter );
-						iterator create_path( lib::http::HttpRequestMethod method, std::string path, page_listener_t listener );
-						iterator create_path( std::string hostname, lib::http::HttpRequestMethod method, std::string path, page_listener_t listener );
+						iterator create_path( HttpClientRequestMethod method, std::string path, page_listener_t listener );
+						iterator create_path( std::string hostname, HttpClientRequestMethod method, std::string path, page_listener_t listener );
 
 						void remove( iterator item );
 
 						iterator end( );
-						iterator best_match( boost::string_ref host, boost::string_ref path, lib::http::HttpRequestMethod method );
-						iterator best_match( boost::string_ref host, uint16_t error_code );
+						iterator best_match( boost::string_ref host, boost::string_ref path, HttpClientRequestMethod method );
 
 						bool has_error_handler( uint16_t error_no );
 						
@@ -68,7 +67,7 @@ namespace daw {
 
 						//////////////////////////////////////////////////////////////////////////
 						// Summary:	Create a generic error handler
-						HttpSiteImpl& on_any_page_error( std::function < void( lib::http::HttpClientRequest, lib::http::HttpServerResponse, uint16_t error_no ) > listener );
+						HttpSiteImpl& on_any_page_error( std::function < void( HttpClientRequestImpl, HttpServerResponse, uint16_t error_no ) > listener );
 
 						//////////////////////////////////////////////////////////////////////////
 						// Summary:	Use the default error handler for specific HTTP error.
@@ -76,10 +75,10 @@ namespace daw {
 
 						//////////////////////////////////////////////////////////////////////////
 						// Summary:	Specify a callback to handle a specific page error
-						HttpSiteImpl& on_page_error( uint16_t error_no, std::function < void( lib::http::HttpClientRequest, lib::http::HttpServerResponse, uint16_t error_no ) > listener );
+						HttpSiteImpl& on_page_error( uint16_t error_no, std::function < void( HttpClientRequestImpl, HttpServerResponse, uint16_t error_no ) > listener );
 						
 						
-						void emit_page_error( lib::http::HttpClientRequest request, lib::http::HttpServerResponse response, uint16_t error_no );
+						void emit_page_error( HttpClientRequestImpl request, HttpServerResponse response, uint16_t error_no );
 						void emit_listening( boost::asio::ip::tcp::endpoint endpoint );
 
 						HttpSiteImpl& on_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener );

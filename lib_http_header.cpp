@@ -21,6 +21,22 @@ namespace daw {
 				bool HttpHeader::empty( ) const {
 					return name.empty( );
 				}
+
+				std::vector<HttpHeader>::iterator HttpHeaders::begin( ) {
+					return headers.begin( );
+				}
+
+				std::vector<HttpHeader>::iterator HttpHeaders::end( ) {
+					return headers.end( );
+				}
+
+				std::vector<HttpHeader>::const_iterator HttpHeaders::cbegin( ) const {
+					return headers.cbegin( );
+				}
+
+				std::vector<HttpHeader>::const_iterator HttpHeaders::cend( ) const {
+					return headers.cend( );
+				}
 				
 				HttpHeaders::HttpHeaders( ) : headers( ) { }
 				HttpHeaders::HttpHeaders( std::initializer_list<HttpHeader> values ) : headers( std::begin( values ), std::end( values ) ) { }

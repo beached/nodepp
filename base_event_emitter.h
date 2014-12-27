@@ -147,7 +147,7 @@ namespace daw {
 				}
 			public:
 				EventEmitter& emitter( ) {
-					return child( ).emitter( );
+					return child( ).emitter( );	// Love the warning this generates
 				}
 				//////////////////////////////////////////////////////////////////////////
 				/// Summary: Callback is for when error's occur

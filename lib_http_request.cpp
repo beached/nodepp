@@ -9,32 +9,32 @@ namespace daw {
 		namespace lib {
 			namespace http {
 
-				std::string http_request_method_as_string( HttpRequestMethod method ) {
+				std::string http_request_method_as_string( HttpClientRequestMethod method ) {
 					switch( method ) {
-					case HttpRequestMethod::Get:
+					case HttpClientRequestMethod::Get:
 						return "Get";
-					case HttpRequestMethod::Post:
+					case HttpClientRequestMethod::Post:
 						return "Post";
-					case HttpRequestMethod::Connect:
+					case HttpClientRequestMethod::Connect:
 						return "Connect";
-					case HttpRequestMethod::Delete:
+					case HttpClientRequestMethod::Delete:
 						return "Delete";
-					case HttpRequestMethod::Head:
+					case HttpClientRequestMethod::Head:
 						return "Head";
-					case HttpRequestMethod::Options:
+					case HttpClientRequestMethod::Options:
 						return "Options";
-					case HttpRequestMethod::Put:
+					case HttpClientRequestMethod::Put:
 						return "Put";
-					case HttpRequestMethod::Trace:
+					case HttpClientRequestMethod::Trace:
 						return "Trace";
-					case HttpRequestMethod::Any:
+					case HttpClientRequestMethod::Any:
 						return "Any";
 					}
 					throw std::runtime_error( "Unrecognized HttpRequestMethod" );
 				}
 
-				std::shared_ptr<daw::nodepp::lib::http::HttpClientRequest> parse_http_request( daw::nodepp::base::data_t::iterator first, daw::nodepp::base::data_t::iterator last ) {
-					auto result = std::make_shared < daw::nodepp::lib::http::HttpClientRequest >( );
+				std::shared_ptr<daw::nodepp::lib::http::impl::HttpClientRequestImpl> parse_http_request( daw::nodepp::base::data_t::iterator first, daw::nodepp::base::data_t::iterator last ) {
+					auto result = std::make_shared < daw::nodepp::lib::http::impl::HttpClientRequestImpl >( );
 					if( !boost::spirit::qi::parse( first, last, daw::nodepp::lib::http::request_parser::parse_grammar<decltype(first)>( ), *result ) ) {
 						result = nullptr;
 					}

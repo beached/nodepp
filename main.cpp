@@ -14,8 +14,8 @@ int main( int, char const ** ) {
 	server->on_listening( []( boost::asio::ip::tcp::endpoint endpoint ) {
 		std::cout << "Server listening on " << endpoint << "\n";
 	} ).on_client_connected( []( lib::http::HttpConnection client_connection ) {
-		client_connection->on_request_made( []( std::shared_ptr<lib::http::HttpClientRequest> request, lib::http::HttpServerResponse response ) {
-			if( request->request.url == "/" && request->request.method == lib::http::HttpRequestMethod::Get ) {
+		client_connection->on_request_made( []( lib::http::HttpClientRequest request, lib::http::HttpServerResponse response ) {
+			if( request->request.url == "/" && request->request.method == lib::http::HttpClientRequestMethod::Get ) {
 				response->on_all_writes_completed( [response]( ) mutable {
 					response->close( );
 				} ).send_status( 200 )

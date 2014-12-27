@@ -40,8 +40,8 @@ namespace daw {
 						HttpConnectionImpl& on_client_error( std::function<void( base::Error )> listener );
 						HttpConnectionImpl& on_next_client_error( std::function<void( base::Error )> listener );
 
-						HttpConnectionImpl& on_request_made( std::function<void( std::shared_ptr<HttpClientRequest>, HttpServerResponse )> listener );
-						HttpConnectionImpl& on_next_request_made( std::function<void( std::shared_ptr<HttpClientRequest>, HttpServerResponse )> listener );
+						HttpConnectionImpl& on_request_made( std::function<void( HttpClientRequest, HttpServerResponse )> listener );
+						HttpConnectionImpl& on_next_request_made( std::function<void( HttpClientRequest, HttpServerResponse )> listener );
 
 						HttpConnectionImpl& on_closed( std::function<void( )> listener );	// Only once as it is called on the way out				
 						void close( );
@@ -50,7 +50,7 @@ namespace daw {
 
 						void emit_closed( );
 						void emit_client_error( base::Error error );
-						void emit_request_made( std::shared_ptr<HttpClientRequest> request, HttpServerResponse response );
+						void emit_request_made( HttpClientRequest request, HttpServerResponse response );
 					};	// class HttpConnectionImpl
 				}	// namespace impl
 

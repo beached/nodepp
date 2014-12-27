@@ -16,15 +16,15 @@
 
 BOOST_FUSION_ADAPT_STRUCT(
 	daw::nodepp::lib::http::HttpRequestLine,
-	(daw::nodepp::lib::http::HttpRequestMethod, method)
+	(daw::nodepp::lib::http::HttpClientRequestMethod, method)
 	(std::string, url)
 	(std::string, version)
 	)
 
 	BOOST_FUSION_ADAPT_STRUCT(
-	daw::nodepp::lib::http::HttpClientRequest,
+	daw::nodepp::lib::http::impl::HttpClientRequestImpl,
 	(daw::nodepp::lib::http::HttpRequestLine, request)
-	(daw::nodepp::lib::http::HttpClientRequest::headers_t, headers)
+	(daw::nodepp::lib::http::impl::HttpClientRequestImpl::headers_t, headers)
 	)
 
 
@@ -46,24 +46,24 @@ namespace daw {
 					using spirit::int_;
 					using spirit::omit;
 					namespace {
-					struct method_parse_symbol_: qi::symbols < char, daw::nodepp::lib::http::HttpRequestMethod > {
+					struct method_parse_symbol_: qi::symbols < char, daw::nodepp::lib::http::HttpClientRequestMethod > {
 						method_parse_symbol_( ) {
 							add
-								( "OPTIONS", daw::nodepp::lib::http::HttpRequestMethod::Options )
-								("GET", daw::nodepp::lib::http::HttpRequestMethod::Get)
-								("HEAD", daw::nodepp::lib::http::HttpRequestMethod::Head)
-								("POST", daw::nodepp::lib::http::HttpRequestMethod::Post)
-								("PUT", daw::nodepp::lib::http::HttpRequestMethod::Put)
-								("DELETE", daw::nodepp::lib::http::HttpRequestMethod::Delete)
-								("TRACE", daw::nodepp::lib::http::HttpRequestMethod::Trace)
-								("CONNECT", daw::nodepp::lib::http::HttpRequestMethod::Connect)
+								( "OPTIONS", daw::nodepp::lib::http::HttpClientRequestMethod::Options )
+								("GET", daw::nodepp::lib::http::HttpClientRequestMethod::Get)
+								("HEAD", daw::nodepp::lib::http::HttpClientRequestMethod::Head)
+								("POST", daw::nodepp::lib::http::HttpClientRequestMethod::Post)
+								("PUT", daw::nodepp::lib::http::HttpClientRequestMethod::Put)
+								("DELETE", daw::nodepp::lib::http::HttpClientRequestMethod::Delete)
+								("TRACE", daw::nodepp::lib::http::HttpClientRequestMethod::Trace)
+								("CONNECT", daw::nodepp::lib::http::HttpClientRequestMethod::Connect)
 								;
 						}
 					} method_parse_symbol;
 					}	// namespace anonymous
 
 					template <typename Iterator>
-					struct parse_grammar: qi::grammar < Iterator, daw::nodepp::lib::http::HttpClientRequest( ) > {
+					struct parse_grammar: qi::grammar < Iterator, daw::nodepp::lib::http::impl::HttpClientRequestImpl( ) > {
 						parse_grammar( ) : parse_grammar::base_type( message ) {
 							url = +(~char_( ' ' ));	// not space
 							http_version = lexeme["HTTP/" >> raw[int_ >> '.' >> int_]];
@@ -89,7 +89,7 @@ namespace daw {
 						}
 
 						qi::rule< Iterator > crlf;
-						qi::rule< Iterator, daw::nodepp::lib::http::HttpClientRequest( ) > message;
+						qi::rule< Iterator, daw::nodepp::lib::http::impl::HttpClientRequestImpl( ) > message;
 
 						qi::rule< Iterator, std::string( ) > http_version;
 						qi::rule< Iterator, std::string( ) > url;

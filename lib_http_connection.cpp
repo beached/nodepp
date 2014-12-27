@@ -73,7 +73,7 @@ namespace daw {
 						emitter( )->emit( "client_error", error );
 					}
 
-					void HttpConnectionImpl::emit_request_made( std::shared_ptr<HttpClientRequest> request, HttpServerResponse response ) {
+					void HttpConnectionImpl::emit_request_made( HttpClientRequest request, HttpServerResponse response ) {
 						emitter( )->emit( "request_made", request, response );
 					}
 
@@ -97,12 +97,12 @@ namespace daw {
 						return *this;
 					}
 
-					HttpConnectionImpl& HttpConnectionImpl::on_request_made( std::function<void( std::shared_ptr<HttpClientRequest>, HttpServerResponse )> listener ) {
+					HttpConnectionImpl& HttpConnectionImpl::on_request_made( std::function<void( HttpClientRequest, HttpServerResponse )> listener ) {
 						emitter( )->add_listener( "request_made", listener );
 						return *this;
 					}
 
-					HttpConnectionImpl& HttpConnectionImpl::on_next_request_made( std::function<void( std::shared_ptr<HttpClientRequest>, HttpServerResponse )> listener ) {
+					HttpConnectionImpl& HttpConnectionImpl::on_next_request_made( std::function<void( HttpClientRequest, HttpServerResponse )> listener ) {
 						emitter( )->add_listener( "request_made", listener, true );
 						return *this;
 					}
