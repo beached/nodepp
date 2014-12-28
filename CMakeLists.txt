@@ -22,6 +22,7 @@ set(SOURCE_FILES
 		base_types.h
 		base_url.h
 		base_url_parser_impl.h
+		lib_file.h
 		lib_http_connection.cpp
 		lib_http_connection.h
 		lib_http.h
@@ -34,6 +35,8 @@ set(SOURCE_FILES
 		lib_http_server.h
 		lib_http_server_response.cpp
 		lib_http_server_response.h
+		lib_http_site.cpp
+		lib_http_site.h
 		lib_http_statuscodes.cpp
 		lib_http_version.cpp
 		lib_http_version.h
@@ -57,6 +60,7 @@ set(SOURCE_FILES
 		plugin_base.h
 		range_algorithm.h
 		ref_counted_value.h
+		semaphore.h
 		string.h
 		utility.h
 )
