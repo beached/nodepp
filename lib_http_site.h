@@ -26,25 +26,28 @@ namespace daw {
 
 				namespace impl {					
 					using namespace daw::nodepp;
+					using namespace lib::http;
+
 					struct site_registration {
 						std::string host;	// * = any
 						std::string path;	// postfixing with a * means match left
 						HttpClientRequestMethod method;
+						std::function < void( HttpClientRequest, HttpServerResponse ) > listener;
+
 						site_registration( ) = default;
 						site_registration( site_registration const & ) = default;
 						site_registration& operator=(site_registration const &) = default;
 						~site_registration( ) = default;
-						site_registration( std::string Host, std::string Path, HttpClientRequestMethod Method ) : 
-							host( std::move( Host ) ),
-							path( std::move( Path ) ),
-							method( std::move( Method ) ) { }
-					};
+
+						bool operator==(site_registration const & rhs) const;
+
+						site_registration( std::string Host, std::string Path, HttpClientRequestMethod Method );
+						site_registration( std::string Host, std::string Path, HttpClientRequestMethod Method, std::function < void( HttpClientRequest, HttpServerResponse ) > Listener );
+					};	// site_registration
 
 					class HttpSiteImpl: public base::enable_shared<HttpSiteImpl>, public base::StandardEvents <HttpSiteImpl> {
 					public:
-						using page_listener_t = std::function < void( HttpClientRequest, HttpServerResponse ) > ;
-						using registered_page_t = std::pair < site_registration, page_listener_t > ;
-						using registered_pages_t = std::vector <registered_page_t> ;
+						using registered_pages_t = std::vector <site_registration> ;
 						using iterator = registered_pages_t::iterator;
 					
 					private:
@@ -55,22 +58,29 @@ namespace daw {
 
 						void sort_registered( );
 						void default_page_error_listener( HttpClientRequest request, HttpServerResponse response, uint16_t error_no );
-						void set_server_listeners( );
+						void start( );
 						HttpSiteImpl( base::EventEmitter emitter );
 						HttpSiteImpl( HttpServer server, base::EventEmitter emitter );
 					public:
-						friend HttpSite create_http_site( base::EventEmitter );
-						friend HttpSite create_http_site( HttpServer, base::EventEmitter );
+						friend HttpSite lib::http::create_http_site( base::EventEmitter );
+						friend HttpSite lib::http::create_http_site( HttpServer, base::EventEmitter );
 
+						HttpSiteImpl( HttpSiteImpl const & ) = delete;
+						HttpSiteImpl& operator=(HttpSiteImpl const &) = delete;	
+						HttpSiteImpl( HttpSiteImpl&& ) = delete;
+						HttpSiteImpl& operator=(HttpSiteImpl&&) = delete;
+						~HttpSiteImpl( ) = default;
 						//////////////////////////////////////////////////////////////////////////
 						/// Summary:	Register a listener for a HTTP method and path on any
 						///				host
-						iterator create_path( HttpClientRequestMethod method, std::string path, page_listener_t listener );
+						HttpSiteImpl& create_path( HttpClientRequestMethod method, std::string path, std::function<void( HttpClientRequest, HttpServerResponse )> listener );
 
 						//////////////////////////////////////////////////////////////////////////
 						/// Summary:	Register a listener for a HTTP method and path on a 
 						///				specific hostname
-						iterator create_path( std::string hostname, HttpClientRequestMethod method, std::string path, page_listener_t listener );
+						HttpSiteImpl& create_path( std::string hostname, HttpClientRequestMethod method, std::string path, std::function<void( HttpClientRequest, HttpServerResponse )> listener );
+
+						base::EventEmitter& emitter( );
 
 						void remove( iterator item );
 
@@ -101,7 +111,7 @@ namespace daw {
 						void emit_listening( boost::asio::ip::tcp::endpoint endpoint );
 
 						HttpSiteImpl& on_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener );
-						HttpSiteImpl& listen( uint16_t port );
+						HttpSiteImpl& listen_on( uint16_t port );
 					};	// class HttpSiteImpl
 				}	// namespace impl
 			} // namespace http

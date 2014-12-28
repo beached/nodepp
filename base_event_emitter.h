@@ -147,7 +147,7 @@ namespace daw {
 				}
 			public:
 				EventEmitter& emitter( ) {
-					return child( ).emitter( );	// Love the warning this generates.  Don't worry, only one turtle, not infinite
+					return child( ).emitter( );	// If you get a warning about a recursive call here, you forgot to create a emitter() in Child
 				}
 
 				//////////////////////////////////////////////////////////////////////////
