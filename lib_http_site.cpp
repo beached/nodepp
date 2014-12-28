@@ -25,7 +25,7 @@ namespace daw {
 						method( std::move( Method ) ),
 						listener( std::move( Listener ) ) { }
 
-					site_registration( std::string Host, std::string Path, HttpClientRequestMethod Method ) : 
+					site_registration::site_registration( std::string Host, std::string Path, HttpClientRequestMethod Method ) : 
 						host( std::move( Host ) ),
 						path( std::move( Path ) ),
 						method( std::move( Method ) ),
@@ -101,8 +101,9 @@ namespace daw {
 					}
 
 					HttpSiteImpl::iterator HttpSiteImpl::best_match( boost::string_ref host, boost::string_ref path, HttpClientRequestMethod method ) {
-						auto key = site_registration( host, path, method );
-						return daw::algorithm::find( m_registered, key );
+						auto key = site_registration( host.to_string( ), path.to_string( ), method );
+						iterator result = std::find( m_registered.begin( ), m_registered.end( ), key );
+						return result;
 					}
 
 					bool HttpSiteImpl::has_error_handler( uint16_t error_no ) {

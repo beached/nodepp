@@ -30,7 +30,7 @@ namespace daw {
 
 					struct site_registration {
 						std::string host;	// * = any
-						std::string path;	// postfixing with a * means match left
+						std::string path;	// postfixing with a * means match left(will mean)
 						HttpClientRequestMethod method;
 						std::function < void( HttpClientRequest, HttpServerResponse ) > listener;
 
