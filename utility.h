@@ -314,18 +314,21 @@ namespace daw {
 		return chr | static_cast<CharType>(32);		
 	}
 
-// 	template<typename Iterator>
-// 	bool equal( Iterator first, Iterator last, boost::string_ref value ) {
-// 		if( static_cast<size_t>(std::distance( first, last )) != value.size( ) ) {
-// 			return false;
-// 		}
-// 		for( size_t off = 0; off < value.size( ); ++off ) {
-// 			if( value[off] != *(first + static_cast<std::ptrdiff_t>(off)) ) {
-// 				return false;
-// 			}
-// 		}
-// 		return true;
-// 	}
+	template<typename CharType>
+	std::basic_string<CharType> AsciiUpper( std::basic_string<CharType> str ) {
+		for( auto& chr : str ) {
+			chr = AsciiUpper( chr );
+		}
+		return str;
+	}
+
+	template<typename CharType>
+	std::basic_string<CharType> AsciiLower( std::basic_string<CharType> str ) {
+		for( auto& chr : str ) {
+			chr = AsciiLower( chr );
+		}
+		return str;
+	}
 
 	template<typename Iterator>
 	bool equal_nc( Iterator first, Iterator last, boost::string_ref upper_value ) {
@@ -341,6 +344,7 @@ namespace daw {
 		}
 		return true;
 	}
+
 	//////////////////////////////////////////////////////////////////////////
 	/// Summary:	Use this to move a shared_ptr into a lambda capture by copy
 	///				without creating a loop

@@ -1,12 +1,13 @@
 #include <boost/utility/string_ref.hpp>
+#include <boost/algorithm/string/split.hpp>
 #include <cstdint>
 #include <string>
 #include <utility>
 #include <vector>
 
-#include "range_algorithm.h"
-#include "lib_http_site.h"
 #include "lib_http.h"
+#include "lib_http_site.h"
+#include "string.h"
 
 namespace daw {
 	namespace nodepp {
@@ -25,7 +26,7 @@ namespace daw {
 						method( std::move( Method ) ),
 						listener( std::move( Listener ) ) { }
 
-					site_registration::site_registration( std::string Host, std::string Path, HttpClientRequestMethod Method ) : 
+					site_registration::site_registration( std::string Host, std::string Path, HttpClientRequestMethod Method ) :
 						host( std::move( Host ) ),
 						path( std::move( Path ) ),
 						method( std::move( Method ) ),
@@ -44,26 +45,35 @@ namespace daw {
 						m_error_listeners( ) { }
 
 					void HttpSiteImpl::start( ) {
-						m_server->on_error( get_weak_ptr( ), "Child" ).on_client_connected( [&]( HttpConnection connection ) {
+						m_server->on_error( get_weak_ptr( ), "Child" )
+							.on_client_connected( [&]( HttpConnection connection ) {
 							auto obj = get_weak_ptr( );
 							connection->
 								on_error( get_weak_ptr( ), "child connection" )
 								.on_request_made( [obj]( HttpClientRequest request, HttpServerResponse response ) {
-								run_if_valid( obj, "Processing request", "HttpSiteImpl::start( )#on_request_made", [&request, &response]( HttpSite self ) {
-									auto host = [&]( ) {
-										auto host_it = request->headers.find( "host" );
-										if( request->headers.end( ) == host_it ) {
-											return std::string( "*" );
+									run_if_valid( obj, "Processing request", "HttpSiteImpl::start( )#on_request_made", [&request, &response]( HttpSite self ) {
+										auto host = [&]( ) {
+											auto host_it = request->headers.find( "Host" );
+											if( request->headers.end( ) == host_it || "" == host_it->second ) {
+												return std::string( );
+											}
+											auto result = daw::string::split( host_it->second, ':' );
+											if( 0 < result.size( ) && result.size( ) <= 2 ) {
+												return result[0];
+											}
+											return std::string( );
+										}();
+										if( "" == host ) {
+											self->emit_page_error( request, response, 400 );
+										} else {
+											auto site = self->match( host, request->request.url, request->request.method );
+											if( self->end( ) == site ) {
+												self->emit_page_error( request, response, 404 );
+											} else {
+												site->listener( request, response );
+											}
 										}
-										return host_it->second;
-									}();
-									auto site = self->match( host, request->request.url, request->request.method );
-									if( self->end( ) == site ) {
-										self->emit_page_error( request, response, 404 );
-									} else {
-										site->listener( request, response );
-									}
-								} );
+									} );
 							} );
 						} );
 					}
@@ -102,7 +112,11 @@ namespace daw {
 
 					HttpSiteImpl::iterator HttpSiteImpl::match( boost::string_ref host, boost::string_ref path, HttpClientRequestMethod method ) {
 						auto key = site_registration( host.to_string( ), path.to_string( ), method );
-						iterator result = std::find( m_registered.begin( ), m_registered.end( ), key );
+						iterator result = std::find_if( m_registered.begin( ), m_registered.end( ), [&key]( site_registration const & item ) {
+							return (key.host == "*" || item.host == "*" || key.host == item.host) &&
+								key.path == item.path &&
+								(key.method == HttpClientRequestMethod::Any || item.method == HttpClientRequestMethod::Any || key.method == item.method);
+						} );
 						return result;
 					}
 
