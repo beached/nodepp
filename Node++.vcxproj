@@ -165,6 +165,7 @@
     <ClInclude Include="base_event_emitter.h" />
     <ClInclude Include="base_url.h" />
     <ClInclude Include="base_url_parser_impl.h" />
+    <ClInclude Include="base_write_buffer.h" />
     <ClInclude Include="lib_file.h" />
     <ClInclude Include="lib_http.h" />
     <ClInclude Include="lib_http_connection.h" />
@@ -200,6 +201,7 @@
     <ClCompile Include="base_encoding.cpp" />
     <ClCompile Include="base_error.cpp" />
     <ClCompile Include="base_event_emitter.cpp" />
+    <ClCompile Include="base_write_buffer.cpp" />
     <ClCompile Include="lib_http_connection.cpp" />
     <ClCompile Include="lib_http_request.cpp" />
     <ClCompile Include="lib_http_server_response.cpp" />

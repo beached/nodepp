@@ -12,6 +12,7 @@
 #include "base_service_handle.h"
 #include "base_stream.h"
 #include "base_types.h"
+#include "base_write_buffer.h"
 #include "lib_net_dns.h"
 #include "range_algorithm.h"
 #include "make_unique.h"
@@ -182,7 +183,7 @@ namespace daw {
 						} );
 					}
 
-					void NetSocketStreamImpl::handle_write( std::weak_ptr<daw::thread::Semaphore<int>> outstanding_writes, std::weak_ptr<NetSocketStreamImpl> obj, write_buffer buff, boost::system::error_code const & err, size_t const & bytes_transfered ) { // TODO see if we need buff, maybe lifetime issue
+					void NetSocketStreamImpl::handle_write( std::weak_ptr<daw::thread::Semaphore<int>> outstanding_writes, std::weak_ptr<NetSocketStreamImpl> obj, base::write_buffer buff, boost::system::error_code const & err, size_t const & bytes_transfered ) { // TODO see if we need buff, maybe lifetime issue
 						run_if_valid( obj, "Exception while handling write", "NetSocketStreamImpl::handle_write", [&]( std::shared_ptr<NetSocketStreamImpl>& self ) {
 							self->m_bytes_written += bytes_transfered;
 							if( !err ) {
@@ -210,7 +211,7 @@ namespace daw {
 						emitter( )->emit( "timeout" );
 					}
 
-					void NetSocketStreamImpl::write_async( write_buffer buff ) {
+					void NetSocketStreamImpl::write_async( base::write_buffer buff ) {
 						if( m_state.closed || m_state.end ) {
 							throw std::runtime_error( "Attempt to use a closed NetSocketStreamImplImpl" );
 						}
@@ -303,12 +304,12 @@ namespace daw {
 					}
 
 					NetSocketStreamImpl&  NetSocketStreamImpl::write_async( base::data_t const & chunk ) {
-						write_async( write_buffer( chunk ) );
+						write_async( base::write_buffer( chunk ) );
 						return *this;
 					}
 
 					NetSocketStreamImpl&  NetSocketStreamImpl::write_async( boost::string_ref chunk, base::Encoding const & ) {
-						write_async( write_buffer( chunk ) );
+						write_async( base::write_buffer( chunk ) );
 						return *this;
 					}
 
@@ -411,26 +412,6 @@ namespace daw {
 					bool NetSocketStreamImpl::can_write( ) const {
 						return !m_state.end;
 					}
-
-					//////////////////////////////////////////////////////////////////////////
-					/// Write  Buffer
-					///
-
-					write_buffer::write_buffer( base::data_t const & source ) : buff( std::make_shared<base::data_t>( source ) ) { }
-
-					write_buffer::write_buffer( boost::string_ref source ) : buff( std::make_shared<base::data_t>( source.begin( ), source.end( ) ) ) { }
-
-					std::size_t write_buffer::size( ) const {
-						return buff->size( );
-					}
-
-					write_buffer::data_type write_buffer::data( ) const {
-						return buff->data( );
-					}
-
-					boost::asio::mutable_buffers_1 write_buffer::asio_buff( ) const {
-						return boost::asio::buffer( data( ), size( ) );
-						}
 				}	// namespace impl
 
 				NetSocketStream create_net_socket_stream( base::EventEmitter emitter ) {

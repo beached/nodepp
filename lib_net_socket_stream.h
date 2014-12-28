@@ -10,6 +10,7 @@
 #include "base_service_handle.h"
 #include "base_stream.h"
 #include "base_types.h"
+#include "base_write_buffer.h"
 #include "lib_net_socket_stream.h"
 #include "semaphore.h"
 
@@ -20,7 +21,6 @@ namespace daw {
 					using namespace daw::nodepp;
 					using namespace boost::asio::ip;
 					namespace impl {
-						struct write_buffer;
 						struct NetSocketStreamImpl;
 					}
 
@@ -168,26 +168,13 @@ namespace daw {
 
 							static void handle_connect( std::weak_ptr<NetSocketStreamImpl> obj, boost::system::error_code const & err, tcp::resolver::iterator it );
 							static void handle_read( std::weak_ptr<NetSocketStreamImpl> obj, std::shared_ptr<boost::asio::streambuf> read_buffer, boost::system::error_code const & err, std::size_t const & bytes_transfered );
-							static void handle_write( std::weak_ptr<daw::thread::Semaphore<int>> outstanding_writes, std::weak_ptr<NetSocketStreamImpl> obj, write_buffer buff, boost::system::error_code const & err, size_t const & bytes_transfered );
+							static void handle_write( std::weak_ptr<daw::thread::Semaphore<int>> outstanding_writes, std::weak_ptr<NetSocketStreamImpl> obj, base::write_buffer buff, boost::system::error_code const & err, size_t const & bytes_transfered );
 	
-							void write_async( write_buffer buff );
+							void write_async( base::write_buffer buff );
 	
 						};	// struct NetSocketStreamImpl
 
-						struct write_buffer {
-							using data_type = base::data_t::pointer;
-							std::shared_ptr<base::data_t> buff;
-
-							template<typename Iterator>
-							write_buffer( Iterator first, Iterator last ) : buff( std::make_shared<base::data_t>( first, last ) ) { }
-
-							write_buffer( base::data_t const & source );
-							write_buffer( boost::string_ref source );
-							std::size_t size( ) const;
-
-							data_type data( ) const;
-							boost::asio::mutable_buffers_1 asio_buff( ) const;
-						};	// struct write_buffer
+						
 
 					}	// namespace impl
 					
