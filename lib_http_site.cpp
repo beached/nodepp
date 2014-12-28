@@ -57,7 +57,7 @@ namespace daw {
 										}
 										return host_it->second;
 									}();
-									auto site = self->best_match( host, request->request.url, request->request.method );
+									auto site = self->match( host, request->request.url, request->request.method );
 									if( self->end( ) == site ) {
 										self->emit_page_error( request, response, 404 );
 									} else {
