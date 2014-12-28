@@ -12,6 +12,10 @@ namespace daw {
 				static boost::asio::io_service& get( );
 				static void run( );
 			};	// class ServiceHandle
+
+			enum class StartServiceMode { Single, OnePerCore };
+
+			void start_service( StartServiceMode mode );
 		}	// namespace base
 	}	// namespace nodepp
 }	// namespace daw
