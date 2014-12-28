@@ -22,6 +22,8 @@ set(SOURCE_FILES
 		base_types.h
 		base_url.h
 		base_url_parser_impl.h
+		base_write_buffer.cpp
+		base_write_buffer.h
 		lib_file.h
 		lib_http_connection.cpp
 		lib_http_connection.h
