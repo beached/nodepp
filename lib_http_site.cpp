@@ -82,12 +82,12 @@ namespace daw {
 						} );
 					}
 
-					HttpSiteImpl& HttpSiteImpl::create_path( HttpClientRequestMethod method, std::string path, std::function<void( HttpClientRequest, HttpServerResponse )> listener ) {
+					HttpSiteImpl& HttpSiteImpl::on_requests_for( HttpClientRequestMethod method, std::string path, std::function<void( HttpClientRequest, HttpServerResponse )> listener ) {
 						m_registered.emplace_back( "*", std::move( path ), std::move( method ), listener );
 						return *this;
 					}
 
-					HttpSiteImpl& HttpSiteImpl::create_path( std::string hostname, HttpClientRequestMethod method, std::string path, std::function<void( HttpClientRequest, HttpServerResponse )> listener ) {
+					HttpSiteImpl& HttpSiteImpl::on_requests_for( std::string hostname, HttpClientRequestMethod method, std::string path, std::function<void( HttpClientRequest, HttpServerResponse )> listener ) {
 						m_registered.emplace_back( std::move( hostname ), std::move( hostname ), std::move( method ), listener );
 						return *this;
 					}
@@ -100,7 +100,7 @@ namespace daw {
 						return m_registered.end( );
 					}
 
-					HttpSiteImpl::iterator HttpSiteImpl::best_match( boost::string_ref host, boost::string_ref path, HttpClientRequestMethod method ) {
+					HttpSiteImpl::iterator HttpSiteImpl::match( boost::string_ref host, boost::string_ref path, HttpClientRequestMethod method ) {
 						auto key = site_registration( host.to_string( ), path.to_string( ), method );
 						iterator result = std::find( m_registered.begin( ), m_registered.end( ), key );
 						return result;

@@ -73,19 +73,19 @@ namespace daw {
 						//////////////////////////////////////////////////////////////////////////
 						/// Summary:	Register a listener for a HTTP method and path on any
 						///				host
-						HttpSiteImpl& create_path( HttpClientRequestMethod method, std::string path, std::function<void( HttpClientRequest, HttpServerResponse )> listener );
+						HttpSiteImpl& on_requests_for( HttpClientRequestMethod method, std::string path, std::function<void( HttpClientRequest, HttpServerResponse )> listener );
 
 						//////////////////////////////////////////////////////////////////////////
 						/// Summary:	Register a listener for a HTTP method and path on a 
 						///				specific hostname
-						HttpSiteImpl& create_path( std::string hostname, HttpClientRequestMethod method, std::string path, std::function<void( HttpClientRequest, HttpServerResponse )> listener );
+						HttpSiteImpl& on_requests_for( std::string hostname, HttpClientRequestMethod method, std::string path, std::function<void( HttpClientRequest, HttpServerResponse )> listener );
 
 						base::EventEmitter& emitter( );
 
 						void remove( iterator item );
 
 						iterator end( );
-						iterator best_match( boost::string_ref host, boost::string_ref path, HttpClientRequestMethod method );
+						iterator match( boost::string_ref host, boost::string_ref path, HttpClientRequestMethod method );
 
 						bool has_error_handler( uint16_t error_no );
 						

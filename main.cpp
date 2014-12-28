@@ -10,7 +10,7 @@ int main( int, char const ** ) {
 	using namespace lib::http;
 
 	auto site = create_http_site( );
-	site->create_path( HttpClientRequestMethod::Get, "/", [&]( HttpClientRequest request, HttpServerResponse response ) {
+	site->on_requests_for( HttpClientRequestMethod::Get, "/", [&]( HttpClientRequest request, HttpServerResponse response ) {
 		response->on_all_writes_completed( [response]( ) mutable {
 			response->close( );
 		} ).send_status( 200 )
