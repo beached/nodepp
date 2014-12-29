@@ -6,7 +6,7 @@ namespace daw {
 	template<typename FunctionType>
 	class ScopeGuard {
 		FunctionType m_function;
-		bool m_is_active;
+		mutable bool m_is_active;
 	public:
 		ScopeGuard( FunctionType f ) : m_function( std::move( f ) ), m_is_active( true ) { }
 

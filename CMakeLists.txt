@@ -22,8 +22,11 @@ set(SOURCE_FILES
 		base_types.h
 		base_url.h
 		base_url_parser_impl.h
+		base_work_queue.cpp
+		base_work_queue.h
 		base_write_buffer.cpp
 		base_write_buffer.h
+		concurrent_queue.h
 		lib_file.h
 		lib_http_connection.cpp
 		lib_http_connection.h
@@ -62,6 +65,7 @@ set(SOURCE_FILES
 		plugin_base.h
 		range_algorithm.h
 		ref_counted_value.h
+		scope_guard.h
 		semaphore.h
 		string.h
 		utility.h
@@ -70,7 +74,5 @@ set(SOURCE_FILES
 add_executable(NodePP ${SOURCE_FILES})
 
 target_link_libraries(NodePP  ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
-
-
 
 
