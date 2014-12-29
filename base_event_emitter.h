@@ -26,7 +26,7 @@ namespace daw {
 				struct EventEmitterImpl;
 			}	// namespace impl
 
-			using EventEmitter = std::shared_ptr < impl::EventEmitterImpl > ;
+			using EventEmitter = ::std::shared_ptr < impl::EventEmitterImpl > ;
 			EventEmitter create_event_emitter( );
 
 			namespace impl {

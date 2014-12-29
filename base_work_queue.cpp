@@ -114,6 +114,7 @@ namespace daw {
 				auto wq = new impl::WorkQueueImpl( std::move( max_workers ), std::move( emitter ) );
 				return WorkQueue( wq );
 			}
+
 		}	// namespace base
 	}	// namespace nodepp
 }	// namespace daw

@@ -36,7 +36,6 @@ namespace daw {
 					bool valid( ) const;
 				};
 
-
 				class WorkQueueImpl: public enable_shared<WorkQueueImpl>, public StandardEvents<WorkQueueImpl> {
 					daw::concurrent_queue<work_item_t> m_work_queue;
 					EventEmitter m_emitter;

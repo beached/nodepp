@@ -35,16 +35,6 @@ namespace daw {
 				}
 			}
 
-// 			base::WorkQueue ServiceHandle::work_queue( ) {
-// 				static base::WorkQueue queue( base::create_work_queue( ) );
-// 				return queue;
-// 			}
-// 
-// 			void ServiceHandle::add_work_item( std::function<void( )> work_item, std::function<void( base::OptionalError )> on_completion, bool auto_start ) { 
-// 				work_queue( )->add_work_item( std::move( work_item ), std::move( on_completion ), std::move( auto_start ) );
-// 			}
-
-
 		}	// namespace base
 	}	// namespace nodepp
 }	// namespace daw

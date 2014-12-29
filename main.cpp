@@ -2,7 +2,6 @@
 #include <cstdlib>
 #include <memory>
 
-#include "base_work_queue.h"
 #include "lib_http_request.h"
 #include "lib_http_site.h"
 
