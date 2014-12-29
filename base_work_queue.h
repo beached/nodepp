@@ -18,7 +18,7 @@ namespace daw {
 
 			using WorkQueue = std::shared_ptr < impl::WorkQueueImpl > ;
 
-			WorkQueue create_work_queue( uint32_t max_workers = std::thread::hardware_concurrency( ), EventEmitter emitter = create_event_emitter( ) );
+			//WorkQueue create_work_queue( uint32_t max_workers = std::thread::hardware_concurrency( ), daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
 
 			namespace impl {				
 				using namespace daw::nodepp;
