@@ -18,7 +18,7 @@ namespace daw {
 				//////////////////////////////////////////////////////////////////////////
 				/// Summary:	A thread pool that will perform tasks with at most 
 				///				the number of cores on the machine
-				static base::WorkQueue thread_pool( );
+				static base::WorkQueue work_queue( );
 				
 				//////////////////////////////////////////////////////////////////////////
 				/// Summary:	Adds a work item to the thread pool with optional
