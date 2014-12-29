@@ -22,7 +22,7 @@ int main( int, char const ** ) {
 		std::cerr << error << std::endl;
 	} ).listen_on( 8080 );
 
-	base::WorkQueue q;
+	auto q = base::create_work_queue( );
 
 	base::start_service( base::StartServiceMode::Single );
 

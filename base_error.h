@@ -42,6 +42,15 @@ namespace daw {
 			};	// class Error
 			
 			std::ostream& operator<<(std::ostream& os, Error const & error);
+
+			using OptionalError = std::shared_ptr < Error > ;
+			OptionalError create_optional_error( );
+			
+			template<typename... Args>
+			OptionalError create_optional_error( Args&&... args ) {
+				auto err = new Error( std::forward<Args>( args )... );
+				return OptionalError( err );
+			}
 		}	// namespace base
 	}	// namespace nodepp
 }	// namespace daw

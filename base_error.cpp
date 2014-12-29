@@ -33,7 +33,6 @@ namespace daw {
 				return *this;
 			}
 
-
 			Error& Error::add( boost::string_ref name, boost::string_ref value ) {
 				if( m_frozen ) {
 					throw std::runtime_error( "Attempt to change a frozen error." );
@@ -122,6 +121,11 @@ namespace daw {
 				os << error.to_string( );
 				return os;
 			}
+
+			OptionalError create_optional_error( ) {
+				return OptionalError( );
+			}
+
 	}	// namespace base
 }	// namespace nodepp
 }	// namespace daw

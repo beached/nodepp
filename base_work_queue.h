@@ -1,38 +1,66 @@
 #pragma once
 
+#include <atomic>
 #include <functional>
-#include <list>
+#include <thread>
 
 #include "base_event_emitter.h"
+#include "concurrent_queue.h"
 #include "semaphore.h"
 
 namespace daw {
 	namespace nodepp {
 		namespace base {
-			class WorkQueue: public StandardEvents < WorkQueue > {
-				using work_list_t = std::list < std::function<void( )> > ;				
+			namespace impl {
+				class WorkQueueImpl;
+			}	// namespace impl
+			using WorkQueue = std::shared_ptr < impl::WorkQueueImpl > ;
+			WorkQueue create_work_queue( uint32_t max_workers = std::thread::hardware_concurrency( ), EventEmitter emitter = EventEmitter( ) );
 
-				work_list_t m_work_items;				
-				EventEmitter m_emitter;
-				bool m_continue;
-				daw::thread::Semaphore<int> m_worker_count;
-			public:
-				//////////////////////////////////////////////////////////////////////////
-				/// Summary: Create a work queue with 1 worker per core
-				WorkQueue( );
-				WorkQueue( size_t max_workers );
-				~WorkQueue( ) = default;
-				WorkQueue( WorkQueue const & ) = delete;
-				WorkQueue& operator=(WorkQueue const &) = delete;
+			namespace impl {				
+				using namespace daw::nodepp;
+				using namespace daw::nodepp::base;
 
-				void add_work_item( std::function<void( )> work_item );
+				struct work_item_t {
+					std::function<void( )> work_item;
+					std::function<void( base::OptionalError )> on_completion;
+					
+					work_item_t( );
+					work_item_t( std::function<void( )> WorkItem, std::function<void( base::OptionalError )> OnCompletion = nullptr );
+					work_item_t( work_item_t const & ) = default;
+					work_item_t& operator=(work_item_t const &) = default;
+					~work_item_t( ) = default;
+					bool valid( ) const;
+				};
 
 
-				void run( );
-				void stop( );
+				class WorkQueueImpl: public enable_shared<WorkQueueImpl>, public StandardEvents<WorkQueueImpl> {
+					daw::concurrent_queue<work_item_t> m_work_queue;
+					EventEmitter m_emitter;
+					std::atomic<bool> m_continue;
+					daw::thread::Semaphore<int> m_worker_count;
+					int64_t m_max_workers;
+					std::atomic<uint64_t> m_item_count;
+					void worker( );
 
-				EventEmitter& emitter( );
-			};	// class WorkQueue
+				public:
+					friend WorkQueue create_work_queue( uint32_t, EventEmitter );
+					//////////////////////////////////////////////////////////////////////////
+					/// Summary Create a work queue with 1 worker per core
+					WorkQueueImpl( uint32_t max_workers, EventEmitter emitter );
+					~WorkQueueImpl( ) = default;
+					WorkQueueImpl( WorkQueueImpl const & ) = delete;
+					WorkQueueImpl& operator=(WorkQueueImpl const &) = delete;
+
+					EventEmitter& emitter( );
+
+					void add_work_item( std::function<void( )> work_item, std::function<void( base::OptionalError )> on_completion = nullptr );
+
+					void run( );
+					void stop( bool wait = true );
+
+				};	// class WorkQueueImpl
+			}	// namespace impl
 		}	// namespace base
 	}	// namespace nodepp
 }	// namespace daw
