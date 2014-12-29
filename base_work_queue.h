@@ -15,6 +15,7 @@ namespace daw {
 				class WorkQueueImpl;
 			}	// namespace impl
 			using WorkQueue = std::shared_ptr < impl::WorkQueueImpl > ;
+
 			WorkQueue create_work_queue( uint32_t max_workers = std::thread::hardware_concurrency( ), EventEmitter emitter = EventEmitter( ) );
 
 			namespace impl {				
@@ -54,7 +55,7 @@ namespace daw {
 
 					EventEmitter& emitter( );
 
-					void add_work_item( std::function<void( )> work_item, std::function<void( base::OptionalError )> on_completion = nullptr );
+					void add_work_item( std::function<void( )> work_item, std::function<void( base::OptionalError )> on_completion = nullptr, bool auto_start = true );
 
 					void run( );
 					void stop( bool wait = true );

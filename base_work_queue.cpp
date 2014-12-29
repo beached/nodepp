@@ -35,8 +35,11 @@ namespace daw {
 					return m_emitter;
 				}
 
-				void WorkQueueImpl::add_work_item( std::function<void( )> work_item, std::function<void( base::OptionalError )> on_completion ) {
+				void WorkQueueImpl::add_work_item( std::function<void( )> work_item, std::function<void( base::OptionalError )> on_completion, bool auto_start ) {
 					m_work_queue.push( work_item_t( std::move( work_item ), std::move( on_completion ) ) );
+					if( auto_start ) {
+						run( );
+					}
 				}				
 				
 				namespace {
