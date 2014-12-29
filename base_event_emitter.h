@@ -16,19 +16,18 @@
 namespace daw {
 	namespace nodepp {
 		namespace base {
-			namespace impl {
-				struct EventEmitterImpl;
-			}
-			
-			using EventEmitter = std::shared_ptr < impl::EventEmitterImpl > ;
-
-			EventEmitter create_event_emitter( );
-
 			template<typename T>
 			struct enable_shared: public std::enable_shared_from_this< T > {
 				std::shared_ptr<T> get_ptr( ) { return static_cast<T*>(this)->shared_from_this( ); }
 				std::weak_ptr<T> get_weak_ptr( ) { return get_ptr( ); }
-			};
+			};	// struct enable_shared
+
+			namespace impl {
+				struct EventEmitterImpl;
+			}	// namespace impl
+
+			using EventEmitter = std::shared_ptr < impl::EventEmitterImpl > ;
+			EventEmitter create_event_emitter( );
 
 			namespace impl {
 				//////////////////////////////////////////////////////////////////////////

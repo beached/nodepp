@@ -5,9 +5,9 @@
 #include <memory>
 #include <thread>
 
+#include "semaphore.h"
 #include "base_event_emitter.h"
 #include "concurrent_queue.h"
-#include "semaphore.h"
 
 namespace daw {
 	namespace nodepp {
