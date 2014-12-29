@@ -55,7 +55,6 @@ namespace daw {
 					EventEmitterImpl& operator=(EventEmitterImpl const &) = delete;
 					EventEmitterImpl( EventEmitterImpl && other ) = delete;
 					EventEmitterImpl& operator=(EventEmitterImpl && rhs) = delete;
-					//void swap( EventEmitterImpl& rhs );
 
 					void remove_listener( boost::string_ref event, callback_id_t id );
 
@@ -107,24 +106,18 @@ namespace daw {
 						if( ++(*m_emit_depth) > c_max_emit_depth ) {
 							throw std::runtime_error( "Max callback depth reached.  Possible loop" );
 						}
-						
-						auto obj = get_weak_ptr( );
-						ServiceHandle::get( ).post( [event, obj, args...]( ) {
-							if( !obj.expired( ) ) {
-								auto self = obj.lock( );
-								auto& callbacks = self->listeners( )[event];
-								for( auto& callback : callbacks ) {
-									if( !callback.second.empty( ) ) {
-										callback.second.exec( std::move( args )... );
-									}
-								}
 
-								daw::algorithm::erase_remove_if( callbacks, []( std::pair<bool, Callback> const & item ) {
-									return item.first;
-								} );
+						auto& callbacks = listeners( )[event];
+						for( auto& callback : callbacks ) {
+							if( !callback.second.empty( ) ) {
+								callback.second.exec( std::move( args )... );
 							}
+						}
+
+						daw::algorithm::erase_remove_if( callbacks, []( std::pair<bool, Callback> const & item ) {
+							return item.first;
 						} );
-						--(*m_emit_depth);						
+						--(*m_emit_depth);
 					}
 
 					void emit_listener_added( boost::string_ref event, Callback listener );

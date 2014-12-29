@@ -1,6 +1,6 @@
 
 #include <cstdint>
-#include <map>
+#include <unordered_map>
 #include <string>
 #include <utility>
 
@@ -11,7 +11,7 @@ namespace daw {
 		namespace lib {
 			namespace http {
 				std::pair<uint16_t, std::string> HttpStatusCodes( uint16_t code ) {
-					static std::map<uint16_t, std::string> const status_codes = {
+					static std::unordered_map<uint16_t, std::string> const status_codes = {
 						{ 100, "Continue" },
 						{ 101, "Switching Protocols" },
 						{ 102, "Processing" },

@@ -51,7 +51,17 @@ namespace daw {
 				std::unique_lock<std::mutex> lck( m_mutex );
 				m_condition.notify_all( );
 			}
+
+			Counter const & size( ) const {
+				std::unique_lock<std::mutex> lck( m_mutex );
+				return m_counter;
+			}
 			
+			void lock_and_do( std::function<void( Counter const & )> action ) {
+				std::unique_lock<std::mutex> lck( m_mutex );
+				action( m_counter );
+			}
+
 			void wait( ) {
 				std::unique_lock<std::mutex> lck( m_mutex );
 				m_condition.wait( lck, [&]( ) { return m_counter == 0; } );

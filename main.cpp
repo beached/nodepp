@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <memory>
 
+#include "base_work_queue.h"
 #include "lib_http_request.h"
 #include "lib_http_site.h"
 
@@ -21,8 +22,9 @@ int main( int, char const ** ) {
 		std::cerr << error << std::endl;
 	} ).listen_on( 8080 );
 
+	base::WorkQueue q;
 
-	base::start_service( base::StartServiceMode::OnePerCore );
+	base::start_service( base::StartServiceMode::Single );
 
 	return EXIT_SUCCESS;
 }
