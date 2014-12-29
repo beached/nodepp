@@ -9,10 +9,10 @@
 namespace daw {
 	namespace nodepp {
 		namespace base {
-			class ServiceHandle {
-			public:
+			struct ServiceHandle {
 				static boost::asio::io_service& get( );
 				static void run( );
+			};	// struct ServiceHandle
 
 			enum class StartServiceMode { Single, OnePerCore };
 
