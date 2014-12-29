@@ -16,6 +16,9 @@ namespace daw {
 				get( ).run( );
 			}
 
+			void ServiceHandle::work( ) {
+				boost::asio::io_service::work work( get( ) );
+			}
 
 			void start_service( StartServiceMode mode ) {
 				switch( mode ) {

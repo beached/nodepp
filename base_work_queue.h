@@ -1,6 +1,7 @@
 #pragma once
 
 #include <atomic>
+#include <cstdint>
 #include <functional>
 #include <memory>
 #include <thread>
@@ -18,18 +19,19 @@ namespace daw {
 
 			using WorkQueue = std::shared_ptr < impl::WorkQueueImpl > ;
 
-			//WorkQueue create_work_queue( uint32_t max_workers = std::thread::hardware_concurrency( ), daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
+			WorkQueue create_work_queue( uint32_t max_workers = std::thread::hardware_concurrency( ), daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
 
 			namespace impl {				
 				using namespace daw::nodepp;
 				using namespace daw::nodepp::base;
 
 				struct work_item_t {
-					std::function<void( )> work_item;
-					std::function<void( base::OptionalError )> on_completion;
-					
+					std::function<void( int64_t )> work_item;
+					std::function<void( int64_t, base::OptionalError )> on_completion;
+					int64_t task_id;
+
 					work_item_t( );
-					work_item_t( std::function<void( )> WorkItem, std::function<void( base::OptionalError )> OnCompletion = nullptr );
+					work_item_t( int64_t task_id, std::function<void( int64_t )> WorkItem, std::function<void( int64_t, base::OptionalError )> OnCompletion = nullptr );
 					work_item_t( work_item_t const & ) = default;
 					work_item_t& operator=(work_item_t const &) = default;
 					~work_item_t( ) = default;
@@ -50,17 +52,20 @@ namespace daw {
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary Create a work queue with 1 worker per core
 					WorkQueueImpl( uint32_t max_workers, EventEmitter emitter );
-					~WorkQueueImpl( ) = default;
+					~WorkQueueImpl( );
 					WorkQueueImpl( WorkQueueImpl const & ) = delete;
 					WorkQueueImpl& operator=(WorkQueueImpl const &) = delete;
 
 					EventEmitter& emitter( );
 
-					void add_work_item( std::function<void( )> work_item, std::function<void( base::OptionalError )> on_completion = nullptr, bool auto_start = true );
+					int64_t add_work_item( std::function<void( int64_t task_id )> work_item, std::function<void( int64_t task_id, base::OptionalError )> on_completion = nullptr, bool auto_start = true );
 
 					void run( );
-					void stop( bool wait = true );
-
+					void stop( bool should_wait = true );
+					bool stop( size_t timeout_ms );
+					void wait( );
+					bool wait( size_t timeout_ms );
+					int64_t max_conncurrent( ) const;
 				};	// class WorkQueueImpl
 			}	// namespace impl
 		}	// namespace base

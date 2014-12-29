@@ -12,14 +12,15 @@ namespace daw {
 				using namespace daw::nodepp;
 				using namespace daw::nodepp::base;
 
-				work_item_t::work_item_t( ) : work_item( nullptr ), on_completion( nullptr ) { }
+				work_item_t::work_item_t( ) : work_item( nullptr ), on_completion( nullptr ), task_id( 0 ) { }
 
-				work_item_t::work_item_t( std::function<void( )> WorkItem, std::function<void( base::OptionalError )> OnCompletion ) :
+				work_item_t::work_item_t( int64_t TaskId, std::function<void( int64_t )> WorkItem, std::function<void( int64_t, base::OptionalError )> OnCompletion ) :
 					work_item( std::move( WorkItem ) ),
-					on_completion( std::move( OnCompletion ) ) { }
+					on_completion( std::move( OnCompletion ) ),
+					task_id( std::move( TaskId ) ) { }
 				
 				bool work_item_t::valid( ) const {
-					return static_cast<bool>(work_item);
+					return task_id > 0 && static_cast<bool>(work_item);
 				}
 
 
@@ -29,22 +30,24 @@ namespace daw {
 					m_continue( false ),
 					m_worker_count( ),
 					m_max_workers( std::move( max_workers ) ),
-					m_item_count( 0 ) { }
+					m_item_count( 1 ) { }
 
 				EventEmitter& WorkQueueImpl::emitter( ) {
 					return m_emitter;
 				}
 
-				void WorkQueueImpl::add_work_item( std::function<void( )> work_item, std::function<void( base::OptionalError )> on_completion, bool auto_start ) {
-					m_work_queue.push( work_item_t( std::move( work_item ), std::move( on_completion ) ) );
+				int64_t  WorkQueueImpl::add_work_item( std::function<void( int64_t )> work_item, std::function<void( int64_t, base::OptionalError )> on_completion, bool auto_start ) {
+					auto task_id = m_item_count++;
+					m_work_queue.push( work_item_t( task_id, std::move( work_item ), std::move( on_completion ) ) );
 					if( auto_start ) {
 						run( );
 					}
+					return task_id;
 				}				
 				
 				namespace {
 					void on_main_thread( std::function<void( )> action ) {
-						base::ServiceHandle::get( ).post( std::move( action ) );
+						base::ServiceHandle::get( ).post( action );
 					}
 				}	// namespace anonymous
 
@@ -56,22 +59,25 @@ namespace daw {
 					} );
 					while( m_continue ) {
 						m_work_queue.wait_and_pop( current_item );
-						if( current_item.valid( ) ) {							
+						if( m_continue && current_item.valid( ) ) {							
 							try {
-								current_item.work_item( );
-								if( current_item.on_completion ) {
-									auto handler = current_item.on_completion;
-									on_main_thread( [handler]( ) {
-										handler( create_optional_error( ) );
+								current_item.work_item( current_item.task_id );
+								if( static_cast<bool>( current_item.on_completion ) ) {
+									std::cout << "posting completion of task: " << current_item.task_id << "\n";
+									on_main_thread( [current_item]( ) mutable {
+										current_item.on_completion( current_item.task_id, create_optional_error( ) );
 									} );
+								} else {
+									std::cout << "not posting completion of task: " << current_item.task_id << "\n";
 								}
 							} catch( ... ) {
-								OptionalError error = base::create_optional_error( "Error processing WorkQueue", std::current_exception( ) );
-								error->add( "where", "WorkQueueImpl::worker#current_item( )" );
-								auto handler = current_item.on_completion;
-								on_main_thread( [handler, error]( ) {
-									handler( std::move( error ) );
-								} );
+								if( current_item.on_completion ) {
+									OptionalError error = base::create_optional_error( "Error processing WorkQueue", std::current_exception( ) );
+									error->add( "where", "WorkQueueImpl::worker#current_item( )" );
+									on_main_thread( [current_item, error]( ) mutable {
+										current_item.on_completion( current_item.task_id, std::move( error ) );
+									} );
+								}
 							}
 						} else {
 							throw std::runtime_error( "WorkQueueImpl::worker -> Invalid work_item in queue" );
@@ -79,10 +85,11 @@ namespace daw {
 					}					
 				}
 
-				void WorkQueueImpl::run( ) { 
+				void WorkQueueImpl::run( ) {
 					m_continue = true;
+					m_work_queue.reset( );
 					auto self = get_ptr( );
-					for( auto n = 0; n < m_max_workers; ++n ) {
+					for( auto n = 0; n < m_max_workers && m_worker_count.count( ) < m_max_workers; ++n ) {
 						std::async( [self]( ) {
 							while( self->m_continue ) {
 								try {
@@ -101,13 +108,39 @@ namespace daw {
 					}
 				}
 
-				void WorkQueueImpl::stop( bool wait ) { 
+				void WorkQueueImpl::wait( ) {
+					m_worker_count.wait( );
+				}
+
+				bool WorkQueueImpl::wait( size_t timeout_ms ) {
+					return m_worker_count.wait( timeout_ms );
+				}
+
+				void WorkQueueImpl::stop( bool should_wait ) { 
 					m_continue = false;
-					if( wait ) {
-						m_worker_count.wait( );
+					m_work_queue.exit_all( );
+					if( should_wait ) {
+						wait( );
 					}
 				}
 
+				bool WorkQueueImpl::stop( size_t timeout_ms ) {
+					m_continue = false;
+					m_work_queue.exit_all( );
+					return wait( timeout_ms );
+				}
+
+				WorkQueueImpl::~WorkQueueImpl( ) {
+					m_continue = false;
+					m_work_queue.exit_all( );
+					if( !m_worker_count.wait( 2000 ) ) {	// TODO: Figure out time to wait for background workers to degrade gracefully
+						// TODO: What to do if timeout is reached?
+					}
+				}
+
+				int64_t WorkQueueImpl::max_conncurrent( ) const {
+					return m_max_workers;
+				}
 			}	// namespace impl
 
 			WorkQueue create_work_queue( uint32_t max_workers, EventEmitter emitter ) {

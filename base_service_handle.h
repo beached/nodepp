@@ -12,6 +12,7 @@ namespace daw {
 			struct ServiceHandle {
 				static boost::asio::io_service& get( );
 				static void run( );
+				static void work( );
 			};	// struct ServiceHandle
 
 			enum class StartServiceMode { Single, OnePerCore };

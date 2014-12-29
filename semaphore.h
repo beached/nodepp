@@ -15,7 +15,7 @@ namespace daw {
 		// incremented with reserve and decremented with notify
 		template<typename Counter>
 		class Semaphore: public daw::nodepp::base::enable_shared<Semaphore<Counter>> {
-			std::mutex m_mutex;
+			mutable std::mutex m_mutex;
 			std::condition_variable m_condition;
 			Counter m_counter;
 
@@ -53,7 +53,7 @@ namespace daw {
 				m_condition.notify_all( );
 			}
 
-			Counter const & size( ) const {
+			Counter const & count( ) const {
 				std::unique_lock<std::mutex> lck( m_mutex );
 				return m_counter;
 			}
