@@ -148,6 +148,15 @@ namespace daw {
 				return WorkQueue( wq );
 			}
 
+			WorkQueue CommonWorkQueue( ) {
+				static auto work_queue = []( ) {
+					auto result = create_work_queue( );
+					result->run( );
+					return result;
+				}( );
+				return work_queue;
+			}
+
 		}	// namespace base
 	}	// namespace nodepp
 }	// namespace daw

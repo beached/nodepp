@@ -206,6 +206,7 @@
     <ClCompile Include="base_event_emitter.cpp" />
     <ClCompile Include="base_work_queue.cpp" />
     <ClCompile Include="base_write_buffer.cpp" />
+    <ClCompile Include="lib_file.cpp" />
     <ClCompile Include="lib_http_connection.cpp" />
     <ClCompile Include="lib_http_request.cpp" />
     <ClCompile Include="lib_http_server_response.cpp" />

@@ -68,6 +68,9 @@ namespace daw {
 					int64_t max_conncurrent( ) const;
 				};	// class WorkQueueImpl
 			}	// namespace impl
+
+			WorkQueue CommonWorkQueue( );
+
 		}	// namespace base
 	}	// namespace nodepp
 }	// namespace daw
