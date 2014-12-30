@@ -10,54 +10,24 @@ namespace daw {
 	namespace nodepp {
 		namespace lib {	
 			namespace file {
-				namespace impl {
-					class FileImpl;
-				}	// namespace impl
+				using namespace daw::nodepp;
 
-				using LibFile = std::shared_ptr < impl::FileImpl > ;
+				//////////////////////////////////////////////////////////////////////////
+				/// Summary:	Reads in contents of file and appends it to buffer
+				base::OptionalError read_file( boost::string_ref path, base::data_t & buffer, bool append_buffer = true );
+				void read_file_async( boost::string_ref path, std::function<void( base::OptionalError error, base::data_t data )> listener, std::shared_ptr<base::data_t> buffer = nullptr, bool append_buffer = true );
 
-				enum class FileOpenMode { ReadOnly, WriteOnly, ReadAndWrite };
-				enum class FilePositionOffset { Begin, End };
-				LibFile create_file( boost::string_ref path, FileOpenMode mode = FileOpenMode::ReadOnly, base::EventEmitter emitter = base::create_event_emitter( ) );
-				
 
-				namespace impl {
-					using namespace daw::nodepp;
+				std::streampos file_size( boost::string_ref path );
 
-					class FileImpl: public base::StandardEvents<FileImpl>, base::stream::StreamReadableEvents<FileImpl>, base::stream::StreamWritableEvents < FileImpl > {
-						base::EventEmitter m_emitter;
-
-						FileImpl( boost::string_ref path, FileOpenMode mode, base::EventEmitter emitter );
-					public:
-						friend LibFile create_file( boost::string_ref, lib::file::FileOpenMode, base::EventEmitter );
-
-						base::EventEmitter& emitter( );
-
-						FileImpl&  read_async( std::shared_ptr<boost::asio::streambuf> read_buffer = nullptr );
-
-						//////////////////////////////////////////////////////////////////////////
-						/// Summary:	Read until EoF.  It is ill-advised to call multiple
-						///				async_read(...)'s without waiting for the data_received
-						///				event to be emitted first
-						base::data_t read_async( );
-
-						//////////////////////////////////////////////////////////////////////////
-						/// Summary:	Read byte_cound bytes in or until EoF.  It is ill-advised
-						///				to call multiple async_read(...)'s without waiting for 
-						///				the data_received event to be emitted first
-						base::data_t read_async( std::size_t byte_count );
-
-						FileImpl& write_async( base::data_t const & chunk );
-						FileImpl& write_async( boost::string_ref chunk, base::Encoding const & encoding = base::Encoding( ) );
-
-						FileImpl& set_position( FilePositionOffset pos_offset, int64_t offset = 0 );
-
-					};	// class LibFileImpl
-
-				}	// namespace impl
-
-				base::data_t read_file( boost::string_ref path );
-				void read_file_async( boost::string_ref path, std::function<void( base::OptionalError error, base::data_t data )> listener );
+#ifdef WIN32
+				base::OptionalError read_file_windows( boost::string_ref path, base::data_t & buffer, bool append_buffer = true );
+				void read_file_async_windows( boost::string_ref path, std::function<void( base::OptionalError error, base::data_t data )> listener, std::shared_ptr<base::data_t> buffer = nullptr, bool append_buffer = true );
+				std::streampos file_size_windows( boost::string_ref path );
+#endif
+				base::OptionalError read_file_generic( boost::string_ref path, base::data_t & buffer, bool append_buffer = true );
+				void read_file_async_generic( boost::string_ref path, std::function<void( base::OptionalError error, base::data_t data )> listener, std::shared_ptr<base::data_t> buffer = nullptr, bool append_buffer = true );
+				std::streampos file_size_generic( boost::string_ref path );
 
 			}	// namespace file
 		}	// namespace lib

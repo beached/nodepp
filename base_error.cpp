@@ -121,7 +121,7 @@ namespace daw {
 				os << error.to_string( );
 				return os;
 			}
-
+			
 			OptionalError create_optional_error( ) {
 				return OptionalError( );
 			}

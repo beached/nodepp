@@ -13,7 +13,7 @@ namespace daw {
 			// Summary:		Contains key/value pairs describing an error condition.
 			//				Description is mandatory.
 			// Requires:
-			class Error {
+			class Error: public std::exception {
 				std::map<std::string, std::string> m_keyvalues;
 				bool m_frozen;
 				std::shared_ptr<Error> m_child;
@@ -44,8 +44,13 @@ namespace daw {
 			std::ostream& operator<<(std::ostream& os, Error const & error);
 
 			using OptionalError = std::shared_ptr < Error > ;
+
+			//////////////////////////////////////////////////////////////////////////
+			/// Summary:	Create a null error (e.g. no error)
 			OptionalError create_optional_error( );
 			
+			//////////////////////////////////////////////////////////////////////////
+			/// Summary:	Create an error item
 			template<typename... Args>
 			OptionalError create_optional_error( Args&&... args ) {
 				auto err = new Error( std::forward<Args>( args )... );

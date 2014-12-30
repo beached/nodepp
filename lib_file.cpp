@@ -1,39 +1,21 @@
-
-#include <fstream>
-
 #include "lib_file.h"
-#include "base_work_queue.h"
 
-namespace daw {
-	namespace nodepp {
-		namespace lib {
-			namespace file {
+#ifdef WIN32
+#	define SUFFIX windows
+#else
+#	define SUFFIX generic
+#endif
 
-				base::data_t read_file( boost::string_ref path ) {
-					base::data_t result;
-					{
-						std::ifstream in_file( path.to_string( ), std::ifstream::ate | std::ifstream::binary );
-						if( in_file ) {
-							auto fsize = in_file.tellg( );
-							result.resize( fsize );
-							in_file.seekg( 0 );
-							in_file.read( result.data( ), fsize );
-						}
-					}
-					return result;
-				}
+base::OptionalError read_file( boost::string_ref path, base::data_t & buffer, bool append_buffer ) {
+	return read_file_SUFFIX( path, buffer, append_buffer );
+}
+void read_file_async( boost::string_ref path, std::function<void( base::OptionalError error, base::data_t data )> listener, std::shared_ptr<base::data_t> buffer, bool append_buffer ) {
+	read_file_async_SUFFIX( path, std::move( listener ), std::move( buffer ), std::move( append_buffer ) );
+}
 
-				void read_file_async( std::string const & path, std::function<void( base::OptionalError error, std::shared_ptr<base::data_t> data )> listener ) {
-					auto buffer = std::make_shared<base::data_t>( );
 
-					base::CommonWorkQueue( )->add_work_item( [path, buffer]( int64_t ) {
-						*buffer = read_file( path );
-					}, [buffer, listener]( int64_t, base::OptionalError error ) {
-						listener( error, std::move( buffer ) );
-					}, false );
-				}
+std::streampos file_size( boost::string_ref path ) {
+	return file_size_SUFFIX( path );
+}
 
-			}	// namespace file
-		}	// namespace lib
-	}	// namespace nodepp
-}	// namespace daw
+#undef  SUFFIX
