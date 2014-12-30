@@ -7,6 +7,7 @@ namespace daw {
 	namespace nodepp {
 		namespace lib {
 			namespace file {
+
 				namespace {
 					std::streampos file_size_generic( std::ifstream & stream ) {
 						if( !stream ) {
@@ -25,7 +26,7 @@ namespace daw {
 
 				std::streampos file_size_generic( boost::string_ref path ) {
 					std::ifstream in_file( path.to_string( ), std::ifstream::ate | std::ifstream::binary );
-					return file_size( in_file );
+					return file_size_generic( in_file );
 				}
 
 				base::OptionalError read_file_generic( boost::string_ref path, base::data_t & buffer, bool append_buffer ) {
@@ -59,7 +60,7 @@ namespace daw {
 				}
 
 				void read_file_async_generic( std::string const & path, std::function<void( base::OptionalError error, std::shared_ptr<base::data_t> data )> listener, std::shared_ptr<base::data_t> buffer, bool append_buffer ) {
-					base::CommonWorkQueue( )->add_work_item( [path, buffer]( int64_t ) mutable {
+					base::CommonWorkQueue( )->add_work_item( [path, buffer, append_buffer]( int64_t ) mutable {
 						if( !buffer ) {	// No existing buffer was supplied.  Create one
 							buffer.reset( new base::data_t );
 						} else if( !append_buffer ) {
@@ -71,6 +72,19 @@ namespace daw {
 					}, [buffer, listener]( int64_t, base::OptionalError error ) {
 						listener( error, std::move( buffer ) );
 					}, false );
+				}
+
+				base::OptionalError read_file( boost::string_ref path, base::data_t & buffer, bool append_buffer ) {
+					return read_file_generic( path, buffer, append_buffer );
+				}
+
+				void read_file_async( boost::string_ref path, std::function<void( base::OptionalError error, std::shared_ptr<base::data_t> data )> listener, std::shared_ptr<base::data_t> buffer, bool append_buffer ) {
+					read_file_async_generic( path.to_string(), std::move( listener ), std::move( buffer ), std::move( append_buffer ) );
+				}
+
+
+				std::streampos file_size( boost::string_ref path ) {
+					return file_size_generic( path );
 				}
 
 			}	// namespace file
