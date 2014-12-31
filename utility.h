@@ -346,53 +346,55 @@ namespace daw {
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	/// Summary:	Use this to move a shared_ptr into a lambda capture by copy
-	///				without creating a loop
+	/// Summary:	Use this to move a value into a lambda capture by copy
+	///				capture without incurring a copy
 	template<typename T>
-	class MoveOnly {
-		mutable std::shared_ptr<T> m_value;
+	class MoveCapture {
+		mutable T m_value;
 	public:
-		MoveOnly( ) = delete;
-		MoveOnly( std::shared_ptr<T>&& val ) : m_value( std::move( val ) ) { 
-			val.reset( );
-		}
+		MoveCapture( ) = delete;
+		MoveCapture( T && val ) : m_value( std::move( val ) ) { }
 
-		MoveOnly( MoveOnly const & other ) : m_value( std::move( other.m_value ) ) { 
-			other.m_value.reset( );
-		}
+		MoveCapture( MoveCapture const & other ) : m_value( std::move( other.m_value ) ) { }
 
-		MoveOnly& operator=(MoveOnly const & rhs) {
+		MoveCapture& operator=(MoveCapture const & rhs) {
 			if( this != &rhs ) {
 				m_value = std::move( rhs.m_value );
-				rhs.m_value.reset( );
 			}
 			return *this;
 		}
 		
+		T& value( ) {
+			return m_value;
+		}
+
+		T const & value( ) const {
+			return m_value;
+		}
+
 		T& operator*() {
 			return m_value.operator*();
 		}
 
 		T const & operator*() const {
-			return m_value.operator*();
+			return m_value.operator*( );
 		}
 
 		T const * operator->() const {
 			return m_value.operator->();
 		}
 
-		~MoveOnly( ) = default;
+		~MoveCapture( ) = default;
 
-		std::shared_ptr<T> move_out( ) {
+		T move_out( ) {
 			auto result = std::move( m_value );
-			m_value.reset( );
 			return result;
 		}
-	};	// class MoveOnly
+	};	// class MoveCapture
 
 	template<typename T>
-	MoveOnly<T> as_move_only( std::shared_ptr<T>&& val ) {
-		return MoveOnly<T>( std::move( val ) );
+	MoveCapture<T> as_move_capture( T&& val ) {
+		return MoveCapture<T>( std::move( val ) );
 	}
 
 }	// namespace daw	

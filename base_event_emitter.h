@@ -276,7 +276,14 @@ namespace daw {
 						} );
 					}
 				}
-
+			
+				//////////////////////////////////////////////////////////////////////////
+				/// Summary:	Creates a callback on the event source that calls a
+				///				mirroring emitter on the destination obj. Unless the 
+				///				callbacks are of the form std::function<void( )> the
+				///				callback parameters must be template parameters here.
+				///				e.g. 
+				///				obj_emitter.delegate_to<boost::asio::ip::tcp::endpoint>( "listening", dest_obj.get_weak_ptr( ), "listening" );
 				template<typename... Args, typename DestinationType>
 				Child& delegate_to( boost::string_ref source_event, std::weak_ptr<DestinationType> destination_obj, std::string destination_event ) {
 					auto handler = [destination_obj, destination_event]( Args... args ) {

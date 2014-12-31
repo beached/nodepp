@@ -11,7 +11,9 @@ int main( int, char const ** ) {
 	using namespace lib::http;
 
 	auto site = create_http_site( );
-	site->on_requests_for( HttpClientRequestMethod::Get, "/", [&]( HttpClientRequest request, HttpServerResponse response ) {
+	site->on_listening( []( boost::asio::ip::tcp::endpoint endpoint ) {
+		std::cout << "Listening on " << endpoint << "\n";
+	} ).on_requests_for( HttpClientRequestMethod::Get, "/", [&]( HttpClientRequest request, HttpServerResponse response ) {
 		response->on_all_writes_completed( [response]( ) mutable {
 			response->close( );
 		} ).send_status( 200 )
@@ -22,7 +24,8 @@ int main( int, char const ** ) {
 		std::cerr << error << std::endl;
 	} ).listen_on( 8080 );
 
+	base::ServiceHandle::run( );
 
-	system( "Pause" );
+	
 	return EXIT_SUCCESS;
 }

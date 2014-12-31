@@ -102,7 +102,7 @@ namespace daw {
 					}
 
 					void NetServerImpl::handle_accept( std::weak_ptr<NetServerImpl> obj, NetSocketStream&& socket, boost::system::error_code const & err ) {
-						auto msocket = daw::as_move_only( std::move( socket ) );
+						auto msocket = daw::as_move_capture( std::move( socket ) );
 						run_if_valid( obj, "Exception while accepting connections", "NetServerImpl::handle_accept", [msocket, &err]( std::shared_ptr<NetServerImpl>& self ) mutable {
 							if( !err ) {
 								try {
@@ -120,7 +120,7 @@ namespace daw {
 					void NetServerImpl::start_accept( ) {
 						auto socket_sp = create_net_socket_stream( );
 						auto& boost_socket = socket_sp->socket( );
-						auto socket = as_move_only( std::move( socket_sp ) );
+						auto socket = as_move_capture( std::move( socket_sp ) );
 
 						std::weak_ptr<NetServerImpl> obj = get_ptr( );
 						auto handler = [obj, socket]( boost::system::error_code const & err ) mutable {
@@ -130,7 +130,7 @@ namespace daw {
 					}
 
 					void NetServerImpl::emit_connection( NetSocketStream socket ) {
-						emitter( )->emit( "connection", socket );
+						emitter( )->emit( "connection", std::move( socket ) );
 					}
 
 					void NetServerImpl::emit_listening( boost::asio::ip::tcp::endpoint endpoint ) {

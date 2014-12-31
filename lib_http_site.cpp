@@ -46,10 +46,11 @@ namespace daw {
 
 					void HttpSiteImpl::start( ) {
 						m_server->on_error( get_weak_ptr( ), "Child" )
+							.delegate_to<boost::asio::ip::tcp::endpoint>( "listening", get_weak_ptr( ), "listening" )
 							.on_client_connected( [&]( HttpConnection connection ) {
 							auto obj = get_weak_ptr( );
 							connection->
-								on_error( get_weak_ptr( ), "child connection" )
+								on_error( get_weak_ptr( ), "child connection" )								
 								.on_request_made( [obj]( HttpClientRequest request, HttpServerResponse response ) {
 									run_if_valid( obj, "Processing request", "HttpSiteImpl::start( )#on_request_made", [&request, &response]( HttpSite self ) {
 										auto host = [&]( ) {
@@ -164,6 +165,15 @@ namespace daw {
 							handler = err_it->second;
 						}
 						handler( request, response, error_no );
+					}
+					
+					void HttpSiteImpl::emit_listening( boost::asio::ip::tcp::endpoint endpoint ) {
+						emitter( )->emit( "listening", std::move( endpoint ) );
+					}
+
+					HttpSiteImpl& HttpSiteImpl::on_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener ) {
+						emitter( )->add_listener( "listening", listener );
+						return *this;
 					}
 
 					HttpSiteImpl& HttpSiteImpl::listen_on( uint16_t port ) {
