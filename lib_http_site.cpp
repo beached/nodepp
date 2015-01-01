@@ -67,7 +67,7 @@ namespace daw {
 										if( "" == host ) {
 											self->emit_page_error( request, response, 400 );
 										} else {
-											auto site = self->match( host, request->request.url, request->request.method );
+											auto site = self->match( host, request->request.url.path, request->request.method );
 											if( self->end( ) == site ) {
 												self->emit_page_error( request, response, 404 );
 											} else {

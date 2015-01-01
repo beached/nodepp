@@ -103,7 +103,7 @@ namespace daw {
 
 					void NetServerImpl::handle_accept( std::weak_ptr<NetServerImpl> obj, NetSocketStream&& socket, boost::system::error_code const & err ) {
 						auto msocket = daw::as_move_capture( std::move( socket ) );
-						run_if_valid( obj, "Exception while accepting connections", "NetServerImpl::handle_accept", [msocket, &err]( std::shared_ptr<NetServerImpl>& self ) mutable {
+						run_if_valid( obj, "Exception while accepting connections", "NetServerImpl::handle_accept", [msocket, &err]( NetServer self ) mutable {
 							if( !err ) {
 								try {
 									self->emit_connection( msocket.move_out( ) );

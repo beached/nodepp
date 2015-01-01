@@ -271,8 +271,10 @@ namespace daw {
 				static void run_if_valid( std::weak_ptr<Class> obj, boost::string_ref err_description, boost::string_ref where, Func func ) {
 					if( !obj.expired( ) ) {
 						auto self = obj.lock( );
-						emit_error_on_throw( self, err_description, where, [&]( ) {
-							func( self );
+						auto mself = daw::as_move_capture( daw::copy( self ) );
+						auto mfunc = daw::as_move_capture( std::move( func ) );
+						emit_error_on_throw( self, err_description, where, [mfunc, mself]( ) mutable {							
+							mfunc.value( )(mself.move_out( ));
 						} );
 					}
 				}

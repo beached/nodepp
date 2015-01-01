@@ -67,7 +67,7 @@ namespace daw {
 					}
 	
 					void NetDnsImpl::handle_resolve( std::weak_ptr<NetDnsImpl> obj, boost::system::error_code const & err, boost::asio::ip::tcp::resolver::iterator it ) {
-						run_if_valid( obj, "Exception while resolving dns query", "NetDnsImpl::handle_resolve", [&]( std::shared_ptr<NetDnsImpl>& self ) {
+						run_if_valid( obj, "Exception while resolving dns query", "NetDnsImpl::handle_resolve", [&]( NetDns self ) {
 							if( !err ) {
 								self->emit_resolved( std::move( it ) );
 							} else {

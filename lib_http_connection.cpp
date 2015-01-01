@@ -34,14 +34,18 @@ namespace daw {
 						auto obj = get_weak_ptr( );
 						m_socket->on_next_data_received( [obj] ( std::shared_ptr<base::data_t> data_buffer, bool ) mutable {
 							if( data_buffer ) {
-								run_if_valid( obj, "Exception in processing received data", "HttpConnectionImpl::start#on_next_data_received", [&]( std::shared_ptr<HttpConnectionImpl>& self ) {
-									auto request = parse_http_request( data_buffer->begin( ), data_buffer->end( ) );
-									data_buffer.reset( );
-									if( request ) {
-										auto response = create_http_server_response( self->m_socket->get_weak_ptr( ) );
-										response->start( );
-										self->emit_request_made( request, response );
-									} else {
+								run_if_valid( obj, "Exception in processing received data", "HttpConnectionImpl::start#on_next_data_received", [&]( HttpConnection self ) {
+									try {
+										auto request = parse_http_request( data_buffer->begin( ), data_buffer->end( ) );
+										data_buffer.reset( );
+										if( request ) {
+											auto response = create_http_server_response( self->m_socket->get_weak_ptr( ) );
+											response->start( );
+											self->emit_request_made( request, response );
+										} else {
+											err400( self->m_socket );
+										}
+									} catch( std::exception const & ex ) {
 										err400( self->m_socket );
 									}
 								} );

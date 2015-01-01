@@ -6,18 +6,25 @@
 #include <boost/fusion/include/adapt_struct.hpp>
 #include <boost/fusion/include/std_pair.hpp>
 #include <boost/fusion/sequence.hpp>
+#include <boost/optional.hpp>
 #include <boost/spirit/include/phoenix.hpp>
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/qi_grammar.hpp>
-#include <unordered_map>
 #include <memory>
 #include <string>
+#include <unordered_map>
+#include <vector>
 
+BOOST_FUSION_ADAPT_STRUCT(
+	daw::nodepp::lib::http::HttpUrl,
+	(std::string, path )
+	(daw::nodepp::lib::http::HttpUrl::query_t, query)
+	)
 
 BOOST_FUSION_ADAPT_STRUCT(
 	daw::nodepp::lib::http::HttpRequestLine,
 	(daw::nodepp::lib::http::HttpClientRequestMethod, method)
-	(std::string, url)
+	(daw::nodepp::lib::http::HttpUrl, url)
 	(std::string, version)
 	)
 
@@ -49,7 +56,7 @@ namespace daw {
 					struct method_parse_symbol_: qi::symbols < char, daw::nodepp::lib::http::HttpClientRequestMethod > {
 						method_parse_symbol_( ) {
 							add
-								( "OPTIONS", daw::nodepp::lib::http::HttpClientRequestMethod::Options )
+								("OPTIONS", daw::nodepp::lib::http::HttpClientRequestMethod::Options)
 								("GET", daw::nodepp::lib::http::HttpClientRequestMethod::Get)
 								("HEAD", daw::nodepp::lib::http::HttpClientRequestMethod::Head)
 								("POST", daw::nodepp::lib::http::HttpClientRequestMethod::Post)
@@ -62,19 +69,64 @@ namespace daw {
 					} method_parse_symbol;
 					}	// namespace anonymous
 
-					template <typename Iterator>
-					struct parse_grammar: qi::grammar < Iterator, daw::nodepp::lib::http::impl::HttpClientRequestImpl( ) > {
-						parse_grammar( ) : parse_grammar::base_type( message ) {
-							url = +(~char_( ' ' ));	// not space
-							http_version = lexeme["HTTP/" >> raw[int_ >> '.' >> int_]];
-							crlf = lexeme[lit( '\x0d' ) >> lit( '\x0a' )];	// cr followed by newline
+// 					template <typename Iterator >
+// 					struct uri_encoded_data_grammar: qi::grammar < Iterator, std::map<std::string, std::string>( ) > {
+// 						uri_encoded_data_grammar( ) : uri_encoded_data_grammar::base_type( start ) {
+// 							start = query_pair % '&';
+// 							query_pair = url_encoded_string >> '=' >> url_encoded_string;
+// 							url_encoded_string = +(('%' >> encoded_hex)
+// 								|
+// 								~char_( "=&" )
+// 								);
+// 						}
+// 						qi::rule< Iterator, std::map<std::string, std::string>( ) > start;
+// 						qi::rule< Iterator, std::pair<std::string, std::string>( ) > query_pair;
+// 						qi::rule< Iterator, std::string( ) > url_encoded_string;
+// 						qi::uint_parser< char, 16, 2, 2 > encoded_hex;
+// 					};
 
+					template <typename Iterator>
+					struct url_query_parse_grammar: qi::grammar < Iterator, daw::nodepp::lib::http::HttpUrl::query_t( ) > {
+						url_query_parse_grammar( ) : url_query_parse_grammar::base_type( query ) {
+							query = query_pair % query_separator;
+							query_pair = query_key >> -('=' >> -query_value);							
+							query_key = char_( "a-zA-Z_" ) >> *char_( "a-zA-Z_0-9" );
+							query_value = +char_( "a-zA-Z_0-9" );
+							query_separator = lit( ';' ) | '&';
+						}
+
+						qi::rule< Iterator> query_separator;
+						qi::rule < Iterator, std::string( )> query_key;
+						qi::rule < Iterator, std::string( )> query_value;
+						
+						qi::rule< Iterator, daw::nodepp::lib::http::HttpUrl::query_pair_t( )> query_pair;
+						qi::rule< Iterator, daw::nodepp::lib::http::HttpUrl::query_t( )> query;
+						
+					};
+
+					template <typename Iterator>
+					struct abs_url_parse_grammar: qi::grammar < Iterator, daw::nodepp::lib::http::HttpUrl( ) > {
+						abs_url_parse_grammar( ) : abs_url_parse_grammar::base_type( url ) { 
+							url = path >> -('?' >> query);
+						}
+						qi::rule< Iterator, daw::nodepp::lib::http::HttpUrl( ) > url;
+						qi::rule< Iterator, std::string( ) > path;
+						url_query_parse_grammar<Iterator> query;
+					};
+
+					template <typename Iterator>
+					struct http_request_parse_grammar: qi::grammar < Iterator, daw::nodepp::lib::http::impl::HttpClientRequestImpl( ) > {
+						http_request_parse_grammar( ) : http_request_parse_grammar::base_type( message ) {
 							request_line =
 								method_parse_symbol >> ' '
 								>> url >> ' '
 								>> http_version
 								>> crlf
 								;
+
+							http_version = lexeme["HTTP/" >> raw[int_ >> '.' >> int_]];
+							crlf = lexeme[lit( '\x0d' ) >> lit( '\x0a' )];	// cr followed by newline
+							
 
 							token = +(~char_( "()<>@,;:\\\"/[]?={} \x09" ));
 							lws = omit[-crlf >> *char_( " \x09" )];
@@ -92,7 +144,7 @@ namespace daw {
 						qi::rule< Iterator, daw::nodepp::lib::http::impl::HttpClientRequestImpl( ) > message;
 
 						qi::rule< Iterator, std::string( ) > http_version;
-						qi::rule< Iterator, std::string( ) > url;
+						abs_url_parse_grammar<Iterator> url;
 						qi::rule< Iterator, std::pair<std::string, std::string>( ) > header_pair;
 						qi::rule< Iterator, daw::nodepp::lib::http::HttpRequestLine( ) > request_line;
 						qi::rule< Iterator, std::string( ) > field_value;

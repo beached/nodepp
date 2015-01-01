@@ -1,9 +1,12 @@
 #pragma once
 
+#include <boost/optional.hpp>
 #include <cstdint>
-#include <unordered_map>
 #include <string>
+#include <unordered_map>
 #include <utility>
+#include <vector>
+
 #include "base_types.h"
 
 namespace daw {
@@ -15,9 +18,16 @@ namespace daw {
 
 				std::string http_request_method_as_string( HttpClientRequestMethod method );
 
+				struct HttpUrl {
+					using query_pair_t = std::pair < std::string, boost::optional<std::string> > ;
+					using query_t = std::vector <query_pair_t> ;
+					std::string path;
+					query_t query;
+				};
+
 				struct HttpRequestLine {
 					HttpClientRequestMethod method;
-					std::string url;
+					HttpUrl url;
 					std::string version;
 				};
 

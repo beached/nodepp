@@ -58,7 +58,7 @@ namespace daw {
 
 					void HttpServerImpl::handle_connection( std::weak_ptr<HttpServerImpl> obj, lib::net::NetSocketStream socket ) {
 						auto msocket = daw::as_move_capture( std::move( socket ) );
-						run_if_valid( obj, "Exception while connecting", "HttpServerImpl::handle_connection", [obj,msocket]( std::shared_ptr<HttpServerImpl>& self ) mutable {
+						run_if_valid( obj, "Exception while connecting", "HttpServerImpl::handle_connection", [obj,msocket]( HttpServer self ) mutable {
 							auto connection = create_http_connection( msocket.move_out( ) );
 							auto it = self->m_connections.emplace( self->m_connections.end( ), connection );
 							
