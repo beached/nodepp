@@ -24,8 +24,9 @@ int main( int, char const ** ) {
 		std::cerr << error << std::endl;
 	} ).listen_on( 8080 ).on_page_error( 404, []( lib::http::HttpClientRequest request, lib::http::HttpServerResponse response, uint16_t error_no ) { 
 		std::cout << "404 Request for " << request->request.url.path << "with query ";
-		for( auto const & p : request->request.url.query ) {
-			std::cout << "{ " << p.first << "," << p.second.get_value_or( "" ) << " } ";
+		{
+			auto const & p = request->request.url.query;
+			std::cout << p.get_value_or( "" );			
 		}
 		std::cout << "\n";
 	} );

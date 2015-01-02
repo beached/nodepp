@@ -1,6 +1,6 @@
 #pragma once
-
 #include <boost/optional.hpp>
+//#include "daw_optional.h"
 #include <cstdint>
 #include <string>
 #include <unordered_map>
@@ -19,10 +19,8 @@ namespace daw {
 				std::string http_request_method_as_string( HttpClientRequestMethod method );
 
 				struct HttpUrl {
-					using query_pair_t = std::pair < std::string, boost::optional<std::string> > ;
-					using query_t = std::vector <query_pair_t> ;
 					std::string path;
-					query_t query;
+					boost::optional<std::string> query;
 				};
 
 				struct HttpRequestLine {

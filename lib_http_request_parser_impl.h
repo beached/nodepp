@@ -6,7 +6,6 @@
 #include <boost/fusion/include/adapt_struct.hpp>
 #include <boost/fusion/include/std_pair.hpp>
 #include <boost/fusion/sequence.hpp>
-#include <boost/optional.hpp>
 #include <boost/spirit/include/phoenix.hpp>
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/qi_grammar.hpp>
@@ -18,7 +17,7 @@
 BOOST_FUSION_ADAPT_STRUCT(
 	daw::nodepp::lib::http::HttpUrl,
 	(std::string, path )
-	(daw::nodepp::lib::http::HttpUrl::query_t, query)
+	(boost::optional<std::string>, query)
 	)
 
 BOOST_FUSION_ADAPT_STRUCT(
@@ -85,24 +84,24 @@ namespace daw {
 // 						qi::uint_parser< char, 16, 2, 2 > encoded_hex;
 // 					};
 
-					template <typename Iterator>
-					struct url_query_parse_grammar: qi::grammar < Iterator, daw::nodepp::lib::http::HttpUrl::query_t( ) > {
-						url_query_parse_grammar( ) : url_query_parse_grammar::base_type( query ) {
-							query = query_pair % query_separator;
-							query_pair = query_key >> -('=' >> -query_value);							
-							query_key = char_( "a-zA-Z_" ) >> *char_( "a-zA-Z_0-9" );
-							query_value = +char_( "a-zA-Z_0-9" );
-							query_separator = lit( ';' ) | '&';
-						}
-
-						qi::rule< Iterator> query_separator;
-						qi::rule < Iterator, std::string( )> query_key;
-						qi::rule < Iterator, std::string( )> query_value;
-						
-						qi::rule< Iterator, daw::nodepp::lib::http::HttpUrl::query_pair_t( )> query_pair;
-						qi::rule< Iterator, daw::nodepp::lib::http::HttpUrl::query_t( )> query;
-						
-					};
+// 					template <typename Iterator>
+// 					struct url_query_parse_grammar: qi::grammar < Iterator, boost::optional<std::string>( ) > {
+// 						url_query_parse_grammar( ) : url_query_parse_grammar::base_type( query ) {
+// 							query = query_pair % query_separator;
+// 							query_pair = query_key >> -('=' >> -query_value);							
+// 							query_key = char_( "a-zA-Z_" ) >> *char_( "a-zA-Z_0-9" );
+// 							query_value = +char_( "a-zA-Z_0-9" );
+// 							query_separator = lit( ';' ) | '&';
+// 						}
+// 
+// 						qi::rule< Iterator> query_separator;
+// 						qi::rule < Iterator, std::string( )> query_key;
+// 						qi::rule < Iterator, std::string( )> query_value;
+// 						
+// 					//	qi::rule< Iterator, daw::nodepp::lib::http::HttpUrl::query_pair_t( )> query_pair;
+// 						qi::rule< Iterator, boost::optional<std::string>( )> query;
+// 						
+// 					};
 
 					template <typename Iterator>
 					struct abs_url_parse_grammar: qi::grammar < Iterator, daw::nodepp::lib::http::HttpUrl( ) > {
@@ -111,7 +110,8 @@ namespace daw {
 						}
 						qi::rule< Iterator, daw::nodepp::lib::http::HttpUrl( ) > url;
 						qi::rule< Iterator, std::string( ) > path;
-						url_query_parse_grammar<Iterator> query;
+						qi::rule< Iterator, boost::optional<std::string>> query;
+						//url_query_parse_grammar<Iterator> query;
 					};
 
 					template <typename Iterator>
