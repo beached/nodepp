@@ -10,7 +10,7 @@ namespace daw {
 		namespace lib {
 			namespace http {
 
-				std::string http_request_method_as_string( HttpClientRequestMethod method ) {
+				std::string to_string( HttpClientRequestMethod method ) {
 					switch( method ) {
 					case HttpClientRequestMethod::Get:
 						return "Get";
@@ -35,35 +35,38 @@ namespace daw {
 					throw std::runtime_error( "Unrecognized HttpRequestMethod" );
 				}
 
-				namespace {
-					std::string to_string( HttpRequestLine const & request ) {
-						std::stringstream ss;
-						ss << "{ " << http_request_method_as_string( request.method ) << ", " << request.url.path << ", " << request.url.query << ", " << request.version << " } ";
-						return ss.str( );
-					}
+				std::string to_string( HttpUrl const & url ) {
+					return "{ " + url.path + ", " + url.query.value_or( "" ) + " } ";
+				}
+
+				std::string to_string( HttpRequestLine const & request_line ) {
+					std::stringstream ss;
+					ss << "{ " << to_string( request_line.method ) << ", " << to_string( request_line.url ) << ", " << request_line.version << " } ";
+					return ss.str( );
 				}
 
 				std::ostream& operator<<(std::ostream& os, HttpClientRequestMethod const method) {
-					os << http_request_method_as_string( method );
+					os << to_string( method );
 					return os;
 				}
 
 				std::ostream& operator<<(std::ostream& os, HttpUrl const & url) {
-					os << "{ " << url.path << ", " << url.query << " } ";
+					os << to_string( url );
 					return os;
 				}
 
 				std::ostream& operator<<(std::ostream& os, HttpRequestLine const & request) {
+					//os << "{ " << to_string( request.method ) << ", " << request.url << ", " << request.version << " } ";
 					os << to_string( request );
 					return os;
 				}
 
 				namespace impl {
 					std::ostream& operator<<(std::ostream& os, HttpClientRequestImpl const & req) {
-						os << lib::http::to_string( req.request );
+						os << req.request;
 						return os;
 					}
-				}
+				}	// namespace impl
 
 			} // namespace http
 		}	// namespace lib
