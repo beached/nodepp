@@ -18,20 +18,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace daw { namespace nodepp { namespace lib { namespace http { 
-	enum class HttpClientRequestMethod;
-	struct HttpUrl;
-	struct HttpRequestLine;
-	namespace impl {
-		struct HttpClientRequestImpl;
-	}
-} } } }
-
-std::ostream& operator<<(std::ostream& os, daw::nodepp::lib::http::HttpClientRequestMethod const & method);
-std::ostream& operator<<(std::ostream& os, daw::nodepp::lib::http::impl::HttpClientRequestImpl const & req);
-std::ostream& operator<<(std::ostream& os, daw::nodepp::lib::http::HttpUrl const & url);
-std::ostream& operator<<(std::ostream& os, daw::nodepp::lib::http::HttpRequestLine const & request);
-
+#include "lib_http_request.h"
 
 BOOST_FUSION_ADAPT_STRUCT(
 	daw::nodepp::lib::http::HttpUrl,
@@ -83,6 +70,8 @@ namespace daw {
 								("TRACE", daw::nodepp::lib::http::HttpClientRequestMethod::Trace)
 								("CONNECT", daw::nodepp::lib::http::HttpClientRequestMethod::Connect)
 								;
+
+							name( "method_parse_symbol" );
 						}
 					} method_parse_symbol;
 					}	// namespace anonymous
@@ -179,19 +168,20 @@ namespace daw {
 							field_value.name( "field_value" );
 							token.name( "token" );
 							lws.name( "lws" );
-							qi::on_error < fail >(
-								request_line
-									, std::cerr
-									<< val( "Error! Expecting " ) 
-									<< _4 
-									<< val( " here: \"" ) 
-									<< construct<std::string>( _3, _2 ) 
-									<< val( "\"" ) 
-									<< std::endl
-							);
 
-							debug( request_line );
-							debug( message );
+// 							qi::on_error < fail >(
+// 								request_line
+// 									, std::cerr
+// 									<< val( "Error! Expecting " ) 
+// 									<< _4 
+// 									<< val( " here: \"" ) 
+// 									<< construct<std::string>( _3, _2 ) 
+// 									<< val( "\"" ) 
+// 									<< std::endl
+// 							);
+// 
+// 							debug( request_line );
+// 							debug( message );
 
 						}
 

@@ -209,6 +209,7 @@
     <ClCompile Include="lib_file.cpp" />
     <ClCompile Include="lib_http_connection.cpp" />
     <ClCompile Include="lib_http_request.cpp" />
+    <ClCompile Include="lib_http_request_parser_impl.cpp" />
     <ClCompile Include="lib_http_server_response.cpp" />
     <ClCompile Include="lib_http_server.cpp" />
     <ClCompile Include="lib_http_header.cpp" />

@@ -17,7 +17,6 @@ namespace daw {
 				using namespace daw::nodepp;
 				enum class HttpClientRequestMethod { Options, Get, Head, Post, Put, Delete, Trace, Connect, Any };
 
-
 				std::string http_request_method_as_string( HttpClientRequestMethod method );
 
 				struct HttpUrl {
@@ -40,6 +39,16 @@ namespace daw {
 						headers_t headers;
 					};
 
+					std::ostream& operator<<(std::ostream& os, HttpClientRequestMethod method);
+					std::ostream& operator<<(std::ostream& os, HttpClientRequestMethod const & method);
+
+					std::ostream& operator<<(std::ostream& os, HttpUrl const & url);
+
+					namespace impl {
+						std::ostream& operator<<(std::ostream& os, HttpClientRequestImpl const & req);
+					}
+
+					std::ostream& operator<<(std::ostream& os, HttpRequestLine const & request);
 				}
 
 				using HttpClientRequest = std::shared_ptr < impl::HttpClientRequestImpl > ;

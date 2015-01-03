@@ -1,8 +1,9 @@
 
 #include <boost/spirit/include/qi_parse_attr.hpp>
+#include <ostream>
+
 #include "base_types.h"
 #include "lib_http_request.h"
-#include "lib_http_request_parser_impl.h"
 
 namespace daw {
 	namespace nodepp {
@@ -34,35 +35,45 @@ namespace daw {
 					throw std::runtime_error( "Unrecognized HttpRequestMethod" );
 				}
 
-				std::shared_ptr<daw::nodepp::lib::http::impl::HttpClientRequestImpl> parse_http_request( daw::nodepp::base::data_t::iterator first, daw::nodepp::base::data_t::iterator last ) {
-					auto result = std::make_shared < daw::nodepp::lib::http::impl::HttpClientRequestImpl >( );
-					if( !boost::spirit::qi::parse( first, last, daw::nodepp::lib::http::request_parser::http_request_parse_grammar<decltype(first)>( ), *result ) ) {
-						result = nullptr;
+				namespace {
+					std::string to_string( HttpRequestLine const & request ) {
+						std::stringstream ss;
+						ss << "{ " << http_request_method_as_string( request.method ) << ", " << request.url.path << ", " << request.url.query << ", " << request.version << " } ";
+						return ss.str( );
 					}
-					return result;
 				}
-				
+
+				std::ostream& operator<<(std::ostream& os, HttpClientRequestMethod method) {
+					os << http_request_method_as_string( method );
+					return os;
+				}
+
+				std::ostream& operator<<(std::ostream& os, HttpClientRequestMethod const & method) {
+					os << http_request_method_as_string( method );
+					return os;
+				}
+
+
+				std::ostream& operator<<(std::ostream& os, HttpUrl const & url) {
+					os << "{ " << url.path << ", " << url.query << " } ";
+					return os;
+				}
+
+				std::ostream& operator<<(std::ostream& os, HttpRequestLine const & request) {
+					os << to_string( request );
+					return os;
+				}
+
+				namespace impl {
+					std::ostream& operator<<(std::ostream& os, HttpClientRequestImpl const & req) {
+						os << lib::http::to_string( req.request );
+						return os;
+					}
+				}
+
 			} // namespace http
 		}	// namespace lib
 	}	// namespace nodepp
 }	// namespace daw
 
-std::ostream& operator<<(std::ostream& os, daw::nodepp::lib::http::HttpClientRequestMethod const & method) {
-	os << daw::nodepp::lib::http::http_request_method_as_string( method );
-	return os;
-}
 
-std::ostream& operator<<(std::ostream& os, daw::nodepp::lib::http::HttpUrl const & url) {
-	os << "{ " << url.path << ", " << url.query << " } ";
-	return os;
-}
-
-std::ostream& operator<<(std::ostream& os, daw::nodepp::lib::http::HttpRequestLine const & request) {
-	os << "{ " << daw::nodepp::lib::http::http_request_method_as_string( request.method ) << ", " << request.url << ", " << request.version << " } ";
-	return os;
-}
-
-std::ostream& operator<<(std::ostream& os, daw::nodepp::lib::http::impl::HttpClientRequestImpl const & req) {
-	os << req.request;
-	return os;
-}
