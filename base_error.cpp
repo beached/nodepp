@@ -11,6 +11,8 @@ namespace daw {
 				m_keyvalues.emplace( "description", description.to_string() );
 			}
 
+			Error::~Error( ) { }
+
 			Error::Error( boost::system::error_code const & err ) : m_keyvalues{ }, m_frozen{ false }, m_child{ }, m_exception{ } {
 				m_keyvalues.emplace( "description", err.message( ) );
 				m_keyvalues.emplace( "category", std::string(err.category( ).name( )) );

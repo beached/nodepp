@@ -37,7 +37,7 @@ namespace daw {
 				}
 
 				int64_t  WorkQueueImpl::add_work_item( std::function<void( int64_t )> work_item, std::function<void( int64_t, base::OptionalError )> on_completion, bool auto_start ) {
-					auto task_id = m_item_count++;
+					int64_t task_id = static_cast<int64_t>( m_item_count++ );
 					m_work_queue.push( work_item_t( task_id, std::move( work_item ), std::move( on_completion ) ) );
 					if( auto_start ) {
 						run( );

@@ -20,6 +20,7 @@ namespace daw {
 				std::exception_ptr m_exception;
 			public:
 				Error( ) = delete;
+				virtual ~Error( );
 				Error( boost::string_ref description );
 				explicit Error( boost::system::error_code const & err );
 				Error( Error && );

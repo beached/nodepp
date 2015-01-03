@@ -37,6 +37,7 @@ namespace daw {
 						result->add( "where", "read_file#open" );
 						return result;
 					}
+
 					auto fsize = in_file.tellg( );
 					if( fsize < 0 ) {
 						auto result = base::create_optional_error( "Error reading file length" );
@@ -49,8 +50,8 @@ namespace daw {
 						return result;
 					}
 
-					auto first_pos = append_buffer ? buffer.size( ) : 0;
-					buffer.resize( first_pos + fsize );
+					size_t first_pos = append_buffer ? buffer.size( ) : 0;
+					buffer.resize( first_pos + static_cast<size_t>( fsize ) );
 
 					if( !in_file.read( buffer.data( ) + first_pos, fsize ) ) {
 						auto result = base::create_optional_error( "Error reading file" );

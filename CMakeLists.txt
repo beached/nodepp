@@ -21,12 +21,13 @@ set(SOURCE_FILES
 		base_stream.h
 		base_types.h
 		base_url.h
-		base_url_parser_impl.h
 		base_work_queue.cpp
 		base_work_queue.h
 		base_write_buffer.cpp
 		base_write_buffer.h
 		concurrent_queue.h
+		daw_optional.h
+		lib_file.cpp
 		lib_file.h
 		lib_http_connection.cpp
 		lib_http_connection.h
@@ -35,6 +36,7 @@ set(SOURCE_FILES
 		lib_http_headers.h
 		lib_http_request.cpp
 		lib_http_request.h
+		lib_http_request_parser_impl.cpp
 		lib_http_request_parser_impl.h
 		lib_http_server.cpp
 		lib_http_server.h
@@ -74,5 +76,6 @@ set(SOURCE_FILES
 add_executable(NodePP ${SOURCE_FILES})
 
 target_link_libraries(NodePP  ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+
 
 

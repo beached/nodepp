@@ -169,19 +169,19 @@ namespace daw {
 							token.name( "token" );
 							lws.name( "lws" );
 
-// 							qi::on_error < fail >(
-// 								request_line
-// 									, std::cerr
-// 									<< val( "Error! Expecting " ) 
-// 									<< _4 
-// 									<< val( " here: \"" ) 
-// 									<< construct<std::string>( _3, _2 ) 
-// 									<< val( "\"" ) 
-// 									<< std::endl
-// 							);
-// 
-// 							debug( request_line );
-// 							debug( message );
+ 							qi::on_error < fail >(
+ 								request_line
+									, std::cerr
+ 									<< val( "Error! Expecting " ) 
+ 									<< _4 
+ 									<< val( " here: \"" ) 
+ 									<< construct<std::string>( _3, _2 ) 
+ 									<< val( "\"" ) 
+ 									<< std::endl
+ 							);
+ 
+ 							debug( request_line );
+ 							debug( message );
 
 						}
 
