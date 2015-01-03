@@ -171,7 +171,7 @@ namespace daw {
 
  							qi::on_error < fail >(
  								request_line
-									, std::cerr
+									, std::cout
  									<< val( "Error! Expecting " ) 
  									<< _4 
  									<< val( " here: \"" ) 

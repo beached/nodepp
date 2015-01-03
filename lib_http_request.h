@@ -3,6 +3,7 @@
 #include <boost/optional.hpp>
 #include <cstdint>
 #include <iostream>
+#include <ostream>
 #include <string>
 #include <unordered_map>
 #include <utility>
@@ -39,17 +40,13 @@ namespace daw {
 						headers_t headers;
 					};
 
-					std::ostream& operator<<(std::ostream& os, HttpClientRequestMethod method);
-					std::ostream& operator<<(std::ostream& os, HttpClientRequestMethod const & method);
+					std::ostream& operator<<(std::ostream& os, HttpClientRequestImpl const & req);
+				}	// namespace impl
+				std::ostream& operator<<(std::ostream& os, HttpClientRequestMethod const method);
 
-					std::ostream& operator<<(std::ostream& os, HttpUrl const & url);
+				std::ostream& operator<<(std::ostream& os, HttpUrl const & url);
 
-					namespace impl {
-						std::ostream& operator<<(std::ostream& os, HttpClientRequestImpl const & req);
-					}
-
-					std::ostream& operator<<(std::ostream& os, HttpRequestLine const & request);
-				}
+				std::ostream& operator<<(std::ostream& os, HttpRequestLine const & request);
 
 				using HttpClientRequest = std::shared_ptr < impl::HttpClientRequestImpl > ;
 

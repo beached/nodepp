@@ -43,16 +43,10 @@ namespace daw {
 					}
 				}
 
-				std::ostream& operator<<(std::ostream& os, HttpClientRequestMethod method) {
+				std::ostream& operator<<(std::ostream& os, HttpClientRequestMethod const method) {
 					os << http_request_method_as_string( method );
 					return os;
 				}
-
-				std::ostream& operator<<(std::ostream& os, HttpClientRequestMethod const & method) {
-					os << http_request_method_as_string( method );
-					return os;
-				}
-
 
 				std::ostream& operator<<(std::ostream& os, HttpUrl const & url) {
 					os << "{ " << url.path << ", " << url.query << " } ";
