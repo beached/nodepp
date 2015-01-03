@@ -1,7 +1,8 @@
 #pragma once
+
 #include <boost/optional.hpp>
-//#include "daw_optional.h"
 #include <cstdint>
+#include <iostream>
 #include <string>
 #include <unordered_map>
 #include <utility>
@@ -16,12 +17,14 @@ namespace daw {
 				using namespace daw::nodepp;
 				enum class HttpClientRequestMethod { Options, Get, Head, Post, Put, Delete, Trace, Connect, Any };
 
+
 				std::string http_request_method_as_string( HttpClientRequestMethod method );
 
 				struct HttpUrl {
 					std::string path;
 					boost::optional<std::string> query;
 				};
+
 
 				struct HttpRequestLine {
 					HttpClientRequestMethod method;
@@ -36,6 +39,7 @@ namespace daw {
 						lib::http::HttpRequestLine request;
 						headers_t headers;
 					};
+
 				}
 
 				using HttpClientRequest = std::shared_ptr < impl::HttpClientRequestImpl > ;
@@ -46,3 +50,4 @@ namespace daw {
 		}	// namespace lib
 	}	// namespace nodepp
 }	// namespace daw
+

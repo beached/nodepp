@@ -20,6 +20,11 @@ namespace daw {
 		
 	template <typename T, typename... Args>
 	std::unique_ptr<T> make_unique( Args&&... args ) {
-		return make_unique_helper<T>( std::is_array<T>( ), std::forward<Args>( args )... );
+		try {
+			auto result = make_unique_helper<T>( std::is_array<T>( ), std::forward<Args>( args )... );
+			return result;
+		} catch( ... ) {
+			return std::unique_ptr<T>( );
+		}
 	}
 }	// namespace daw

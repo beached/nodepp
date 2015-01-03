@@ -6,13 +6,32 @@
 #include <boost/fusion/include/adapt_struct.hpp>
 #include <boost/fusion/include/std_pair.hpp>
 #include <boost/fusion/sequence.hpp>
+#include <boost/optional.hpp>
 #include <boost/spirit/include/phoenix.hpp>
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/qi_grammar.hpp>
+#include <boost/spirit/include/phoenix_operator.hpp>
+#include <boost/spirit/include/phoenix_object.hpp>
+#include <iostream>
 #include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
+
+namespace daw { namespace nodepp { namespace lib { namespace http { 
+	enum class HttpClientRequestMethod;
+	struct HttpUrl;
+	struct HttpRequestLine;
+	namespace impl {
+		struct HttpClientRequestImpl;
+	}
+} } } }
+
+std::ostream& operator<<(std::ostream& os, daw::nodepp::lib::http::HttpClientRequestMethod const & method);
+std::ostream& operator<<(std::ostream& os, daw::nodepp::lib::http::impl::HttpClientRequestImpl const & req);
+std::ostream& operator<<(std::ostream& os, daw::nodepp::lib::http::HttpUrl const & url);
+std::ostream& operator<<(std::ostream& os, daw::nodepp::lib::http::HttpRequestLine const & request);
+
 
 BOOST_FUSION_ADAPT_STRUCT(
 	daw::nodepp::lib::http::HttpUrl,
@@ -105,8 +124,13 @@ namespace daw {
 
 					template <typename Iterator>
 					struct abs_url_parse_grammar: qi::grammar < Iterator, daw::nodepp::lib::http::HttpUrl( ) > {
-						abs_url_parse_grammar( ) : abs_url_parse_grammar::base_type( url ) { 
+						abs_url_parse_grammar( ) : abs_url_parse_grammar::base_type( url ) { 							
+							path = char_( '/' ) >> *(char_ -'?');
+							query = *char_;							
 							url = path >> -('?' >> query);
+							path.name( "path" );
+							query.name( "query" );
+							url.name( "url" );
 						}
 						qi::rule< Iterator, daw::nodepp::lib::http::HttpUrl( ) > url;
 						qi::rule< Iterator, std::string( ) > path;
@@ -117,12 +141,6 @@ namespace daw {
 					template <typename Iterator>
 					struct http_request_parse_grammar: qi::grammar < Iterator, daw::nodepp::lib::http::impl::HttpClientRequestImpl( ) > {
 						http_request_parse_grammar( ) : http_request_parse_grammar::base_type( message ) {
-							request_line =
-								method_parse_symbol >> ' '
-								>> url >> ' '
-								>> http_version
-								>> crlf
-								;
 
 							http_version = lexeme["HTTP/" >> raw[int_ >> '.' >> int_]];
 							crlf = lexeme[lit( '\x0d' ) >> lit( '\x0a' )];	// cr followed by newline
@@ -133,18 +151,56 @@ namespace daw {
 							field_value = *(char_ - crlf);
 							header_pair = token >> ':' >> lws >> field_value >> crlf;
 
+							request_line =
+								method_parse_symbol >> ' '
+								>> url >> ' '
+								>> http_version
+								>> crlf
+								;
+
 							message =
 								request_line
 								>> *header_pair
 								>> crlf
 								;
+
+
+							using namespace qi::labels;							
+							using namespace boost::phoenix;
+							using qi::fail;
+							using qi::debug;
+
+
+							message.name( "message" );
+							http_version.name( "http_version" );
+							url.name( "url" );
+							header_pair.name( "header_pair" );
+							request_line.name( "request_line" );
+							field_value.name( "field_value" );
+							token.name( "token" );
+							lws.name( "lws" );
+							qi::on_error < fail >(
+								request_line
+									, std::cerr
+									<< val( "Error! Expecting " ) 
+									<< _4 
+									<< val( " here: \"" ) 
+									<< construct<std::string>( _3, _2 ) 
+									<< val( "\"" ) 
+									<< std::endl
+							);
+
+							debug( request_line );
+							debug( message );
+
 						}
 
 						qi::rule< Iterator > crlf;
 						qi::rule< Iterator, daw::nodepp::lib::http::impl::HttpClientRequestImpl( ) > message;
 
 						qi::rule< Iterator, std::string( ) > http_version;
-						abs_url_parse_grammar<Iterator> url;
+						//abs_url_parse_grammar<Iterator> url;
+						qi::rule< Iterator, daw::nodepp::lib::http::HttpUrl( )> url;
 						qi::rule< Iterator, std::pair<std::string, std::string>( ) > header_pair;
 						qi::rule< Iterator, daw::nodepp::lib::http::HttpRequestLine( ) > request_line;
 						qi::rule< Iterator, std::string( ) > field_value;

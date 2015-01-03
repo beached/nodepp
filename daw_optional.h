@@ -1,5 +1,7 @@
 #pragma once
 
+#include <functional>
+
 #include "make_unique.h"
 
 namespace daw {	
@@ -38,6 +40,21 @@ namespace daw {
 			return *this;
 		}
 
+		Optional( std::function<T( )> func ): m_value( ) {			
+			try {
+				m_value = make_unique<T>( func( ) );
+			} catch( ... ) {
+				return;
+			}			
+		}
+
+		Optional& and_then( std::function <T( T const & )> func ) {
+			if( !empty( ) ) {
+				*this = Optional<T>( func( get( ) ) );
+			}
+			return *this;
+		}
+
 		T const & operator*() const {
 			if( !m_value ) {
 				throw OptionalNotSetException( );
@@ -57,12 +74,12 @@ namespace daw {
 			m_value.reset( make_unique<Args>( std::forward<Args>( args )... ) );
 		}
 
-		bool has_value( ) const {
-			return static_cast<bool>( m_value );
+		bool empty( ) const {
+			return !m_value;
 		}
 
 		explicit operator bool( ) const {
-			return has_value( );
+			return !empty( );
 		}
 
 		T const & get( ) const {
@@ -138,5 +155,7 @@ namespace daw {
 		}
 
 	};	// class Optional
+
+
 
 }	// namespace daw

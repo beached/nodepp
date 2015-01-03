@@ -30,6 +30,7 @@ namespace daw {
 					case HttpClientRequestMethod::Any:
 						return "Any";
 					}
+
 					throw std::runtime_error( "Unrecognized HttpRequestMethod" );
 				}
 
@@ -40,8 +41,28 @@ namespace daw {
 					}
 					return result;
 				}
-
+				
 			} // namespace http
 		}	// namespace lib
 	}	// namespace nodepp
 }	// namespace daw
+
+std::ostream& operator<<(std::ostream& os, daw::nodepp::lib::http::HttpClientRequestMethod const & method) {
+	os << daw::nodepp::lib::http::http_request_method_as_string( method );
+	return os;
+}
+
+std::ostream& operator<<(std::ostream& os, daw::nodepp::lib::http::HttpUrl const & url) {
+	os << "{ " << url.path << ", " << url.query << " } ";
+	return os;
+}
+
+std::ostream& operator<<(std::ostream& os, daw::nodepp::lib::http::HttpRequestLine const & request) {
+	os << "{ " << daw::nodepp::lib::http::http_request_method_as_string( request.method ) << ", " << request.url << ", " << request.version << " } ";
+	return os;
+}
+
+std::ostream& operator<<(std::ostream& os, daw::nodepp::lib::http::impl::HttpClientRequestImpl const & req) {
+	os << req.request;
+	return os;
+}
