@@ -113,18 +113,33 @@ namespace daw {
 
 					template <typename Iterator>
 					struct abs_url_parse_grammar: qi::grammar < Iterator, daw::nodepp::lib::http::HttpUrl( ) > {
-						abs_url_parse_grammar( ) : abs_url_parse_grammar::base_type( url ) { 							
-							path = char_( '/' ) >> *(char_ -'?');
-							query = *char_;							
-							url = path >> -('?' >> query);
-							path.name( "path" );
-							query.name( "query" );
+						abs_url_parse_grammar( ) : abs_url_parse_grammar::base_type( url ) { 
+							path = char_( '/' ) >> *(~char_( " ?" ));
+							query = *(~char_( " ?" ));
+							url = qi::eps > path >> -(lit( '?' ) >> -query);
+
 							url.name( "url" );
+
+							using namespace qi::labels;
+							using namespace boost::phoenix;
+							using qi::fail;
+							using qi::debug;
+
+							qi::on_error < fail >( url,
+								boost::phoenix::ref( std::cout )
+								<< val( "Error! Expecting " )
+								<< qi::_4
+								<< val( " here: \"" )
+								<< construct<std::string>( qi::_3, qi::_2 )
+								<< val( "\"" )
+								<< std::endl
+								);
+
+							//debug( url );
 						}
 						qi::rule< Iterator, daw::nodepp::lib::http::HttpUrl( ) > url;
-						qi::rule< Iterator, std::string( ) > path;
-						qi::rule< Iterator, boost::optional<std::string>> query;
-						//url_query_parse_grammar<Iterator> query;
+						qi::rule< Iterator, std::string( )> path;
+						qi::rule< Iterator, boost::optional<std::string>( )> query;
 					};
 
 					template <typename Iterator>
@@ -132,8 +147,8 @@ namespace daw {
 						http_request_parse_grammar( ) : http_request_parse_grammar::base_type( message ) {
 
 							http_version = lexeme["HTTP/" >> raw[int_ >> '.' >> int_]];
-							//crlf = lexeme[lit( '\x0d' ) >> lit( '\x0a' )];	// cr followed by newline
-							crlf = lexeme[-(lit( "\\r" )) >> lit( "\\n" )];
+							crlf = lexeme[lit( '\x0d' ) >> lit( '\x0a' )];	// cr followed by newline
+							//crlf = lexeme[-(lit( "\\r" )) >> lit( "\\n" )];
 
 							token = +(~char_( "()<>@,;:\\\"/[]?={} \x09" ));
 							lws = omit[-crlf >> *char_( " \x09" )];
@@ -147,7 +162,7 @@ namespace daw {
 								>> crlf
 								;
 
-							message =
+							message = qi::eps >
 								request_line
 								>> *header_pair
 								>> crlf
@@ -168,20 +183,19 @@ namespace daw {
 							field_value.name( "field_value" );
 							token.name( "token" );
 							lws.name( "lws" );
+							crlf.name( "newline" );
 
- 							qi::on_error < fail >(
- 								message
-									, std::cout
- 									<< val( "Error! Expecting " ) 
- 									<< _4 
- 									<< val( " here: \"" ) 
- 									<< construct<std::string>( _3, _2 ) 
- 									<< val( "\"" ) 
- 									<< std::endl
- 							);
-							debug( url );
- 							debug( request_line );
- 							debug( message );
+ 							qi::on_error < fail >(message,
+								boost::phoenix::ref( std::cout )
+								<< val( "Error! Expecting " )
+								<< qi::_4
+								<< val( " here: \"" )
+								<< construct<std::string>( qi::_3, qi::	_2 )
+								<< val( "\"" )
+								<< std::endl
+							);
+
+							//debug( message );
 
 						}
 
@@ -189,8 +203,8 @@ namespace daw {
 						qi::rule< Iterator, daw::nodepp::lib::http::impl::HttpClientRequestImpl( ) > message;
 
 						qi::rule< Iterator, std::string( ) > http_version;
-						//abs_url_parse_grammar<Iterator> url;
-						qi::rule< Iterator, daw::nodepp::lib::http::HttpUrl( )> url;
+						abs_url_parse_grammar<Iterator> url;
+						//qi::rule< Iterator, daw::nodepp::lib::http::HttpUrl( )> url;						
 						qi::rule< Iterator, std::pair<std::string, std::string>( ) > header_pair;
 						qi::rule< Iterator, daw::nodepp::lib::http::HttpRequestLine( ) > request_line;
 						qi::rule< Iterator, std::string( ) > field_value;
