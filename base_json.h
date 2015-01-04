@@ -43,7 +43,7 @@ namespace daw {
 				template<typename T>
 				std::string json_value( std::string const & name, boost::optional<T> const & value ) {
 					if( value ) {
-						return json_value( name, value.get( ) );
+						return json_value( name, static_cast<T>( value.get( )) );
 					} else {
 						return json_value( name );
 					}
