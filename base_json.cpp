@@ -6,7 +6,7 @@
 
 #ifndef WIN32
 void localtime_s( struct tm* result, std::time_t const * source ) {
-	localtime_r( source, tm );
+	localtime_r( source, result );
 }
 #endif
 
