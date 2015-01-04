@@ -20,9 +20,9 @@ int main( int, char const ** ) {
 			.add_header( "Content-Type", "text/html" )
 			.add_header( "Connection", "close" )
 			.end( R"(<p>Hello World!</p>)" );
-	} ).on_error( []( base::Error error ) {
+	} )/*.on_error( []( base::Error error ) {
 		std::cerr << ""; //error << std::endl;
-	} ).listen_on( 8080 ).on_page_error( 404, []( lib::http::HttpClientRequest request, lib::http::HttpServerResponse response, uint16_t ) { 
+	} )*/.listen_on( 8080 )/*.on_page_error( 404, []( lib::http::HttpClientRequest request, lib::http::HttpServerResponse response, uint16_t ) { 
 		std::cout << "404 Request for " << request->request.url.path << " with query";
 		{
 			auto const & p = request->request.url.query;		
@@ -33,7 +33,7 @@ int main( int, char const ** ) {
 			}
 		}
 		std::cout << "\n";
-	} );
+	} )*/;
 
 	base::ServiceHandle::run( );
 
