@@ -132,8 +132,8 @@ namespace daw {
 						http_request_parse_grammar( ) : http_request_parse_grammar::base_type( message ) {
 
 							http_version = lexeme["HTTP/" >> raw[int_ >> '.' >> int_]];
-							crlf = lexeme[lit( '\x0d' ) >> lit( '\x0a' )];	// cr followed by newline
-							
+							//crlf = lexeme[lit( '\x0d' ) >> lit( '\x0a' )];	// cr followed by newline
+							crlf = lexeme[-(lit( '\r' )) >> lit( '\n' )];
 
 							token = +(~char_( "()<>@,;:\\\"/[]?={} \x09" ));
 							lws = omit[-crlf >> *char_( " \x09" )];

@@ -194,7 +194,7 @@ namespace daw {
 				Child& on_error( std::weak_ptr<StandardEventsChild> error_destination, std::string where ) {
 					on_error( [error_destination, where]( base::Error error ) mutable {
 						if( !error_destination.expired( ) ) {
-							error_destination.lock( )->emit_error( where, std::move( error ) );
+							error_destination.lock( )->emit_error( std::move( error ), where );
 						}
 					} );
 					return child( );
@@ -218,13 +218,14 @@ namespace daw {
 
 				//////////////////////////////////////////////////////////////////////////
 				/// Summary: Emit an error event
-				void emit_error( boost::string_ref where, base::Error child ) {
+				void emit_error( base::Error child, boost::string_ref where ) {
 					base::Error err( "Child Error" );
-					err.add( "where", where.to_string() );
+					err.add( "where", where.to_string( ) );
 					err.child( std::move( child ) );
 
 					emit_error( std::move( err ) );
 				}
+
 
 				//////////////////////////////////////////////////////////////////////////
 				/// Summary: Emit an error event

@@ -48,6 +48,11 @@ namespace daw {
 					return details::enbracket( result );
 				}
 
+				std::ostream& operator<<(std::ostream& os, HttpClientRequestMethod const method) {
+					os << base::json::json_value( "HttpClientRequestMethod", method );
+					return os;
+				}
+
 				std::string HttpRequestLine::serialize_to_json( ) const {
 					std::string result = json_value( "method", method ) + ",\n";
 					result += json_value( "url", url ) + ",\n";
