@@ -133,7 +133,7 @@ namespace daw {
 
 							http_version = lexeme["HTTP/" >> raw[int_ >> '.' >> int_]];
 							//crlf = lexeme[lit( '\x0d' ) >> lit( '\x0a' )];	// cr followed by newline
-							crlf = lexeme[-(lit( '\r' )) >> lit( '\n' )];
+							crlf = lexeme[-(lit( "\\r" )) >> lit( "\\n" )];
 
 							token = +(~char_( "()<>@,;:\\\"/[]?={} \x09" ));
 							lws = omit[-crlf >> *char_( " \x09" )];
