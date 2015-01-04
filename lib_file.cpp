@@ -107,7 +107,7 @@ namespace daw {
 						error->add( "where", "write_file#open" );
 						return error;
 					}
-					if( !out_file.write( buffer.data( ), bytes_to_write ) ) {
+					if( !out_file.write( buffer.data( ), static_cast<std::streamoff>( bytes_to_write ) ) ) {
 						auto error = base::create_optional_error( "Error writing data to file" );
 						error->add( "where", "write_file#write" );
 						return error;
