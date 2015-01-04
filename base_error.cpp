@@ -89,10 +89,10 @@ namespace daw {
 
 			bool Error::has_child( ) const {
 				assert( m_keyvalues.find( "description" ) != m_keyvalues.end( ) );
-				if( m_child ) {
-					return true;
+				if( !m_child ) {
+					return false;
 				}
-				return false;
+				return true;
 			}
 
 			bool Error::has_exception( ) const {
@@ -132,7 +132,7 @@ namespace daw {
 			std::string Error::to_string( boost::string_ref prefix ) const {
 				assert( m_keyvalues.find( "description" ) != m_keyvalues.end( ) );
 				std::stringstream ss;
-				ss << "Description: " << m_keyvalues.at( "description" ) << "\n";
+				ss << prefix << "Description: " << m_keyvalues.at( "description" ) << "\n";
 				for( auto const & row : m_keyvalues ) {
 					if( row.first.compare( "description" ) != 0 ) {
 						ss << prefix << "'" << row.first << "',	'" << row.second << "'\n";
@@ -148,7 +148,7 @@ namespace daw {
 					}
 				}
 				if( has_child( ) ) {
-					ss << child( ).to_string( prefix.to_string() + "	" );
+					ss << child( ).to_string( prefix.to_string() + "# " );
 				}
 				ss << "\n";
 				return ss.str( );

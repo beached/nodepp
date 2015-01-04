@@ -109,7 +109,7 @@ namespace daw {
 						auto& callbacks = listeners( )[event];
 						for( auto& callback : callbacks ) {
 							if( !callback.second.empty( ) ) {
-								callback.second.exec( std::move( args )... );
+								callback.second.exec( args... );
 							}
 						}
 
