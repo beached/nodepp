@@ -5,6 +5,7 @@
 #include <ostream>
 #include <sstream>
 #include <string>
+#include <vector>
 	
 #include "daw_traits.h"
 
@@ -46,10 +47,21 @@ namespace daw {
 					} else {
 						return json_value( name );
 					}
-				}				
+				}
 
-				template<typename Container>
-				auto json_value( std::string const & name, Container const & values ) -> typename std::enable_if<daw::traits::is_container_or_array<Container>::value, std::string>::type {
+				template<typename T>
+				auto json_value( std::string const & name, std::vector<T> const & values ) -> decltype( json_value( name, values[0] ) ) {
+					std::stringstream result;
+					result << details::json_name( name ) + "[\n";
+					for( auto const & item : values ) {
+						result << json_value( "", item ) << ",\n";
+					}
+					result << "\n]";
+					return result.str( );
+				}
+
+				template<typename Container, typename Container::value_type, typename Container::iterator>
+				std::string json_value( std::string const & name, Container const & values ) /*-> typename std::enable_if<daw::traits::is_container_or_array<Container>::value, std::string>::type*/ {
 					std::stringstream result;
 					result << details::json_name( name ) + "[\n";
 					for( auto const & item : values ) {

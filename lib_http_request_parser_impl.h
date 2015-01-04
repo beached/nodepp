@@ -120,13 +120,19 @@ namespace daw {
 					template <typename Iterator>
 					struct abs_url_parse_grammar: qi::grammar < Iterator, daw::nodepp::lib::http::HttpUrl( ) > {
 						abs_url_parse_grammar( ) : abs_url_parse_grammar::base_type( url ) { 
+							key = qi::char_( "a-zA-Z_" ) >> *qi::char_( "a-zA-Z_0-9" );
+							value = +qi::char_( "a-zA-Z_0-9" );
 							path = char_( '/' ) >> *(~char_( " ?" ));
-							query = *(~char_( " ?=#" )) % -(lit( '=') >> -(*(~char_( " ?=#" ))));
-							url = qi::eps > path >> -(lit( '?' ) >> -query);
+							query_pair = key >> -('=' >> value);
+							query = lit( '?' ) >> query_pair >> *((qi::lit( ';' ) | '&') >> query_pair);
+							url = qi::eps > path >> -query;
 
 							url.name( "url" );
 							path.name( "path" );
 							query.name( "query" );
+							query_pair.name( "query_pair" );
+							key.name( "key" );
+							value.name( "value" );
 							using namespace qi::labels;
 							using namespace boost::phoenix;
 							using qi::fail;
@@ -146,7 +152,9 @@ namespace daw {
 						}
 						qi::rule< Iterator, daw::nodepp::lib::http::HttpUrl( ) > url;
 						qi::rule< Iterator, std::string( )> path;
+						qi::rule< Iterator, daw::nodepp::lib::http::HttpUrlQueryPair( )> query_pair;
 						qi::rule< Iterator, boost::optional<std::vector<daw::nodepp::lib::http::HttpUrlQueryPair>>( )> query;
+						qi::rule<Iterator, std::string( )> key, value;
 					};
 
 					template <typename Iterator>

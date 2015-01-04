@@ -25,6 +25,8 @@ namespace daw {
 					std::string name;
 					boost::optional<std::string> value;
 					std::string serialize_to_json( ) const;
+					HttpUrlQueryPair( ) = default;
+					inline HttpUrlQueryPair( std::pair<std::string, boost::optional<std::string>> const & vals ) : name( vals.first ), value( vals.second ) { }
 				};
 
 				struct HttpUrl {					
