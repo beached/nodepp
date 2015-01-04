@@ -36,7 +36,11 @@ namespace daw {
 
 				std::string json_value( std::string const & name, std::time_t const & timestamp ) {
 					std::tm tm = { 0 };
+#ifdef WIN32	// really, why not agree on the same name
 					localtime_s( &tm, &timestamp );
+#else
+					localtime_r( &tm, &timestamp );
+#endif
 					std::stringstream ss;
 					ss << "\"" << std::put_time( &tm, "%a %b %d %Y %T GMT%z (%Z)" ) << "\"";
 					return details::json_name( name ) + ss.str( );
