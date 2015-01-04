@@ -90,7 +90,7 @@ namespace daw {
 
 		template<typename DataType1, typename DataType2, typename ...DataTypes>
 		struct are_same_types < DataType1, DataType2, DataTypes... > {
-			static const bool value = std::is_same<DataType1, DataType2>::value && are_same_type<DataTypes...>::value;
+			static const bool value = std::is_same<DataType1, DataType2>::value && are_same_types<DataTypes...>::value;
 			using type = bool;
 		};
 

@@ -20,7 +20,6 @@ namespace daw {
 				
 				std::ostream& operator<<(std::ostream& os, HttpClientRequestMethod const method);
 				std::string to_string( HttpClientRequestMethod method );
-				std::string json_value( std::string const & name, HttpClientRequestMethod method );
 
 				struct HttpUrl {
 					std::string path;
@@ -54,6 +53,11 @@ namespace daw {
 
 			} // namespace http
 		}	// namespace lib
+		namespace base {
+			namespace json {
+				std::string json_value( std::string const & name, daw::nodepp::lib::http::HttpClientRequestMethod method );
+			}	// namespace json
+		}	// namespace base
 	}	// namespace nodepp
 }	// namespace daw
 

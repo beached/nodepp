@@ -2,6 +2,7 @@
 
 #include <ostream>
 #include <string>
+#include <sstream>
 
 #include "daw_traits.h"
 
@@ -15,7 +16,7 @@ namespace daw {
 				namespace details {
 					std::string json_name( std::string const & name );
 					std::string enbracket( std::string const & json_value );
-				}
+				}	// namespace details
 
 				std::string json_value( std::string const & name, std::string const & value );
 
@@ -35,7 +36,7 @@ namespace daw {
 				}
 
 				template<typename T>
-				auto json_value( std::string const & name, T const & value ) -> decltype(declval<T>( ).serialize_to_json( )) {
+				auto json_value( std::string const & name, T const & value ) -> decltype(std::declval<T>( ).serialize_to_json( )) {
 					return details::json_name( name ) + value.serialize_to_json( );
 				}
 
@@ -55,7 +56,7 @@ namespace daw {
 	}	// namespace nodepp
 }	// namespace daw
 
-template<typename T, typename EnableIf = decltype(declval<T>( ).serialize_to_json( ))>
+template<typename T, typename EnableIf = decltype(std::declval<T>( ).serialize_to_json( ))>
 std::ostream& operator<<(std::ostream& os, T const & data) {
 	os << data.serialize_to_json( );
 }
