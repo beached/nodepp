@@ -170,7 +170,7 @@ namespace daw {
 							lws.name( "lws" );
 
  							qi::on_error < fail >(
- 								request_line
+ 								message
 									, std::cout
  									<< val( "Error! Expecting " ) 
  									<< _4 
@@ -179,7 +179,7 @@ namespace daw {
  									<< val( "\"" ) 
  									<< std::endl
  							);
- 
+							debug( url );
  							debug( request_line );
  							debug( message );
 
