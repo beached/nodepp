@@ -20,19 +20,20 @@ namespace daw {
 				
 				std::ostream& operator<<(std::ostream& os, HttpClientRequestMethod const method);
 				std::string to_string( HttpClientRequestMethod method );
+				std::string json_value( std::string const & name, HttpClientRequestMethod method );
 
 				struct HttpUrl {
 					std::string path;
 					boost::optional<std::string> query;
+					std::string serialize_to_json( ) const;
 				};
-				std::ostream& operator<<(std::ostream& os, HttpUrl const & url);
-
+				
 				struct HttpRequestLine {
 					HttpClientRequestMethod method;
 					HttpUrl url;
 					std::string version;
+					std::string serialize_to_json( ) const;
 				};
-				std::ostream& operator<<(std::ostream& os, HttpRequestLine const & request);
 
 				namespace impl {
 					using namespace daw::nodepp;
@@ -40,9 +41,9 @@ namespace daw {
 						using headers_t = std::unordered_map < std::string, std::string > ;
 						lib::http::HttpRequestLine request;
 						headers_t headers;
+						std::string serialize_to_json( ) const;
 					};
 
-					std::ostream& operator<<(std::ostream& os, HttpClientRequestImpl const & req);
 				}	// namespace impl								
 
 				

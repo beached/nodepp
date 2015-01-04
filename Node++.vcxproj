@@ -163,11 +163,13 @@
     <ClInclude Include="base_error.h" />
     <ClInclude Include="base_enoding.h" />
     <ClInclude Include="base_event_emitter.h" />
+    <ClInclude Include="base_json.h" />
     <ClInclude Include="base_url.h" />
     <ClInclude Include="base_work_queue.h" />
     <ClInclude Include="base_write_buffer.h" />
     <ClInclude Include="concurrent_queue.h" />
     <ClInclude Include="daw_optional.h" />
+    <ClInclude Include="daw_traits.h" />
     <ClInclude Include="lib_file.h" />
     <ClInclude Include="lib_http.h" />
     <ClInclude Include="lib_http_connection.h" />
@@ -204,6 +206,7 @@
     <ClCompile Include="base_encoding.cpp" />
     <ClCompile Include="base_error.cpp" />
     <ClCompile Include="base_event_emitter.cpp" />
+    <ClCompile Include="base_json.cpp" />
     <ClCompile Include="base_work_queue.cpp" />
     <ClCompile Include="base_write_buffer.cpp" />
     <ClCompile Include="lib_file.cpp" />
