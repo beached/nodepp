@@ -17,7 +17,7 @@ namespace daw {
 			namespace http {
 				using namespace daw::nodepp;
 				enum class HttpClientRequestMethod { Options, Get, Head, Post, Put, Delete, Trace, Connect, Any };
-				
+
 				std::ostream& operator<<(std::ostream& os, HttpClientRequestMethod const method);
 				std::string to_string( HttpClientRequestMethod method );
 
@@ -26,7 +26,7 @@ namespace daw {
 					boost::optional<std::string> query;
 					std::string serialize_to_json( ) const;
 				};
-				
+
 				struct HttpRequestLine {
 					HttpClientRequestMethod method;
 					HttpUrl url;
@@ -45,7 +45,7 @@ namespace daw {
 
 				}	// namespace impl								
 
-				
+
 
 				using HttpClientRequest = std::shared_ptr < impl::HttpClientRequestImpl > ;
 

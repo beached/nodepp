@@ -12,7 +12,7 @@ namespace daw {
 			namespace http {
 				using namespace daw::nodepp;
 				using namespace daw::nodepp::base::json;
-				
+
 				std::string to_string( HttpClientRequestMethod method ) {
 					switch( method ) {
 					case HttpClientRequestMethod::Get:
@@ -49,7 +49,7 @@ namespace daw {
 				}
 
 				std::string HttpRequestLine::serialize_to_json( ) const {
-					std::string result = json_value( "method", method ) + ",\n";					
+					std::string result = json_value( "method", method ) + ",\n";
 					result += json_value( "url", url ) + ",\n";
 					result += json_value( "version", version );
 					return details::enbracket( result );
@@ -66,7 +66,6 @@ namespace daw {
 			} // namespace http
 		}	// namespace lib
 
-		}	// namespace lib
 		namespace base {
 			namespace json {
 				std::string json_value( std::string const & name, daw::nodepp::lib::http::HttpClientRequestMethod method ) {
