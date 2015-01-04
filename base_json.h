@@ -30,6 +30,22 @@ namespace daw {
 				std::string json_value( std::string const & name, std::time_t value );
 
 				template<typename Number>
+				auto json_value( std::string const & name, Number const & value ) -> typename std::enable_if<daw::traits::is_numeric<Number>::value, std::string>::type;
+
+				template<typename T>
+				auto json_value( std::string const & name, T const & value ) -> decltype( value.serialize_to_json( ) );
+
+				template<typename T>
+				std::string json_value( std::string const & name, boost::optional<T> const & value ); 
+
+				template<typename T>
+				auto json_value( std::string const & name, std::vector<T> const & values ) -> decltype( json_value( name, values[0] ) );
+
+				template<typename Container, typename Container::value_type, typename Container::iterator>
+				std::string json_value( std::string const & name, Container const & values );
+
+
+				template<typename Number>
 				auto json_value( std::string const & name, Number const & value ) -> typename std::enable_if<daw::traits::is_numeric<Number>::value, std::string>::type {
 					using std::to_string;
 					return details::json_name( name ) + to_string( value );
@@ -43,7 +59,7 @@ namespace daw {
 				template<typename T>
 				std::string json_value( std::string const & name, boost::optional<T> const & value ) {
 					if( value ) {
-						return json_value( name, static_cast<T>( value.get( )) );
+						return json_value( name, value.get( ) );
 					} else {
 						return json_value( name );
 					}
