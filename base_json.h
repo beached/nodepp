@@ -1,9 +1,10 @@
 #pragma once
 
+#include <ctime>
 #include <ostream>
-#include <string>
 #include <sstream>
-
+#include <string>
+	
 #include "daw_traits.h"
 
 namespace daw {
@@ -23,6 +24,8 @@ namespace daw {
 				std::string json_value( std::string const & name, bool value );
 
 				std::string json_value( std::string const & name );
+
+				std::string json_value( std::string const & name, std::time_t value );
 
 				template<typename Number>
 				auto json_value( std::string const & name, Number const & value ) -> typename std::enable_if<daw::traits::is_numeric<Number>::value, std::string>::type {

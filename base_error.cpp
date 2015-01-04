@@ -43,7 +43,9 @@ namespace daw {
 				m_keyvalues( std::move( other.m_keyvalues ) ), 
 				m_frozen( std::move( other.m_frozen ) ), 
 				m_child( std::move( other.m_child ) ), 
-				m_exception( std::move( other.m_exception ) ) { }
+				m_exception( std::move( other.m_exception ) ) { 
+				assert( m_keyvalues.find( "description" ) != m_keyvalues.end( ) );
+			}
 
 			Error& Error::operator=(Error && rhs) {
 				if( this != &rhs ) {
@@ -52,10 +54,12 @@ namespace daw {
 					m_child = std::move( rhs.m_child );
 					m_exception = std::move( rhs.m_exception );
 				}
+				assert( m_keyvalues.find( "description" ) != m_keyvalues.end( ) );
 				return *this;
 			}
 
 			Error& Error::add( boost::string_ref name, boost::string_ref value ) {
+				assert( m_keyvalues.find( "description" ) != m_keyvalues.end( ) );
 				if( m_frozen ) {
 					throw std::runtime_error( "Attempt to change a frozen error." );
 				}
@@ -64,22 +68,27 @@ namespace daw {
 			}
 
 			boost::string_ref Error::get( boost::string_ref name ) const {
+				assert( m_keyvalues.find( "description" ) != m_keyvalues.end( ) );
 				return m_keyvalues.at( name.to_string( ) );
 			}
 
 			std::string & Error::get( boost::string_ref name ) {
+				assert( m_keyvalues.find( "description" ) != m_keyvalues.end( ) );
 				return m_keyvalues[name.to_string( )];
 			}
 
 			void Error::freeze( ) {
+				assert( m_keyvalues.find( "description" ) != m_keyvalues.end( ) );
 				m_frozen = true;
 			}
 
 			Error & Error::child( ) const {
+				assert( m_keyvalues.find( "description" ) != m_keyvalues.end( ) );
 				return *m_child.get( );
 			}
 
 			bool Error::has_child( ) const {
+				assert( m_keyvalues.find( "description" ) != m_keyvalues.end( ) );
 				if( m_child ) {
 					return true;
 				}
@@ -87,6 +96,7 @@ namespace daw {
 			}
 
 			bool Error::has_exception( ) const {
+				assert( m_keyvalues.find( "description" ) != m_keyvalues.end( ) );
 				if( has_child() && child( ).has_exception( ) ) {
 					return true;
 				}
@@ -94,6 +104,7 @@ namespace daw {
 			}
 
 			void Error::throw_exception( ) {
+				assert( m_keyvalues.find( "description" ) != m_keyvalues.end( ) );
 				if( has_child( ) && child( ).has_exception( ) ) {
 					child( ).throw_exception( );
 				}
@@ -105,17 +116,21 @@ namespace daw {
 			}
 
 			Error& Error::clear_child( ) {
+				assert( m_keyvalues.find( "description" ) != m_keyvalues.end( ) );
 				m_child.reset( );
 				return *this;
 			}
 
 			Error& Error::child( Error child ) {
+				assert( m_keyvalues.find( "description" ) != m_keyvalues.end( ) );
+				assert( child.m_keyvalues.find( "description" ) != child.m_keyvalues.end( ) );
+				child.freeze( );
 				m_child = std::make_shared<Error>( std::move( child ) );
-				m_child->freeze( );
 				return *this;
 			}
 
 			std::string Error::to_string( boost::string_ref prefix ) const {
+				assert( m_keyvalues.find( "description" ) != m_keyvalues.end( ) );
 				std::stringstream ss;
 				ss << "Description: " << m_keyvalues.at( "description" ) << "\n";
 				for( auto const & row : m_keyvalues ) {

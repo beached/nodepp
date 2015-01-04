@@ -22,11 +22,11 @@ namespace daw {
 			public:
 				Error( ) = delete;
 				virtual ~Error( );
-				Error( boost::string_ref description );
+				explicit Error( boost::string_ref description );
 				explicit Error( boost::system::error_code const & err );
 				Error( Error && );
 				Error( Error const & ) = default;
-				Error( boost::string_ref description, std::exception_ptr ex_ptr );
+				explicit Error( boost::string_ref description, std::exception_ptr ex_ptr );
 				Error& operator=(Error const &) = default;
 				Error& operator=(Error && rhs);
 

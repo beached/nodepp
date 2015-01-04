@@ -1,4 +1,9 @@
+
+#include <ctime>
+#include <iomanip>
+
 #include "base_json.h"
+
 
 namespace daw {
 	namespace nodepp {
@@ -29,6 +34,13 @@ namespace daw {
 					return details::json_name( name ) + "null";
 				}
 
+				std::string json_value( std::string const & name, std::time_t const & timestamp ) {
+					std::tm tm = { 0 };
+					localtime_s( &tm, &timestamp );
+					std::stringstream ss;
+					ss << "\"" << std::put_time( &tm, "%a %b %d %Y %T GMT%z (%Z)" ) << "\"";
+					return details::json_name( name ) + ss.str( );
+				}
 
 			}	// namespace json
 		}	// namespace base

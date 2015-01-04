@@ -233,7 +233,7 @@ namespace daw {
 					base::Error err( error );
 					err.add( "where", where.to_string() );
 
-					emit_error( std::move( err ) );
+					emit_error( err );
 				}
 
 				//////////////////////////////////////////////////////////////////////////
