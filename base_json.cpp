@@ -30,7 +30,10 @@ namespace daw {
 
 				namespace details {
 					std::string json_name( std::string const & name ) {
-						return enquote( name ) + ": ";
+						if( !name.empty( ) ) {
+							return enquote( name ) + ": ";
+						}
+						return std::string( );
 					}
 
 					std::string enbracket( std::string const & json_value ) {

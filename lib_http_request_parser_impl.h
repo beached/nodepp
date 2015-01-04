@@ -21,9 +21,15 @@
 #include "lib_http_request.h"
 
 BOOST_FUSION_ADAPT_STRUCT(
+	daw::nodepp::lib::http::HttpUrlQueryPair,
+	(std::string, name )
+	(boost::optional<std::string>, value) 
+	)
+
+BOOST_FUSION_ADAPT_STRUCT(
 	daw::nodepp::lib::http::HttpUrl,
 	(std::string, path )
-	(boost::optional<std::string>, query)
+	(boost::optional<std::vector<daw::nodepp::lib::http::HttpUrlQueryPair>>, query)
 	)
 
 BOOST_FUSION_ADAPT_STRUCT(
@@ -115,11 +121,12 @@ namespace daw {
 					struct abs_url_parse_grammar: qi::grammar < Iterator, daw::nodepp::lib::http::HttpUrl( ) > {
 						abs_url_parse_grammar( ) : abs_url_parse_grammar::base_type( url ) { 
 							path = char_( '/' ) >> *(~char_( " ?" ));
-							query = *(~char_( " ?" ));
+							query = *(~char_( " ?=#" )) % -(lit( '=') >> -(*(~char_( " ?=#" ))));
 							url = qi::eps > path >> -(lit( '?' ) >> -query);
 
 							url.name( "url" );
-
+							path.name( "path" );
+							query.name( "query" );
 							using namespace qi::labels;
 							using namespace boost::phoenix;
 							using qi::fail;
@@ -139,7 +146,7 @@ namespace daw {
 						}
 						qi::rule< Iterator, daw::nodepp::lib::http::HttpUrl( ) > url;
 						qi::rule< Iterator, std::string( )> path;
-						qi::rule< Iterator, boost::optional<std::string>( )> query;
+						qi::rule< Iterator, boost::optional<std::vector<daw::nodepp::lib::http::HttpUrlQueryPair>>( )> query;
 					};
 
 					template <typename Iterator>

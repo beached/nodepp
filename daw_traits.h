@@ -24,7 +24,6 @@ namespace daw {
 			std::is_copy_assignable<T>::value && std::is_move_assignable<T>::value &&
 			is_equality_comparable<T>::value > { };
 
-
 		template <typename... Args>
 		struct max_sizeof;
 
@@ -94,7 +93,6 @@ namespace daw {
 			using type = bool;
 		};
 
-
 		template<typename, typename = void>
 		struct has_type_member: std::false_type { };
 
@@ -102,15 +100,41 @@ namespace daw {
 		struct has_type_member<T, void_t<typename T::type>> : std::true_type { };
 
 		template<typename, typename = void>
+		struct has_value_type_member: std::false_type { };
+		
+		template<typename T>
+		struct has_value_type_member<T, void_t<typename T::value_type>> : std::true_type { };
+
+		template<typename, typename = void>
 		struct has_iterator_member: std::false_type { };
 
 		template<typename T>
 		struct has_iterator_member<T, void_t<typename T::iterator>> : std::true_type { };
 
-
 		template<typename, typename, typename = void>
 		struct has_push_back_member: std::false_type { };
 	
+		template<typename T, typename = void>
+		struct is_container: public std::false_type { };
+
+		template<typename T>
+		struct is_container<T, typename std::enable_if<has_value_type_member<T>::type && has_iterator_member<T>::value>>: public std::true_type { };
+
+		template<typename T, typename = void>
+		struct is_container_or_array: public std::false_type { };
+
+		template<typename T>
+		struct is_container_or_array<T, typename std::enable_if<is_container<T>::value || std::is_array<T>::value>::type>: public std::true_type { };
+
+		template<typename T>
+		using is_container_t = typename is_container<T>::type;
+		
+		template<typename T>
+		using is_array_t = typename std::is_array<T>::type;
+		
+		template<typename T>
+		using is_container_or_array_t = typename is_container_or_array<T>::type;
+
 
 	}	// namespace traits
 }	// namespace daw

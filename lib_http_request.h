@@ -21,9 +21,15 @@ namespace daw {
 				std::ostream& operator<<(std::ostream& os, HttpClientRequestMethod const method);
 				std::string to_string( HttpClientRequestMethod method );
 
-				struct HttpUrl {
+				struct HttpUrlQueryPair {
+					std::string name;
+					boost::optional<std::string> value;
+					std::string serialize_to_json( ) const;
+				};
+
+				struct HttpUrl {					
 					std::string path;
-					boost::optional<std::string> query;
+					boost::optional<std::vector<HttpUrlQueryPair>> query;
 					std::string serialize_to_json( ) const;
 				};
 

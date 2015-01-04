@@ -1,5 +1,6 @@
 #pragma once
 
+#include <boost/optional.hpp>
 #include <ctime>
 #include <ostream>
 #include <sstream>
@@ -39,16 +40,30 @@ namespace daw {
 				}
 
 				template<typename T>
-				auto json_value( std::string const & name, T const & value ) -> decltype(std::declval<T>( ).serialize_to_json( )) {
+				auto json_value( std::string const & name, T* value ) -> typename std::enable_if<!std::is_same<std::nullptr_t, T>::type, std::string>::type {
+					return json_value( name, *value );
+				}
+				
+				template<typename T>
+				auto json_value( std::string const & name, T const & value ) -> decltype(value.serialize_to_json( )) {
 					return details::json_name( name ) + value.serialize_to_json( );
 				}
 
-				template<typename Container>
-				auto json_value( std::string const & name, Container const & values ) -> typename std::enable_if<std::is_array<Container>::value, std::string>::type {
+				template<typename T>
+				std::string json_value( std::string const & name, boost::optional<T> const & value ) {
+					if( value ) {
+						return json_value( name, value.get( ) );
+					} else {
+						return json_value( name );
+					}
+				}				
+
+				template<typename Container, typename std::enable_if<daw::traits::is_container_or_array<Container>::value, std::string>::type>
+				std::string json_value( std::string const & name, Container const & values )  {
 					std::stringstream result;
 					result << details::json_name( name ) + "[\n";
 					for( auto const & item : values ) {
-						result << json_value( item ) << ",\n";
+						result << json_value( "", item ) << ",\n";
 					}
 					result << "\n]";
 					return result.str( );

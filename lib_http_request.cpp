@@ -38,13 +38,15 @@ namespace daw {
 					throw std::runtime_error( "Unrecognized HttpRequestMethod" );
 				}
 
+				std::string HttpUrlQueryPair::serialize_to_json( ) const {
+					std::string result = json_value( "name", name ) + ",\n";
+					result += json_value( "value", value );
+					return details::enbracket( result );
+				}
+
 				std::string HttpUrl::serialize_to_json( ) const {
 					std::string result = json_value( "path", path ) + ",\n";
-					if( query ) {
-						result += json_value( "query", query.get( ) );
-					} else {
-						result += json_value( "query" );
-					}
+					result += json_value( "query", query );
 					return details::enbracket( result );
 				}
 

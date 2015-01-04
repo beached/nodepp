@@ -21,12 +21,16 @@ int main( int, char const ** ) {
 			.add_header( "Connection", "close" )
 			.end( R"(<p>Hello World!</p>)" );
 	} ).on_error( []( base::Error error ) {
-		//std::cerr << error << std::endl;
+		std::cerr << ""; //error << std::endl;
 	} ).listen_on( 8080 ).on_page_error( 404, []( lib::http::HttpClientRequest request, lib::http::HttpServerResponse response, uint16_t error_no ) { 
 		std::cout << "404 Request for " << request->request.url.path << " with query";
 		{
 			auto const & p = request->request.url.query;
-			std::cout << p.get_value_or( "" );			
+			if( p ) {
+				for( auto const & item : p.get( ) ) {
+					std::cout << item.serialize_to_json( ) << ",\n";
+				}
+			}
 		}
 		std::cout << "\n";
 	} );
