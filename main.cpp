@@ -37,6 +37,5 @@ int main( int, char const ** ) {
 
 	base::ServiceHandle::run( );
 
-	
 	return EXIT_SUCCESS;
 }

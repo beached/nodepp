@@ -118,8 +118,8 @@ namespace daw {
 		struct is_container: public std::false_type { };
 
 		template<typename T>
-		struct is_container<T, typename std::enable_if<has_value_type_member<T>::type && has_iterator_member<T>::value>>: public std::true_type { };
-
+		struct is_container<T, typename std::enable_if<sizeof( &T::begin ) != 0>::type > : public std::true_type { };
+		
 		template<typename T, typename = void>
 		struct is_container_or_array: public std::false_type { };
 

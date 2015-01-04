@@ -44,12 +44,12 @@ namespace daw {
 					return json_value( name, *value );
 				}
 				
-				template<typename T>
-				auto json_value( std::string const & name, T const & value ) -> decltype(value.serialize_to_json( )) {
+				template<typename T, typename std::enable_if<std::is_same<std::string, decltype(&T::serialize_to_json )>::value>::type>
+				std::string json_value( std::string const & name, T const & value ) {
 					return details::json_name( name ) + value.serialize_to_json( );
 				}
 
-				template<typename T>
+				template<typename T>&
 				std::string json_value( std::string const & name, boost::optional<T> const & value ) {
 					if( value ) {
 						return json_value( name, value.get( ) );
