@@ -38,30 +38,14 @@ namespace daw {
 				void json_to_value( std::string const & json_text, std::time_t & value );
 
 				namespace details {
-// 					template<typename T, typename = void>
-// 					struct has_serialize: public false_type { };
-
+// 					template<typename T, typename = int>
+// 					struct has_serialize: std::false_type { };
+// 
 // 					template<typename T>
-// 					struct has_serialize<T, typename std::enable_if< sizeof( &std::decay<T>::serialize_to_json ) != 0>::type> : public std::true_type { };
-
-					struct check_has_serialize_to_json {
-						//template<typename T, std::string( T::* )() const = &T::serialize_to_json>
-						template<typename T, daw::pointer_to_const_member_function_t<std::string,T> = &T::serialize_to_json>
-						struct get { };
-					};
-
-					struct check_has_deserialize_from_json {
-						template<typename T, void (T::*)(std::string const &, T&) const = &T::deserialize_from_json>
-						struct get { };
-					};
-
-					template<typename T>
-					struct has_serialize: daw::traits::has_member<T, check_has_serialize_to_json> { };
-
-					template<typename T>
-					struct has_deserialize: daw::traits::has_member < T, check_has_deserialize_from_json > { };
-				}
-
+// 					struct has_serialize<T, decltype((void)T::serialize_to_json, 0)> : std::true_type { };
+					GENERATE_HAS_MEMBER( serialize_to_json, std::string );
+					GENERATE_HAS_MEMBER( deserialize_from_json, std::string );
+				}	// namespace details
 
 				// Template Declarations
  				//Numbers
@@ -72,10 +56,10 @@ namespace daw {
 				void json_to_value( std::string const & json_text, Number & value );
 
 				// any object with a serialize_to_json method
-				template<typename T, typename std::enable_if< details::has_serialize<T>::value>::type>
+				template<typename T, typename std::enable_if< details::has_serialize_to_json<T>::value>::type>
 				std::string value_to_json( std::string const & name, T const & value );
 
-				template<typename T, typename std::enable_if< details::has_deserialize<T>::value>::type>
+				template<typename T, typename std::enable_if< details::has_deserialize_from_json<T>::value>::type>
 				void json_to_value( std::string const & json_text, T & value );
 
 				// boost optional.  will error out if T does not support value_to_json
@@ -106,12 +90,12 @@ namespace daw {
 				}
 				
 				// any object with a serialize_to_json method
-				template<typename T, typename std::enable_if< details::has_serialize<T>::value>::type>
+				template<typename T, typename std::enable_if< details::has_serialize_to_json<T>::value>::type>
 				std::string value_to_json( std::string const & name, T const & value )  {
 					return details::json_name( name ) + value.serialize_to_json( );
 				}
 
-				template<typename T, typename std::enable_if< details::has_deserialize<T>::value>::type>
+				template<typename T, typename std::enable_if< details::has_deserialize_from_json<T>::value>::type>
 				void json_to_value( std::string const & json_text, T & value )  {
 					// TODO
 				}

@@ -171,3 +171,6 @@ namespace daw {
 	}	// namespace traits
 }	// namespace daw
 
+#define GENERATE_HAS_MEMBER( Member, MemberReturn ) \
+	template<typename T, typename = ##MemberReturn> struct has_##Member: std::false_type {}; \
+	template<typename T> struct has_##Member<T, decltype((void)T::##Member, 0)> : std::true_type { };
