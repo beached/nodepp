@@ -163,7 +163,7 @@ namespace daw {
 					template<typename T>
 					JsonLink& link_value( std::string name, T& value ) {
 						auto value_ptr = &value;
-						m_data_map[name] = [value_ptr, name]( T & value, std::string & json_text, Action action ) {
+						m_data_map[name] = [value_ptr, name]( std::string & json_text, Action action ) {
 							switch( action ) {
 							case Action::encode:
 								assert( value_ptr != nullptr );
