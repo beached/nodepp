@@ -49,10 +49,7 @@ namespace daw {
 
 					template <typename T>
 					struct has_serialize_to_json {
-						template <
-							typename U,
-							typename S = decltype (((U*)0)->serialize_to_json( ))
-						>
+						template <typename U, typename S = decltype((dynamic_cast<U*>(0))->serialize_to_json( )) >
 						static char test( U* u );
 						template <typename U> static long test( ... );
 						enum { value = sizeof test<T>( 0 ) == 1 };

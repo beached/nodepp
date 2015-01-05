@@ -126,12 +126,20 @@ namespace daw {
 			};
 		}
 
-		template<typename T, typename = void>
-		struct is_container: public std::false_type { };
+// 		template<typename T, typename = void>
+// 		struct is_container: public std::false_type { };
+// 
+// 		template<typename T>
+// 		struct is_container<T, typename std::enable_if<details::has_begin_func<T>::value>::type> : public std::true_type { };
+// 		
+		template <typename T>
+		struct is_container {
+			template <typename U, typename S = decltype((dynamic_cast<U*>(0))->serialize_to_json( )), typename I = typename U::const_iterator>
+			static char test( U* u );
+			template <typename U> static long test( ... );
+			enum { value = sizeof test<T>( 0 ) == 1 };
+		};
 
-		template<typename T>
-		struct is_container<T, typename std::enable_if<details::has_begin_func<T>::value>::type> : public std::true_type { };
-		
 		template<typename T, typename = void>
 		struct is_container_or_array: public std::false_type { };
 
