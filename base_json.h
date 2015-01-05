@@ -47,10 +47,16 @@ namespace daw {
 					//GENERATE_HAS_MEMBER( serialize_to_json, std::string );
 					GENERATE_HAS_MEMBER( deserialize_from_json, std::string );
 
-					template<class> struct type_sink { typedef void type; }; // consumes a type, and makes it `void`
-					template<class T> using type_sink_t = typename type_sink<T>::type;
-					template<class T, class = void> struct has_serialize_to_json: std::false_type { };
-					template<class T> struct has_serialize_to_json <T, type_sink_t< decltype(std::declval<T>( ).serialize_to_json( )) >> : std::true_type { };
+					template <typename T>
+					struct has_serialize_to_json {
+						template <
+							typename U,
+							typename S = decltype (((U*)0)->serialize_to_json( ))
+						>
+						static char test( U* u );
+						template <typename U> static long test( ... );
+						enum { value = sizeof test<T>( 0 ) == 1 };
+					};
 				}	// namespace details
 
 				// Template Declarations
@@ -62,8 +68,8 @@ namespace daw {
 				void json_to_value( std::string const & json_text, Number & value );
 
 				// any object with a serialize_to_json method
-				template<typename T, typename std::enable_if< details::has_serialize_to_json<T>::value>::type>
-				std::string value_to_json( std::string const & name, T const & value );
+				template<typename T>
+				typename std::enable_if< details::has_serialize_to_json<T>::value, std::string>::type value_to_json( std::string const & name, T const & value );
 
 				template<typename T, typename std::enable_if< details::has_deserialize_from_json<T>::value>::type>
 				void json_to_value( std::string const & json_text, T & value );
@@ -96,8 +102,8 @@ namespace daw {
 				}
 				
 				// any object with a serialize_to_json method
-				template<typename T, typename std::enable_if< details::has_serialize_to_json<T>::value>::type>
-				std::string value_to_json( std::string const & name, T const & value )  {
+				template<typename T, typename C/*, typename std::enable_if< details::has_serialize_to_json<T>::value>::type*/>
+				typename std::enable_if< details::has_serialize_to_json<T>::value, std::string>::type value_to_json( std::string const & name, T const & value ) {
 					return details::json_name( name ) + value.serialize_to_json( );
 				}
 
