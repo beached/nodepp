@@ -41,21 +41,23 @@ namespace daw {
 					}
 				}
 				
-				std::string json_value( std::string const & name, std::string const & value ) {
+				std::string value_to_json( std::string const & name, std::string const & value ) {
 					return details::json_name( name ) + enquote( value );
 				}
 
-				std::string json_value( std::string const & name, bool value ) {
+				std::string value_to_json( std::string const & name, bool value ) {
 					return details::json_name( name ) + (value ? "true" : "false");
 				}
 
-				std::string json_value( std::string const & name ) {
+				std::string value_to_json( std::string const & name ) {
 					return details::json_name( name ) + "null";
 				}
 
-				std::string json_value( std::string const & name, std::time_t const & timestamp ) {
+				std::string value_to_json( std::string const & name, std::time_t const & timestamp ) {
 					return details::json_name( name ) + enquote( to_string( timestamp ) );
 				}
+
+				JsonLink::JsonLink( std::string name ): m_name( std::move( name ) ), m_data_map( ) { }				
 
 			}	// namespace json
 		}	// namespace base

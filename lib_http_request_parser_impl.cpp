@@ -12,7 +12,7 @@ namespace daw {
 					return result;
 				}
 
-			} // namespace http
+			} // namespace http	
 		}	// namespace lib
 	}	// namespace nodepp
 }	// namespace daw

@@ -39,32 +39,33 @@ namespace daw {
 				}
 
 				std::string HttpUrlQueryPair::serialize_to_json( ) const {
-					std::string result = json_value( "name", name ) + ",\n";
-					result += json_value( "value", value );
+					std::string result = value_to_json( "name", name ) + ",\n";
+					result += value_to_json( "value", value );
 					return details::enbracket( result );
 				}
 
 				std::string HttpUrl::serialize_to_json( ) const {
-					std::string result = json_value( "path", path ) + ",\n";
-					result += json_value( "query", query );
+					std::string result = value_to_json( "path", path ) + ",\n";
+					result += value_to_json( "query", query );
+					result += value_to_json( "fragment", fragment );
 					return details::enbracket( result );
 				}
 
 				std::ostream& operator<<(std::ostream& os, HttpClientRequestMethod const method) {
-					os << base::json::json_value( "HttpClientRequestMethod", method );
+					os << base::json::value_to_json( "HttpClientRequestMethod", method );
 					return os;
 				}
 
 				std::string HttpRequestLine::serialize_to_json( ) const {
-					std::string result = json_value( "method", method ) + ",\n";
-					result += json_value( "url", url ) + ",\n";
-					result += json_value( "version", version );
+					std::string result = value_to_json( "method", method ) + ",\n";
+					result += value_to_json( "url", url ) + ",\n";
+					result += value_to_json( "version", version );
 					return details::enbracket( result );
 				}
 
 				namespace impl {
 					std::string HttpClientRequestImpl::serialize_to_json( ) const {
-						return details::enbracket( json_value( "request", request ) );
+						return details::enbracket( value_to_json( "request", request ) );
 					}
 
 
@@ -75,8 +76,8 @@ namespace daw {
 
 		namespace base {
 			namespace json {
-				std::string json_value( std::string const & name, daw::nodepp::lib::http::HttpClientRequestMethod method ) {
-					return json_value( name, to_string( method ) );
+				std::string value_to_json( std::string const & name, daw::nodepp::lib::http::HttpClientRequestMethod method ) {
+					return value_to_json( name, to_string( method ) );
 				}
 			}   // namespace json
 		}   // namespace base

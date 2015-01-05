@@ -32,6 +32,7 @@ namespace daw {
 				struct HttpUrl {					
 					std::string path;
 					boost::optional<std::vector<HttpUrlQueryPair>> query;
+					boost::optional<std::string> fragment;
 					std::string serialize_to_json( ) const;
 				};
 
@@ -53,7 +54,13 @@ namespace daw {
 
 				}	// namespace impl								
 
-
+				// 				struct HttpClientRequest {
+				// 					HttpClientRequestMethod method;
+				// 					std::string version;
+				// 					std::string path;
+				// 					typename impl::HttpClientRequestImpl::headers_t headers;
+				// 					boost::optional<std::vector<impl::HttpUrlQueryPairImpl>> query;					
+				// 				};	// struct HttpClientRequest
 
 				using HttpClientRequest = std::shared_ptr < impl::HttpClientRequestImpl > ;
 
@@ -63,7 +70,7 @@ namespace daw {
 		}	// namespace lib
 		namespace base {
 			namespace json {
-				std::string json_value( std::string const & name, daw::nodepp::lib::http::HttpClientRequestMethod method );
+				std::string value_to_json( std::string const & name, daw::nodepp::lib::http::HttpClientRequestMethod method );
 			}	// namespace json
 		}	// namespace base
 	}	// namespace nodepp
