@@ -114,11 +114,23 @@ namespace daw {
 		template<typename, typename, typename = void>
 		struct has_push_back_member: std::false_type { };
 	
+		namespace details {
+			template<typename T>
+			class has_begin_func {
+				typedef char no;
+				typedef char yes[2];
+				template<class C> static yes& test( char( *)[sizeof( &C::begin )] );
+				template<class C> static no& test( ... );
+			public:
+				enum { value = sizeof( test<T>( 0 ) ) == sizeof( yes& ) };
+			};
+		}
+
 		template<typename T, typename = void>
 		struct is_container: public std::false_type { };
 
 		template<typename T>
-		struct is_container<T, typename std::enable_if<sizeof( &T::begin ) != 0>::type > : public std::true_type { };
+		struct is_container<T, typename std::enable_if<details::has_begin_func<T>::value>::type> : public std::true_type { };
 		
 		template<typename T, typename = void>
 		struct is_container_or_array: public std::false_type { };
@@ -134,6 +146,26 @@ namespace daw {
 		
 		template<typename T>
 		using is_container_or_array_t = typename is_container_or_array<T>::type;
+
+
+		namespace details {
+			template<typename T, typename NameGetter>
+			class has_member_impl {
+				typedef char matched_return_type;
+				typedef long unmatched_return_type;
+
+				template<typename C>
+				static matched_return_type f( typename NameGetter::template get<C>* );
+
+				template<typename C>
+				static unmatched_return_type f( ... );
+			public:
+				static const bool value = (sizeof( f<T>( 0 ) ) == sizeof( matched_return_type ));
+			};
+		}	// namespace details
+
+		template<typename T, typename NameGetter>
+		struct has_member: std::integral_constant<bool, details::has_member_impl<T, NameGetter>::value> { };
 
 
 	}	// namespace traits

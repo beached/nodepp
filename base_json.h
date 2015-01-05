@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "daw_traits.h"
+#include "utility.h"
 
 namespace daw {
 	namespace nodepp {
@@ -36,60 +37,88 @@ namespace daw {
 				std::string value_to_json( std::string const & name, std::time_t value );
 				void json_to_value( std::string const & json_text, std::time_t & value );
 
-				// Numbers
-				template<typename Number>
-				auto value_to_json( std::string const & name, Number const & value ) -> typename std::enable_if<daw::traits::is_numeric<Number>::value, std::string>::type;
+				namespace details {
+// 					template<typename T, typename = void>
+// 					struct has_serialize: public false_type { };
 
-				template<typename Number>
-				auto json_to_value( std::string const & json_text, Number & value ) -> typename std::enable_if<daw::traits::is_numeric<Number>::value>::type;
+// 					template<typename T>
+// 					struct has_serialize<T, typename std::enable_if< sizeof( &std::decay<T>::serialize_to_json ) != 0>::type> : public std::true_type { };
+
+					struct check_has_serialize_to_json {
+						//template<typename T, std::string( T::* )() const = &T::serialize_to_json>
+						template<typename T, daw::pointer_to_const_member_function_t<std::string,T> = &T::serialize_to_json>
+						struct get { };
+					};
+
+					struct check_has_deserialize_from_json {
+						template<typename T, void (T::*)(std::string const &, T&) const = &T::deserialize_from_json>
+						struct get { };
+					};
+
+					template<typename T>
+					struct has_serialize: daw::traits::has_member<T, check_has_serialize_to_json> { };
+
+					template<typename T>
+					struct has_deserialize: daw::traits::has_member < T, check_has_deserialize_from_json > { };
+				}
+
+
+				// Template Declarations
+ 				//Numbers
+				template<typename Number, typename std::enable_if<daw::traits::is_numeric<Number>::value>::type>
+				std::string value_to_json( std::string const & name, Number const & value );
+
+				template<typename Number, typename std::enable_if<daw::traits::is_numeric<Number>::value>::type>
+				void json_to_value( std::string const & json_text, Number & value );
 
 				// any object with a serialize_to_json method
-				template<typename T>
-				auto value_to_json( std::string const & name, T const & value ) -> decltype(value.serialize_to_json( ));
+				template<typename T, typename std::enable_if< details::has_serialize<T>::value>::type>
+				std::string value_to_json( std::string const & name, T const & value );
 
-				template<typename T>
-				auto json_to_value( std::string const & json_text, T & value ) -> decltype(value.deserialize_from_json( value ));
+				template<typename T, typename std::enable_if< details::has_deserialize<T>::value>::type>
+				void json_to_value( std::string const & json_text, T & value );
 
 				// boost optional.  will error out if T does not support value_to_json
 				template<typename T>
-				auto value_to_json( std::string const & name, boost::optional<T> const & value )-> typename std::enable_if< sizeof( decltype(value_to_json( value.get( ) )) ) != 0, std::string>::type;
+				std::string value_to_json( std::string const & name, boost::optional<T> const & value );
 
 				template<typename T>
-				auto json_to_value( std::string const & json_text, boost::optional<T> & value ) -> typename std::enable_if< sizeof( decltype(value_to_json( value.get( ) )) ) != 0, std::string>::type;
+				void json_to_value( std::string const & json_text, boost::optional<T> & value );
 
 				// array.
-				template<typename T>
-				auto value_to_json( std::string const & name, T const & values ) -> decltype(value_to_json( name, *std::begin( values ) ));
+				template<typename T, typename std::enable_if<daw::traits::is_container_or_array<T>::value>::type>
+				std::string value_to_json( std::string const & name, T const & values );
 
-				template<typename T>
-				auto json_to_value( std::string const & json_text, T & values ) -> decltype(value_to_json( name, *std::begin( values ) ));
+				template<typename T, typename std::enable_if<daw::traits::is_container_or_array<T>::value>::type>
+				void json_to_value( std::string const & json_text, T & values );
 
+				// Definitions
 				// Numbers
-				template<typename Number>
-				auto value_to_json( std::string const & name, Number const & value ) -> typename std::enable_if<daw::traits::is_numeric<Number>::value>::type {
+				template<typename Number, typename std::enable_if<daw::traits::is_numeric<Number>::value>::type>
+				std::string value_to_json( std::string const & name, Number const & value )  {
 					using std::to_string;
 					return details::json_name( name ) + to_string( value );
 				}
 
-				template<typename Number>
-				auto json_to_value( std::string const & json_text, Number & value ) -> typename std::enable_if<daw::traits::is_numeric<Number>::value>::type {
+				template<typename Number, typename std::enable_if<daw::traits::is_numeric<Number>::value>::type>
+				void json_to_value( std::string const & json_text, Number & value ) {
 					//TODO
 				}
-
+				
 				// any object with a serialize_to_json method
-				template<typename T>
-				auto value_to_json( std::string const & name, T const & value ) -> decltype(value.serialize_to_json( )) {
+				template<typename T, typename std::enable_if< details::has_serialize<T>::value>::type>
+				std::string value_to_json( std::string const & name, T const & value )  {
 					return details::json_name( name ) + value.serialize_to_json( );
 				}
 
-				template<typename T>
-				auto json_to_value( std::string const & json_text, T & value ) -> decltype(value.deserialize_from_json( value )) {
+				template<typename T, typename std::enable_if< details::has_deserialize<T>::value>::type>
+				void json_to_value( std::string const & json_text, T & value )  {
 					// TODO
 				}
 
 				// boost optional.  will error out if T does not support value_to_json
 				template<typename T>
-				auto value_to_json( std::string const & name, boost::optional<T> const & value )-> typename std::enable_if< sizeof( decltype(value_to_json( value.get( ) )) ) != 0, std::string>::type {
+				std::string value_to_json( std::string const & name, boost::optional<T> const & value ) {
 					if( value ) {
 						return value_to_json( name, value.get( ) );
 					} else {
@@ -98,14 +127,13 @@ namespace daw {
 				}
 
 				template<typename T>
-				auto json_to_value( std::string const & json_text, boost::optional<T> & value ) -> typename std::enable_if< sizeof( decltype(value_to_json( value.get( ) )) ) != 0, std::string>::type {
+				void json_to_value( std::string const & json_text, boost::optional<T> & value ) {
 					// TODO
 				}
 
-
 				// array.
-				template<typename T>
-				auto value_to_json( std::string const & name, T const & values ) -> decltype(value_to_json( name, *values.begin( ) )) {
+				template<typename T, typename std::enable_if<daw::traits::is_container_or_array<T>::value>::type>
+				std::string value_to_json( std::string const & name, T const & values ) {
 					std::stringstream result;
 					result << details::json_name( name ) + "[\n";
 					for( auto const & item : values ) {
@@ -115,8 +143,8 @@ namespace daw {
 					return result.str( );
 				}
 
-				template<typename T>
-				auto json_to_value( std::string const & json_text, T & values ) -> decltype(value_to_json( name, *std::begin( values ) )) {
+				template<typename T, typename std::enable_if<daw::traits::is_container_or_array<T>::value>::type>
+				void json_to_value( std::string const & json_text, T & values ) {
 					// TODO
 				}
 
@@ -135,7 +163,7 @@ namespace daw {
 					template<typename T>
 					JsonLink& link_value( std::string name, T& value ) {
 						auto value_ptr = &value;
-						m_data_map[name] = [value_ptr, name]( std::string & value, std::string & json_text, Action action ) {
+						m_data_map[name] = [value_ptr, name]( T & value, std::string & json_text, Action action ) {
 							switch( action ) {
 							case Action::encode:
 								assert( value_ptr != nullptr );

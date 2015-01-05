@@ -40,24 +40,43 @@ namespace daw {
 						return "{\n" + json_value + "\n}";
 					}
 				}
-				
+
+
+				// string
 				std::string value_to_json( std::string const & name, std::string const & value ) {
 					return details::json_name( name ) + enquote( value );
 				}
 
+				void json_to_value( std::string const & json_text, std::string & value ) {
+					throw std::runtime_error( "Method not implemented" );
+				}
+
+				// bool
 				std::string value_to_json( std::string const & name, bool value ) {
 					return details::json_name( name ) + (value ? "true" : "false");
 				}
 
+				void json_to_value( std::string const & json_text, bool& value ) {
+					throw std::runtime_error( "Method not implemented" );
+				}
+
+				// null
 				std::string value_to_json( std::string const & name ) {
 					return details::json_name( name ) + "null";
 				}
 
+				// date -> actaually a string, but it javascript date format encodes the date
 				std::string value_to_json( std::string const & name, std::time_t const & timestamp ) {
 					return details::json_name( name ) + enquote( to_string( timestamp ) );
 				}
 
-				JsonLink::JsonLink( std::string name ): m_name( std::move( name ) ), m_data_map( ) { }				
+				void json_to_value( std::string const & json_text, std::time_t & value ) {
+					throw std::runtime_error( "Method not implemented" );
+				}
+
+				JsonLink::JsonLink( std::string name ): m_name( std::move( name ) ), m_data_map( ) { 
+					throw std::runtime_error( "Method not implemented" );
+				}
 
 			}	// namespace json
 		}	// namespace base
