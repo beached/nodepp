@@ -7,6 +7,7 @@
 #include <ostream>
 #include <sstream>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "daw_traits.h"
@@ -43,8 +44,13 @@ namespace daw {
 // 
 // 					template<typename T>
 // 					struct has_serialize<T, decltype((void)T::serialize_to_json, 0)> : std::true_type { };
-					GENERATE_HAS_MEMBER( serialize_to_json, std::string );
+					//GENERATE_HAS_MEMBER( serialize_to_json, std::string );
 					GENERATE_HAS_MEMBER( deserialize_from_json, std::string );
+
+					template<class> struct type_sink { typedef void type; }; // consumes a type, and makes it `void`
+					template<class T> using type_sink_t = typename type_sink<T>::type;
+					template<class T, class = void> struct has_serialize_to_json: std::false_type { };
+					template<class T> struct has_serialize_to_json <T, type_sink_t< decltype(std::declval<T>( ).serialize_to_json( )) >> : std::true_type { };
 				}	// namespace details
 
 				// Template Declarations
