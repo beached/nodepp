@@ -38,16 +38,20 @@ namespace daw {
 					throw std::runtime_error( "Unrecognized HttpRequestMethod" );
 				}
 
-				std::string HttpUrlQueryPair::serialize_to_json( ) const {
-					std::string result = value_to_json( "name", name ) + ",\n";
-					result += value_to_json( "value", value );
+				std::string serialize_to_json( HttpClientRequestMethod method ) {
+					return details::enbracket( value_to_json( "", to_string( method ) ) );
+				}
+
+				std::string serialize_to_json( HttpUrlQueryPair const & query_pair ) {
+					std::string result = value_to_json( "name", query_pair.name ) + ",\n";
+					result += value_to_json( "value", query_pair.value );
 					return details::enbracket( result );
 				}
 
-				std::string HttpUrl::serialize_to_json( ) const {
-					std::string result = value_to_json( "path", path ) + ",\n";
-					result += value_to_json( "query", query );
-					result += value_to_json( "fragment", fragment );
+				std::string serialize_to_json( HttpUrl const & url ) {
+					std::string result = value_to_json( "path", url.path ) + ",\n";
+					result += value_to_json( "query", url.query );
+					result += value_to_json( "fragment", url.fragment );
 					return details::enbracket( result );
 				}
 
@@ -56,16 +60,16 @@ namespace daw {
 					return os;
 				}
 
-				std::string HttpRequestLine::serialize_to_json( ) const {
-					std::string result = value_to_json( "method", method ) + ",\n";
-					result += value_to_json( "url", url ) + ",\n";
-					result += value_to_json( "version", version );
+				std::string serialize_to_json( HttpRequestLine const & request_line ) {
+					std::string result = value_to_json( "method", request_line.method ) + ",\n";
+					result += value_to_json( "url", request_line.url ) + ",\n";
+					result += value_to_json( "version", request_line.version );
 					return details::enbracket( result );
 				}
 
 				namespace impl {
-					std::string HttpClientRequestImpl::serialize_to_json( ) const {
-						return details::enbracket( value_to_json( "request", request ) );
+					std::string serialize_to_json( HttpClientRequestImpl const & client_request ) {
+						return details::enbracket( value_to_json( "request", client_request.request ) );
 					}
 
 
@@ -73,14 +77,7 @@ namespace daw {
 
 			} // namespace http
 		}	// namespace lib
-
-		namespace base {
-			namespace json {
-				std::string value_to_json( std::string const & name, daw::nodepp::lib::http::HttpClientRequestMethod method ) {
-					return value_to_json( name, to_string( method ) );
-				}
-			}   // namespace json
-		}   // namespace base
+	
 	}	// namespace nodepp
 }	// namespace daw
 

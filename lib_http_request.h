@@ -11,8 +11,14 @@
 
 #include "base_types.h"
 
+
 namespace daw {
 	namespace nodepp {
+		namespace base {
+			namespace json {
+				struct JsonLink;
+			}
+		}
 		namespace lib {
 			namespace http {
 				using namespace daw::nodepp;
@@ -21,27 +27,33 @@ namespace daw {
 				std::ostream& operator<<(std::ostream& os, HttpClientRequestMethod const method);
 				std::string to_string( HttpClientRequestMethod method );
 
+				std::string serialize_to_json( HttpClientRequestMethod method );
+
 				struct HttpUrlQueryPair {
 					std::string name;
 					boost::optional<std::string> value;
-					std::string serialize_to_json( ) const;
 					HttpUrlQueryPair( ) = default;
 					inline HttpUrlQueryPair( std::pair<std::string, boost::optional<std::string>> const & vals ) : name( vals.first ), value( vals.second ) { }
 				};
 
+				std::string serialize_to_json( HttpUrlQueryPair const & query_pair );
+
 				struct HttpUrl {					
 					std::string path;
 					boost::optional<std::vector<HttpUrlQueryPair>> query;
-					boost::optional<std::string> fragment;
-					std::string serialize_to_json( ) const;
+					boost::optional<std::string> fragment;					
 				};
+
+				std::string serialize_to_json( HttpUrl const & url );
 
 				struct HttpRequestLine {
 					HttpClientRequestMethod method;
 					HttpUrl url;
-					std::string version;
-					std::string serialize_to_json( ) const;
+					std::string version;					
 				};
+
+				std::string serialize_to_json( HttpRequestLine const & request_line );
+
 
 				namespace impl {
 					using namespace daw::nodepp;
@@ -49,8 +61,9 @@ namespace daw {
 						using headers_t = std::unordered_map < std::string, std::string > ;
 						lib::http::HttpRequestLine request;
 						headers_t headers;
-						std::string serialize_to_json( ) const;
 					};
+					std::string serialize_to_json( HttpClientRequestImpl const & request );
+
 
 				}	// namespace impl								
 
@@ -68,11 +81,7 @@ namespace daw {
 
 			} // namespace http
 		}	// namespace lib
-		namespace base {
-			namespace json {
-				std::string value_to_json( std::string const & name, daw::nodepp::lib::http::HttpClientRequestMethod method );
-			}	// namespace json
-		}	// namespace base
+
 	}	// namespace nodepp
 }	// namespace daw
 
