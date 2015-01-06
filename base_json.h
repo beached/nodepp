@@ -47,6 +47,8 @@ namespace daw {
 				namespace details {
 					std::string json_name( std::string const & name );
 					std::string enbracket( std::string const & json_value );
+
+					GENERATE_HAS_MEMBER( cbegin, T::const_iterator );
 				}	// namespace details
 
 				// string
@@ -83,8 +85,8 @@ namespace daw {
 				void json_to_value( std::string const & json_text, boost::optional<T> & value );
 
 				// array.
-				template<typename T, typename C = dtraits::enable_if_t<dtraits::is_container<T>::value>>
-				std::string value_to_json( std::string const & name, T const & values );
+// 				template<typename T, typename C = dtraits::enable_if_t<details::has_cbegin<T>::value>>
+// 				std::string value_to_json( std::string const & name, T const & values );
 
 				// Definitions
 				// Numbers
@@ -115,7 +117,7 @@ namespace daw {
 				}
 
 				// array.
-				template<typename T, typename C>
+				template<typename T, typename C = dtraits::enable_if_t<details::has_cbegin<T>::value>>
 				std::string value_to_json( std::string const & name, T const & values ) {
 				std::stringstream result;
 					result << details::json_name( name ) + "[\n";
