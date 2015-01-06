@@ -55,7 +55,7 @@ namespace daw {
 					return details::enbracket( result );
 				}
 
-				std::ostream& operator<<(std::ostream& os, HttpClientRequestMethod const method) {
+				std::ostream& operator<<(std::ostream& os, HttpClientRequestMethod method) {
 					os << base::json::value_to_json( "HttpClientRequestMethod", method );
 					return os;
 				}
