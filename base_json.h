@@ -83,7 +83,7 @@ namespace daw {
 				void json_to_value( std::string const & json_text, boost::optional<T> & value );
 
 				// container/array.
-				template<typename Container, typename C = dtraits::enable_if_t<dtraits::is_container<Container>::value>>
+				template<typename Container>
 				std::string value_to_json( std::string const & name, Container const & values );
 
 				// Definitions
@@ -115,7 +115,7 @@ namespace daw {
 				}
 
 				// container/array.
-				template<typename Container, typename C>
+				template<typename Container>
 				std::string value_to_json( std::string const & name, Container const & values ) {
 				std::stringstream result;
 					result << details::json_name( name ) + "[\n";
@@ -126,8 +126,8 @@ namespace daw {
 					return result.str( );
 				}
 
-				template<typename T, dtraits::enable_if_t<dtraits::is_container<T>::value>>
-				void json_to_value( std::string const & json_text, T & values ) {
+				template<typename Container, dtraits::enable_if_t<dtraits::is_container<Container>::value>>
+				void json_to_value( std::string const & json_text, Container & values ) {
 					// TODO
 				}
 
