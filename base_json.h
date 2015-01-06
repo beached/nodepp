@@ -93,7 +93,7 @@ namespace daw {
 				}
 
 				// array.
-				template<typename T, typename C = dtraits::enable_if_t<dtraits::is_container<T>::value>>
+				template<typename T, typename C>
 				std::string value_to_json( std::string const & name, T const & values ) {
 				std::stringstream result;
 					result << details::json_name( name ) + "[\n";
