@@ -64,8 +64,8 @@ namespace daw {
 				template<typename T, dtraits::enable_if_t<daw::traits::is_container<T>::value>>
 				std::string value_to_json( std::string const & name, T const & values );
 
-				template<typename T>
-				auto value_to_json( std::string const & name, T const & values ) -> decltype(value_to_json( *values.begin( ) ));
+				template<typename T, dtraits::enable_if_t<dtraits::is_container<T>::value>>
+				std::string value_to_json( std::string const & name, T const & values );
 
 				// Definitions
 				// Numbers
@@ -96,9 +96,9 @@ namespace daw {
 				}
 
 				// array.
-				template<typename T>
-				auto value_to_json( std::string const & name, T const & values ) -> decltype(value_to_json( *values.begin( ) )) {
-					std::stringstream result;
+				template<typename T, dtraits::enable_if_t<dtraits::is_container<T>::value>>
+				std::string value_to_json( std::string const & name, T const & values ) {
+				std::stringstream result;
 					result << details::json_name( name ) + "[\n";
 					for( auto const & item : values ) {
 						result << value_to_json( "", item ) << ",\n";
