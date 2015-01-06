@@ -20,7 +20,7 @@
 //	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //	SOFTWARE.
 //
-#pragma once
+
 
 #include <boost/asio/buffer.hpp>
 #include <boost/utility/string_ref.hpp>
