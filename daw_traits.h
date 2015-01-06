@@ -24,6 +24,13 @@
 
 #include <type_traits>
 #include <utility>
+#include <vector>
+#include <list>
+#include <map>
+#include <set>
+#include <unordered_map>
+#include <unordered_set>
+#include <deque>
 
 namespace daw {
 	namespace traits {
@@ -148,19 +155,65 @@ namespace daw {
 			};
 		}
 
+		template<typename... DataTypes>
+		struct is_one_of;
+
+		template<typename T, typename DataType1>
+		struct is_one_of < T, DataType1> {
+			static const bool value = std::is_same<T, DataType1>::value;
+			using type = bool;
+		};
+
+		template<typename T, typename DataType1, typename DataType2>
+		struct is_one_of < T, DataType1, DataType2 > {
+			static const bool value = std::is_same<T, DataType1>::value || std::is_same<T, DataType2>::value;
+			using type = bool;
+		};
+
+		template<typename T, typename DataType1, typename ...DataTypes>
+		struct is_one_of < T, DataType1, DataTypes... > {
+			static const bool value = std::is_same<T, DataType1>::value T is_one_of<T, DataTypes...>::value;
+			using type = bool;
+		};
+
 // 		template<typename T, typename = void>
 // 		struct is_container: public std::false_type { };
-// 
+//
 // 		template<typename T>
 // 		struct is_container<T, typename std::enable_if<details::has_begin_func<T>::value>::type> : public std::true_type { };
 // 		
-		template <typename T>
-		struct is_container {
-			template <typename U, typename S = decltype((dynamic_cast<U*>(0))->serialize_to_json( )), typename I = typename U::const_iterator>
-			static char test( U* u );
-			template <typename U> static long test( ... );
-			enum { value = sizeof test<T>( 0 ) == 1 };
-		};
+// 		template <typename T>
+// 		struct is_container {
+// 			template <typename U, typename S = decltype((dynamic_cast<U*>(0))->serialize_to_json( )), typename I = typename U::const_iterator>
+// 			static char test( U* u );
+// 			template <typename U> static long test( ... );
+// 			enum { value = sizeof test<T>( 0 ) == 1 };
+// 		};
+
+		// Hack, need to figure out a way based on ability at compile time
+		template<typename T, typename = void>
+		struct is_map_like: std::false_type { };
+
+		template<typename T>
+		struct is_map_like<T, std::enable_if<
+			is_one_of<T, 
+				std::map<typename T::key_type, typename T::mapped_type>, 
+				std::unordered_map<typename T::key_type, typename T::mapped_type>
+			>::value>> : std::true_type { };
+
+		template<typename T, typename = void>
+		struct is_container: std::false_type { };
+
+		template<typename T>
+		struct is_container<T, std::enable_if<
+			is_one_of<T, 
+				std::vector<typename T::value_type>, 
+				std::list<typename T::value_type>, 
+				std::set<typename T::value_type>, 
+				std::deque<typename T::value_type>, 
+				std::unordered_set<typename T::value_type>
+			>::value || is_map_like<T>::value>> : std::true_type { };
+
 
 		template<typename T, typename = void>
 		struct is_container_or_array: public std::false_type { };
