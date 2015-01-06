@@ -47,10 +47,10 @@ namespace daw {
 
 				// Template Declarations
 				//Numbers
-				template<typename Number, dtraits::enable_if_t<daw::traits::is_numeric<Number>::value>>
+				template<typename Number, dtraits::enable_if_t<dtraits::is_numeric<Number>::value>>
 				std::string value_to_json( std::string const & name, Number const & value );
 
-				template<typename Number, dtraits::enable_if_t<daw::traits::is_numeric<Number>::value>>
+				template<typename Number, dtraits::enable_if_t<dtraits::is_numeric<Number>::value>>
 				void json_to_value( std::string const & json_text, Number & value );			
 
 				// boost optional.  will error out if T does not support value_to_json
@@ -61,21 +61,18 @@ namespace daw {
 				void json_to_value( std::string const & json_text, boost::optional<T> & value );
 
 				// array.
-				template<typename T, dtraits::enable_if_t<daw::traits::is_container<T>::value>>
-				std::string value_to_json( std::string const & name, T const & values );
-
 				template<typename T, dtraits::enable_if_t<dtraits::is_container<T>::value>>
 				std::string value_to_json( std::string const & name, T const & values );
 
 				// Definitions
 				// Numbers
-				template<typename Number, dtraits::enable_if_t<daw::traits::is_numeric<Number>::value>>
+				template<typename Number, dtraits::enable_if_t<dtraits::is_numeric<Number>::value>>
 				std::string value_to_json( std::string const & name, Number const & value ) {
 					using std::to_string;
 					return details::json_name( name ) + to_string( value );
 				}
 
-				template<typename Number, dtraits::enable_if_t<daw::traits::is_numeric<Number>::value>>
+				template<typename Number, dtraits::enable_if_t<dtraits::is_numeric<Number>::value>>
 				void json_to_value( std::string const & json_text, Number & value ) {
 					//TODO
 				}				
@@ -107,7 +104,7 @@ namespace daw {
 					return result.str( );
 				}
 
-				template<typename T, dtraits::enable_if_t<daw::traits::is_container<T>::value>>
+				template<typename T, dtraits::enable_if_t<dtraits::is_container<T>::value>>
 				void json_to_value( std::string const & json_text, T & values ) {
 					// TODO
 				}
