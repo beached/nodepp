@@ -175,8 +175,8 @@ namespace daw {
 		template<typename T, typename NameGetter>
 		struct has_member: std::integral_constant<bool, details::has_member_impl<T, NameGetter>::value> { };
 
-		template<typename T, typename U>
-		using enable_if_t = typename std::enable_if<T, U>::type;
+		template<bool B, class T = void>
+		using enable_if_t = typename std::enable_if<B, T>::type;
 	}	// namespace traits
 }	// namespace daw
 

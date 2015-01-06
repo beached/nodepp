@@ -18,7 +18,7 @@ namespace daw {
 		namespace base {
 			namespace json {
 				
-				using dtraits = namespace daw::traits;
+				namespace dtraits = daw::traits;
 
 				std::string enquote( std::string const & value );
 
