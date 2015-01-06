@@ -38,8 +38,8 @@ namespace daw {
 					throw std::runtime_error( "Unrecognized HttpRequestMethod" );
 				}
 
-				std::string serialize_to_json( HttpClientRequestMethod method ) {
-					return details::enbracket( value_to_json( "", to_string( method ) ) );
+				std::string value_to_json( std::string const & name, HttpClientRequestMethod method ) {
+					return value_to_json( name, to_string( method ) );
 				}
 
 				std::string serialize_to_json( HttpUrlQueryPair const & query_pair ) {

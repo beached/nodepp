@@ -27,7 +27,7 @@ namespace daw {
 				std::ostream& operator<<(std::ostream& os, HttpClientRequestMethod const method);
 				std::string to_string( HttpClientRequestMethod method );
 
-				std::string serialize_to_json( HttpClientRequestMethod method );
+				std::string value_to_json( std::string const & name, HttpClientRequestMethod method );
 
 				struct HttpUrlQueryPair {
 					std::string name;
