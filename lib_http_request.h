@@ -36,7 +36,7 @@ namespace daw {
 					inline HttpUrlQueryPair( std::pair<std::string, boost::optional<std::string>> const & vals ) : name( vals.first ), value( vals.second ) { }
 				};
 
-				std::string serialize_to_json( HttpUrlQueryPair const & query_pair );
+				std::string value_to_json( std::string const & name, HttpUrlQueryPair const & query_pair );
 
 				struct HttpUrl {					
 					std::string path;
@@ -44,7 +44,7 @@ namespace daw {
 					boost::optional<std::string> fragment;					
 				};
 
-				std::string serialize_to_json( HttpUrl const & url );
+				std::string value_to_json( std::string const & name, HttpUrl const & url );
 
 				struct HttpRequestLine {
 					HttpClientRequestMethod method;
@@ -52,7 +52,7 @@ namespace daw {
 					std::string version;					
 				};
 
-				std::string serialize_to_json( HttpRequestLine const & request_line );
+				std::string value_to_json( std::string const & name, HttpRequestLine const & request_line );
 
 
 				namespace impl {
@@ -62,7 +62,7 @@ namespace daw {
 						lib::http::HttpRequestLine request;
 						headers_t headers;
 					};
-					std::string serialize_to_json( HttpClientRequestImpl const & request );
+					std::string value_to_json( std::string const & name, HttpClientRequestImpl const & request );
 
 
 				}	// namespace impl								

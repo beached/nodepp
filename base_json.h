@@ -51,14 +51,7 @@ namespace daw {
 				std::string value_to_json( std::string const & name, Number const & value );
 
 				template<typename Number, dtraits::enable_if_t<daw::traits::is_numeric<Number>::value>>
-				void json_to_value( std::string const & json_text, Number & value );
-
-				// any object with a serialize_to_json method
-				template<typename T, dtraits::enable_if_t<!daw::traits::is_container_or_array<T>::value>>
-				auto value_to_json( std::string const & name, T const & value ) -> decltype(serialize_to_json( value ));
-
-				// 				template<typename T, dtraits::enable_if_t< details::has_deserialize_from_json<T>::value>>
-				// 				void json_to_value( std::string const & json_text, T & value );
+				void json_to_value( std::string const & json_text, Number & value );			
 
 				// boost optional.  will error out if T does not support value_to_json
 				template<typename T>
@@ -85,18 +78,7 @@ namespace daw {
 				template<typename Number, dtraits::enable_if_t<daw::traits::is_numeric<Number>::value>>
 				void json_to_value( std::string const & json_text, Number & value ) {
 					//TODO
-				}
-
-				// any object with a serialize_to_json method
-				template<typename T, dtraits::enable_if_t<!daw::traits::is_container_or_array<T>::value>>
-				auto value_to_json( std::string const & name, T const & value ) -> decltype(serialize_to_json( value )) {
-					return details::json_name( name ) + serialize_to_json( value );
-				}
-
-				// 				template<typename T, dtraits::enable_if_t< details::has_deserialize_from_json<T>::value>>
-				// 				void json_to_value( std::string const & json_text, T & value )  {
-				// 					// TODO
-				// 				}
+				}				
 
 				// boost optional.  will error out if T does not support value_to_json
 				template<typename T>
