@@ -1,4 +1,4 @@
-#pragma once
+
 
 #include <boost/any.hpp>
 #include <map>

@@ -1,4 +1,4 @@
-#pragma once
+
 #include <boost/asio/ip/tcp.hpp>
 #include <list>
 #include <memory>

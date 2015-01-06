@@ -1,4 +1,4 @@
-#pragma once
+
 
 #include <boost/config/warning_disable.hpp>
 #include <boost/fusion/adapted/std_pair.hpp>
