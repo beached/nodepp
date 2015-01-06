@@ -1,4 +1,4 @@
-//	The MIT License (MIT)
+﻿//	The MIT License (MIT)
 //	
 //	Copyright (c) 2014-2015 Darrell Wright
 //	
@@ -22,11 +22,9 @@
 //
 ﻿
 #include <cstdlib>
-#include <memory>
 
 #include "lib_http_request.h"
 #include "lib_http_site.h"
-#include "base_work_queue.h"
 
 int main( int, char const ** ) {
 	using namespace daw::nodepp;
