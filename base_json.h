@@ -69,7 +69,7 @@ namespace daw {
 				std::string value_to_json( std::string const & name, T const & values );
 
 				template<typename T>
-				auto value_to_json( std::string const & name, T const & values ) -> decltype(value_to_jason( *std::begin( values ) ));
+				auto value_to_json( std::string const & name, T const & values ) -> decltype(value_to_json( *std::begin( values ) ));
 
 				// Definitions
 				// Numbers
@@ -112,7 +112,7 @@ namespace daw {
 
 				// array.
 				template<typename T>
-				auto value_to_json( std::string const & name, T const & values ) -> decltype(value_to_jason( *std::begin( values ) )) {
+				auto value_to_json( std::string const & name, T const & values ) -> decltype(value_to_json( *std::begin( values ) )) {
 					std::stringstream result;
 					result << details::json_name( name ) + "[\n";
 					for( auto const & item : values ) {
