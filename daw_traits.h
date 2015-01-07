@@ -86,21 +86,6 @@ namespace daw {
 			return are_true( b1, b2 ) && are_true( others... );
 		}
 
-		// 		template<typename... NumericTypes>
-		// 		struct is_numeric;
-		// 
-		// 		template<typename NumericType>
-		// 		struct is_numeric < NumericType > {
-		// 			static const bool value = std::is_arithmetic<NumericType>::value;
-		// 			typedef bool type;
-		// 		};
-		// 
-		// 		template<typename NumericType, typename ...NumericTypes>
-		// 		struct is_numeric < NumericType, NumericTypes... > {
-		// 			static const bool value = std::is_arithmetic<NumericType>::value && is_numeric<NumericTypes...>::value;
-		// 			typedef bool type;
-		// 		};
-
 		template<typename... DataTypes>
 		struct are_same_types;
 
@@ -169,26 +154,6 @@ namespace daw {
 		template< typename R, bool... Bs >
 		using enable_if_all = std::enable_if< bool_and< Bs... >::value, R >;
 
-		template<typename... DataTypes>
-		struct is_one_of;
-
-		template<typename T, typename DataType1>
-		struct is_one_of < T, DataType1 > {
-			static const bool value = std::is_same<T, DataType1>::value;
-			using type = bool;
-		};
-
-		template<typename T, typename DataType1, typename DataType2>
-		struct is_one_of < T, DataType1, DataType2 > {
-			static const bool value = std::is_convertible<typename std::decay<T>::type, DataType1>::value || std::is_same<T, DataType2>::value;
-			using type = bool;
-		};
-
-		template<typename T, typename DataType1, typename ...DataTypes>
-		struct is_one_of < T, DataType1, DataTypes... > {
-			static const bool value = std::is_convertible<typename std::decay<T>::type, DataType1>::value || is_one_of<T, DataTypes...>::value;
-			using type = bool;
-		};
 
 	#define GENERATE_IS_STD_CONTAINER1( ContainerName ) \
 		template<typename T, typename = void> struct is_##ContainerName: std::false_type { }; \
@@ -211,6 +176,17 @@ namespace daw {
 
 		#undef GENERATE_IS_STD_CONTAINER2
 
+
+template<typename T, typename... Rest>
+struct is_one_of : std::false_type {};
+
+template<typename T, typename First>
+struct is_one_of<T, First> : std::is_same<T, First> {};
+
+template<typename T, typename First, typename... Rest>
+struct is_one_of<T, First, Rest...>
+    : std::integral_constant<bool, std::is_same<T, First>::value || is_one_of<T, Rest...>::value>
+	{};
 
 		// Hack, need to figure out a way based on ability at compile time
 
