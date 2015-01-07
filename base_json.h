@@ -65,10 +65,10 @@ namespace daw {
 
 				// Template Declarations
 				//Numbers
-				template<typename Number, typename N = dtraits::enable_if_t<dtraits::is_numeric<Number>::value, Number>::type>
+				template<typename Number, typename N = typename dtraits::enable_if_t<dtraits::is_numeric<Number>::value, Number>::type>
 				std::string value_to_json( std::string const & name, N const & value );
 
-				template<typename Number, typename N = dtraits::enable_if_t<dtraits::is_numeric<Number>::value, Number>::type>
+				template<typename Number, typename N = typename dtraits::enable_if_t<dtraits::is_numeric<Number>::value, Number>::type>
 				void json_to_value( std::string const & json_text, N & value );			
 
 				// boost optional.  will error out if T does not support value_to_json
@@ -84,13 +84,13 @@ namespace daw {
 
 				// Definitions
 				// Numbers
-				template<typename Number, typename N = dtraits::enable_if_t<dtraits::is_numeric<Number>::value, Number>::type>
+				template<typename Number, typename N = typename dtraits::enable_if_t<dtraits::is_numeric<Number>::value, Number>::type>
 				std::string value_to_json( std::string const & name, N const & value ) {
 					using std::to_string;
 					return details::json_name( name ) + to_string( value );
 				}
 
-				template<typename Number, typename N = dtraits::enable_if_t<dtraits::is_numeric<Number>::value, Number>::type>
+				template<typename Number, typename N = typename dtraits::enable_if_t<dtraits::is_numeric<Number>::value, Number>::type>
 				void json_to_value( std::string const & json_text, N & value ) {
 					//TODO
 				}				
@@ -111,7 +111,7 @@ namespace daw {
 				}
 
 				// container/array.
-				template<typename Container, typename T = std::enable_if<dtraits::is_container_or_array<Container>::value, Container>::type>
+				template<typename Container, typename T = typename std::enable_if<dtraits::is_container_or_array<Container>::value, Container>::type>
 				std::string value_to_json( std::string const & name, T const & values ) {
 				std::stringstream result;
 					result << details::json_name( name ) + "[\n";
@@ -122,7 +122,7 @@ namespace daw {
 					return result.str( );
 				}
 
-				template<typename Container, typename T = std::enable_if<dtraits::is_container_or_array<Container>::value, Container>::type>
+				template<typename Container, typename T = typename std::enable_if<dtraits::is_container_or_array<Container>::value, Container>::type>
 				void json_to_value( std::string const & json_text, T & values ) {
 					// TODO
 				}
