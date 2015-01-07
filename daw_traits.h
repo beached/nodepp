@@ -177,43 +177,50 @@ namespace daw {
 		#undef GENERATE_IS_STD_CONTAINER2
 
 
-template<typename T, typename... Rest>
-struct is_one_of : std::false_type {};
+		template<typename T, typename... Types>
+		struct is_one_of : std::false_type {};
 
-template<typename T, typename First>
-struct is_one_of<T, First> : std::is_same<T, First> {};
+		template<typename T, typename Type>
+		struct is_one_of<T, Type> : std::is_same<T, Type> { };
 
-template<typename T, typename First, typename... Rest>
-struct is_one_of<T, First, Rest...>
-    : std::integral_constant<bool, std::is_same<T, First>::value || is_one_of<T, Rest...>::value>
-	{};
+		template<typename T, typename Type, typename... Types>
+		struct is_one_of<T, Type, Types...>: std::integral_constant<bool, std::is_same<T, Type>::value || is_one_of<T, Types...>::value>{ };
 
 		// Hack, need to figure out a way based on ability at compile time
 
 
-		template<typename T, typename = void>
+		template<typename Container, typename = void>
 		struct is_container: std::false_type { };
 
-		template<typename T>
-		struct is_container < T, 
+		template<typename Container>
+		struct is_container < Container, 
 			typename enable_if_any <void,
-					is_vector<T>::value,
-					is_list<T>::value,
-					is_set<T>::value,
-					is_deque<T>::value,
-					is_unordered_set<T>::value,
-					is_map<T>::value,
-					is_unordered_map<T>::value
+					is_vector<Container>::value,
+					is_list<Container>::value,
+					is_set<Container>::value,
+					is_deque<Container>::value,
+					is_unordered_set<Container>::value,
+					is_map<Container>::value,
+					is_unordered_map<Container>::value
 			>::type> : std::true_type { };
 
 		template<typename Numeric, typename = void>
 		struct is_numeric: std::false_type { };
 
 		template<typename Numeric>
-		struct is_numeric < Numeric, std::enable_if <
-			is_one_of < typename std::decay<Numeric>::type,
+		struct is_numeric < Numeric, typename std::enable_if <
+			is_one_of <typename std::decay<Numeric>::type,
 			char,
 			unsigned char,
+			int,
+			unsigned int,
+			short,
+			unsigned short,
+			long,
+			unsigned long,
+			long long,
+			unsigned long long,
+			size_t,
 			int8_t,
 			int16_t,
 			int32_t,
@@ -223,7 +230,7 @@ struct is_one_of<T, First, Rest...>
 			uint32_t,
 			uint64_t,
 			float,
-			double > ::value >> : std::true_type { };
+			double > ::value >::type> : std::true_type { };
 
 
 		template<typename T, typename = void>

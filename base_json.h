@@ -66,7 +66,7 @@ namespace daw {
 				// Template Declarations
 				//Numbers
 				template<typename Number>
-				auto value_to_json( std::string const & name, Number const & value ) -> typename std::enable_if<is_numeric<Number>::value, std::string>::type;
+				auto value_to_jsonn( std::string const & name, Number const & value ) -> typename std::enable_if<is_numeric<Number>::value, std::string>::type;
 
 				template<typename Number>
 				auto json_to_value( std::string const & json_text, Number & value ) -> typename std::enable_if<is_numeric<Number>::value>::type;
@@ -85,7 +85,7 @@ namespace daw {
 				// Definitions
 				// Numbers
 				template<typename Number>
-				auto value_to_json( std::string const & name, Number const & value ) -> typename std::enable_if<is_numeric<Number>::value, std::string>::type {
+				auto value_to_jsonn( std::string const & name, Number const & value ) -> typename std::enable_if<is_numeric<Number>::value, std::string>::type {
 					using std::to_string;
 					return details::json_name( name ) + to_string( value );
 				}
@@ -112,7 +112,7 @@ namespace daw {
 
 				// container/array.
 				template<typename Container>
-				auto value_to_json( std::string const & name, Container const & values ) -> typename std::enable_if<is_vector<Container>::value>::type {
+				auto value_to_json( std::string const & name, Container const & values ) -> typename std::enable_if<is_container<Container>::value>::type {
 				std::stringstream result;
 					result << details::json_name( name ) + "[\n";
 					for( auto const & item : values ) {
@@ -123,7 +123,7 @@ namespace daw {
 				}
 
 				template<typename Container, typename T>
-				auto json_to_value( std::string const & json_text, T & values )  -> typename std::enable_if<is_vector<Container>::value>::type {
+				auto json_to_value( std::string const & json_text, T & values )  -> typename std::enable_if<is_container<Container>::value>::type {
 					// TODO
 				}
 
@@ -150,7 +150,7 @@ namespace daw {
 
 					template<typename T>
 					JsonLink& link_value( std::string name, T& value ) {
-						auto value_ptr = &value;
+						T* value_ptr = &value;
 						m_data_map[name] = [value_ptr, name]( std::string & json_text, Action action ) {
 							switch( action ) {
 							case Action::encode:
