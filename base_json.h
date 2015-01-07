@@ -97,11 +97,23 @@ namespace daw {
 					throw std::runtime_error( "Method not implemented" );
 				}				
 
+				// pair types
+				template<typename First, typename Second>
+				std::string value_to_json( std::string const & name, std::pair<First, Second> const & value ) {
+					return details::json_name( name ) + "[ " + value_to_json( value.first ) + ", " + value_to_json( value.second ) + " ]";
+				}
+
+				template<typename First, typename Second>
+				void json_to_value( std::string const & json_text, std::pair<First, Second> & value ) {
+					throw std::runtime_error( "Method not implemented" );
+				}
+
+
 				// boost optional.  will error out if T does not support value_to_json
 				template<typename Optional>
 				std::string value_to_json( std::string const & name, boost::optional<Optional> const & value ) {
 					if( value ) {
-						return ""; //value_to_json( name, value.get( ) );
+						return value_to_json( name, value.get( ) );
 					} else {
 						return value_to_json( name );
 					}
@@ -109,7 +121,7 @@ namespace daw {
 
 				template<typename Optional>
 				void json_to_value( std::string const & json_text, boost::optional<Optional> & value ) {
-					// TODO
+					throw std::runtime_error( "Method not implemented" );
 				}
 
 				// container/array.
@@ -126,7 +138,7 @@ namespace daw {
 
 				template<typename Container, typename std::enable_if<is_container<Container>::value, long>::type = 0>
 				void json_to_value( std::string const & json_text, Container & values ) {
-					// TODO
+					throw std::runtime_error( "Method not implemented" );
 				}
 
 
@@ -145,11 +157,15 @@ namespace daw {
 
 
 					std::string & json_object_name( );
+					
 					std::string const & json_object_name( ) const;
 
 					std::string encode( ) const;
+					
 					void decode( std::string const & json_text );
+					
 					void reset_jsonlink( );
+
 					template<typename T>
 					JsonLink& link_value( std::string name, T& value ) {
 						T* value_ptr = &value;
@@ -157,7 +173,7 @@ namespace daw {
 							assert( value_ptr != nullptr );
 							T& val = *value_ptr;
 							switch( action ) {
-							case Action::encode:															
+							case Action::encode:									
 								json_text = value_to_json( name, val );
 								break;
 							case Action::decode:
