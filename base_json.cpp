@@ -87,7 +87,7 @@ namespace daw {
 				}
 
 				// date -> actaually a string, but it javascript date format encodes the date
-				std::string value_to_json( std::string const & name, std::time_t const & timestamp ) {
+				std::string value_to_json_timestamp( std::string const & name, std::time_t const & timestamp ) {
 					return details::json_name( name ) + enquote( to_string( timestamp ) );
 				}
 
@@ -95,7 +95,26 @@ namespace daw {
 					throw std::runtime_error( "Method not implemented" );
 				}
 
+				std::string value_to_json( std::string const & name, int const & value ) {
+					return value_to_json_number( name, value );
+				}
 
+				std::string value_to_json( std::string const & name, unsigned int const & value ) {
+					return value_to_json_number( name, value );
+				}
+
+
+				std::string value_to_json( std::string const & name, int64_t const & value ) {
+					return value_to_json_number( name, value );
+				}
+
+				std::string value_to_json( std::string const & name, uint64_t const & value ) {
+					return value_to_json_number( name, value );
+				}
+
+				std::string value_to_json( std::string const & name, double const & value ) {
+					return value_to_json_number( name, value );
+				}
 
 				JsonLink::JsonLink( std::string name ): 
 					m_name( std::move( name ) ), 

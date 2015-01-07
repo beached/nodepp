@@ -60,7 +60,8 @@ namespace daw {
 				std::string value_to_json( std::string const & name );
 
 				// date -> actaually a string, but it javascript date format encodes the date
-				std::string value_to_json( std::string const & name, std::time_t const & value );
+				std::string value_to_json_timestamp( std::string const & name, std::time_t const & value );
+
 				void json_to_value( std::string const & json_text, std::time_t & value );				
 
 				// Template Declarations
@@ -76,17 +77,28 @@ namespace daw {
 				template<typename Container, typename = void>
 				std::string value_to_json( std::string const & name, Container const & values );
 
-				// Definitions
 				// Numbers
 				template<typename Number, typename std::enable_if<is_numeric<Number>::value, int>::type = 0>
-				std::string value_to_json( std::string const & name, Number const & value ) {
+				std::string value_to_json_number( std::string const & name, Number const & value ) {
 					using std::to_string;
 					return details::json_name( name ) + to_string( value );
 				}
 
+				std::string value_to_json( std::string const & name, int const & value );
+
+				std::string value_to_json( std::string const & name, unsigned int const & value );
+
+				std::string value_to_json( std::string const & name, int64_t const & value );
+
+				std::string value_to_json( std::string const & name, uint64_t const & value );
+
+				std::string value_to_json( std::string const & name, double const & value );
+
+				// Definitions
+
 				template<typename Number, typename std::enable_if<is_numeric<Number>::value, int>::type = 0>
 				void json_to_value( std::string const & json_text, Number & value ) {
-					//TODO
+					throw std::runtime_error( "Method not implemented" );
 				}				
 
 				// boost optional.  will error out if T does not support value_to_json
