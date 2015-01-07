@@ -73,10 +73,6 @@ namespace daw {
 				template<typename Optional>
 				void json_to_value( std::string const & json_text, boost::optional<Optional> & value );
 
-				// container/array.
-				template<typename Container, typename = void>
-				std::string value_to_json( std::string const & name, Container const & values );
-
 				// Numbers
 				template<typename Number, typename std::enable_if<is_numeric<Number>::value, int>::type = 0>
 				std::string value_to_json_number( std::string const & name, Number const & value ) {
