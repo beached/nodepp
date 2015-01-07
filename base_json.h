@@ -64,12 +64,6 @@ namespace daw {
 				void json_to_value( std::string const & json_text, std::time_t & value );				
 
 				// Template Declarations
-				//Numbers
-				template<typename Number>
-				auto value_to_jsonn( std::string const & name, Number const & value ) -> typename std::enable_if<is_numeric<Number>::value, std::string>::type;
-
-				template<typename Number>
-				auto json_to_value( std::string const & json_text, Number & value ) -> typename std::enable_if<is_numeric<Number>::value>::type;
 
 				// boost optional.  will error out if T does not support value_to_json
 				template<typename Optional>
@@ -79,19 +73,19 @@ namespace daw {
 				void json_to_value( std::string const & json_text, boost::optional<Optional> & value );
 
 				// container/array.
-				template<typename Container>
-				auto value_to_json( std::string const & name, Container const & values ) -> typename std::enable_if<is_container<Container>::value>::type;
+				template<typename Container, typename = void>
+				std::string value_to_json( std::string const & name, Container const & values );
 
 				// Definitions
 				// Numbers
-				template<typename Number>
-				auto value_to_jsonn( std::string const & name, Number const & value ) -> typename std::enable_if<is_numeric<Number>::value, std::string>::type {
+				template<typename Number, typename std::enable_if<is_numeric<Number>::value>::type = 0>
+				std::string value_to_jsonn( std::string const & name, Number const & value ) {
 					using std::to_string;
 					return details::json_name( name ) + to_string( value );
 				}
 
-				template<typename Number>
-				auto json_to_value( std::string const & json_text, Number & value ) -> typename std::enable_if<is_numeric<Number>::value>::type {
+				template<typename Number, typename std::enable_if<is_numeric<Number>::value>::type = 0>
+				void json_to_value( std::string const & json_text, Number & value ) {
 					//TODO
 				}				
 
@@ -111,8 +105,8 @@ namespace daw {
 				}
 
 				// container/array.
-				template<typename Container>
-				auto value_to_json( std::string const & name, Container const & values ) -> typename std::enable_if<is_container<Container>::value>::type {
+				template<typename Container, typename std::enable_if<is_container<Container>::value>::type = 0>
+				std::string value_to_json( std::string const & name, Container const & values ) {
 				std::stringstream result;
 					result << details::json_name( name ) + "[\n";
 					for( auto const & item : values ) {
@@ -122,8 +116,8 @@ namespace daw {
 					return result.str( );
 				}
 
-				template<typename Container, typename T>
-				auto json_to_value( std::string const & json_text, T & values )  -> typename std::enable_if<is_container<Container>::value>::type {
+				template<typename Container, typename std::enable_if<is_container<Container>::value>::type = 0>
+				void json_to_value( std::string const & json_text, Container & values ) {
 					// TODO
 				}
 
