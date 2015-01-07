@@ -37,7 +37,8 @@ struct test {
 	test( ) : a( 0 ), b( 1.1 ), c( 100, "a" ), m_lnk( "test" ) {
 		m_lnk.link_value( "a", a );
 		m_lnk.link_value( "b", b );
-		m_lnk.link_value( "c", c );
+		auto s = value_to_json( "", c );
+		//m_lnk.link_value( "c", c );
 	}
 };
 
