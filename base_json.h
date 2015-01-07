@@ -77,6 +77,12 @@ namespace daw {
 				template<typename Optional>
 				void json_to_value( std::string const & json_text, boost::optional<Optional> & value );
 
+				template<typename T>
+				void json_to_value( std::string const & json_text, std::shared_ptr<T> & value );
+
+				template<typename T>
+				void json_to_value( std::string const & json_text, std::weak_ptr<T> & value );
+
 				// Numbers
 				template<typename Number, typename std::enable_if<is_numeric<Number>::value, int>::type = 0>
 				std::string value_to_json_number( std::string const & name, Number const & value ) {
@@ -111,6 +117,24 @@ namespace daw {
 					throw std::runtime_error( "Method not implemented" );
 				}
 
+				template<typename T>
+				void value_to_json( std::string const & name, std::shared_ptr<T> const & value ) {
+					if( !value ) {
+						return value_to_json( name );
+					}
+					return value_to_json( name, *value );
+				}
+
+				template<typename T>
+				void value_to_json( std::string const & name, std::weak_ptr<T> const & value ) {
+					if( !value.expired( ) ) {
+						auto shared_value = value.lock( );
+						if( !shared_value ) {
+							return value_to_json( name );
+						}
+						return value_to_json( name, *shared_value );
+					}
+				}
 
 				// boost optional.  will error out if T does not support value_to_json
 				template<typename Optional>
@@ -132,49 +156,44 @@ namespace daw {
 				template<typename Key, typename Value>
 				std::string value_to_json( std::string const & name, std::map<Key, Value> const & values ) {
 					std::stringstream result;
-					if( !name.empty( ) ) {
-						result << details::json_name( name ) + "{ ";
-					}
+					result << details::json_name( name ) + "[ ";
 					bool is_first = true;
 					for( auto const & item : values ) {
-						result << (!is_first? ",": "") << details::enbrace( value_to_json( to_string( item.first ), item.second) );
+						result << (!is_first? ",": "");
 						is_first = false;
+						result << "{ " << value_to_json( "key", item.first ) << ", ";
+						result << value_to_json( "value", item.second ) << " }";
 					}
-					if( !name.empty( ) ) {
-						result << " }";
-					}
+					result << " ]";
 					return result.str( );
 				}
 
 				template<typename Key, typename Value>
 				std::string value_to_json( std::string const & name, std::unordered_map<Key, Value> const & values ) {
 					std::stringstream result;
-					if( !name.empty( ) ) {
-						result << details::json_name( name ) + "{ ";
-					}
+					result << details::json_name( name ) + "[ ";
 					bool is_first = true;
 					for( auto const & item : values ) {
-						result << (!is_first? ",": "") << details::enbrace( value_to_json( to_string( item.first ), item.second ) );
+						result << (!is_first? ",": "");
 						is_first = false;
+						result << "{ " << value_to_json( "key", item.first ) << ", ";
+						result << value_to_json( "value", item.second ) << " }";
 					}
-					if( !name.empty( ) ) {
-						result << " }";
-					}
+					result << " ]";
 					return result.str( );
 				}
-
 
 				// container/array.
 				template<typename Container, typename std::enable_if<is_container<Container>::value, long>::type = 0>
 				std::string value_to_json( std::string const & name, Container const & values ) {
 				std::stringstream result;
-					result << details::json_name( name ) + "[ ";
+					result << details::json_name( name ) + "{ ";
 					bool is_first = true;
 					for( auto const & item : values ) {
 						result << (!is_first? ",": "") << value_to_json( "", item );
 						is_first = false;
 					}
-					result << " ]";
+					result << " }";
 					return result.str( );
 				}
 

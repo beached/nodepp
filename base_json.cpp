@@ -62,7 +62,7 @@ namespace daw {
 					}
 
 					std::string enbrace( std::string const & json_value ) {
-						return "{\n" + json_value + "\n}";
+						return "{ " + json_value + " }";
 					}
 				}
 
@@ -166,7 +166,7 @@ namespace daw {
 						result << (!is_first ? ", " : "") << tmp;
 						is_first = false;
 					}
-					return "{\n" + details::json_name( m_name ) + details::enbrace( result.str( ) ) + "\n}";
+					return details::json_name( m_name ) + details::enbrace( result.str( ) );
 				}
 
 				void JsonLink::decode( std::string const & json_text ) {
