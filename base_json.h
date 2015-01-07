@@ -152,13 +152,14 @@ namespace daw {
 					JsonLink& link_value( std::string name, T& value ) {
 						T* value_ptr = &value;
 						m_data_map[name] = [value_ptr, name]( std::string & json_text, Action action ) {
+							assert( value_ptr != nullptr );
+							T& val = *value_ptr;
 							switch( action ) {
-							case Action::encode:
-								assert( value_ptr != nullptr );
-								json_text = value_to_json( name, *value_ptr );
+							case Action::encode:															
+								json_text = value_to_json( name, val );
 								break;
 							case Action::decode:
-								json_to_value( json_text, *value_ptr );
+								json_to_value( json_text, val );
 								break;
 							}
 						};
