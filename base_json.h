@@ -168,7 +168,7 @@ namespace daw {
 						return *this;
 					}
 
-					JsonLink& JsonLink::link_timestamp( std::string name, std::time_t& value );
+					JsonLink& link_timestamp( std::string name, std::time_t& value );
 				};	// struct JsonLink
 
 				std::string value_to_json( std::string const & name, JsonLink const & obj );
