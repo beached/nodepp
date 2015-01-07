@@ -112,7 +112,7 @@ namespace daw {
 
 				// container/array.
 				template<typename Container>
-				auto value_to_json( std::string const & name, Container const & values ) -> enable_if_t<is_container_or_array<Container>::value, std::string> {
+				auto value_to_json( std::string const & name, Container const & values ) -> typename std::enable_if<is_container_or_array<Container>::value, std::string>::type {
 				std::stringstream result;
 					result << details::json_name( name ) + "[\n";
 					for( auto const & item : values ) {
@@ -123,7 +123,7 @@ namespace daw {
 				}
 
 				template<typename Container, typename T>
-				auto json_to_value( std::string const & json_text, T & values )  -> enable_if_t<is_container_or_array<Container>::value> {
+				auto json_to_value( std::string const & json_text, T & values )  -> typename std::enable_if<is_container_or_array<Container>::value>::type {
 					// TODO
 				}
 
