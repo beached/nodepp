@@ -105,41 +105,6 @@ namespace daw {
 					} method_parse_symbol;
 					}	// namespace anonymous
 
-// 					template <typename Iterator >
-// 					struct uri_encoded_data_grammar: qi::grammar < Iterator, std::map<std::string, std::string>( ) > {
-// 						uri_encoded_data_grammar( ) : uri_encoded_data_grammar::base_type( start ) {
-// 							start = query_pair % '&';
-// 							query_pair = url_encoded_string >> '=' >> url_encoded_string;
-// 							url_encoded_string = +(('%' >> encoded_hex)
-// 								|
-// 								~char_( "=&" )
-// 								);
-// 						}
-// 						qi::rule< Iterator, std::map<std::string, std::string>( ) > start;
-// 						qi::rule< Iterator, std::pair<std::string, std::string>( ) > query_pair;
-// 						qi::rule< Iterator, std::string( ) > url_encoded_string;
-// 						qi::uint_parser< char, 16, 2, 2 > encoded_hex;
-// 					};
-
-// 					template <typename Iterator>
-// 					struct url_query_parse_grammar: qi::grammar < Iterator, boost::optional<std::string>( ) > {
-// 						url_query_parse_grammar( ) : url_query_parse_grammar::base_type( query ) {
-// 							query = query_pair % query_separator;
-// 							query_pair = query_key >> -('=' >> -query_value);							
-// 							query_key = char_( "a-zA-Z_" ) >> *char_( "a-zA-Z_0-9" );
-// 							query_value = +char_( "a-zA-Z_0-9" );
-// 							query_separator = lit( ';' ) | '&';
-// 						}
-// 
-// 						qi::rule< Iterator> query_separator;
-// 						qi::rule < Iterator, std::string( )> query_key;
-// 						qi::rule < Iterator, std::string( )> query_value;
-// 						
-// 					//	qi::rule< Iterator, daw::nodepp::lib::http::HttpUrl::query_pair_t( )> query_pair;
-// 						qi::rule< Iterator, boost::optional<std::string>( )> query;
-// 						
-// 					};
-
 					template <typename Iterator>
 					struct abs_url_parse_grammar: qi::grammar < Iterator, daw::nodepp::lib::http::HttpUrl( ) > {
 						abs_url_parse_grammar( ) : abs_url_parse_grammar::base_type( url ) { 
@@ -174,7 +139,7 @@ namespace daw {
 								<< std::endl
 								);
 
-							debug( url );
+							//debug( url );
 						}
 						qi::rule< Iterator, daw::nodepp::lib::http::HttpUrl( ) > url;
 						qi::rule< Iterator, std::string( )> path;
