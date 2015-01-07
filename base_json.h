@@ -78,13 +78,13 @@ namespace daw {
 
 				// Definitions
 				// Numbers
-				template<typename Number, typename std::enable_if<is_numeric<Number>::value>::type = 0>
-				std::string value_to_jsonn( std::string const & name, Number const & value ) {
+				template<typename Number, typename std::enable_if<is_numeric<Number>::value, int>::type = 0>
+				std::string value_to_json( std::string const & name, Number const & value ) {
 					using std::to_string;
 					return details::json_name( name ) + to_string( value );
 				}
 
-				template<typename Number, typename std::enable_if<is_numeric<Number>::value>::type = 0>
+				template<typename Number, typename std::enable_if<is_numeric<Number>::value, int>::type = 0>
 				void json_to_value( std::string const & json_text, Number & value ) {
 					//TODO
 				}				
@@ -105,7 +105,7 @@ namespace daw {
 				}
 
 				// container/array.
-				template<typename Container, typename std::enable_if<is_container<Container>::value>::type = 0>
+				template<typename Container, typename std::enable_if<is_container<Container>::value, long>::type = 0>
 				std::string value_to_json( std::string const & name, Container const & values ) {
 				std::stringstream result;
 					result << details::json_name( name ) + "[\n";
@@ -116,7 +116,7 @@ namespace daw {
 					return result.str( );
 				}
 
-				template<typename Container, typename std::enable_if<is_container<Container>::value>::type = 0>
+				template<typename Container, typename std::enable_if<is_container<Container>::value, long>::type = 0>
 				void json_to_value( std::string const & json_text, Container & values ) {
 					// TODO
 				}
