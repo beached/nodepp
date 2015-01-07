@@ -116,6 +116,14 @@ namespace daw {
 					return value_to_json_number( name, value );
 				}
 
+				std::string value_to_json( std::string const & name, JsonLink const & obj ) {
+					return details::json_name( name ) + obj.encode( );
+				}
+
+				void json_to_value( std::string const & json_text, JsonLink & obj ) {
+					obj.decode( json_text );
+				}
+
 				JsonLink::JsonLink( std::string name ): 
 					m_name( std::move( name ) ), 
 					m_data_map( ) { }
@@ -133,14 +141,19 @@ namespace daw {
 				}
 
 
-				std::string & JsonLink::name( ) {
+				std::string & JsonLink::json_object_name( ) {
 					return m_name;
 				}
-				std::string const & JsonLink::name( ) const {
+				std::string const & JsonLink::json_object_name( ) const {
 					return m_name;
 				}
 
-				std::string JsonLink::encode( ) {
+				void JsonLink::reset_jsonlink( ) {
+					m_data_map.clear( );
+					m_name.clear( );
+				}
+
+				std::string JsonLink::encode( ) const {
 					std::stringstream result;
 					std::string tmp;
 					auto is_first = true;
@@ -155,6 +168,29 @@ namespace daw {
 				void JsonLink::decode( std::string const & json_text ) {
 					throw std::runtime_error( "Method not implemented" );
 				}
+
+				JsonLink& JsonLink::link_timestamp( std::string name, std::time_t& value ) {
+					std::time_t *value_ptr = &value;
+					m_data_map[name] = [value_ptr, name]( std::string & json_text, Action action ) {
+						assert( value_ptr != nullptr );
+						std::time_t& val = *value_ptr;
+						switch( action ) {
+						case Action::encode:
+							json_text = value_to_json_timestamp( name, val );
+							break;
+						case Action::decode:
+							json_to_value( json_text, val );
+							break;
+						}
+					};
+					return *this;
+				}
+
+				std::ostream& operator<<(std::ostream& os, daw::nodepp::base::json::JsonLink const & data) {
+					os << data.encode( );
+					return os;
+				}
+
 
 			}	// namespace json
 		}	// namespace base

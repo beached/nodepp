@@ -29,27 +29,10 @@
 
 #include "base_json.h"
 
-struct test {
-	int a;
-	double b;
-	std::vector<std::string> c;
-	daw::nodepp::base::json::JsonLink m_lnk;
-	test( ) : a( 0 ), b( 1.1 ), c( 10, "a" ), m_lnk( "test" ) {
-		m_lnk.link_value( "a", a );
-		m_lnk.link_value( "b", b );
-		m_lnk.link_value( "c", c );
-	}
-};
-
-
 int main( int, char const ** ) {
 	using namespace daw::nodepp;
 	using namespace lib::http;
 	
-	test t;
-
-	auto enc_txt = t.m_lnk.encode( );
-
 	auto site = create_http_site( );
 	site->on_listening( []( boost::asio::ip::tcp::endpoint endpoint ) {
 		std::cout << "Listening on " << endpoint << "\n";
@@ -57,9 +40,9 @@ int main( int, char const ** ) {
 		response->on_all_writes_completed( [response]( ) mutable {
 			response->close( );
 		} ).send_status( 200 )
-			.add_header( "Content-Type", "text/html" )
+			.add_header( "Content-Type", "application/json" )
 			.add_header( "Connection", "close" )
-			.end( R"(<p>Hello World!</p>)" );
+			.end( request->encode( ) );
 	} )/*.on_error( []( base::Error error ) {
 		std::cerr << ""; //error << std::endl;
 	} )*/.listen_on( 8080 )/*.on_page_error( 404, []( lib::http::HttpClientRequest request, lib::http::HttpServerResponse response, uint16_t ) { 

@@ -32,6 +32,7 @@
 #include <vector>
 
 #include "base_types.h"
+#include "base_json.h"
 
 
 namespace daw {
@@ -50,43 +51,69 @@ namespace daw {
 				std::string to_string( HttpClientRequestMethod method );
 
 				std::string value_to_json( std::string const & name, HttpClientRequestMethod method );
+				void json_to_value( std::string const & json_text, HttpClientRequestMethod & method );
 
-				struct HttpUrlQueryPair {
+				struct HttpUrlQueryPair: public base::json::JsonLink {
 					std::string name;
 					boost::optional<std::string> value;
-					HttpUrlQueryPair( ) = default;
-					inline HttpUrlQueryPair( std::pair<std::string, boost::optional<std::string>> const & vals ) : name( vals.first ), value( vals.second ) { }
-				};
+					
+					~HttpUrlQueryPair( ) = default;
+					HttpUrlQueryPair( HttpUrlQueryPair const & ) = default;
+					HttpUrlQueryPair& operator=(HttpUrlQueryPair const &) = default;
 
-				std::string value_to_json( std::string const & name, HttpUrlQueryPair const & query_pair );
+					HttpUrlQueryPair( );
+					HttpUrlQueryPair( std::pair<std::string, boost::optional<std::string>> const & vals );
+					HttpUrlQueryPair( HttpUrlQueryPair && other );
+					HttpUrlQueryPair& operator=(HttpUrlQueryPair && rhs);
+					void set_links( );
+				};	// struct HttpUrlQueryPair	
 
-				struct HttpUrl {					
+				struct HttpUrl: public base::json::JsonLink {
 					std::string path;
 					boost::optional<std::vector<HttpUrlQueryPair>> query;
-					boost::optional<std::string> fragment;					
-				};
+					boost::optional<std::string> fragment;	
 
-				std::string value_to_json( std::string const & name, HttpUrl const & url );
+					~HttpUrl( ) = default;
+					HttpUrl( HttpUrl const & ) = default;
+					HttpUrl& operator=(HttpUrl const &) = default;
 
-				struct HttpRequestLine {
+					HttpUrl( );
+					HttpUrl( HttpUrl && other );
+					HttpUrl& operator=(HttpUrl && rhs);
+					void set_links( );
+				};	// struct HttpUrl
+
+				struct HttpRequestLine: public base::json::JsonLink {
 					HttpClientRequestMethod method;
 					HttpUrl url;
-					std::string version;					
-				};
+					std::string version;
 
-				std::string value_to_json( std::string const & name, HttpRequestLine const & request_line );
+					~HttpRequestLine( ) = default;
+					HttpRequestLine( HttpRequestLine const & ) = default;
+					HttpRequestLine& operator=(HttpRequestLine const &) = default;
 
+					HttpRequestLine( );
+					HttpRequestLine( HttpRequestLine && other );
+					HttpRequestLine& operator=(HttpRequestLine && rhs);
+					void set_links( );
+				};	// struct HttpRequestLine
 
 				namespace impl {
 					using namespace daw::nodepp;
-					struct HttpClientRequestImpl {
+					struct HttpClientRequestImpl: public base::json::JsonLink {
 						using headers_t = std::unordered_map < std::string, std::string > ;
 						lib::http::HttpRequestLine request;
 						headers_t headers;
-					};
-					std::string value_to_json( std::string const & name, HttpClientRequestImpl const & request );
 
+						~HttpClientRequestImpl( ) = default;
+						HttpClientRequestImpl( HttpClientRequestImpl const & ) = default;
+						HttpClientRequestImpl& operator=(HttpClientRequestImpl const &) = default;
 
+						HttpClientRequestImpl( );
+						HttpClientRequestImpl( HttpClientRequestImpl && other );
+						HttpClientRequestImpl& operator=(HttpClientRequestImpl && rhs);
+						void set_links( );
+					};	// struct HttpClientRequestImpl
 				}	// namespace impl								
 
 				// 				struct HttpClientRequest {

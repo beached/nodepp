@@ -144,12 +144,12 @@ namespace daw {
 					JsonLink& operator=(JsonLink && rhs);
 
 
-					std::string & name( );
-					std::string const & name( ) const;
+					std::string & json_object_name( );
+					std::string const & json_object_name( ) const;
 
-					std::string encode( );
+					std::string encode( ) const;
 					void decode( std::string const & json_text );
-
+					void reset_jsonlink( );
 					template<typename T>
 					JsonLink& link_value( std::string name, T& value ) {
 						T* value_ptr = &value;
@@ -168,14 +168,22 @@ namespace daw {
 						return *this;
 					}
 
+					JsonLink& JsonLink::link_timestamp( std::string name, std::time_t& value );
 				};	// struct JsonLink
+
+				std::string value_to_json( std::string const & name, JsonLink const & obj );
+				void json_to_value( std::string const & json_text, JsonLink & obj );
+
+				std::ostream& operator<<(std::ostream& os, daw::nodepp::base::json::JsonLink const & data);
+
+				template<typename T, typename EnableIf = decltype(std::declval<T>( ).serialize_to_json( ))>
+				std::ostream& operator<<(std::ostream& os, T const & data) {
+					os << data.serialize_to_json( );
+				}
+
 
 			}	// namespace json
 		}	// namespace base
 	}	// namespace nodepp
 }	// namespace daw
 
-template<typename T, typename EnableIf = decltype(std::declval<T>( ).serialize_to_json( ))>
-std::ostream& operator<<(std::ostream& os, T const & data) {
-	os << data.serialize_to_json( );
-}

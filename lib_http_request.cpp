@@ -63,37 +63,148 @@ namespace daw {
 					return base::json::value_to_json( name, to_string( method ) );
 				}
 
-				std::string value_to_json( std::string const & name, HttpUrlQueryPair const & query_pair ) {
-					std::string result = base::json::value_to_json( "name", query_pair.name ) + ",\n";
-					result += base::json::value_to_json( "value", query_pair.value );
-					return details::json_name( name ) + details::enbracket( result );
+				void json_to_value( std::string const & json_text, HttpClientRequestMethod & method ) {
+					throw std::runtime_error( "Method not implemented" );
 				}
 
-				std::string value_to_json( std::string const & name, HttpUrl const & url ) {
-					std::string result = base::json::value_to_json( "path", url.path ) + ",\n";
-					result += base::json::value_to_json( "query", url.query );
-					result += base::json::value_to_json( "fragment", url.fragment );
-					return details::json_name( name ) + details::enbracket( result );
+
+				HttpUrlQueryPair::HttpUrlQueryPair( ): 
+					JsonLink( ), 
+					name( ), 
+					value( ) { 
+					
+					set_links( );
 				}
 
-				std::ostream& operator<<(std::ostream& os, HttpClientRequestMethod method) {
-					os << value_to_json( "HttpClientRequestMethod", method );
-					return os;
+				HttpUrlQueryPair::HttpUrlQueryPair( std::pair<std::string, boost::optional<std::string>> const & vals ) : 
+					JsonLink( ), 
+					name( vals.first ), 
+					value( vals.second ) { 
+					
+					set_links( );
 				}
 
-				std::string value_to_json( std::string const & name, HttpRequestLine const & request_line ) {
-					std::string result = value_to_json( "method", request_line.method ) + ",\n";
-					result += value_to_json( "url", request_line.url ) + ",\n";
-					result += base::json::value_to_json( "version", request_line.version );
-					return details::json_name( name ) + details::enbracket( result );
+				
+				HttpUrlQueryPair::HttpUrlQueryPair( HttpUrlQueryPair && other ):
+					JsonLink( std::move( other ) ),
+					name( std::move( other.name ) ),
+					value( std::move( other.value ) ) {
+
+					set_links( );
+				}
+
+				HttpUrlQueryPair& HttpUrlQueryPair::operator=(HttpUrlQueryPair && rhs) {
+					if( this != &rhs ) {
+						name = std::move( rhs.name );
+						value = std::move( rhs.value );
+						set_links( );
+					}
+					return *this;
+				}
+
+				void HttpUrlQueryPair::set_links( ) { 
+					link_value( "name", name );
+					link_value( "value", value );
+				}
+
+				HttpUrl::HttpUrl( ):
+					JsonLink( ),
+					path( ),
+					query( ),
+					fragment( ) {
+
+					set_links( );
+				}
+
+				HttpUrl::HttpUrl( HttpUrl && other ):
+					JsonLink( std::move( other ) ),
+					path(std::move( other.path ) ),
+					query( std::move( other.query ) ),
+					fragment( std::move( other.fragment ) ) {
+
+					set_links( );
+				}
+
+				HttpUrl& HttpUrl::operator=(HttpUrl && rhs) {
+					if( this != &rhs ) {
+						path = std::move( rhs.path );
+						query = std::move( rhs.query );
+						fragment = std::move( rhs.fragment );
+						set_links( );
+					}
+					return *this;
+				}
+
+				void HttpUrl::set_links( ) {
+					link_value( "path", path );
+					link_value( "query", query );
+					link_value( "fragment", fragment );
+				}
+
+				HttpRequestLine::HttpRequestLine( ) :
+					JsonLink( ),
+					method( ),
+					url( ),
+					version( ) { 
+				
+					set_links( );
+				}
+
+				HttpRequestLine::HttpRequestLine( HttpRequestLine && other ) :
+					JsonLink( std::move( other ) ),
+					method( std::move( other.method ) ),
+					url( std::move( other.url ) ),
+					version( std::move( other.version ) ) {
+
+					set_links( );
+				}
+
+				HttpRequestLine& HttpRequestLine::operator=(HttpRequestLine && rhs) {
+					if( this != &rhs ) {
+						method = std::move( rhs.method );
+						url = std::move( rhs.url );
+						version = std::move( rhs.version );
+						set_links( );
+					}
+					return *this;
+				}
+
+				void HttpRequestLine::set_links( ) {
+					link_value( "method", method );
+					link_value( "url", url );
+					link_value( "version", version );
 				}
 
 				namespace impl {
-					std::string value_to_json( std::string const & name, HttpClientRequestImpl const & client_request ) {
-						return details::json_name( name ) + details::enbracket( value_to_json( "request", client_request.request ) );
+					HttpClientRequestImpl::HttpClientRequestImpl( ):
+						JsonLink( ),
+						request( ),
+						headers( ) {
+
+						set_links( );
 					}
 
+					HttpClientRequestImpl::HttpClientRequestImpl( HttpClientRequestImpl && other ):
+						JsonLink( std::move( other ) ),
+						request( std::move( other.request ) ),
+						headers( std::move( other.headers ) ) {
 
+						set_links( );
+					}
+
+					HttpClientRequestImpl& HttpClientRequestImpl::operator=(HttpClientRequestImpl && rhs) {
+						if( this != &rhs ) {
+							request = std::move( rhs.request );
+							headers = std::move( rhs.headers );
+							set_links( );
+						}
+						return *this;
+					}
+
+					void HttpClientRequestImpl::set_links( ) {
+						link_value( "request", request );
+						link_value( "headers", headers );
+					}
 				}	// namespace impl
 
 			} // namespace http
