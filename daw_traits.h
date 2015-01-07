@@ -192,7 +192,7 @@ namespace daw {
 
 	#define GENERATE_IS_STD_CONTAINER1( ContainerName ) \
 		template<typename T, typename = void> struct is_##ContainerName: std::false_type { }; \
-		template<typename T> struct is_##ContainerName < T, typename std::enable_if<std::is_convertible<T, std::ContainerName<typename T::value_type> >::value>::type> : std::true_type { };
+		template<typename T> struct is_##ContainerName < T, typename std::enable_if<std::is_same<T, std::ContainerName<typename T::value_type> >::value>::type> : std::true_type { };
 		
 		GENERATE_IS_STD_CONTAINER1( vector );
 		GENERATE_IS_STD_CONTAINER1( list );
@@ -204,7 +204,7 @@ namespace daw {
 
 	#define GENERATE_IS_STD_CONTAINER2( ContainerName ) \
 		template<typename T, typename = void> struct is_##ContainerName: std::false_type { }; \
-		template<typename T> struct is_##ContainerName < T, typename std::enable_if<std::is_convertible<T, std::ContainerName<typename T::key_type, typename T::mapped_type> >::value>::type> : std::true_type { };
+		template<typename T> struct is_##ContainerName < T, typename std::enable_if<std::is_same<T, std::ContainerName<typename T::key_type, typename T::mapped_type> >::value>::type> : std::true_type { };
 
 		GENERATE_IS_STD_CONTAINER2( map );
 		GENERATE_IS_STD_CONTAINER2( unordered_map );
