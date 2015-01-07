@@ -86,20 +86,20 @@ namespace daw {
 			return are_true( b1, b2 ) && are_true( others... );
 		}
 
-// 		template<typename... NumericTypes>
-// 		struct is_numeric;
-// 
-// 		template<typename NumericType>
-// 		struct is_numeric < NumericType > {
-// 			static const bool value = std::is_arithmetic<NumericType>::value;
-// 			typedef bool type;
-// 		};
-// 
-// 		template<typename NumericType, typename ...NumericTypes>
-// 		struct is_numeric < NumericType, NumericTypes... > {
-// 			static const bool value = std::is_arithmetic<NumericType>::value && is_numeric<NumericTypes...>::value;
-// 			typedef bool type;
-// 		};
+		// 		template<typename... NumericTypes>
+		// 		struct is_numeric;
+		// 
+		// 		template<typename NumericType>
+		// 		struct is_numeric < NumericType > {
+		// 			static const bool value = std::is_arithmetic<NumericType>::value;
+		// 			typedef bool type;
+		// 		};
+		// 
+		// 		template<typename NumericType, typename ...NumericTypes>
+		// 		struct is_numeric < NumericType, NumericTypes... > {
+		// 			static const bool value = std::is_arithmetic<NumericType>::value && is_numeric<NumericTypes...>::value;
+		// 			typedef bool type;
+		// 		};
 
 		template<typename... DataTypes>
 		struct are_same_types;
@@ -130,7 +130,7 @@ namespace daw {
 
 		template<typename, typename = void>
 		struct has_value_type_member: std::false_type { };
-		
+
 		template<typename T>
 		struct has_value_type_member<T, void_t<typename T::value_type>> : std::true_type { };
 
@@ -142,7 +142,7 @@ namespace daw {
 
 		template<typename, typename, typename = void>
 		struct has_push_back_member: std::false_type { };
-	
+
 		namespace details {
 			template<typename T>
 			class has_begin_func {
@@ -159,7 +159,7 @@ namespace daw {
 		struct is_one_of;
 
 		template<typename T, typename DataType1>
-		struct is_one_of < T, DataType1> {
+		struct is_one_of < T, DataType1 > {
 			static const bool value = std::is_same<T, DataType1>::value;
 			using type = bool;
 		};
@@ -176,76 +176,81 @@ namespace daw {
 			using type = bool;
 		};
 
-// 		template<typename T, typename = void>
-// 		struct is_container: public std::false_type { };
-//
-// 		template<typename T>
-// 		struct is_container<T, typename std::enable_if<details::has_begin_func<T>::value>::type> : public std::true_type { };
-// 		
-// 		template <typename T>
-// 		struct is_container {
-// 			template <typename U, typename S = decltype((dynamic_cast<U*>(0))->serialize_to_json( )), typename I = typename U::const_iterator>
-// 			static char test( U* u );
-// 			template <typename U> static long test( ... );
-// 			enum { value = sizeof test<T>( 0 ) == 1 };
-// 		};
+		// 		template<typename T, typename = void>
+		// 		struct is_container: public std::false_type { };
+		//
+		// 		template<typename T>
+		// 		struct is_container<T, typename std::enable_if<details::has_begin_func<T>::value>::type> : public std::true_type { };
+		// 		
+		// 		template <typename T>
+		// 		struct is_container {
+		// 			template <typename U, typename S = decltype((dynamic_cast<U*>(0))->serialize_to_json( )), typename I = typename U::const_iterator>
+		// 			static char test( U* u );
+		// 			template <typename U> static long test( ... );
+		// 			enum { value = sizeof test<T>( 0 ) == 1 };
+		// 		};
+		// 		
+
+		template<typename T, typename = void> struct is_vector: std::false_type { };
+		template<typename T> struct is_vector < T, std::enable_if < std::is_convertible<T, std::vector<typename T::value_type>>::value >> : std::true_type { };
+
 
 		// Hack, need to figure out a way based on ability at compile time
 		template<typename T, typename = void>
 		struct is_map_like: std::false_type { };
 
 		template<typename T>
-		struct is_map_like<T, std::enable_if<
-			is_one_of<T, 
-				std::map<typename T::key_type, typename T::mapped_type>, 
-				std::unordered_map<typename T::key_type, typename T::mapped_type>
-			>::value>> : std::true_type { };
+		struct is_map_like < T, std::enable_if <
+			is_one_of<T,
+			std::map<typename T::key_type, typename T::mapped_type>,
+			std::unordered_map<typename T::key_type, typename T::mapped_type>
+			>::value >> : std::true_type { };
 
 		template<typename T, typename = void>
 		struct is_container: std::false_type { };
 
 		template<typename T>
-		struct is_container<T, std::enable_if<
-			is_one_of<T, 
-				std::vector<typename T::value_type>, 
-				std::list<typename T::value_type>, 
-				std::set<typename T::value_type>, 
-				std::deque<typename T::value_type>, 
-				std::unordered_set<typename T::value_type>
-			>::value || is_map_like<T>::value>> : std::true_type { };
+		struct is_container < T, std::enable_if <
+			is_one_of<T,
+			std::vector<typename T::value_type>,
+			std::list<typename T::value_type>,
+			std::set<typename T::value_type>,
+			std::deque<typename T::value_type>,
+			std::unordered_set<typename T::value_type>
+			>::value || is_map_like<T>::value >> : std::true_type { };
 
 		template<typename Numeric, typename = void>
 		struct is_numeric: std::false_type { };
 
 		template<typename Numeric>
-		struct is_numeric<Numeric, std::enable_if<
-			is_one_of<typename std::decay<Numeric>::type,
-				char,
-				unsigned char,
-				int8_t,
-				int16_t, 
-				int32_t, 
-				int64_t, 
-				uint8_t, 
-				uint16_t, 
-				uint32_t, 
-				uint64_t, 
-				float, 
-				double>::value>> : std::true_type { };
+		struct is_numeric < Numeric, std::enable_if <
+			is_one_of < typename std::decay<Numeric>::type,
+			char,
+			unsigned char,
+			int8_t,
+			int16_t,
+			int32_t,
+			int64_t,
+			uint8_t,
+			uint16_t,
+			uint32_t,
+			uint64_t,
+			float,
+			double > ::value >> : std::true_type { };
 
 
 		template<typename T, typename = void>
 		struct is_container_or_array: public std::false_type { };
 
 		template<typename T>
-		struct is_container_or_array<T, typename std::enable_if<is_container<T>::value || std::is_array<T>::value>::type>: public std::true_type { };
+		struct is_container_or_array<T, typename std::enable_if<is_container<T>::value || std::is_array<T>::value>::type> : public std::true_type { };
 
 		template<typename T>
 		using is_container_t = typename is_container<T>::type;
-		
+
 		template<typename T>
 		using is_array_t = typename std::is_array<T>::type;
-		
+
 		template<typename T>
 		using is_container_or_array_t = typename is_container_or_array<T>::type;
 
@@ -267,7 +272,7 @@ namespace daw {
 		}	// namespace details
 
 		template<typename T, typename NameGetter>
-		struct has_member: std::integral_constant<bool, details::has_member_impl<T, NameGetter>::value> { };
+		struct has_member: std::integral_constant < bool, details::has_member_impl<T, NameGetter>::value > { };
 	}	// namespace traits
 }	// namespace daw
 

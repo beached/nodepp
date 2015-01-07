@@ -80,7 +80,7 @@ namespace daw {
 
 				// container/array.
 				template<typename Container>
-				auto value_to_json( std::string const & name, Container const & values ) -> typename std::enable_if<is_container_or_array<Container>::value, std::string>::type;
+				auto value_to_json( std::string const & name, Container const & values ) -> typename std::enable_if<is_vector<Container>::value, std::string>::type;
 
 				// Definitions
 				// Numbers
@@ -123,7 +123,7 @@ namespace daw {
 				}
 
 				template<typename Container, typename T>
-				auto json_to_value( std::string const & json_text, T & values )  -> typename std::enable_if<is_container_or_array<Container>::value>::type {
+				auto json_to_value( std::string const & json_text, T & values )  -> typename std::enable_if<is_vector<Container>::value>::type {
 					// TODO
 				}
 
