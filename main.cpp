@@ -27,9 +27,27 @@
 #include "lib_http_site.h"
 #include "base_work_queue.h"
 
+#include "base_json.h"
+
+struct test {
+	int a;
+	double b;
+	std::vector<std::string> c;
+	daw::nodepp::base::json::JsonLink m_lnk;
+	test( ) : a( 0 ), b( 1.1 ), c( 100, "a" ), m_lnk( "test" ) {
+		m_lnk.link_value( "a", a );
+		m_lnk.link_value( "b", b );
+		m_lnk.link_value( "c", c );
+	}
+};
+
 int main( int, char const ** ) {
 	using namespace daw::nodepp;
 	using namespace lib::http;
+	
+	test t;
+
+	auto enc_txt = t.m_lnk.encode( );
 
 	auto site = create_http_site( );
 	site->on_listening( []( boost::asio::ip::tcp::endpoint endpoint ) {

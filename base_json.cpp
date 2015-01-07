@@ -95,7 +95,43 @@ namespace daw {
 					throw std::runtime_error( "Method not implemented" );
 				}
 
-				JsonLink::JsonLink( std::string name ): m_name( std::move( name ) ), m_data_map( ) { 
+
+
+				JsonLink::JsonLink( std::string name ): 
+					m_name( std::move( name ) ), 
+					m_data_map( ) { }
+
+				JsonLink::JsonLink( JsonLink && other ):
+					m_name( std::move( other.m_name ) ),
+					m_data_map( std::move( other.m_data_map ) ) { }
+
+				JsonLink& JsonLink::operator=(JsonLink && rhs) {
+					if( this != &rhs ) {
+						m_name = std::move( rhs.m_name );
+						m_data_map = std::move( rhs.m_data_map );
+					}
+					return *this;
+				}
+
+
+				std::string & JsonLink::name( ) {
+					return m_name;
+				}
+				std::string const & JsonLink::name( ) const {
+					return m_name;
+				}
+
+				std::string JsonLink::encode( ) {
+					std::stringstream result;
+					std::string tmp;
+					for( auto const & value : m_data_map ) {
+						value.second( tmp, Action::encode );
+						result << tmp;
+					}
+					return details::json_name( m_name ) + details::enbracket( result.str( ) );
+				}
+
+				void JsonLink::decode( std::string const & json_text ) {
 					throw std::runtime_error( "Method not implemented" );
 				}
 

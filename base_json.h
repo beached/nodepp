@@ -60,48 +60,44 @@ namespace daw {
 				std::string value_to_json( std::string const & name );
 
 				// date -> actaually a string, but it javascript date format encodes the date
-				std::string value_to_json( std::string const & name, std::time_t value );
-				void json_to_value( std::string const & json_text, std::time_t & value );
-
-				namespace details {
-					GENERATE_HAS_MEMBER( deserialize_from_json, std::string );
-				}	// namespace details
+				std::string value_to_json( std::string const & name, std::time_t const & value );
+				void json_to_value( std::string const & json_text, std::time_t & value );				
 
 				// Template Declarations
 				//Numbers
-				template<typename Number, dtraits::enable_if_t<dtraits::is_numeric<Number>::value>>
-				std::string value_to_json( std::string const & name, Number const & value );
+				template<typename Number, typename N = dtraits::enable_if_t<dtraits::is_numeric<Number>::value, Number>::type>
+				std::string value_to_json( std::string const & name, N const & value );
 
-				template<typename Number, dtraits::enable_if_t<dtraits::is_numeric<Number>::value>>
-				void json_to_value( std::string const & json_text, Number & value );			
+				template<typename Number, typename N = dtraits::enable_if_t<dtraits::is_numeric<Number>::value, Number>::type>
+				void json_to_value( std::string const & json_text, N & value );			
 
 				// boost optional.  will error out if T does not support value_to_json
-				template<typename T>
-				std::string value_to_json( std::string const & name, boost::optional<T> const & value );
+				template<typename Optional>
+				std::string value_to_json( std::string const & name, boost::optional<Optional> const & value );
 
-				template<typename T>
-				void json_to_value( std::string const & json_text, boost::optional<T> & value );
+				template<typename Optional>
+				void json_to_value( std::string const & json_text, boost::optional<Optional> & value );
 
 				// container/array.
-				template<typename Container, typename = std::enable_if<dtraits::is_container_or_array<Container>::value>::type>
-				std::string value_to_json( std::string const & name, Container const & values );
+				template<typename Container, typename T = std::enable_if<dtraits::is_container_or_array<Container>::value, Container>::type>
+				std::string value_to_json( std::string const & name, T const & values );
 
 				// Definitions
 				// Numbers
-				template<typename Number, dtraits::enable_if_t<dtraits::is_numeric<Number>::value>>
-				std::string value_to_json( std::string const & name, Number const & value ) {
+				template<typename Number, typename N = dtraits::enable_if_t<dtraits::is_numeric<Number>::value, Number>::type>
+				std::string value_to_json( std::string const & name, N const & value ) {
 					using std::to_string;
 					return details::json_name( name ) + to_string( value );
 				}
 
-				template<typename Number, dtraits::enable_if_t<dtraits::is_numeric<Number>::value>>
-				void json_to_value( std::string const & json_text, Number & value ) {
+				template<typename Number, typename N = dtraits::enable_if_t<dtraits::is_numeric<Number>::value, Number>::type>
+				void json_to_value( std::string const & json_text, N & value ) {
 					//TODO
 				}				
 
 				// boost optional.  will error out if T does not support value_to_json
-				template<typename T>
-				std::string value_to_json( std::string const & name, boost::optional<T> const & value ) {
+				template<typename Optional>
+				std::string value_to_json( std::string const & name, boost::optional<Optional> const & value ) {
 					if( value ) {
 						return value_to_json( name, value.get( ) );
 					} else {
@@ -109,14 +105,14 @@ namespace daw {
 					}
 				}
 
-				template<typename T>
-				void json_to_value( std::string const & json_text, boost::optional<T> & value ) {
+				template<typename Optional>
+				void json_to_value( std::string const & json_text, boost::optional<Optional> & value ) {
 					// TODO
 				}
 
 				// container/array.
-				template<typename Container>
-				std::string value_to_json( std::string const & name, Container const & values ) {
+				template<typename Container, typename T = std::enable_if<dtraits::is_container_or_array<Container>::value, Container>::type>
+				std::string value_to_json( std::string const & name, T const & values ) {
 				std::stringstream result;
 					result << details::json_name( name ) + "[\n";
 					for( auto const & item : values ) {
@@ -126,8 +122,8 @@ namespace daw {
 					return result.str( );
 				}
 
-				template<typename Container, dtraits::enable_if_t<dtraits::is_container<Container>::value>>
-				void json_to_value( std::string const & json_text, Container & values ) {
+				template<typename Container, typename T = std::enable_if<dtraits::is_container_or_array<Container>::value, Container>::type>
+				void json_to_value( std::string const & json_text, T & values ) {
 					// TODO
 				}
 
@@ -136,9 +132,18 @@ namespace daw {
 					enum class Action { encode, decode };
 				private:
 					std::string m_name;
-					std::unordered_map<std::string, std::function<void( std::string &value, std::string & json_text, Action )>> m_data_map;
+					std::unordered_map<std::string, std::function<void( std::string & json_text, Action )>> m_data_map;
 				public:
 					JsonLink( std::string name = "" );
+					~JsonLink( ) = default;
+					JsonLink( JsonLink const & ) = default;
+					JsonLink& operator=(JsonLink const &) = default;
+					JsonLink( JsonLink && other );
+					JsonLink& operator=(JsonLink && rhs);
+
+
+					std::string & name( );
+					std::string const & name( ) const;
 
 					std::string encode( );
 					void decode( std::string const & json_text );

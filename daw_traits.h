@@ -86,20 +86,20 @@ namespace daw {
 			return are_true( b1, b2 ) && are_true( others... );
 		}
 
-		template<typename... NumericTypes>
-		struct is_numeric;
-
-		template<typename NumericType>
-		struct is_numeric < NumericType > {
-			static const bool value = std::is_arithmetic<NumericType>::value;
-			typedef bool type;
-		};
-
-		template<typename NumericType, typename ...NumericTypes>
-		struct is_numeric < NumericType, NumericTypes... > {
-			static const bool value = std::is_arithmetic<NumericType>::value && is_numeric<NumericTypes...>::value;
-			typedef bool type;
-		};
+// 		template<typename... NumericTypes>
+// 		struct is_numeric;
+// 
+// 		template<typename NumericType>
+// 		struct is_numeric < NumericType > {
+// 			static const bool value = std::is_arithmetic<NumericType>::value;
+// 			typedef bool type;
+// 		};
+// 
+// 		template<typename NumericType, typename ...NumericTypes>
+// 		struct is_numeric < NumericType, NumericTypes... > {
+// 			static const bool value = std::is_arithmetic<NumericType>::value && is_numeric<NumericTypes...>::value;
+// 			typedef bool type;
+// 		};
 
 		template<typename... DataTypes>
 		struct are_same_types;
@@ -213,6 +213,25 @@ namespace daw {
 				std::deque<typename T::value_type>, 
 				std::unordered_set<typename T::value_type>
 			>::value || is_map_like<T>::value>> : std::true_type { };
+
+		template<typename Numeric, typename = void>
+		struct is_numeric: std::false_type { };
+
+		template<typename Numeric>
+		struct is_numeric<Numeric, std::enable_if<
+			is_one_of<typename std::decay<Numeric>::type,
+				char,
+				uchar,
+				int8_t,
+				int16_t, 
+				int32_t, 
+				int64_t, 
+				uint8_t, 
+				uint16_t, 
+				uint32_t, 
+				uint64_t, 
+				float, 
+				double>::value>> : std::true_type { };
 
 
 		template<typename T, typename = void>
