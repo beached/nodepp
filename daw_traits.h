@@ -221,7 +221,7 @@ namespace daw {
 		struct is_numeric<Numeric, std::enable_if<
 			is_one_of<typename std::decay<Numeric>::type,
 				char,
-				uchar,
+				unsigned char,
 				int8_t,
 				int16_t, 
 				int32_t, 
