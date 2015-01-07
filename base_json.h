@@ -66,10 +66,10 @@ namespace daw {
 				// Template Declarations
 				//Numbers
 				template<typename Number>
-				auto value_to_json( std::string const & name, Number const & value ) -> enable_if_t<is_numeric<Number>::value, std::string>;
+				auto value_to_json( std::string const & name, Number const & value ) -> typename std::enable_if<is_numeric<Number>::value, std::string>::type;
 
 				template<typename Number>
-				auto json_to_value( std::string const & json_text, Number & value ) -> enable_if_t<is_numeric<Number>::value>;
+				auto json_to_value( std::string const & json_text, Number & value ) -> typename std::enable_if<is_numeric<Number>::value>::type;
 
 				// boost optional.  will error out if T does not support value_to_json
 				template<typename Optional>
@@ -80,18 +80,18 @@ namespace daw {
 
 				// container/array.
 				template<typename Container>
-				auto value_to_json( std::string const & name, Container const & values ) -> enable_if_t<is_container_or_array<Container>::value, std::string>;
+				auto value_to_json( std::string const & name, Container const & values ) -> typename std::enable_if<is_container_or_array<Container>::value, std::string>::type;
 
 				// Definitions
 				// Numbers
 				template<typename Number>
-				auto value_to_json( std::string const & name, Number const & value ) -> enable_if_t<is_numeric<Number>::value, std::string> {
+				auto value_to_json( std::string const & name, Number const & value ) -> typename std::enable_if<is_numeric<Number>::value, std::string>::type {
 					using std::to_string;
 					return details::json_name( name ) + to_string( value );
 				}
 
 				template<typename Number>
-				auto json_to_value( std::string const & json_text, Number & value ) -> enable_if_t<is_numeric<Number>::value> {
+				auto json_to_value( std::string const & json_text, Number & value ) -> typename std::enable_if<is_numeric<Number>::value>::type {
 					//TODO
 				}				
 
