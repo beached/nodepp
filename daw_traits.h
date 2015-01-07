@@ -70,8 +70,8 @@ namespace daw {
 			typedef typename std::conditional<sizeof( First ) >= sizeof( next ), First, next>::type type;
 			static const size_t value = sizeof( type );
 		};
-
-		template<class BoolType>
+	
+		template<typename BoolType>
 		bool are_true( BoolType b1 ) {
 			return true == b1;
 		}
@@ -155,6 +155,20 @@ namespace daw {
 			};
 		}
 
+		template<bool...> struct bool_sequence { };
+
+		template<bool... Bools>
+		using bool_and = std::is_same< bool_sequence< Bools...>, bool_sequence< (Bools || true)...> >;
+
+		template<bool... Bools>
+		using bool_or = std::integral_constant<bool, !bool_and< !Bools... >::value >;
+
+		template< typename R, bool... Bs > 
+		using enable_if_any = std::enable_if< bool_or< Bs... >::value, R >;
+
+		template< typename R, bool... Bs >
+		using enable_if_all = std::enable_if< bool_and< Bs... >::value, R >;
+
 		template<typename... DataTypes>
 		struct is_one_of;
 
@@ -176,48 +190,45 @@ namespace daw {
 			using type = bool;
 		};
 
-		// 		template<typename T, typename = void>
-		// 		struct is_container: public std::false_type { };
-		//
-		// 		template<typename T>
-		// 		struct is_container<T, typename std::enable_if<details::has_begin_func<T>::value>::type> : public std::true_type { };
-		// 		
-		// 		template <typename T>
-		// 		struct is_container {
-		// 			template <typename U, typename S = decltype((dynamic_cast<U*>(0))->serialize_to_json( )), typename I = typename U::const_iterator>
-		// 			static char test( U* u );
-		// 			template <typename U> static long test( ... );
-		// 			enum { value = sizeof test<T>( 0 ) == 1 };
-		// 		};
-		// 		
+	#define GENERATE_IS_STD_CONTAINER1( ContainerName ) \
+		template<typename T, typename = void> struct is_##ContainerName: std::false_type { }; \
+		template<typename T> struct is_##ContainerName < T, typename std::enable_if<std::is_convertible<T, std::ContainerName<typename T::value_type> >::value>::type> : std::true_type { };
+		
+		GENERATE_IS_STD_CONTAINER1( vector );
+		GENERATE_IS_STD_CONTAINER1( list );
+		GENERATE_IS_STD_CONTAINER1( set );
+		GENERATE_IS_STD_CONTAINER1( unordered_set );
+		GENERATE_IS_STD_CONTAINER1( deque );
 
-		template<typename T, typename = void> struct is_vector: std::false_type { };
-		template<typename T> struct is_vector < T, std::enable_if < std::is_convertible<T, std::vector<typename T::value_type>>::value >> : std::true_type { };
+		#undef GENERATE_IS_STD_CONTAINER1
+
+	#define GENERATE_IS_STD_CONTAINER2( ContainerName ) \
+		template<typename T, typename = void> struct is_##ContainerName: std::false_type { }; \
+		template<typename T> struct is_##ContainerName < T, typename std::enable_if<std::is_convertible<T, std::ContainerName<typename T::key_type, typename T::mapped_type> >::value>::type> : std::true_type { };
+
+		GENERATE_IS_STD_CONTAINER2( map );
+		GENERATE_IS_STD_CONTAINER2( unordered_map );
+
+		#undef GENERATE_IS_STD_CONTAINER2
 
 
 		// Hack, need to figure out a way based on ability at compile time
-		template<typename T, typename = void>
-		struct is_map_like: std::false_type { };
 
-		template<typename T>
-		struct is_map_like < T, std::enable_if <
-			is_one_of<T,
-			std::map<typename T::key_type, typename T::mapped_type>,
-			std::unordered_map<typename T::key_type, typename T::mapped_type>
-			>::value >> : std::true_type { };
 
 		template<typename T, typename = void>
 		struct is_container: std::false_type { };
 
 		template<typename T>
-		struct is_container < T, std::enable_if <
-			is_one_of<T,
-			std::vector<typename T::value_type>,
-			std::list<typename T::value_type>,
-			std::set<typename T::value_type>,
-			std::deque<typename T::value_type>,
-			std::unordered_set<typename T::value_type>
-			>::value || is_map_like<T>::value >> : std::true_type { };
+		struct is_container < T, 
+			typename enable_if_any <void,
+					is_vector<T>::value,
+					is_list<T>::value,
+					is_set<T>::value,
+					is_deque<T>::value,
+					is_unordered_set<T>::value,
+					is_map<T>::value,
+					is_unordered_map<T>::value
+			>::type> : std::true_type { };
 
 		template<typename Numeric, typename = void>
 		struct is_numeric: std::false_type { };

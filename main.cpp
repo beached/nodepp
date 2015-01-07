@@ -37,7 +37,7 @@ struct test {
 	test( ) : a( 0 ), b( 1.1 ), c( 100, "a" ), m_lnk( "test" ) {
 		m_lnk.link_value( "a", a );
 		m_lnk.link_value( "b", b );
-		auto s = daw::nodepp::base::json::value_to_json( "", c );
+		static_assert( daw::traits::is_vector<decltype( c )>::value, "isvector" );
 		//m_lnk.link_value( "c", c );
 	}
 };
