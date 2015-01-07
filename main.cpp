@@ -37,12 +37,13 @@ int main( int, char const ** ) {
 	site->on_listening( []( boost::asio::ip::tcp::endpoint endpoint ) {
 		std::cout << "Listening on " << endpoint << "\n";
 	} ).on_requests_for( HttpClientRequestMethod::Get, "/", [&]( HttpClientRequest request, HttpServerResponse response ) {
+		auto req = request->encode( );
 		response->on_all_writes_completed( [response]( ) mutable {
 			response->close( );
 		} ).send_status( 200 )
 			.add_header( "Content-Type", "application/json" )
 			.add_header( "Connection", "close" )
-			.end( request->encode( ) );
+			.end( req );
 	} )/*.on_error( []( base::Error error ) {
 		std::cerr << ""; //error << std::endl;
 	} )*/.listen_on( 8080 )/*.on_page_error( 404, []( lib::http::HttpClientRequest request, lib::http::HttpServerResponse response, uint16_t ) { 

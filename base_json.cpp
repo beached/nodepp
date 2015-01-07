@@ -32,19 +32,23 @@ void localtime_s( struct tm* result, std::time_t const * source ) {
 }
 #endif
 
-std::string to_string( std::time_t const & timestamp, std::string format = "%a %b %d %Y %T GMT%z (%Z)" ) {
-	char buffer[200];
-	std::tm tm = { };
-	localtime_s( &tm, &timestamp );
-	auto count = std::strftime( buffer, 200, format.c_str( ), &tm );
-	assert( count < 200 );
-	return std::string( buffer, buffer + count + 1 );
-}
-
-namespace daw {
+namespace daw {	
 	namespace nodepp {
 		namespace base {
 			namespace json {
+				std::string to_string( std::time_t const & timestamp, std::string format ) {
+					char buffer[200];
+					std::tm tm = { };
+					localtime_s( &tm, &timestamp );
+					auto count = std::strftime( buffer, 200, format.c_str( ), &tm );
+					assert( count < 200 );
+					return std::string( buffer, buffer + count + 1 );
+				}
+
+				std::string to_string( std::string const & value ) {
+					return value;
+				}
+
 				std::string enquote( std::string const & value ) {
 					return "\"" + value + "\"";
 				}
@@ -57,7 +61,7 @@ namespace daw {
 						return std::string( );
 					}
 
-					std::string enbracket( std::string const & json_value ) {
+					std::string enbrace( std::string const & json_value ) {
 						return "{\n" + json_value + "\n}";
 					}
 				}
@@ -88,7 +92,7 @@ namespace daw {
 
 				// date -> actaually a string, but it javascript date format encodes the date
 				std::string value_to_json_timestamp( std::string const & name, std::time_t const & timestamp ) {
-					return details::json_name( name ) + enquote( to_string( timestamp ) );
+					return details::json_name( name ) + enquote( daw::nodepp::base::json::to_string( timestamp ) );
 				}
 
 				void json_to_value( std::string const & json_text, std::time_t & value ) {
@@ -162,7 +166,7 @@ namespace daw {
 						result << (!is_first ? ", " : "") << tmp;
 						is_first = false;
 					}
-					return "{\n" + details::json_name( m_name ) + details::enbracket( result.str( ) ) + "\n}";
+					return "{\n" + details::json_name( m_name ) + details::enbrace( result.str( ) ) + "\n}";
 				}
 
 				void JsonLink::decode( std::string const & json_text ) {

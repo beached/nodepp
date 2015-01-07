@@ -35,18 +35,22 @@
 #include "daw_traits.h"
 #include "utility.h"
 
+
+
 namespace daw {
 	namespace nodepp {
 		namespace base {
 			namespace json {
-				
+				std::string to_string( std::string const & value );
+				using std::to_string;
+
 				using namespace daw::traits;
 
 				std::string enquote( std::string const & value );
 
 				namespace details {
 					std::string json_name( std::string const & name );
-					std::string enbracket( std::string const & json_value );
+					std::string enbrace( std::string const & json_value );
 				}	// namespace details
 
 				// string
@@ -76,7 +80,6 @@ namespace daw {
 				// Numbers
 				template<typename Number, typename std::enable_if<is_numeric<Number>::value, int>::type = 0>
 				std::string value_to_json_number( std::string const & name, Number const & value ) {
-					using std::to_string;
 					return details::json_name( name ) + to_string( value );
 				}
 
@@ -122,18 +125,67 @@ namespace daw {
 				template<typename Optional>
 				void json_to_value( std::string const & json_text, boost::optional<Optional> & value ) {
 					throw std::runtime_error( "Method not implemented" );
+				}				
+
+				// container/array
+
+				template<typename Key, typename Value>
+				std::string value_to_json( std::string const & name, std::map<Key, Value> const & values ) {
+					std::stringstream result;
+					if( !name.empty( ) ) {
+						result << details::json_name( name ) + "{ ";
+					}
+					bool is_first = true;
+					for( auto const & item : values ) {
+						result << (!is_first? ",": "") << details::enbrace( value_to_json( to_string( item.first ), item.second) );
+						is_first = false;
+					}
+					if( !name.empty( ) ) {
+						result << " }";
+					}
+					return result.str( );
 				}
+
+				template<typename Key, typename Value>
+				std::string value_to_json( std::string const & name, std::unordered_map<Key, Value> const & values ) {
+					std::stringstream result;
+					if( !name.empty( ) ) {
+						result << details::json_name( name ) + "{ ";
+					}
+					bool is_first = true;
+					for( auto const & item : values ) {
+						result << (!is_first? ",": "") << details::enbrace( value_to_json( to_string( item.first ), item.second ) );
+						is_first = false;
+					}
+					if( !name.empty( ) ) {
+						result << " }";
+					}
+					return result.str( );
+				}
+
 
 				// container/array.
 				template<typename Container, typename std::enable_if<is_container<Container>::value, long>::type = 0>
 				std::string value_to_json( std::string const & name, Container const & values ) {
 				std::stringstream result;
 					result << details::json_name( name ) + "[ ";
+					bool is_first = true;
 					for( auto const & item : values ) {
-						result << value_to_json( "", item ) << ", ";
+						result << (!is_first? ",": "") << value_to_json( "", item );
+						is_first = false;
 					}
 					result << " ]";
 					return result.str( );
+				}
+
+				template<typename Key, typename Value>
+				std::string json_to_value( std::string const & json_text, std::map<Key, Value> & values ) {
+					throw std::runtime_error( "Method not implemented" );
+				}
+
+				template<typename Key, typename Value>
+				std::string json_to_value( std::string const & json_text, std::unordered_map<Key, Value> & values ) {
+					throw std::runtime_error( "Method not implemented" );
 				}
 
 				template<typename Container, typename std::enable_if<is_container<Container>::value, long>::type = 0>
