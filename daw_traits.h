@@ -172,7 +172,7 @@ namespace daw {
 
 		template<typename T, typename DataType1, typename ...DataTypes>
 		struct is_one_of < T, DataType1, DataTypes... > {
-			static const bool value = std::is_same<T, DataType1>::value T is_one_of<T, DataTypes...>::value;
+			static const bool value = std::is_same<T, DataType1>::value || is_one_of<T, DataTypes...>::value;
 			using type = bool;
 		};
 
