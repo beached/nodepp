@@ -143,11 +143,13 @@ namespace daw {
 				std::string JsonLink::encode( ) {
 					std::stringstream result;
 					std::string tmp;
+					auto is_first = true;
 					for( auto const & value : m_data_map ) {
 						value.second( tmp, Action::encode );
-						result << tmp;
+						result << (!is_first ? ", " : "") << tmp;
+						is_first = false;
 					}
-					return details::json_name( m_name ) + details::enbracket( result.str( ) );
+					return "{\n" + details::json_name( m_name ) + details::enbracket( result.str( ) ) + "\n}";
 				}
 
 				void JsonLink::decode( std::string const & json_text ) {

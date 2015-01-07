@@ -116,11 +116,11 @@ namespace daw {
 				template<typename Container, typename std::enable_if<is_container<Container>::value, long>::type = 0>
 				std::string value_to_json( std::string const & name, Container const & values ) {
 				std::stringstream result;
-					result << details::json_name( name ) + "[\n";
+					result << details::json_name( name ) + "[ ";
 					for( auto const & item : values ) {
-						result << value_to_json( "", item ) << ",\n";
+						result << value_to_json( "", item ) << ", ";
 					}
-					result << "\n]";
+					result << " ]";
 					return result.str( );
 				}
 
