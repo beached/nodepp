@@ -22,27 +22,45 @@
 
 #pragma once
 
-#include <boost/utility/string_ref.hpp>
 #include <boost/optional.hpp>
+#include <boost/utility/string_ref.hpp>
+#include <boost/variant.hpp>
+#include <cstdint>
 #include <map>
 #include <memory>
 #include <string>
-
+#include <vector>
 
 namespace daw {
 	namespace nodepp {
 		namespace base {
 			namespace json {
-				namespace impl {
-					struct json_obj_impl {
-						std::map<std::string, boost::optional<boost::string_ref>> val_members;
-						std::map<std::string, boost::optional<json_obj_impl>> obj_members;
-					};	// struct json_data
-
-					using json_obj = std::shared_ptr < json_obj_impl > ;
+				namespace impl {										
+					struct null_value { };
+					struct object_value;
+					struct array_value;
+					using value_t = boost::variant < int64_t, double, std::string, bool, null_value, array_value, object_value > ;
+					using value_opt_t = boost::optional < value_t > ;
 					
-					json_obj parse_json( std::string const & json_text );
+					struct array_value {
+						std::vector<value_opt_t> items;
+					};
+
+					using object_value_item = std::pair < value_t, value_opt_t > ;
+
+					struct object_value {
+						std::vector<object_value_item> members;
+						std::vector<object_value_item>::iterator find( boost::string_ref const key );
+						std::vector<object_value_item>::iterator begin( );
+						std::vector<object_value_item>::iterator end( );
+					};
+
 				}	// namespace impl
+				using json_obj = std::shared_ptr < impl::object_value > ;
+
+				json_obj parse_json( boost::string_ref const json_text );
+
+
 			}	// namespace json
 		}	// namespace base
 	}	// namespace nodepp

@@ -25,6 +25,7 @@
 #include <iomanip>
 
 #include "base_json.h"
+#include "base_json_impl.h"
 
 #ifndef WIN32
 void localtime_s( struct tm* result, std::time_t const * source ) {
@@ -162,33 +163,36 @@ namespace daw {
 					std::string tmp;
 					auto is_first = true;
 					for( auto const & value : m_data_map ) {
-						value.second( tmp, Action::encode );
+						value.second.encode( tmp );
 						result << (!is_first ? ", " : "") << tmp;
 						is_first = false;
 					}
 					return details::json_name( m_name ) + details::enbrace( result.str( ) );
 				}
 
-				void JsonLink::decode( std::string const & json_text ) {
-					throw std::runtime_error( "Method not implemented" );
+				void JsonLink::decode( boost::string_ref const json_text ) {
+					auto json_obj = parse_json( json_text );
+					for( auto & value : m_data_map ) {
+						value.second.decode( json_obj );
+					}
 				}
 
-				JsonLink& JsonLink::link_timestamp( std::string name, std::time_t& value ) {
-					std::time_t *value_ptr = &value;
-					m_data_map[name] = [value_ptr, name]( std::string & json_text, Action action ) {
-						assert( value_ptr != nullptr );
-						std::time_t& val = *value_ptr;
-						switch( action ) {
-						case Action::encode:
-							json_text = value_to_json_timestamp( name, val );
-							break;
-						case Action::decode:
-							json_to_value( json_text, val );
-							break;
-						}
-					};
-					return *this;
-				}
+// 				JsonLink& JsonLink::link_timestamp( std::string name, std::time_t& value ) {
+// 					std::time_t *value_ptr = &value;
+// 					m_data_map[name] = [value_ptr, name]( std::string & json_text, Action action ) {
+// 						assert( value_ptr != nullptr );
+// 						std::time_t& val = *value_ptr;
+// 						switch( action ) {
+// 						case Action::encode:
+// 							json_text = value_to_json_timestamp( name, val );
+// 							break;
+// 						case Action::decode:
+// 							json_to_value( json_text, val );
+// 							break;
+// 						}
+// 					};
+// 					return *this;
+// 				}
 
 				std::ostream& operator<<(std::ostream& os, daw::nodepp::base::json::JsonLink const & data) {
 					os << data.encode( );

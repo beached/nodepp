@@ -32,6 +32,7 @@
 #include <utility>
 #include <vector>
 
+#include "base_json_impl.h"
 #include "daw_traits.h"
 #include "utility.h"
 
@@ -217,7 +218,14 @@ namespace daw {
 					enum class Action { encode, decode };
 				private:
 					std::string m_name;
-					std::unordered_map<std::string, std::function<void( std::string & json_text, Action )>> m_data_map;
+					using encode_function_t = std::function < void( std::string & json_text ) > ;
+					using decode_function_t = std::function < void( json_obj json_values )>;
+
+					struct bind_functions_t {
+						encode_function_t encode;
+						decode_function_t decode;
+					};
+					std::unordered_map<std::string, bind_functions_t> m_data_map;
 				public:
 					JsonLink( std::string name = "" );
 					~JsonLink( ) = default;
@@ -233,29 +241,43 @@ namespace daw {
 
 					std::string encode( ) const;
 					
-					void decode( std::string const & json_text );
+					void decode( boost::string_ref const json_text );
 					
 					void reset_jsonlink( );
 
 					template<typename T>
 					JsonLink& link_value( std::string name, T& value ) {
 						T* value_ptr = &value;
-						m_data_map[name] = [value_ptr, name]( std::string & json_text, Action action ) {
-							assert( value_ptr != nullptr );
+						bind_functions_t bind_functions;
+						bind_functions.encode = [value_ptr, name]( std::string & json_text ) {
+							assert( value_ptr );
 							T& val = *value_ptr;
-							switch( action ) {
-							case Action::encode:									
-								json_text = value_to_json( name, val );
-								break;
-							case Action::decode:
-								json_to_value( json_text, val );
-								break;
-							}
+							json_text = value_to_json( name, val );
 						};
+
+						bind_functions.decode = [value_ptr, name]( json_obj json_values ) mutable {
+							assert( value_ptr );
+							assert( json_values );
+							T& val = *value_ptr;
+							auto member = json_values->find( name );
+							if( json_values->end( ) == member ) {
+								// TODO: determine if correct course of action
+								throw std::runtime_error( "JSON object does not match expected object layout" );
+							}
+							auto value = member->second;
+							if( !value ) {
+								// TODO: determine if correct course of action
+								throw std::runtime_error( "JSON object does not contain value requested" );
+							}
+							val = boost::get<T>( *value );
+						};
+
+						m_data_map[name] = std::move( bind_functions );
+						
 						return *this;
 					}
 
-					JsonLink& link_timestamp( std::string name, std::time_t& value );
+					//JsonLink& link_timestamp( std::string name, std::time_t& value );
 				};	// struct JsonLink
 
 				std::string value_to_json( std::string const & name, JsonLink const & obj );

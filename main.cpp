@@ -37,7 +37,9 @@ int main( int, char const ** ) {
 	site->on_listening( []( boost::asio::ip::tcp::endpoint endpoint ) {
 		std::cout << "Listening on " << endpoint << "\n";
 	} ).on_requests_for( HttpClientRequestMethod::Get, "/", [&]( HttpClientRequest request, HttpServerResponse response ) {
+
 		auto req = request->encode( );
+		request->decode( req );
 		response->on_all_writes_completed( [response]( ) mutable {
 			response->close( );
 		} ).send_status( 200 )
