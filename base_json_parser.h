@@ -35,13 +35,13 @@ namespace daw {
 	namespace nodepp {
 		namespace base {
 			namespace json {
-				namespace impl {										
+				namespace impl {
 					struct null_value { };
 					struct object_value;
 					struct array_value;
 					using value_t = boost::variant < int64_t, double, std::string, bool, null_value, array_value, object_value > ;
 					using value_opt_t = boost::optional < value_t > ;
-					
+
 					struct array_value {
 						std::vector<value_opt_t> items;
 					};
