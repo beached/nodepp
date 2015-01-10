@@ -25,7 +25,7 @@
 #include <iomanip>
 
 #include "base_json.h"
-#include "base_json_impl.h"
+#include "base_json_parser.h"
 
 #ifndef WIN32
 void localtime_s( struct tm* result, std::time_t const * source ) {

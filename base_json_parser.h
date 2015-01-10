@@ -50,13 +50,14 @@ namespace daw {
 
 					struct object_value {
 						std::vector<object_value_item> members;
-						std::vector<object_value_item>::iterator find( boost::string_ref const key );
-						std::vector<object_value_item>::iterator begin( );
-						std::vector<object_value_item>::iterator end( );
+						using iterator = std::vector<object_value_item>::iterator;
+						iterator find( boost::string_ref const key );
+						iterator begin( );
+						iterator end( );
 					};
 
 				}	// namespace impl
-				using json_obj = std::shared_ptr < impl::object_value > ;
+				using json_obj = std::shared_ptr < impl::value_t > ;
 
 				json_obj parse_json( boost::string_ref const json_text );
 

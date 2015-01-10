@@ -26,25 +26,25 @@
 #include <string>
 #include <type_traits>
 
-#include "base_json_impl.h"
+#include "base_json_parser.h"
 
 namespace daw {
 	namespace nodepp {
 		namespace base {
 			namespace json {
 				namespace impl {
-					std::vector<object_value_item>::iterator object_value::find( boost::string_ref const key ) {
-						return std::find_if( members.begin( ), members.end( ), [&key]( object_value_item const & item ) {
-							assert( item.first.type( ) == typeid(std::string) );
-							return boost::get<std::string>( item.first ) == key.to_string( );
+					object_value::iterator object_value::find( boost::string_ref const key ) {
+						return std::find_if( members.begin( ), members.end( ), [key]( value_t const & item ) {
+							assert( item.type( ) == typeid(std::string) );
+							return item == key.to_string( );
 						} );
 					}
 
-					std::vector<object_value_item>::iterator object_value::end( ) {
+					object_value::iterator object_value::end( ) {
 						return members.end( );
 					}
 
-					std::vector<object_value_item>::iterator object_value::begin( ) {
+					object_value::iterator object_value::begin( ) {
 						return members.begin( );
 					}
 
@@ -358,9 +358,9 @@ namespace daw {
 					auto range = impl::make_range( json_text.begin( ), json_text.end( ) );
 					auto result = impl::parse_value( range );
 					if( result ) {
-						return std::make_shared<impl::object_value>( *result );
+						return std::make_shared<impl::value_t>( std::move( *result ) );
 					}
-					return std::make_shared<impl::object_value>( nullptr );
+					return std::make_shared<impl::value_t>( nullptr );
 				}
 
 			}	// namespace json

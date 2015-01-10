@@ -32,7 +32,7 @@
 #include <utility>
 #include <vector>
 
-#include "base_json_impl.h"
+#include "base_json_parser.h"
 #include "daw_traits.h"
 #include "utility.h"
 
@@ -259,17 +259,17 @@ namespace daw {
 							assert( value_ptr );
 							assert( json_values );
 							T& val = *value_ptr;
-							auto member = json_values->find( name );
-							if( json_values->end( ) == member ) {
+							auto obj = boost::get<impl::object_value>( *json_values );
+							auto member = obj.find( name );
+							if( obj.end( ) == member ) {
 								// TODO: determine if correct course of action
 								throw std::runtime_error( "JSON object does not match expected object layout" );
 							}
-							auto value = member->second;
-							if( !value ) {
+							if( !member->second ) {
 								// TODO: determine if correct course of action
 								throw std::runtime_error( "JSON object does not contain value requested" );
 							}
-							val = boost::get<T>( *value );
+							val = boost::get<T>( *member->second );
 						};
 
 						m_data_map[name] = std::move( bind_functions );

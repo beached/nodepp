@@ -164,7 +164,7 @@
     <ClInclude Include="base_enoding.h" />
     <ClInclude Include="base_event_emitter.h" />
     <ClInclude Include="base_json.h" />
-    <ClInclude Include="base_json_impl.h" />
+    <ClInclude Include="base_json_parser.h" />
     <ClInclude Include="base_url.h" />
     <ClInclude Include="base_work_queue.h" />
     <ClInclude Include="base_write_buffer.h" />
@@ -207,7 +207,7 @@
     <ClCompile Include="base_error.cpp" />
     <ClCompile Include="base_event_emitter.cpp" />
     <ClCompile Include="base_json.cpp" />
-    <ClCompile Include="base_json_impl.cpp" />
+    <ClCompile Include="base_json_parser.cpp" />
     <ClCompile Include="base_work_queue.cpp" />
     <ClCompile Include="base_write_buffer.cpp" />
     <ClCompile Include="lib_file.cpp" />
