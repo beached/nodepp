@@ -264,7 +264,7 @@ namespace daw {
 								if( !item ) {
 									return value_opt_t( );
 								}
-								result.members.push_back( item );
+								result.members.push_back( *item );
 								skip_ws( current );
 								if( !is_equal( current.first, ',' ) ) {
 									break;
