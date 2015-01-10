@@ -34,9 +34,8 @@ namespace daw {
 			namespace json {
 				namespace impl {
 					object_value::iterator object_value::find( boost::string_ref const key ) {
-						return std::find_if( members.begin( ), members.end( ), [key]( value_t const & item ) {
-							assert( item.type( ) == typeid(std::string) );
-							return item == key.to_string( );
+						return std::find_if( members.begin( ), members.end( ), [key]( object_value_item const & item ) {							
+							return item.first == key;
 						} );
 					}
 
@@ -232,11 +231,12 @@ namespace daw {
 
 						template<typename Iterator>
 						boost::optional<object_value_item> parse_object_item( Range<Iterator> & range ) {
-							auto current = range;
+							auto current = range;							
 							auto label = parse_string( current );
 							if( !label || label->type( ) != typeid( std::string ) ) {
 								return boost::optional<object_value_item>( );
 							}
+							
 							skip_ws( current );
 							if( !is_equal( current.first, ':' ) ) {
 								return boost::optional<object_value_item>( );
@@ -247,7 +247,7 @@ namespace daw {
 								return boost::optional<object_value_item>( );
 							}
 							range = current;
-							return std::make_pair< value_t, value_opt_t >( std::move( *label ), std::move( value ) );
+							return std::make_pair< std::string, value_opt_t >( std::move( boost::get<std::string>( label ) ), std::move( value ) );
 						}
 
 						template<typename Iterator>

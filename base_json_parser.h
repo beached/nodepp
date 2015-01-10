@@ -46,7 +46,7 @@ namespace daw {
 						std::vector<value_opt_t> items;
 					};
 
-					using object_value_item = std::pair < value_t, value_opt_t > ;
+					using object_value_item = std::pair < std::string, value_opt_t > ;
 
 					struct object_value {
 						std::vector<object_value_item> members;
