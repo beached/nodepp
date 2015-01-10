@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+((// The MIT License (MIT)
 // 
 // Copyright (c) 2014-2015 Darrell Wright
 // 
@@ -124,7 +124,7 @@ namespace daw {
 
 						template<typename Iterator>
 						bool forward_if_equal( Range<Iterator>& range, boost::string_ref value ) {
-							bool result = std::distance( range.first, range.last ) >= static_cast<std::iterator_traits<Iterator>::difference_type>( value.size( ) );
+							bool result = std::distance( range.first, range.last ) >= static_cast<typename std::iterator_traits<Iterator>::difference_type>( value.size( ) );
 							result = result && std::equal( range.first, range.first + value.size( ), std::begin( value ) );
 							if( result ) {
 								safe_advance( range, value.size( ) );
@@ -275,7 +275,7 @@ namespace daw {
 								return value_opt_t( );
 							}
 							range = current;
-							return result;
+							return value_opt_t( std::move( result ) );
 						}
 
 						template<typename Iterator>

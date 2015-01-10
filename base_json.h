@@ -121,9 +121,9 @@ namespace daw {
 				template<typename T>
 				void value_to_json( std::string const & name, std::shared_ptr<T> const & value ) {
 					if( !value ) {
-						return value_to_json( name );
+						value_to_json( name );
 					}
-					return value_to_json( name, *value );
+					value_to_json( name, *value );
 				}
 
 				template<typename T>
@@ -131,9 +131,9 @@ namespace daw {
 					if( !value.expired( ) ) {
 						auto shared_value = value.lock( );
 						if( !shared_value ) {
-							return value_to_json( name );
+							value_to_json( name );
 						}
-						return value_to_json( name, *shared_value );
+						value_to_json( name, *shared_value );
 					}
 				}
 

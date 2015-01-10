@@ -18,6 +18,8 @@ set(SOURCE_FILES
 		base_event_emitter.h
 		base_json.cpp
 		base_json.h
+		base_json_parser.cpp
+		base_json_parser.h
 		base_service_handle.cpp
 		base_service_handle.h
 		base_stream.h
@@ -28,7 +30,6 @@ set(SOURCE_FILES
 		base_write_buffer.cpp
 		base_write_buffer.h
 		concurrent_queue.h
-		daw_optional.h
 		daw_traits.h
 		lib_file.cpp
 		lib_file.h
@@ -79,5 +80,6 @@ set(SOURCE_FILES
 add_executable(NodePP ${SOURCE_FILES})
 
 target_link_libraries(NodePP  ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+
 
 
