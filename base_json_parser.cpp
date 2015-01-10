@@ -247,7 +247,7 @@ namespace daw {
 								return boost::optional<object_value_item>( );
 							}
 							range = current;
-							return std::make_pair< std::string, value_opt_t >( std::move( boost::get<std::string>( label ) ), std::move( value ) );
+							return std::make_pair< std::string, value_opt_t >( std::move( boost::get<std::string>( *label ) ), std::move( value ) );
 						}
 
 						template<typename Iterator>
