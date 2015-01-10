@@ -264,7 +264,7 @@ namespace daw {
 								if( !item ) {
 									return value_opt_t( );
 								}
-								result.members.push_back( item.value( ) );
+								result.members.push_back( item );
 								skip_ws( current );
 								if( !is_equal( current.first, ',' ) ) {
 									break;
@@ -341,6 +341,7 @@ namespace daw {
 									range = current;
 									return obj;
 								}
+								break;
 							default:
 								if( auto obj = parse_number( current ) ) {
 									skip_ws( current );
