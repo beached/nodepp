@@ -66,7 +66,42 @@ namespace daw {
 				void json_to_value( std::string const & json_text, HttpClientRequestMethod & method ) {
 					throw std::runtime_error( "Method not implemented" );
 				}
+				
+				HttpClientRequestMethod http_request_method_from_string( std::string method ) {
+					method = daw::AsciiLower( method );
+					if( "get" == method ) {
+						return HttpClientRequestMethod::Get;
+					} else if( "post" == method ) {
+						return HttpClientRequestMethod::Post;
+					} else if( "connect" == method ) {
+						return HttpClientRequestMethod::Connect;
+					} else if( "delete" == method ) {
+						return HttpClientRequestMethod::Delete;
+					} else if( "head" == method ) {
+						return HttpClientRequestMethod::Head;
+					} else if( "options" == method ) {
+						return HttpClientRequestMethod::Options;
+					} else if( "put" == method ) {
+						return HttpClientRequestMethod::Put;
+					} else if( "trace" == method ) {
+						return HttpClientRequestMethod::Trace;
+					} else if( "any" == method ) {
+						return HttpClientRequestMethod::Any;
+					}
+					throw std::runtime_error( "unknown http request method" );
+				}
 
+				std::ostream& operator<<(std::ostream& os, HttpClientRequestMethod const method) {
+					os << to_string( method );
+					return os;
+				}
+
+				std::istream& operator>>(std::istream& is, HttpClientRequestMethod & method) {
+					std::string method_string;
+					is >> method_string;
+					method = http_request_method_from_string( method_string );
+					return is;
+				}
 
 				HttpUrlQueryPair::HttpUrlQueryPair( ): 
 					JsonLink( ), 
@@ -103,8 +138,8 @@ namespace daw {
 				}
 
 				void HttpUrlQueryPair::set_links( ) { 
-					link_value( "name", name );
-					link_value( "value", value );
+					link_string( "name", name );
+					link_string( "value", value );
 				}
 
 				HttpUrl::HttpUrl( ):
@@ -136,9 +171,9 @@ namespace daw {
 				}
 
 				void HttpUrl::set_links( ) {
-					link_value( "path", path );
-					link_value( "query", query );
-					link_value( "fragment", fragment );
+					link_string( "path", path );
+					link_array( "query", query );
+					link_string( "fragment", fragment );
 				}
 
 				HttpRequestLine::HttpRequestLine( ) :
@@ -170,9 +205,9 @@ namespace daw {
 				}
 
 				void HttpRequestLine::set_links( ) {
-					link_value( "method", method );
-					link_value( "url", url );
-					link_value( "version", version );
+					link_streamable<decltype(method)>( "method", method );
+					link_object( "url", url );
+					link_string( "version", version );
 				}
 
 				namespace impl {
@@ -202,8 +237,8 @@ namespace daw {
 					}
 
 					void HttpClientRequestImpl::set_links( ) {
-						link_value( "request", request );
-						link_value( "headers", headers );
+						link_object( "request", request );
+						link_map( "headers", headers );
 					}
 				}	// namespace impl
 

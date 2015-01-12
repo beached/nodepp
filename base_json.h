@@ -22,13 +22,14 @@
 
 #pragma once
 
+#include <boost/lexical_cast.hpp>
 #include <boost/optional.hpp>
-#include <ctime>
 #include <cstdint>
-#include <unordered_map>
+#include <ctime>
 #include <ostream>
 #include <sstream>
 #include <string>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -212,42 +213,7 @@ namespace daw {
 				void json_to_value( std::string const & json_text, Container & values ) {
 					throw std::runtime_error( "Method not implemented" );
 				}
-
-				template<typename From, typename To, typename = std::enable_if<std::is_convertible<From, To>::value, long> = 0 >
-				struct OneWayDataBind { 
-					using getter_t = std::function < From const &() > ;
-					using setter_t = std::function < void( To const & ) > ;
-				private:
-					getter_t m_from_getter;
-					setter_t m_to_setter;
-				public:
-					LeftToRight( From & from, To & to ) : 
-						m_from_getter( [&from]( ) { 
-							return from;
-					} ), m_to_setter( [&to]( To const & value ) { 
-						to = value;
-					} ) { }
-					
-					LeftToRight( getter_t from_getter, setter_t to_setter ): 
-						m_from_getter( std::move( from_getter ) ), 
-						m_to_setter( std::move( to_setter ) ) { }
-						
-					void update( ) { 
-						auto const & from = static_cast<To>(m_from_getter( ));
-						m_to_setter( from );					
-					}
-				};	// struct OneWayDataBind
-
-				template<typename From, typename To> 
-				OneWayDataBind<From, To> create_oneway_databind( From & from, To & to ) { 
-					return OneWayDataBind<From, To>( from, to );
-				}
-
-				template<typename From, typename To>
-				OneWayDataBind<From, To> create_oneway_databind( OneWayDataBind<From, To>::getter_t from, OneWayDataBind<From, To>::setter_t & to ) {
-					return OneWayDataBind<From, To>( from, to );
-				}
-
+			
 				struct JsonLink {
 					enum class Action { encode, decode };
 				private:
@@ -261,14 +227,13 @@ namespace daw {
 					};
 					std::unordered_map<std::string, bind_functions_t> m_data_map;
 					
-					template<typename FuncEncode, typename FuncDecode>
-					JsonLink& link_value( std::string name, FuncEncode encoder, FuncDecode decoder ) {
-						auto value_ptr = &value;
-						bind_functions_t bind_functions;
+					template<typename T>
+					JsonLink& link_value( boost::string_ref name, T& value ) {
 						set_name( value, name );
-						bind_functions.encode = encoder;
-						bind_functions.decode = decoder;
-					}					
+						m_data_map[name.to_string( )] = standard_bind_functions( name, value );
+						return *this;
+					}
+
 				public:
 					JsonLink( std::string name = "" );
 					~JsonLink( ) = default;
@@ -297,132 +262,345 @@ namespace daw {
 					}
 
 					template<typename T>
-					void set_name( T &, std::string ) { }
+					void set_name( T &, boost::string_ref ) { }
 
-					void set_name( JsonLink & obj, std::string name ) {
-						obj.json_object_name( ) = std::move( name );
+					void set_name( JsonLink & obj, boost::string_ref name ) {
+						obj.json_object_name( ) = name.to_string( );
+					}
+
+					template<typename T>
+					encode_function_t standard_encoder( boost::string_ref name, T & value ) {
+						auto value_ptr = &value;
+						auto name_copy = name.to_string( );
+						return[value_ptr, name_copy]( std::string & json_text ) {
+							assert( value_ptr );
+							json_text = value_to_json( name_copy, *value_ptr );
+						};
+					}
+
+					template<typename T>
+					T decoder_helper( json_obj const & json_values, boost::string_ref name ) {
+						assert( json_values );
+						auto obj = json_values->get_object( );
+						auto member = obj.find( name );
+						if( obj.end( ) == member ) {
+							// TODO: determine if correct course of action
+							throw std::runtime_error( "JSON object does not match expected object layout" );
+						}
+						return get<T>( member->second );
+					}
+
+					template<typename T>
+					boost::optional<T> nullable_decoder_helper( json_obj const & json_values, boost::string_ref name ) {
+						assert( json_values );
+						auto obj = json_values->get_object( );
+						auto member = obj.find( name );
+						if( obj.end( ) == member ) {
+							// TODO: determine if correct course of action
+							throw std::runtime_error( "JSON object does not match expected object layout" );
+						}
+						if( member->second.is_null( ) ) {
+							return boost::optional<T>( );
+						}
+						return boost::optional<T>( get<T>( member ) );
+					}
+
+					template<typename T, typename U=T>
+					encode_function_t standard_decoder( boost::string_ref name, T & value ) {
+						auto value_ptr = &value;
+						auto name_copy = name.to_string( );
+						return[value_ptr, name_copy]( json_obj json_values ) mutable {
+							assert( value_ptr );
+							auto new_val = decoder_helper<U>( json_values, name );
+							val = new_val;
+						};
+					}
+
+					template<typename T, typename U = T>
+					encode_function_t standard_decoder( boost::string_ref name, boost::optional<T> & value ) {
+						auto value_ptr = &value;
+						auto name_copy = name.to_string( );
+						return[value_ptr, name_copy]( json_obj json_values ) mutable {
+							assert( value_ptr );
+							auto new_val = nullable_decoder_helper<U>( json_values, name );
+							val = new_val;
+						};
+					}
+
+
+					template<typename T>
+					bind_functions_t standard_bind_functions( boost::string_ref name, T& value ) {
+						bind_functions_t bind_functions;
+						bind_functions.encode = standard_encoder( name, value );
+						bind_functions.decode = standard_decoder( name, value );
+						return bind_functions;
+
 					}
 	
-					template<typename T, typename std::enable_if<std::is_integral<T>::value, long>::type = 0>
-					JsonLink& link_integral( std::string name, T& value ) {
+					template<typename T>
+					JsonLink& link_integral( boost::string_ref name, T& value ) {
 						auto value_ptr = &value;
+						set_name( value, name.to_string( ) );
 						bind_functions_t bind_functions;
-						set_name( value, name );
-						bind_functions.encode = [value_ptr, name]( std::string & json_text ) {
+						bind_functions.encode = standard_encoder( name, value );
+
+						bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
 							assert( value_ptr );
-							T& val = *value_ptr;
-							json_text = value_to_json( name, val );
-						};
-
-						bind_functions.decode = [value_ptr, name]( json_obj json_values ) mutable {
-							assert( value_ptr );
-							assert( json_values );
-							T& val = *value_ptr;
-							auto obj = json_values->get_object( );
-							auto member = obj.find( name );
-							if( obj.end( ) == member ) {
-								// TODO: determine if correct course of action
-								throw std::runtime_error( "JSON object does not match expected object layout" );
-							}
-
-							create_oneway_databind( [&member]( ) { 
-								auto result = member->second.get_integral( );
-								assert( result <= std::numeric_limits<T>::max( ) );
-								assert( result >= std::numeric_limits<T>::min( ) );
-								return result;
-							}, [&val]( T const & to ) { 
-								val = to;
-							} ).update( );
-						};
-
-						
-						m_data_map[name] = std::move( bind_functions );
-
+							auto result = decoder_helper<int64_t>( json_values, name );
+							assert( result <= std::numeric_limits<T>::max( ) );
+							assert( result >= std::numeric_limits<T>::min( ) );
+							*value_ptr = static_cast<T>(result);
+						};						
+						m_data_map[name.to_string( )] = std::move( bind_functions );
 						return *this;
 					}
 
 					template<typename T>
-					JsonLink& link_real( std::string name, T& value ) {
+					JsonLink& link_integral( boost::string_ref name, boost::optional<T>& value ) {
 						auto value_ptr = &value;
+						set_name( value, name.to_string( ) );
 						bind_functions_t bind_functions;
-						set_name( value, name );
-						bind_functions.encode = [value_ptr, name]( std::string & json_text ) {
-							assert( value_ptr );
-							
-							T& val = *value_ptr;
-							json_text = value_to_json( name, val );
-						};
+						bind_functions.encode = standard_encoder( name, value );
 
-						bind_functions.decode = [value_ptr, name]( json_obj json_values ) mutable {
+						bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
+							assert( value_ptr );
+							auto result = nullable_decoder_helper<int64_t>( json_values, name );
+							if( result ) {
+								assert( result <= std::numeric_limits<T>::max( ) );
+								assert( result >= std::numeric_limits<T>::min( ) );
+							}
+							*value_ptr = static_cast<T>(result);
+						};
+						m_data_map[name.to_string( )] = std::move( bind_functions );
+						return *this;
+					}
+
+					template<typename T>
+					JsonLink& link_real( boost::string_ref name, T& value ) {
+						auto value_ptr = &value;
+						set_name( value, name.to_string( ) );
+						bind_functions_t bind_functions;
+						bind_functions.encode = standard_encoder( name, value );
+						bind_functions.decode = standard_decoder<double>( name, value );
+						m_data_map[name.to_string( )] = std::move( bind_functions );
+						return *this;
+					}
+
+					template<typename T>
+					JsonLink& link_string( boost::string_ref name, T& value ) {
+						return link_value( name, value );
+					}
+
+					template<typename T>
+					JsonLink& link_boolean( boost::string_ref name, T& value ) {
+						return link_value( name, value );
+					}
+
+					template<typename T>
+					JsonLink& link_object( boost::string_ref name, T& value ) {
+						auto value_ptr = &value;
+						set_name( value, name.to_string( ) );
+						bind_functions_t bind_functions;
+						bind_functions.encode = standard_encoder( name, value );
+						bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
 							assert( value_ptr );
 							assert( json_values );
-							T& val = *value_ptr;
 							auto obj = json_values->get_object( );
 							auto member = obj.find( name );
 							if( obj.end( ) == member ) {
 								// TODO: determine if correct course of action
 								throw std::runtime_error( "JSON object does not match expected object layout" );
 							}
-							val = member->second.get_real( );
-						}
+							assert( !member->second.is_null( ) );
+							value_ptr->decode( std::make_shared<impl::value_t>( member->second ) );
+						};
+						m_data_map[name.to_string( )] = std::move( bind_functions );
+						return *this;
+					}
 
-						JsonLink& link_string( std::string name, std::string& value ) {
-							auto value_ptr = &value;
-							bind_functions_t bind_functions;
-							set_name( value, name );
-							bind_functions.encode = [value_ptr, name]( std::string & json_text ) {
-								assert( value_ptr );
-								auto& val = *value_ptr;
-								json_text = value_to_json( name, val );
-							};
+					template<typename T>
+					JsonLink& link_object( boost::string_ref name, boost::optional<T>& value ) {
+						auto value_ptr = &value;
+						set_name( value, name.to_string( ) );
+						bind_functions_t bind_functions;
+						bind_functions.encode = standard_encoder( name, value );
+						bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
+							assert( value_ptr );
+							assert( json_values );
+							auto obj = json_values->get_object( );
+							auto member = obj.find( name );
+							if( obj.end( ) == member ) {
+								// TODO: determine if correct course of action
+								throw std::runtime_error( "JSON object does not match expected object layout" );
+							}
+							if( member->second.is_null( ) ) {
+								*value_ptr = boost::optional<T>( );
+							} else {
+								(*value_ptr)->decode( std::make_shared<impl::value_t>( member->second ) );
+							}
+						};
+						m_data_map[name.to_string( )] = std::move( bind_functions );
+						return *this;
+					}
 
-							bind_functions.decode = [value_ptr, name]( json_obj json_values ) mutable {
-								assert( value_ptr );
-								assert( json_values );
-								auto& val = *value_ptr;
-								auto obj = json_values->get_object( );
-								auto member = obj.find( name );
-								if( obj.end( ) == member ) {
-									// TODO: determine if correct course of action
-									throw std::runtime_error( "JSON object does not match expected object layout" );
+					template<typename T, typename U=T> 
+					static void set_value( T & to, impl::value_t const & from ) {
+						to = get<U>( from );
+					}
+
+					static void set_value( JsonLink & to, impl::value_t from ) {
+						to.decode( std::make_shared<impl::value_t>( std::move( from ) ) );
+					}
+
+					template<typename T>
+					JsonLink& link_array( boost::string_ref name, T& value ) {
+						auto value_ptr = &value;
+						set_name( value, name.to_string( ) );
+						bind_functions_t bind_functions;
+						bind_functions.encode = standard_encoder( name, value );
+						bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
+							assert( value_ptr );
+							assert( json_values );
+							auto obj = json_values->get_object( );
+							auto member = obj.find( name );
+							if( obj.end( ) == member ) {
+								// TODO: determine if correct course of action
+								throw std::runtime_error( "JSON object does not match expected object layout" );
+							}
+							assert( !member->second.is_null( ) );
+							auto container = *value_ptr;
+							container.clear( );
+							for( auto & item : member->second.get_array( ).items ) {
+								typename T::value_type result;
+								set_value( result, item );
+								container.push_back( std::move( result ) );
+							}
+						};						
+						m_data_map[name.to_string( )] = std::move( bind_functions );
+						return *this;
+					}
+
+					template<typename T>
+					JsonLink& link_array( boost::string_ref name, boost::optional<T>& value ) {
+						auto value_ptr = &value;
+						set_name( value, name.to_string( ) );
+						bind_functions_t bind_functions;
+						bind_functions.encode = standard_encoder( name, value );
+						bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
+							assert( value_ptr );
+							assert( json_values );
+							auto obj = json_values->get_object( );
+							auto member = obj.find( name );
+							if( obj.end( ) == member ) {
+								// TODO: determine if correct course of action
+								throw std::runtime_error( "JSON object does not match expected object layout" );
+							}
+							if( member->second.is_null( ) ) {
+								*value_ptr = boost::optional<T>( );
+							} else {
+								auto container = *(*value_ptr);
+								container.clear( );
+								for( auto & item : member->second.get_array( ).items ) {
+									typename T::value_type result;
+									set_value( result, item );
+									container.push_back( std::move( result ) );
 								}
-								val = member->second.get_string( );
-							};
+							}
+						};
+						m_data_map[name.to_string( )] = std::move( bind_functions );
+						return *this;
+					}
 
-							m_data_map[name] = std::move( bind_functions );
+					template<typename T>
+					JsonLink& link_map( boost::string_ref name, T& value ) {
+						auto value_ptr = &value;
+						set_name( value, name.to_string( ) );
+						bind_functions_t bind_functions;
+						bind_functions.encode = standard_encoder( name, value );
+						bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
+							assert( value_ptr );
+							assert( json_values );
+							auto obj = json_values->get_object( );
+							auto member = obj.find( name );
+							if( obj.end( ) == member ) {
+								// TODO: determine if correct course of action
+								throw std::runtime_error( "JSON object does not match expected object layout" );
+							}
+							auto container = *value_ptr;
+							container.clear( );
+							assert( !member->second.is_null( ) );
+							for( auto const & item : member->second.get_array( ).items ) {	
+								auto const & obj = item.get_object( );
+								auto key = obj.find( "key" )->second.get_string( );
+								auto value = obj.find( "value" )->second;
+								typename T::mapped_type result;
+								set_value( result, value );
+								container[key] = std::move( result );
+							}
+						};
+						m_data_map[name.to_string( )] = std::move( bind_functions );
+						return *this;
+					}
 
-							return *this;
-						}
-
-						JsonLink& link_boolean( std::string name, bool& value ) {
-							auto value_ptr = &value;
-							bind_functions_t bind_functions;
-							set_name( value, name );
-							bind_functions.encode = [value_ptr, name]( std::string & json_text ) {
-								assert( value_ptr );
-								auto& val = *value_ptr;
-								json_text = value_to_json( name, val );
-							};
-
-							bind_functions.decode = [value_ptr, name]( json_obj json_values ) mutable {
-								assert( value_ptr );
-								assert( json_values );
-								auto& val = *value_ptr;
-								auto obj = json_values->get_object( );
-								auto member = obj.find( name );
-								if( obj.end( ) == member ) {
-									// TODO: determine if correct course of action
-									throw std::runtime_error( "JSON object does not match expected object layout" );
+					template<typename T>
+					JsonLink& link_map( boost::string_ref name, boost::optional<T>& value ) {
+						auto value_ptr = &value;
+						set_name( value, name.to_string( ) );
+						bind_functions_t bind_functions;
+						bind_functions.encode = standard_encoder( name, value );
+						bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
+							assert( value_ptr );
+							assert( json_values );
+							auto obj = json_values->get_object( );
+							auto member = obj.find( name );
+							if( obj.end( ) == member ) {
+								// TODO: determine if correct course of action
+								throw std::runtime_error( "JSON object does not match expected object layout" );
+							} else {
+								if( member->second.is_null( ) ) {
+									*value_ptr = boost::optional<T>( );
+								} else {
+									auto container = *(*value_ptr);
+									container.clear( );
+									for( auto const & item : member->second.get_array( ).items ) {
+										auto const & obj = item.get_object( );
+										auto key = obj.find( "key" )->second.get_string( );
+										auto value = obj.find( "value" )->second;
+										typename T::mapped_type result;
+										set_value( result, value );
+										container[key] = std::move( result );
+									}
 								}
-								val = member->second.get_boolean( );
-							};
+							}
+						};
+						m_data_map[name.to_string( )] = std::move( bind_functions );
+						return *this;
+					}
 
-							m_data_map[name] = std::move( bind_functions );
+					template<typename T, typename U=std::string>
+					JsonLink& link_streamable( boost::string_ref name, T& value ) {
+						auto value_ptr = &value;
+						set_name( value, name.to_string( ) );
+						bind_functions_t bind_functions;
+						bind_functions.encode = standard_encoder( name, value );
+						bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
+							assert( value_ptr );
+							assert( json_values );
+							auto obj = json_values->get_object( );
+							auto member = obj.find( name );
+							if( obj.end( ) == member ) {
+								// TODO: determine if correct course of action
+								throw std::runtime_error( "JSON object does not match expected object layout" );
+							}
+							assert( !member->second.is_null( ) );
+							assert( member->second.is_string( ) );
+							*value_ptr = boost::lexical_cast<T>(get<U>( member->second ));
+						};
+						m_data_map[name.to_string( )] = std::move( bind_functions );
+						return *this;
+					}
 
-							return *this;
-						}
-
-					//JsonLink& link_timestamp( std::string name, std::time_t& value );
+				//JsonLink& link_timestamp( std::string name, std::time_t& value );
 				};	// struct JsonLink
 
 				std::string value_to_json( std::string const & name, JsonLink const & obj );

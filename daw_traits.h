@@ -204,6 +204,16 @@ namespace daw {
 					is_unordered_map<Container>::value
 			>::type> : std::true_type { };
 
+		template<typename Container, typename = void>
+		struct is_map_type: std::false_type { };
+
+		template<typename Container>
+		struct is_map_type < Container,
+			typename enable_if_any <void,
+			is_map<Container>::value,
+			is_unordered_map<Container>::value
+			>::type > : std::true_type { };
+
 		template<typename Numeric, typename = void>
 		struct is_numeric: std::false_type { };
 

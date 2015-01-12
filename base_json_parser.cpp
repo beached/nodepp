@@ -49,7 +49,7 @@ namespace daw {
 						m_value.boolean = std::move( value );
 					}
 
-					value_t::value_t( std::nullptr_t value ) : m_value_type( value_types::null ) {
+					value_t::value_t( std::nullptr_t ) : m_value_type( value_types::null ) {
 						m_value.null = nullptr;
 					}
 
@@ -86,8 +86,32 @@ namespace daw {
 						return *m_value.string;
 					}
 
+					bool value_t::is_integral( ) const {
+						return m_value_type == value_types::integral;
+					}
+
+					bool value_t::is_real( ) const {
+						return m_value_type == value_types::real;
+					}
+
+					bool value_t::is_string( ) const {
+						return m_value_type == value_types::string;
+					}
+
+					bool value_t::is_boolean( ) const {
+						return m_value_type == value_types::boolean;
+					}
+
 					bool value_t::is_null( ) const {
 						return m_value_type == value_types::null;
+					}
+
+					bool value_t::is_array( ) const {
+						return m_value_type == value_types::array;
+					}
+
+					bool value_t::is_object( ) const {
+						return m_value_type == value_types::object;
 					}
 
 					object_value const & value_t::get_object( ) const {
@@ -129,10 +153,18 @@ namespace daw {
 						}
 					}
 
-					
+					value_t::value_types value_t::type( ) const {
+						return m_value_type;
+					}
 
 					object_value::iterator object_value::find( boost::string_ref const key ) {
 						return std::find_if( members.begin( ), members.end( ), [key]( object_value_item const & item ) {							
+							return item.first == key;
+						} );
+					}
+
+					object_value::const_iterator object_value::find( boost::string_ref const key ) const {
+						return std::find_if( members.cbegin( ), members.cend( ), [key]( object_value_item const & item ) {
 							return item.first == key;
 						} );
 					}
@@ -265,7 +297,7 @@ namespace daw {
 						template<typename Iterator>
 						value_opt_t parse_null( Range<Iterator> & range ) {
 							if( forward_if_equal( range, "null" ) ) {
-								return value_t( null_value( ) );
+								return value_t( nullptr );
 							}
 							return value_opt_t( );
 						}
@@ -331,7 +363,7 @@ namespace daw {
 						boost::optional<object_value_item> parse_object_item( Range<Iterator> & range ) {
 							auto current = range;							
 							auto label = parse_string( current );
-							if( !label || label->type( ) != typeid( std::string ) ) {
+							if( !label || !label->is_string( ) ) {
 								return boost::optional<object_value_item>( );
 							}
 							
@@ -345,7 +377,8 @@ namespace daw {
 								return boost::optional<object_value_item>( );
 							}
 							range = current;
-							return std::make_pair< std::string, value_t >( std::move( boost::get<std::string>( *label ) ), std::move( *value ) );
+							auto lbl = label->get_string( );
+							return std::make_pair< std::string, value_t >( std::move( lbl ), std::move( *value ) );	
 						}
 
 						template<typename Iterator>

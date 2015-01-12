@@ -46,7 +46,7 @@ namespace daw {
 							double real;
 							std::string* string;
 							bool boolean;
-							null_value null;
+							std::nullptr_t null;
 							array_value* array;
 							object_value* object;
 						} m_value;
@@ -61,15 +61,22 @@ namespace daw {
 						explicit value_t( array_value value );
 						explicit value_t( object_value value );
 						~value_t( );
-						int64_t  & get_integral( ) const;
+						int64_t const & get_integral( ) const;						
 						double const & get_real( ) const;
 						std::string const & get_string( ) const;
 						bool const & get_boolean( ) const;
-						bool is_null( ) const;
 						object_value const & get_object( ) const;
 						array_value const & get_array( ) const;
-
+						value_types type( ) const;
 						void cleanup( );
+
+						bool is_integral( ) const;
+						bool is_real( ) const;
+						bool is_string( ) const;
+						bool is_boolean( ) const;
+						bool is_null( ) const;
+						bool is_array( ) const;
+						bool is_object( ) const;
 						
 					};
 
@@ -85,7 +92,9 @@ namespace daw {
 					struct object_value {
 						std::vector<object_value_item> members;
 						using iterator = std::vector<object_value_item>::iterator;
+						using const_iterator = std::vector<object_value_item>::const_iterator;
 						iterator find( boost::string_ref const key );
+						const_iterator find( boost::string_ref const key ) const;
 						iterator begin( );
 						iterator end( );
 					};

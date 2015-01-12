@@ -48,6 +48,7 @@ namespace daw {
 				enum class HttpClientRequestMethod { Options, Get, Head, Post, Put, Delete, Trace, Connect, Any };
 
 				std::ostream& operator<<(std::ostream& os, HttpClientRequestMethod const method);
+				std::istream& operator>>(std::istream& is, HttpClientRequestMethod & method);
 				std::string to_string( HttpClientRequestMethod method );
 
 				std::string value_to_json( std::string const & name, HttpClientRequestMethod method );
