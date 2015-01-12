@@ -39,14 +39,48 @@ namespace daw {
 					struct null_value { };
 					struct object_value;
 					struct array_value;
-					using value_t = boost::variant < int64_t, double, std::string, bool, null_value, array_value, object_value > ;
+					
+					class value_t {
+						union {
+							int64_t integral;
+							double real;
+							std::string* string;
+							bool boolean;
+							null_value null;
+							array_value* array;
+							object_value* object;
+						} m_value;
+						enum class value_types { integral, real, string, boolean, null, array, object };
+						value_types m_value_type;
+					public:
+						explicit value_t( int64_t const & value );
+						explicit value_t( double const & value );
+						explicit value_t( std::string value );
+						explicit value_t( bool value );
+						explicit value_t( std::nullptr_t value );
+						explicit value_t( array_value value );
+						explicit value_t( object_value value );
+						~value_t( );
+						int64_t  & get_integral( ) const;
+						double const & get_real( ) const;
+						std::string const & get_string( ) const;
+						bool const & get_boolean( ) const;
+						bool is_null( ) const;
+						object_value const & get_object( ) const;
+						array_value const & get_array( ) const;
+
+						void cleanup( );
+						
+					};
+
+					//using value_t = boost::variant < int64_t, double, std::string, bool, null_value, array_value, object_value > ;
 					using value_opt_t = boost::optional < value_t > ;
 
 					struct array_value {
-						std::vector<value_opt_t> items;
+						std::vector<value_t> items;
 					};
 
-					using object_value_item = std::pair < std::string, value_opt_t > ;
+					using object_value_item = std::pair < std::string, value_t > ;
 
 					struct object_value {
 						std::vector<object_value_item> members;
@@ -60,6 +94,35 @@ namespace daw {
 				using json_obj = std::shared_ptr < impl::value_t > ;
 
 				json_obj parse_json( boost::string_ref const json_text );
+
+				template<typename T>
+				T const & get( impl::value_t const & ) {
+					static_assert(false, "Unsupported get type called");
+				}
+
+				template<> int64_t const & get<int64_t>( impl::value_t const & val ) {
+					return val.get_integral( );
+				}
+
+				template<> double const & get<double>( impl::value_t const & val ) {
+					return val.get_real( );
+				}
+
+				template<> std::string const & get<std::string>( impl::value_t const & val ) {
+					return val.get_string( );
+				}
+
+				template<> bool const & get<bool>( impl::value_t const & val ) {
+					return val.get_boolean( );
+				}
+
+				template<> impl::object_value const & get<impl::object_value>( impl::value_t const & val ) {
+					return val.get_object( );
+				}
+
+				template<> impl::array_value const & get<impl::array_value>( impl::value_t const & val ) {
+					return val.get_array( );
+				}
 
 
 			}	// namespace json

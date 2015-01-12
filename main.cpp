@@ -40,6 +40,7 @@ int main( int, char const ** ) {
 
 		auto req = request->encode( );
 		request->decode( req );
+		
 		response->on_all_writes_completed( [response]( ) mutable {
 			response->close( );
 		} ).send_status( 200 )

@@ -33,6 +33,104 @@ namespace daw {
 		namespace base {
 			namespace json {
 				namespace impl {
+					value_t::value_t( int64_t const & value ) : m_value_type( value_types::integral ) {
+						m_value.integral = value;
+					}
+
+					value_t::value_t( double const & value ) : m_value_type( value_types::real ) {
+						m_value.real = value;
+					}
+
+					value_t::value_t( std::string value ) : m_value_type( value_types::string ) {
+						m_value.string = new std::string( std::move( value ) );
+					}
+
+					value_t::value_t( bool value ) : m_value_type( value_types::boolean ) {
+						m_value.boolean = std::move( value );
+					}
+
+					value_t::value_t( std::nullptr_t value ) : m_value_type( value_types::null ) {
+						m_value.null = nullptr;
+					}
+
+					value_t::value_t( array_value value ) : m_value_type( value_types::array ) {
+						m_value.array = new array_value( std::move( value ) );
+					}
+
+					value_t::value_t( object_value value ) : m_value_type( value_types::object ) {
+						m_value.object = new object_value( std::move( value ) );
+					}
+
+					value_t::~value_t( ) {
+						cleanup( );
+					}
+
+					bool const & value_t::get_boolean( ) const {
+						assert( m_value_type == value_types::boolean );
+						return m_value.boolean;
+					}
+
+					int64_t const & value_t::get_integral( ) const {
+						assert( m_value_type == value_types::integral );
+						return m_value.integral;
+					}
+
+					double const & value_t::get_real( ) const {
+						assert( m_value_type == value_types::real );
+						return m_value.real;
+					}
+
+					std::string const & value_t::get_string( ) const {
+						assert( m_value_type == value_types::string );
+						assert( m_value.string != nullptr );
+						return *m_value.string;
+					}
+
+					bool value_t::is_null( ) const {
+						return m_value_type == value_types::null;
+					}
+
+					object_value const & value_t::get_object( ) const {
+						assert( m_value_type == value_types::object );
+						assert( m_value.object != nullptr );
+						return *m_value.object;
+					}
+
+					array_value const & value_t::get_array( ) const {
+						assert( m_value_type == value_types::array );
+						assert( m_value.array != nullptr );
+						return *m_value.array;
+					}
+
+					void value_t::cleanup( ) {
+						switch( m_value_type ) {
+						case value_types::string:
+							if( m_value.string != nullptr ) {
+								delete m_value.string;
+								m_value.string = nullptr;
+								m_value_type = value_types::null;
+							}
+							break;
+						case value_types::object:
+							if( m_value.object != nullptr ) {
+								delete m_value.object;
+								m_value.object = nullptr;
+								m_value_type = value_types::null;
+							}
+
+							break;
+						case value_types::array:
+							if( m_value.array != nullptr ) {
+								delete m_value.array;
+								m_value.array = nullptr;
+								m_value_type = value_types::null;
+							}
+							break;
+						}
+					}
+
+					
+
 					object_value::iterator object_value::find( boost::string_ref const key ) {
 						return std::find_if( members.begin( ), members.end( ), [key]( object_value_item const & item ) {							
 							return item.first == key;
@@ -247,7 +345,7 @@ namespace daw {
 								return boost::optional<object_value_item>( );
 							}
 							range = current;
-							return std::make_pair< std::string, value_opt_t >( std::move( boost::get<std::string>( *label ) ), std::move( value ) );
+							return std::make_pair< std::string, value_t >( std::move( boost::get<std::string>( *label ) ), std::move( *value ) );
 						}
 
 						template<typename Iterator>
@@ -291,7 +389,7 @@ namespace daw {
 								if( !item ) {
 									return value_opt_t( );
 								}
-								results.items.push_back( std::move( item ) );
+								results.items.push_back( std::move( *item ) );
 								skip_ws( current );
 							} while( !current.at_end( ) && is_equal( current.first, ',' ) );
 							if( !is_equal( current.first, ']' ) ) {
