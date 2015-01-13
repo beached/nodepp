@@ -61,6 +61,10 @@ namespace daw {
 						explicit value_t( array_value value );
 						explicit value_t( object_value value );
 						~value_t( );
+						value_t( value_t const & ) = default;
+						value_t & operator=( value_t const & ) = default;
+						value_t( value_t && );
+						value_t & operator=( value_t && );
 						int64_t const & get_integral( ) const;						
 						double const & get_real( ) const;
 						std::string const & get_string( ) const;

@@ -492,9 +492,9 @@ namespace daw {
 							for( auto const & item : member->second.get_array( ).items ) {	
 								auto const & obj = item.get_object( );
 								auto key = obj.find( "key" )->second.get_string( );
-								auto value = obj.find( "value" )->second;
+								auto val = obj.find( "value" )->second;
 								typename T::mapped_type result;
-								details::set_value( result, value );
+								details::set_value( result, val );
 								container[key] = std::move( result );
 							}
 						};
@@ -511,9 +511,9 @@ namespace daw {
 						bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
 							assert( value_ptr );
 							assert( json_values );
-							auto obj = json_values->get_object( );
-							auto member = obj.find( name );
-							if( obj.end( ) == member ) {
+							auto val_obj = json_values->get_object( );
+							auto member = val_obj.find( name );
+							if( val_obj.end( ) == member ) {
 								// TODO: determine if correct course of action
 								throw std::runtime_error( "JSON object does not match expected object layout" );
 							} else {
@@ -525,9 +525,9 @@ namespace daw {
 									for( auto const & item : member->second.get_array( ).items ) {
 										auto const & obj = item.get_object( );
 										auto key = obj.find( "key" )->second.get_string( );
-										auto value = obj.find( "value" )->second;
+										auto val = obj.find( "value" )->second;
 										typename T::mapped_type result;
-										details::set_value( result, value );
+										details::set_value( result, val );
 										container[key] = std::move( result );
 									}
 								}

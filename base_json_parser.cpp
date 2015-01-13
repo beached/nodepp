@@ -61,6 +61,18 @@ namespace daw {
 						m_value.object = new object_value( std::move( value ) );
 					}
 
+					value_t::value_t( value_t && other ): 
+						m_value( std::move( other.m_value ) ),
+						m_value_type( std::move( other.m_value_type ) ) { }
+
+					value_t & value_t::operator=( value_t && rhs ) {
+						if( this != &rhs ) {
+							m_value = std::move( rhs.m_value );
+							m_value_type = std::move( rhs.m_value_type );
+						}
+						return *this;
+					}
+
 					value_t::~value_t( ) {
 						cleanup( );
 					}
