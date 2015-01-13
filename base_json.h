@@ -175,7 +175,7 @@ namespace daw {
 				struct JsonLink;
 				
 				namespace details {
-					template<typename T, typename U = T, typename = std::enable_if<!std::is_base_of<JsonLink, std::decay<T>::type>::value, long> = 0>
+					template<typename T, typename U = T, typename std::enable_if<!std::is_base_of<JsonLink, typename std::decay<T>::type>::value, long> = 0>
 					void set_value( T & to, impl::value_t const & from ) {
 						to = get<U>( from );
 					}
@@ -248,7 +248,7 @@ namespace daw {
 					}
 
 					template<typename T>
-					T decoder_helper( json_obj const & json_values, boost::string_ref name ) {
+					static T decoder_helper( json_obj const & json_values, boost::string_ref name ) {
 						assert( json_values );
 						auto obj = json_values->get_object( );
 						auto member = obj.find( name );
@@ -260,7 +260,7 @@ namespace daw {
 					}
 
 					template<typename T>
-					boost::optional<T> nullable_decoder_helper( json_obj const & json_values, boost::string_ref name ) {
+					static	boost::optional<T> nullable_decoder_helper( json_obj const & json_values, boost::string_ref name ) {
 						assert( json_values );
 						auto obj = json_values->get_object( );
 						auto member = obj.find( name );
@@ -280,8 +280,8 @@ namespace daw {
 						auto name_copy = name.to_string( );
 						return[value_ptr, name_copy]( json_obj json_values ) mutable {
 							assert( value_ptr );
-							auto new_val = decoder_helper<U>( json_values, name );
-							val = new_val;
+							auto new_val = decoder_helper<U>( json_values, name_copy );
+							*value_ptr = new_val;
 						};
 					}
 
@@ -291,8 +291,8 @@ namespace daw {
 						auto name_copy = name.to_string( );
 						return[value_ptr, name_copy]( json_obj json_values ) mutable {
 							assert( value_ptr );
-							auto new_val = nullable_decoder_helper<U>( json_values, name );
-							val = new_val;
+							auto new_val = nullable_decoder_helper<U>( json_values, name_copy );
+							*value_ptr = new_val;
 						};
 					}
 
@@ -480,9 +480,9 @@ namespace daw {
 						bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
 							assert( value_ptr );
 							assert( json_values );
-							auto obj = json_values->get_object( );
-							auto member = obj.find( name );
-							if( obj.end( ) == member ) {
+							auto val_obj = json_values->get_object( );
+							auto member = val_obj.find( name );
+							if( val_obj.end( ) == member ) {
 								// TODO: determine if correct course of action
 								throw std::runtime_error( "JSON object does not match expected object layout" );
 							}
