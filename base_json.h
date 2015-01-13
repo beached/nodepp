@@ -57,18 +57,14 @@ namespace daw {
 
 				// string
 				std::string value_to_json( std::string const & name, std::string const & value );
-				void json_to_value( std::string const & json_text, std::string & value );
 
 				// bool
 				std::string value_to_json( std::string const & name, bool value );
-				void json_to_value( std::string const & json_text, bool & value );
 				// null
 				std::string value_to_json( std::string const & name );
 
 				// date -> actaually a string, but it javascript date format encodes the date
 				std::string value_to_json_timestamp( std::string const & name, std::time_t const & value );
-
-				void json_to_value( std::string const & json_text, std::time_t & value );				
 
 				// Template Declarations
 
@@ -76,14 +72,6 @@ namespace daw {
 				template<typename Optional>
 				std::string value_to_json( std::string const & name, boost::optional<Optional> const & value );
 
-				template<typename Optional>
-				void json_to_value( std::string const & json_text, boost::optional<Optional> & value );
-
-				template<typename T>
-				void json_to_value( std::string const & json_text, std::shared_ptr<T> & value );
-
-				template<typename T>
-				void json_to_value( std::string const & json_text, std::weak_ptr<T> & value );
 
 				// Numbers
 				template<typename Number, typename std::enable_if<is_numeric<Number>::value, int>::type = 0>
@@ -103,20 +91,10 @@ namespace daw {
 
 				// Definitions
 
-				template<typename Number, typename std::enable_if<is_numeric<Number>::value, int>::type = 0>
-				void json_to_value( std::string const & json_text, Number & value ) {
-					throw std::runtime_error( "Method not implemented" );
-				}				
-
 				// pair types
 				template<typename First, typename Second>
 				std::string value_to_json( std::string const & name, std::pair<First, Second> const & value ) {
 					return details::json_name( name ) + "[ " + value_to_json( value.first ) + ", " + value_to_json( value.second ) + " ]";
-				}
-
-				template<typename First, typename Second>
-				void json_to_value( std::string const & json_text, std::pair<First, Second> & value ) {
-					throw std::runtime_error( "Method not implemented" );
 				}
 
 				template<typename T>
@@ -147,11 +125,6 @@ namespace daw {
 						return value_to_json( name );
 					}
 				}
-
-				template<typename Optional>
-				void json_to_value( std::string const & json_text, boost::optional<Optional> & value ) {
-					throw std::runtime_error( "Method not implemented" );
-				}				
 
 				// container/array
 
@@ -199,20 +172,16 @@ namespace daw {
 					return result.str( );
 				}
 
-				template<typename Key, typename Value>
-				std::string json_to_value( std::string const & json_text, std::map<Key, Value> & values ) {
-					throw std::runtime_error( "Method not implemented" );
-				}
+				struct JsonLink;
+				
+				namespace details {
+					template<typename T, typename U = T, typename = std::enable_if<!std::is_base_of<JsonLink, std::decay<T>::type>::value, long> = 0>
+					void set_value( T & to, impl::value_t const & from ) {
+						to = get<U>( from );
+					}
 
-				template<typename Key, typename Value>
-				std::string json_to_value( std::string const & json_text, std::unordered_map<Key, Value> & values ) {
-					throw std::runtime_error( "Method not implemented" );
-				}
-
-				template<typename Container, typename std::enable_if<is_container<Container>::value, long>::type = 0>
-				void json_to_value( std::string const & json_text, Container & values ) {
-					throw std::runtime_error( "Method not implemented" );
-				}
+					void set_value( JsonLink & to, impl::value_t const & from );
+				}	// namespace details
 			
 				struct JsonLink {
 					enum class Action { encode, decode };
@@ -443,15 +412,6 @@ namespace daw {
 						return *this;
 					}
 
-					template<typename T, typename U=T> 
-					static void set_value( T & to, impl::value_t const & from ) {
-						to = get<U>( from );
-					}
-
-					static void set_value( JsonLink & to, impl::value_t from ) {
-						to.decode( std::make_shared<impl::value_t>( std::move( from ) ) );
-					}
-
 					template<typename T>
 					JsonLink& link_array( boost::string_ref name, T& value ) {
 						auto value_ptr = &value;
@@ -502,7 +462,7 @@ namespace daw {
 								container.clear( );
 								for( auto & item : member->second.get_array( ).items ) {
 									typename T::value_type result;
-									set_value( result, item );
+									details::set_value( result, item );
 									container.push_back( std::move( result ) );
 								}
 							}
@@ -534,7 +494,7 @@ namespace daw {
 								auto key = obj.find( "key" )->second.get_string( );
 								auto value = obj.find( "value" )->second;
 								typename T::mapped_type result;
-								set_value( result, value );
+								details::set_value( result, value );
 								container[key] = std::move( result );
 							}
 						};
@@ -567,7 +527,7 @@ namespace daw {
 										auto key = obj.find( "key" )->second.get_string( );
 										auto value = obj.find( "value" )->second;
 										typename T::mapped_type result;
-										set_value( result, value );
+										details::set_value( result, value );
 										container[key] = std::move( result );
 									}
 								}
@@ -604,7 +564,6 @@ namespace daw {
 				};	// struct JsonLink
 
 				std::string value_to_json( std::string const & name, JsonLink const & obj );
-				void json_to_value( std::string const & json_text, JsonLink & obj );
 
 				std::ostream& operator<<(std::ostream& os, daw::nodepp::base::json::JsonLink const & data);
 

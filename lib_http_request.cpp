@@ -63,10 +63,6 @@ namespace daw {
 					return base::json::value_to_json( name, to_string( method ) );
 				}
 
-				void json_to_value( std::string const & json_text, HttpClientRequestMethod & method ) {
-					throw std::runtime_error( "Method not implemented" );
-				}
-				
 				HttpClientRequestMethod http_request_method_from_string( std::string method ) {
 					method = daw::AsciiLower( method );
 					if( "get" == method ) {

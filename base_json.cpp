@@ -73,17 +73,9 @@ namespace daw {
 					return details::json_name( name ) + enquote( value );
 				}
 
-				void json_to_value( std::string const & json_text, std::string & value ) {
-					throw std::runtime_error( "Method not implemented" );
-				}
-
 				// bool
 				std::string value_to_json( std::string const & name, bool value ) {
 					return details::json_name( name ) + (value ? "true" : "false");
-				}
-
-				void json_to_value( std::string const & json_text, bool& value ) {
-					throw std::runtime_error( "Method not implemented" );
 				}
 
 				// null
@@ -94,10 +86,6 @@ namespace daw {
 				// date -> actaually a string, but it javascript date format encodes the date
 				std::string value_to_json_timestamp( std::string const & name, std::time_t const & timestamp ) {
 					return details::json_name( name ) + enquote( daw::nodepp::base::json::to_string( timestamp ) );
-				}
-
-				void json_to_value( std::string const & json_text, std::time_t & value ) {
-					throw std::runtime_error( "Method not implemented" );
 				}
 
 				std::string value_to_json( std::string const & name, int const & value ) {
@@ -123,10 +111,6 @@ namespace daw {
 
 				std::string value_to_json( std::string const & name, JsonLink const & obj ) {
 					return details::json_name( name ) + obj.encode( );
-				}
-
-				void json_to_value( std::string const & json_text, JsonLink & obj ) {
-					obj.decode( json_text );
 				}
 
 				JsonLink::JsonLink( std::string name ): 
@@ -193,6 +177,14 @@ namespace daw {
 // 					};
 // 					return *this;
 // 				}
+// 				
+
+				namespace details {
+					void set_value( JsonLink & to, impl::value_t const & from ) {
+						auto val = from;
+						to.decode( std::make_shared<impl::value_t>( std::move( val ) ) );
+					}
+				}	// namespace details
 
 				std::ostream& operator<<(std::ostream& os, daw::nodepp::base::json::JsonLink const & data) {
 					os << data.encode( );

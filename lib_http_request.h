@@ -52,7 +52,6 @@ namespace daw {
 				std::string to_string( HttpClientRequestMethod method );
 
 				std::string value_to_json( std::string const & name, HttpClientRequestMethod method );
-				void json_to_value( std::string const & json_text, HttpClientRequestMethod & method );
 
 				struct HttpUrlQueryPair: public base::json::JsonLink {
 					std::string name;
