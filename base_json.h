@@ -175,10 +175,122 @@ namespace daw {
 				struct JsonLink;
 				
 				namespace details {
-					template<typename T, typename U = T, typename std::enable_if<!std::is_base_of<JsonLink, typename std::decay<T>::type>::value, long> = 0>
+					template<typename T, typename U = T>
 					void set_value( T & to, impl::value_t const & from ) {
 						to = get<U>( from );
 					}
+
+					template<typename T, typename U = T>
+					void set_value( boost::optional<T> & to, impl::value_t const & from ) {
+						if( from.is_null( ) ) {
+							to.reset( );
+						} else {
+							T result;
+							set_value( result, from );
+							*to = std::move( result );
+						}
+					}
+
+					template<typename T, typename U = T>
+					void set_value( std::shared_ptr<T> & to, impl::value_t const & from ) {
+						assert( to );
+						if( from.is_null( ) ) {
+							to.reset( );
+						} else {
+							T result;
+							set_value( result, from );
+							*to = std::move( result );
+						}
+					}
+					
+					template<typename U=std::string>
+					void set_value<std::string, U>( std::string & to, impl::value_t const & from ) {
+						assert( !from.is_null( ) );
+						to = get<U>( from );
+					}
+
+					template<typename U = bool>
+					void set_value<bool>( bool & to, impl::value_t const & from ) {
+						assert( !from.is_null( ) );
+						to = get<U>( from );
+					}
+
+					template<typename U = int64_t>
+					void set_value<int64_t>( int64_t & to, impl::value_t const & from ) {
+						assert( !from.is_null( ) );
+						to = get<U>( from );
+					}
+
+					template<typename U = double>
+					void set_value<double>( double & to, impl::value_t const & from ) {
+						assert( !from.is_null( ) );
+						to = get<U>( from );
+					}					
+
+					template<typename T, typename U= impl::array_value>
+					void set_value<std::vector>( std::vector<T> & to, impl::value_t const & from ) {
+						assert( from.is_array( ) );
+						to.clear( );
+						auto const & arry = from.get_array( ).items( );
+						to.resize( arry.size( ) );
+						for( size_t n = 0; n < to.size( ); ++n ) {
+							set_value<U>( to[n], arry[n] );
+						}
+					}
+
+					template<typename T, typename U, typename V=T, typename W=U>
+					void set_value( T &, impl::value_t const &, boost::string_ref const, boost::string_ref const );
+
+					template<typename Key, typename Value, typename Key_From = Key, typename Value_From = Value>
+					void set_value<std::pair<Key, Value>>( std::pair<Key, Value> & to, impl::value_t const & from, boost::string_ref const KeyName = "key", boost::string_ref const ValueName = "value"  ) {
+						assert( from.is_array( ) );
+						auto const & arry = from.get_array( );
+						assert( arry.items.size( ) == 2 );
+
+						std::pair<Key, Value> result;
+						set_value <Key, Key_From>(result.first, arry.items[0] );						
+						set_value<Value, Value_From>( result.second, arry.items[1] );
+						to = std::move( result );
+					}
+
+					template<typename Key, typename Value, typename Key_From = Key, typename Value_From = Value>
+					void set_value<std::map<Key, Value>>( std::map<Key, Value> & to, impl::value_t const & from, boost::string_ref const KeyName = "key", boost::string_ref const ValueName = "value" ) { 
+						assert( from.is_array( ) );// we are an array of objects [ { "key" : key0, "value" : value1 }, ... { "key" : keyN, "value" : valueN } ]
+						auto const & arry = from.get_array( );
+						to.clear( );						
+						for( auto const & obj : arry.items ) {
+							auto key_it = obj.find( KeyName );
+							assert( key_it != obj.end( ) );
+							Key key;
+							set_value<Key_From>( key, *key_it );
+
+							auto value_it = obj.find( ValueName );
+							assert( value_it != obj.end( ) );
+							Value value;
+							set_value<Value_From>( value, *value_it );
+							to.emplace( std::move( key ), std::move( value ) );
+						}
+					}
+					
+					template<typename Key, typename Value, typename Key_From = Key, typename Value_From = Value>
+					void set_value<std::unordered_map<Key, Value>>( std::map<Key, Value> & to, impl::value_t const & from, boost::string_ref const KeyName = "key", boost::string_ref const ValueName = "value" ) {
+						assert( from.is_array( ) );// we are an array of objects [ { "key" : key0, "value" : value1 }, ... { "key" : keyN, "value" : valueN } ]
+						auto const & arry = from.get_array( );
+						to.clear( );
+						for( auto const & obj : arry.items ) {
+							auto key_it = obj.find( KeyName );
+							assert( key_it != obj.end( ) );
+							Key key;
+							set_value<Key_From>( key, *key_it );
+
+							auto value_it = obj.find( ValueName );
+							assert( value_it != obj.end( ) );
+							Value value;
+							set_value<Value_From>( value, *value_it );
+							to.emplace( std::move( key ), std::move( value ) );
+						}
+					}
+
 
 					void set_value( JsonLink & to, impl::value_t const & from );
 				}	// namespace details
@@ -271,7 +383,7 @@ namespace daw {
 						if( member->second.is_null( ) ) {
 							return boost::optional<T>( );
 						}
-						return boost::optional<T>( get<T>( member ) );
+						return boost::optional<T>( get<T>( member->second ) );
 					}
 
 					template<typename T, typename U=T>
