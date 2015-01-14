@@ -44,9 +44,6 @@ namespace daw {
 			WorkQueue create_work_queue( uint32_t max_workers = std::thread::hardware_concurrency( ), daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
 
 			namespace impl {				
-				using namespace daw::nodepp;
-				using namespace daw::nodepp::base;
-
 				struct work_item_t {
 					std::function<void( int64_t )> work_item;
 					std::function<void( int64_t, base::OptionalError )> on_completion;
@@ -60,9 +57,9 @@ namespace daw {
 					bool valid( ) const;
 				};
 
-				class WorkQueueImpl: public enable_shared<WorkQueueImpl>, public StandardEvents<WorkQueueImpl> {
+				class WorkQueueImpl: public daw::nodepp::base::enable_shared<WorkQueueImpl>, public daw::nodepp::base::StandardEvents<WorkQueueImpl> {
 					daw::concurrent_queue<work_item_t> m_work_queue;
-					EventEmitter m_emitter;
+					daw::nodepp::base::EventEmitter m_emitter;
 					std::atomic<bool> m_continue;
 					daw::thread::Semaphore<int> m_worker_count;
 					int64_t m_max_workers;
@@ -70,17 +67,17 @@ namespace daw {
 					void worker( );
 
 				public:
-					friend WorkQueue create_work_queue( uint32_t, EventEmitter );
+					friend WorkQueue create_work_queue( uint32_t, daw::nodepp::base::EventEmitter );
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary Create a work queue with 1 worker per core
-					WorkQueueImpl( uint32_t max_workers, EventEmitter emitter );
+					WorkQueueImpl( uint32_t max_workers, daw::nodepp::base::EventEmitter emitter );
 					~WorkQueueImpl( );
 					WorkQueueImpl( WorkQueueImpl const & ) = delete;
 					WorkQueueImpl& operator=(WorkQueueImpl const &) = delete;
 
-					EventEmitter& emitter( );
+					daw::nodepp::base::EventEmitter& emitter( );
 
-					int64_t add_work_item( std::function<void( int64_t task_id )> work_item, std::function<void( int64_t task_id, base::OptionalError )> on_completion = nullptr, bool auto_start = true );
+					int64_t add_work_item( std::function<void( int64_t task_id )> work_item, std::function<void( int64_t task_id, daw::nodepp::base::OptionalError )> on_completion = nullptr, bool auto_start = true );
 
 					void run( );
 					void stop( bool should_wait = true );

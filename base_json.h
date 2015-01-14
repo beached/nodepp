@@ -44,9 +44,6 @@ namespace daw {
 		namespace base {
 			namespace json {
 				std::string to_string( std::string const & value );
-				using std::to_string;
-
-				using namespace daw::traits;
 
 				std::string enquote( std::string const & value );
 
@@ -74,7 +71,7 @@ namespace daw {
 
 
 				// Numbers
-				template<typename Number, typename std::enable_if<is_numeric<Number>::value, int>::type = 0>
+				template<typename Number, typename std::enable_if<daw::traits::is_numeric<Number>::value, int>::type = 0>
 				std::string value_to_json_number( std::string const & name, Number const & value ) {
 					return details::json_name( name ) + to_string( value );
 				}
@@ -159,7 +156,7 @@ namespace daw {
 				}
 
 				// container/array.
-				template<typename Container, typename std::enable_if<is_container<Container>::value, long>::type = 0>
+				template<typename Container, typename std::enable_if<daw::traits::is_container<Container>::value, long>::type = 0>
 				std::string value_to_json( std::string const & name, Container const & values ) {
 				std::stringstream result;
 					result << details::json_name( name ) + "{ ";

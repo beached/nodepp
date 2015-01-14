@@ -32,7 +32,6 @@ namespace daw {
 	namespace nodepp {
 		namespace base {
 			namespace stream {
-				using namespace daw::nodepp;
 
 				template<typename Child>
 				class StreamWritableEvents {
@@ -40,7 +39,7 @@ namespace daw {
 						return *static_cast<Child*>(this);
 					}
 
-					EventEmitter& emitter( ) {
+					daw::nodepp::base::EventEmitter& emitter( ) {
 						return child( ).emitter( );
 					}
 				public:
@@ -88,7 +87,7 @@ namespace daw {
 						return *static_cast<Child*>(this);
 					}
 
-					EventEmitter& emitter( ) {
+					daw::nodepp::base::EventEmitter& emitter( ) {
 						return child( ).emitter( );
 					}
 				public:
@@ -130,7 +129,7 @@ namespace daw {
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Emit an event with the data received and whether the eof
 					///				has been reached
-					void emit_data_received( std::shared_ptr<base::data_t> buffer, bool end_of_file ) {
+					void emit_data_received( std::shared_ptr<daw::nodepp::base::data_t> buffer, bool end_of_file ) {
 						emitter( )->emit( "data_received", std::move( buffer ), end_of_file );
 					}
 

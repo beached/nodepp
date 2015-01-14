@@ -37,7 +37,7 @@ namespace daw {
 	namespace nodepp {
 		namespace base {
 			namespace json {
-				std::string to_string( std::time_t const & timestamp, std::string format ) {
+				std::string ts_to_string( std::time_t const & timestamp, std::string format ) {
 					char buffer[200];
 					std::tm tm = { };
 					localtime_s( &tm, &timestamp );
@@ -84,9 +84,10 @@ namespace daw {
 				}
 
 				// date -> actaually a string, but it javascript date format encodes the date
-				std::string value_to_json_timestamp( std::string const & name, std::time_t const & timestamp ) {
-					return details::json_name( name ) + enquote( daw::nodepp::base::json::to_string( timestamp ) );
-				}
+// 				std::string value_to_json_timestamp( std::string const & name, std::time_t const & timestamp ) {
+// 					using daw::nodepp::base::json::to_string;
+// 					return details::json_name( name ) + enquote( to_string( timestamp ) );
+// 				}
 
 				std::string value_to_json( std::string const & name, int const & value ) {
 					return value_to_json_number( name, value );

@@ -84,7 +84,6 @@ namespace daw {
 						
 					};
 
-					//using value_t = boost::variant < int64_t, double, std::string, bool, null_value, array_value, object_value > ;
 					using value_opt_t = boost::optional < value_t > ;
 
 					struct array_value {
