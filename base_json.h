@@ -168,27 +168,16 @@ namespace daw {
 
 				struct JsonLink;
 
-				namespace details {
-// 					// Anything
-// 					template<typename T, typename U = T>
-// 					void json_to_value( T & to, impl::value_t const & from ) {
-// 						to = get<U>( from );
-// 					}
-					
-					// String
-					void json_to_value( std::string & to, impl::value_t const & from ) {
-						assert( !from.is_null( ) );
-						to = get<std::string>( from );
-					}
+				namespace details {					
+					void json_to_value( std::string & to, impl::value_t const & from );
+					void json_to_value( bool & to, impl::value_t const & from );
+					void json_to_value( int64_t & to, impl::value_t const & from );
+					void json_to_value( double & to, impl::value_t const & from );
+					void json_to_value( float & to, impl::value_t const & from );
+					void json_to_value( JsonLink & to, impl::value_t const & from );
 
-					// Boolean
-					void json_to_value( bool & to, impl::value_t const & from ) {
-						assert( !from.is_null( ) );
-						to = get<bool>( from );
-					}
-
-					// Number, integral
-					template<typename T, typename std::enable_if<std::is_integral<T>::value, long>::type = 0>
+					// Number, other integral
+					template<typename T, typename std::enable_if<std::is_integral<T>::value && !std::is_same<T, int64_t>::value, long>::type = 0>
 					void json_to_value( T & to, impl::value_t const & from ) {
 						assert( !from.is_null( ) );
 						auto result = get<int64_t>( from );
@@ -197,12 +186,13 @@ namespace daw {
 						to = static_cast<T>(result);
 					}
 
-					// Number, float
-					template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long>::type = 0>
-					void json_to_value( T & to, impl::value_t const & from ) {
-						assert( !from.is_null( ) );
-						to = static_cast<T>(get<double>( from ));
-					}
+
+					template<typename T> void json_to_value( std::shared_ptr<T> & to, impl::value_t const & from );
+					template<typename T> void json_to_value( std::vector<T> & to, impl::value_t const & from );
+					template<typename Key, typename Value> void json_to_value( std::pair<Key, Value> & to, impl::value_t const & from, boost::string_ref const KeyName = "key", boost::string_ref const ValueName = "value" );
+					template<typename Key, typename Value> void json_to_value( std::map<Key, Value> & to, impl::value_t const & from, boost::string_ref const KeyName = "key", boost::string_ref const ValueName = "value" );
+					template<typename Key, typename Value> void json_to_value( std::unordered_map<Key, Value> & to, impl::value_t const & from, boost::string_ref const KeyName = "key", boost::string_ref const ValueName = "value" );
+
 
 					// A nullable json value with a result of boost::optional
 					template<typename T>
@@ -243,7 +233,7 @@ namespace daw {
 					}
 
 					template<typename Key, typename Value>
-					void json_to_value( std::pair<Key, Value> & to, impl::value_t const & from, boost::string_ref const KeyName = "key", boost::string_ref const ValueName = "value" ) {
+					void json_to_value( std::pair<Key, Value> & to, impl::value_t const & from, boost::string_ref const KeyName, boost::string_ref const ValueName ) {
 						assert( from.is_array( ) );
 						
 						auto const & arry = from.get_array( );
@@ -256,7 +246,7 @@ namespace daw {
 					}
 
 					template<typename Key, typename Value>
-					void json_to_value( std::map<Key, Value> & to, impl::value_t const & from, boost::string_ref const KeyName = "key", boost::string_ref const ValueName = "value" ) {
+					void json_to_value( std::map<Key, Value> & to, impl::value_t const & from, boost::string_ref const KeyName, boost::string_ref const ValueName ) {
 						assert( from.is_array( ) );	// we are an array of objects like [ { "key" : key0, "value" : value1 }, ... { "key" : keyN, "value" : valueN } ]
 						
 						auto const & source_array = from.get_array( ).items;
@@ -276,7 +266,7 @@ namespace daw {
 
 					// TODO: merge map/unordered_map into one template, probably template template
 					template<typename Key, typename Value>
-					void json_to_value( std::unordered_map<Key, Value> & to, impl::value_t const & from, boost::string_ref const KeyName = "key", boost::string_ref const ValueName = "value" ) {
+					void json_to_value( std::unordered_map<Key, Value> & to, impl::value_t const & from, boost::string_ref const KeyName, boost::string_ref const ValueName ) {
 						assert( from.is_array( ) );	// we are an array of objects like [ { "key" : key0, "value" : value1 }, ... { "key" : keyN, "value" : valueN } ]
 
 						auto const & source_array = from.get_array( ).items;
@@ -294,7 +284,6 @@ namespace daw {
 						} );
 					}
 
-					void json_to_value( JsonLink & to, impl::value_t const & from );
 				}	// namespace details
 
 				struct JsonLink {
@@ -332,7 +321,7 @@ namespace daw {
 					std::string encode( ) const;
 
 					void decode( boost::string_ref const json_text );
-					void decode( json_obj json_values );
+					void decode( json_obj const & json_values );
 
 					void reset_jsonlink( );
 
@@ -361,7 +350,7 @@ namespace daw {
 					}
 
 					template<typename T>
-					static T decoder_helper( json_obj const & json_values, boost::string_ref name ) {
+					static T decoder_helper( boost::string_ref name, json_obj const & json_values ) {
 						assert( json_values );
 						auto obj = json_values->get_object( );
 						auto member = obj.find( name );
@@ -373,7 +362,7 @@ namespace daw {
 					}
 
 					template<typename T>
-					static	boost::optional<T> nullable_decoder_helper( json_obj const & json_values, boost::string_ref name ) {
+					static boost::optional<T> nullable_decoder_helper( boost::string_ref name, json_obj const & json_values ) {
 						assert( json_values );
 						auto obj = json_values->get_object( );
 						auto member = obj.find( name );
@@ -388,23 +377,23 @@ namespace daw {
 					}
 
 					template<typename T, typename U = T>
-					encode_function_t standard_decoder( boost::string_ref name, T & value ) {
+					decode_function_t standard_decoder( boost::string_ref name, T & value ) {
 						auto value_ptr = &value;
 						auto name_copy = name.to_string( );
 						return[value_ptr, name_copy]( json_obj json_values ) mutable {
 							assert( value_ptr );
-							auto new_val = decoder_helper<U>( json_values, name_copy );
+							auto new_val = decoder_helper<U>( name_copy, json_values );
 							*value_ptr = new_val;
 						};
 					}
 
 					template<typename T, typename U = T>
-					encode_function_t standard_decoder( boost::string_ref name, boost::optional<T> & value ) {
+					decode_function_t standard_decoder( boost::string_ref name, boost::optional<T> & value ) {
 						auto value_ptr = &value;
 						auto name_copy = name.to_string( );
 						return[value_ptr, name_copy]( json_obj json_values ) mutable {
 							assert( value_ptr );
-							auto new_val = nullable_decoder_helper<U>( json_values, name_copy );
+							auto new_val = nullable_decoder_helper<U>( name_copy, json_values );
 							*value_ptr = new_val;
 						};
 					}

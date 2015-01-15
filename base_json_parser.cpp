@@ -507,6 +507,30 @@ namespace daw {
 					return std::make_shared<impl::value_t>( nullptr );
 				}
 
+				template<> int64_t const & get<int64_t>( impl::value_t const & val ) {
+					return val.get_integral( );
+				}
+
+				template<> double const & get<double>( impl::value_t const & val ) {
+					return val.get_real( );
+				}
+
+				template<> std::string const & get<std::string>( impl::value_t const & val ) {
+					return val.get_string( );
+				}
+
+				template<> bool const & get<bool>( impl::value_t const & val ) {
+					return val.get_boolean( );
+				}
+
+				template<> impl::object_value const & get<impl::object_value>( impl::value_t const & val ) {
+					return val.get_object( );
+				}
+
+				template<> impl::array_value const & get<impl::array_value>( impl::value_t const & val ) {
+					return val.get_array( );
+				}
+
 			}	// namespace json
 		}	// namespace base
 	}	// namespace nodepp

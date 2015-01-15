@@ -153,10 +153,18 @@ namespace daw {
 				}
 
 				void JsonLink::decode( boost::string_ref const json_text ) {
-					auto json_obj = parse_json( json_text );
+					decode( parse_json( json_text ) );
+				}
+
+				void JsonLink::decode( json_obj const & json_values ) {
 					for( auto & value : m_data_map ) {
-						value.second.decode( json_obj );
+						value.second.decode( json_values );
 					}
+				}
+
+				std::ostream& operator<<(std::ostream& os, JsonLink const & data) {
+					os << data.encode( );
+					return os;
 				}
 
 				// 				JsonLink& JsonLink::link_timestamp( std::string name, std::time_t& value ) {
@@ -178,16 +186,35 @@ namespace daw {
 				//
 
 				namespace details {
+					// String
+					void json_to_value( std::string & to, impl::value_t const & from ) {
+						to = from.get_string( );
+					}
+
+					// Boolean
+					void json_to_value( bool & to, impl::value_t const & from ) {
+						to = from.get_boolean( );
+					}
+
+					// Number, integer
+					void json_to_value( int64_t & to, impl::value_t const & from ) {
+						to = from.get_integral( );
+					}
+
+					// Number, real
+					void json_to_value( double & to, impl::value_t const & from ) {
+						to = from.get_real( );
+					}
+
+					void json_to_value( float & to, impl::value_t const & from ) {
+						to = static_cast<float>(from.get_real( ));
+					}
+
 					void json_to_value( JsonLink & to, impl::value_t const & from ) {
 						auto val = from;
 						to.decode( std::make_shared<impl::value_t>( std::move( val ) ) );
 					}
 				}	// namespace details
-
-				std::ostream& operator<<(std::ostream& os, daw::nodepp::base::json::JsonLink const & data) {
-					os << data.encode( );
-					return os;
-				}
 			}	// namespace json
 		}	// namespace base
 	}	// namespace nodepp
