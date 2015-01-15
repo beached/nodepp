@@ -1,17 +1,17 @@
 // The MIT License (MIT)
-// 
+//
 // Copyright (c) 2014-2015 Darrell Wright
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files( the "Software" ), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
@@ -33,7 +33,7 @@ void localtime_s( struct tm* result, std::time_t const * source ) {
 }
 #endif
 
-namespace daw {	
+namespace daw {
 	namespace nodepp {
 		namespace base {
 			namespace json {
@@ -67,7 +67,6 @@ namespace daw {
 					}
 				}
 
-
 				// string
 				std::string value_to_json( std::string const & name, std::string const & value ) {
 					return details::json_name( name ) + enquote( value );
@@ -84,10 +83,10 @@ namespace daw {
 				}
 
 				// date -> actaually a string, but it javascript date format encodes the date
-// 				std::string value_to_json_timestamp( std::string const & name, std::time_t const & timestamp ) {
-// 					using daw::nodepp::base::json::to_string;
-// 					return details::json_name( name ) + enquote( to_string( timestamp ) );
-// 				}
+				// 				std::string value_to_json_timestamp( std::string const & name, std::time_t const & timestamp ) {
+				// 					using daw::nodepp::base::json::to_string;
+				// 					return details::json_name( name ) + enquote( to_string( timestamp ) );
+				// 				}
 
 				std::string value_to_json( std::string const & name, int const & value ) {
 					return value_to_json_number( name, value );
@@ -96,7 +95,6 @@ namespace daw {
 				std::string value_to_json( std::string const & name, unsigned int const & value ) {
 					return value_to_json_number( name, value );
 				}
-
 
 				std::string value_to_json( std::string const & name, int64_t const & value ) {
 					return value_to_json_number( name, value );
@@ -114,8 +112,8 @@ namespace daw {
 					return details::json_name( name ) + obj.encode( );
 				}
 
-				JsonLink::JsonLink( std::string name ): 
-					m_name( std::move( name ) ), 
+				JsonLink::JsonLink( std::string name ) :
+					m_name( std::move( name ) ),
 					m_data_map( ) { }
 
 				JsonLink::JsonLink( JsonLink && other ):
@@ -129,7 +127,6 @@ namespace daw {
 					}
 					return *this;
 				}
-
 
 				std::string & JsonLink::json_object_name( ) {
 					return m_name;
@@ -162,26 +159,26 @@ namespace daw {
 					}
 				}
 
-// 				JsonLink& JsonLink::link_timestamp( std::string name, std::time_t& value ) {
-// 					std::time_t *value_ptr = &value;
-// 					m_data_map[name] = [value_ptr, name]( std::string & json_text, Action action ) {
-// 						assert( value_ptr != nullptr );
-// 						std::time_t& val = *value_ptr;
-// 						switch( action ) {
-// 						case Action::encode:
-// 							json_text = value_to_json_timestamp( name, val );
-// 							break;
-// 						case Action::decode:
-// 							json_to_value( json_text, val );
-// 							break;
-// 						}
-// 					};
-// 					return *this;
-// 				}
-// 				
+				// 				JsonLink& JsonLink::link_timestamp( std::string name, std::time_t& value ) {
+				// 					std::time_t *value_ptr = &value;
+				// 					m_data_map[name] = [value_ptr, name]( std::string & json_text, Action action ) {
+				// 						assert( value_ptr != nullptr );
+				// 						std::time_t& val = *value_ptr;
+				// 						switch( action ) {
+				// 						case Action::encode:
+				// 							json_text = value_to_json_timestamp( name, val );
+				// 							break;
+				// 						case Action::decode:
+				// 							json_to_value( json_text, val );
+				// 							break;
+				// 						}
+				// 					};
+				// 					return *this;
+				// 				}
+				//
 
 				namespace details {
-					void set_value( JsonLink & to, impl::value_t const & from ) {
+					void json_to_value( JsonLink & to, impl::value_t const & from ) {
 						auto val = from;
 						to.decode( std::make_shared<impl::value_t>( std::move( val ) ) );
 					}
@@ -191,8 +188,6 @@ namespace daw {
 					os << data.encode( );
 					return os;
 				}
-
-
 			}	// namespace json
 		}	// namespace base
 	}	// namespace nodepp

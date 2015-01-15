@@ -1,17 +1,17 @@
 // The MIT License (MIT)
-// 
+//
 // Copyright (c) 2014-2015 Darrell Wright
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files( the "Software" ), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
@@ -36,8 +36,6 @@
 #include "base_json_parser.h"
 #include "daw_traits.h"
 #include "utility.h"
-
-
 
 namespace daw {
 	namespace nodepp {
@@ -68,7 +66,6 @@ namespace daw {
 				// boost optional.  will error out if T does not support value_to_json
 				template<typename Optional>
 				std::string value_to_json( std::string const & name, boost::optional<Optional> const & value );
-
 
 				// Numbers
 				template<typename Number, typename std::enable_if<daw::traits::is_numeric<Number>::value, int>::type = 0>
@@ -158,7 +155,7 @@ namespace daw {
 				// container/array.
 				template<typename Container, typename std::enable_if<daw::traits::is_container<Container>::value, long>::type = 0>
 				std::string value_to_json( std::string const & name, Container const & values ) {
-				std::stringstream result;
+					std::stringstream result;
 					result << details::json_name( name ) + "{ ";
 					bool is_first = true;
 					for( auto const & item : values ) {
@@ -170,107 +167,88 @@ namespace daw {
 				}
 
 				struct JsonLink;
-				
+
 				namespace details {
 					template<typename T, typename U = T>
-					void set_value( T & to, impl::value_t const & from ) {
+					void json_to_value( T & to, impl::value_t const & from ) {
 						to = get<U>( from );
 					}
 
 					template<typename T, typename U = T>
-					void set_value( boost::optional<T> & to, impl::value_t const & from ) {
+					void json_to_value( boost::optional<T> & to, impl::value_t const & from ) {
 						if( from.is_null( ) ) {
 							to.reset( );
 						} else {
 							T result;
-							set_value( result, from );
+							json_to_value( result, from );
 							*to = std::move( result );
 						}
 					}
 
 					template<typename T, typename U = T>
-					void set_value( std::shared_ptr<T> & to, impl::value_t const & from ) {
+					void json_to_value( std::shared_ptr<T> & to, impl::value_t const & from ) {
 						assert( to );
 						if( from.is_null( ) ) {
 							to.reset( );
 						} else {
 							T result;
-							set_value( result, from );
+							json_to_value( result, from );
 							*to = std::move( result );
 						}
 					}
-					
-					template<typename U=std::string>
-					void set_value<std::string, U>( std::string & to, impl::value_t const & from ) {
+
+					template<typename U = std::string>
+					void json_to_value<std::string, U>( std::string & to, impl::value_t const & from ) {
 						assert( !from.is_null( ) );
 						to = get<U>( from );
 					}
 
 					template<typename U = bool>
-					void set_value<bool>( bool & to, impl::value_t const & from ) {
+					void json_to_value<bool>( bool & to, impl::value_t const & from ) {
 						assert( !from.is_null( ) );
 						to = get<U>( from );
 					}
 
 					template<typename U = int64_t>
-					void set_value<int64_t>( int64_t & to, impl::value_t const & from ) {
+					void json_to_value<int64_t>( int64_t & to, impl::value_t const & from ) {
 						assert( !from.is_null( ) );
 						to = get<U>( from );
 					}
 
 					template<typename U = double>
-					void set_value<double>( double & to, impl::value_t const & from ) {
+					void json_to_value<double>( double & to, impl::value_t const & from ) {
 						assert( !from.is_null( ) );
 						to = get<U>( from );
-					}					
+					}
 
-					template<typename T, typename U= impl::array_value>
-					void set_value<std::vector>( std::vector<T> & to, impl::value_t const & from ) {
+					template<typename T, typename U = impl::array_value>
+					void json_to_value<std::vector>( std::vector<T> & to, impl::value_t const & from ) {
 						assert( from.is_array( ) );
 						to.clear( );
 						auto const & arry = from.get_array( ).items( );
 						to.resize( arry.size( ) );
 						for( size_t n = 0; n < to.size( ); ++n ) {
-							set_value<U>( to[n], arry[n] );
+							json_to_value<U>( to[n], arry[n] );
 						}
 					}
 
-					template<typename T, typename U, typename V=T, typename W=U>
-					void set_value( T &, impl::value_t const &, boost::string_ref const, boost::string_ref const );
+					template<typename T, typename U, typename V = T, typename W = U>
+					void json_to_value( T &, impl::value_t const &, boost::string_ref const, boost::string_ref const );
 
 					template<typename Key, typename Value, typename Key_From = Key, typename Value_From = Value>
-					void set_value<std::pair<Key, Value>>( std::pair<Key, Value> & to, impl::value_t const & from, boost::string_ref const KeyName = "key", boost::string_ref const ValueName = "value"  ) {
+					void json_to_value<std::pair<Key, Value>>( std::pair<Key, Value> & to, impl::value_t const & from, boost::string_ref const KeyName = "key", boost::string_ref const ValueName = "value" ) {
 						assert( from.is_array( ) );
 						auto const & arry = from.get_array( );
 						assert( arry.items.size( ) == 2 );
 
 						std::pair<Key, Value> result;
-						set_value <Key, Key_From>(result.first, arry.items[0] );						
-						set_value<Value, Value_From>( result.second, arry.items[1] );
+						json_to_value <Key, Key_From>( result.first, arry.items[0] );
+						json_to_value<Value, Value_From>( result.second, arry.items[1] );
 						to = std::move( result );
 					}
 
 					template<typename Key, typename Value, typename Key_From = Key, typename Value_From = Value>
-					void set_value<std::map<Key, Value>>( std::map<Key, Value> & to, impl::value_t const & from, boost::string_ref const KeyName = "key", boost::string_ref const ValueName = "value" ) { 
-						assert( from.is_array( ) );// we are an array of objects [ { "key" : key0, "value" : value1 }, ... { "key" : keyN, "value" : valueN } ]
-						auto const & arry = from.get_array( );
-						to.clear( );						
-						for( auto const & obj : arry.items ) {
-							auto key_it = obj.find( KeyName );
-							assert( key_it != obj.end( ) );
-							Key key;
-							set_value<Key_From>( key, *key_it );
-
-							auto value_it = obj.find( ValueName );
-							assert( value_it != obj.end( ) );
-							Value value;
-							set_value<Value_From>( value, *value_it );
-							to.emplace( std::move( key ), std::move( value ) );
-						}
-					}
-					
-					template<typename Key, typename Value, typename Key_From = Key, typename Value_From = Value>
-					void set_value<std::unordered_map<Key, Value>>( std::map<Key, Value> & to, impl::value_t const & from, boost::string_ref const KeyName = "key", boost::string_ref const ValueName = "value" ) {
+					void json_to_value<std::map<Key, Value>>( std::map<Key, Value> & to, impl::value_t const & from, boost::string_ref const KeyName = "key", boost::string_ref const ValueName = "value" ) {
 						assert( from.is_array( ) );// we are an array of objects [ { "key" : key0, "value" : value1 }, ... { "key" : keyN, "value" : valueN } ]
 						auto const & arry = from.get_array( );
 						to.clear( );
@@ -278,33 +256,51 @@ namespace daw {
 							auto key_it = obj.find( KeyName );
 							assert( key_it != obj.end( ) );
 							Key key;
-							set_value<Key_From>( key, *key_it );
+							json_to_value<Key_From>( key, *key_it );
 
 							auto value_it = obj.find( ValueName );
 							assert( value_it != obj.end( ) );
 							Value value;
-							set_value<Value_From>( value, *value_it );
+							json_to_value<Value_From>( value, *value_it );
 							to.emplace( std::move( key ), std::move( value ) );
 						}
 					}
 
+					template<typename Key, typename Value, typename Key_From = Key, typename Value_From = Value>
+					void json_to_value<std::unordered_map<Key, Value>>( std::map<Key, Value> & to, impl::value_t const & from, boost::string_ref const KeyName = "key", boost::string_ref const ValueName = "value" ) {
+						assert( from.is_array( ) );// we are an array of objects [ { "key" : key0, "value" : value1 }, ... { "key" : keyN, "value" : valueN } ]
+						auto const & arry = from.get_array( );
+						to.clear( );
+						for( auto const & obj : arry.items ) {
+							auto key_it = obj.find( KeyName );
+							assert( key_it != obj.end( ) );
+							Key key;
+							json_to_value<Key_From>( key, *key_it );
 
-					void set_value( JsonLink & to, impl::value_t const & from );
+							auto value_it = obj.find( ValueName );
+							assert( value_it != obj.end( ) );
+							Value value;
+							json_to_value<Value_From>( value, *value_it );
+							to.emplace( std::move( key ), std::move( value ) );
+						}
+					}
+
+					void json_to_value( JsonLink & to, impl::value_t const & from );
 				}	// namespace details
-			
+
 				struct JsonLink {
 					enum class Action { encode, decode };
 				private:
 					std::string m_name;
 					using encode_function_t = std::function < void( std::string & json_text ) > ;
-					using decode_function_t = std::function < void( json_obj json_values )>;
+					using decode_function_t = std::function < void( json_obj json_values ) > ;
 
 					struct bind_functions_t {
 						encode_function_t encode;
 						decode_function_t decode;
 					};
 					std::unordered_map<std::string, bind_functions_t> m_data_map;
-					
+
 					template<typename T>
 					JsonLink& link_value( boost::string_ref name, T& value ) {
 						set_name( value, name );
@@ -320,18 +316,17 @@ namespace daw {
 					JsonLink( JsonLink && other );
 					JsonLink& operator=(JsonLink && rhs);
 
-
 					std::string & json_object_name( );
-					
+
 					std::string const & json_object_name( ) const;
 
 					std::string encode( ) const;
-					
+
 					void decode( boost::string_ref const json_text );
 					void decode( json_obj json_values );
 
 					void reset_jsonlink( );
-					
+
 					template<typename T>
 					void call_decode( T &, json_obj ) { }
 
@@ -383,7 +378,7 @@ namespace daw {
 						return boost::optional<T>( get<T>( member->second ) );
 					}
 
-					template<typename T, typename U=T>
+					template<typename T, typename U = T>
 					encode_function_t standard_decoder( boost::string_ref name, T & value ) {
 						auto value_ptr = &value;
 						auto name_copy = name.to_string( );
@@ -405,16 +400,14 @@ namespace daw {
 						};
 					}
 
-
 					template<typename T>
 					bind_functions_t standard_bind_functions( boost::string_ref name, T& value ) {
 						bind_functions_t bind_functions;
 						bind_functions.encode = standard_encoder( name, value );
 						bind_functions.decode = standard_decoder( name, value );
 						return bind_functions;
-
 					}
-	
+
 					template<typename T>
 					JsonLink& link_integral( boost::string_ref name, T& value ) {
 						auto value_ptr = &value;
@@ -428,7 +421,7 @@ namespace daw {
 							assert( result <= std::numeric_limits<T>::max( ) );
 							assert( result >= std::numeric_limits<T>::min( ) );
 							*value_ptr = static_cast<T>(result);
-						};						
+						};
 						m_data_map[name.to_string( )] = std::move( bind_functions );
 						return *this;
 					}
@@ -541,10 +534,10 @@ namespace daw {
 							container.clear( );
 							for( auto & item : member->second.get_array( ).items ) {
 								typename T::value_type result;
-								set_value( result, item );
+								json_to_value( result, item );
 								container.push_back( std::move( result ) );
 							}
-						};						
+						};
 						m_data_map[name.to_string( )] = std::move( bind_functions );
 						return *this;
 					}
@@ -571,7 +564,7 @@ namespace daw {
 								container.clear( );
 								for( auto & item : member->second.get_array( ).items ) {
 									typename T::value_type result;
-									details::set_value( result, item );
+									details::json_to_value( result, item );
 									container.push_back( std::move( result ) );
 								}
 							}
@@ -598,12 +591,12 @@ namespace daw {
 							auto container = *value_ptr;
 							container.clear( );
 							assert( !member->second.is_null( ) );
-							for( auto const & item : member->second.get_array( ).items ) {	
+							for( auto const & item : member->second.get_array( ).items ) {
 								auto const & obj = item.get_object( );
 								auto key = obj.find( "key" )->second.get_string( );
 								auto val = obj.find( "value" )->second;
 								typename T::mapped_type result;
-								details::set_value( result, val );
+								details::json_to_value( result, val );
 								container[key] = std::move( result );
 							}
 						};
@@ -636,7 +629,7 @@ namespace daw {
 										auto key = obj.find( "key" )->second.get_string( );
 										auto val = obj.find( "value" )->second;
 										typename T::mapped_type result;
-										details::set_value( result, val );
+										details::json_to_value( result, val );
 										container[key] = std::move( result );
 									}
 								}
@@ -646,7 +639,7 @@ namespace daw {
 						return *this;
 					}
 
-					template<typename T, typename U=std::string>
+					template<typename T, typename U = std::string>
 					JsonLink& link_streamable( boost::string_ref name, T& value ) {
 						auto value_ptr = &value;
 						set_name( value, name.to_string( ) );
@@ -669,7 +662,7 @@ namespace daw {
 						return *this;
 					}
 
-				//JsonLink& link_timestamp( std::string name, std::time_t& value );
+					//JsonLink& link_timestamp( std::string name, std::time_t& value );
 				};	// struct JsonLink
 
 				std::string value_to_json( std::string const & name, JsonLink const & obj );
@@ -680,10 +673,7 @@ namespace daw {
 				std::ostream& operator<<(std::ostream& os, T const & data) {
 					os << data.serialize_to_json( );
 				}
-
-
 			}	// namespace json
 		}	// namespace base
 	}	// namespace nodepp
 }	// namespace daw
-
