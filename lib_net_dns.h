@@ -35,21 +35,20 @@ namespace daw {
 	namespace nodepp {
 		namespace lib {
 			namespace net {
-				using namespace daw::nodepp;
 				namespace impl {
 					class NetDnsImpl;
 				}
 
 				using NetDns = std::shared_ptr < impl::NetDnsImpl > ;
 
-				NetDns create_net_dns( base::EventEmitter emitter = base::create_event_emitter( ) );
+				NetDns create_net_dns( daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
 
 				namespace impl {
-					class NetDnsImpl: public base::enable_shared<NetDnsImpl>, public base::StandardEvents < NetDnsImpl > {
-						NetDnsImpl( base::EventEmitter );
+					class NetDnsImpl: public daw::nodepp::base::enable_shared<NetDnsImpl>, public daw::nodepp::base::StandardEvents < NetDnsImpl > {
+						NetDnsImpl( daw::nodepp::base::EventEmitter );
 
 					public:
-						friend lib::net::NetDns lib::net::create_net_dns( base::EventEmitter );
+						friend daw::nodepp::lib::net::NetDns daw::nodepp::lib::net::create_net_dns( daw::nodepp::base::EventEmitter );
 
 						using handler_argument_t = boost::asio::ip::tcp::resolver::iterator;
 							
@@ -60,7 +59,7 @@ namespace daw {
 						NetDnsImpl( NetDnsImpl const & ) = delete;
 						NetDnsImpl& operator=(NetDnsImpl const & rhs) = delete;
 	
-						base::EventEmitter& emitter( );
+						daw::nodepp::base::EventEmitter& emitter( );
 						//////////////////////////////////////////////////////////////////////////
 						// Summary: resolve name or ip address and call callback of form
 						// void(boost::system::error_code, boost::asio::ip::tcp::resolver::iterator)
@@ -79,7 +78,7 @@ namespace daw {
 	
 					private:
 						std::unique_ptr<boost::asio::ip::tcp::resolver> m_resolver;
-						base::EventEmitter m_emitter;
+						daw::nodepp::base::EventEmitter m_emitter;
 	
 						static void handle_resolve( std::weak_ptr<NetDnsImpl> obj, boost::system::error_code const & err, boost::asio::ip::tcp::resolver::iterator it );
 	

@@ -43,20 +43,19 @@ namespace daw {
 
 				using NetServer = std::shared_ptr < impl::NetServerImpl > ;
 
-				NetServer create_net_server( base::EventEmitter emitter = base::create_event_emitter( ) );
+				NetServer create_net_server( daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
 
 				namespace impl {
-					using namespace daw::nodepp;
 					//////////////////////////////////////////////////////////////////////////
 					// Summary:		A TCP Server class
-					// Requires:	base::EventEmitter, base::options_t,
-					//				lib::net::NetAddress, base::Error
-					class NetServerImpl: public base::enable_shared<NetServerImpl>, public base::StandardEvents < NetServerImpl > {
+					// Requires:	daw::nodepp::base::EventEmitter, daw::nodepp::base::options_t,
+					//				daw::nodepp::lib::net::NetAddress, daw::nodepp::base::Error
+					class NetServerImpl: public daw::nodepp::base::enable_shared<NetServerImpl>, public daw::nodepp::base::StandardEvents < NetServerImpl > {
 						std::shared_ptr<boost::asio::ip::tcp::acceptor> m_acceptor;
-						base::EventEmitter m_emitter;
-						NetServerImpl( base::EventEmitter emitter );
+						daw::nodepp::base::EventEmitter m_emitter;
+						NetServerImpl( daw::nodepp::base::EventEmitter emitter );
 					public:
-						friend lib::net::NetServer lib::net::create_net_server( base::EventEmitter );
+						friend daw::nodepp::lib::net::NetServer daw::nodepp::lib::net::create_net_server( daw::nodepp::base::EventEmitter );
 
 						NetServerImpl( NetServerImpl const & ) = default;
 						NetServerImpl( NetServerImpl&& other );
@@ -64,7 +63,7 @@ namespace daw {
 						NetServerImpl& operator=(NetServerImpl const &) = default;
 						~NetServerImpl( ) = default;
 
-						base::EventEmitter& emitter( );
+						daw::nodepp::base::EventEmitter& emitter( );
 
 						void listen( uint16_t port );
 						void listen( uint16_t port, std::string hostname, uint16_t backlog = 511 );

@@ -43,18 +43,16 @@ namespace daw {
 
 				using HttpSite = std::shared_ptr < impl::HttpSiteImpl > ;
 
-				HttpSite create_http_site( base::EventEmitter emitter = base::create_event_emitter( ) );
-				HttpSite create_http_site( HttpServer server, base::EventEmitter emitter = base::create_event_emitter( ) );
+				HttpSite create_http_site( daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
+				HttpSite create_http_site( HttpServer server, daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
 
 				namespace impl {					
-					using namespace daw::nodepp;
-					using namespace lib::http;
 
 					struct site_registration {
 						std::string host;	// * = any
 						std::string path;	// postfixing with a * means match left(will mean)
 						HttpClientRequestMethod method;
-						std::function < void( HttpClientRequest, HttpServerResponse ) > listener;
+						std::function < void( daw::nodepp::lib::http::HttpClientRequest, daw::nodepp::lib::http::HttpServerResponse ) > listener;
 
 						site_registration( ) = default;
 						site_registration( site_registration const & ) = default;
@@ -63,29 +61,29 @@ namespace daw {
 
 						bool operator==(site_registration const & rhs) const;
 
-						site_registration( std::string Host, std::string Path, HttpClientRequestMethod Method );
-						site_registration( std::string Host, std::string Path, HttpClientRequestMethod Method, std::function < void( HttpClientRequest, HttpServerResponse ) > Listener );
+						site_registration( std::string Host, std::string Path, daw::nodepp::lib::http::HttpClientRequestMethod Method );
+						site_registration( std::string Host, std::string Path, daw::nodepp::lib::http::HttpClientRequestMethod Method, std::function < void( daw::nodepp::lib::http::HttpClientRequest, daw::nodepp::lib::http::HttpServerResponse ) > Listener );
 					};	// site_registration
 
-					class HttpSiteImpl: public base::enable_shared<HttpSiteImpl>, public base::StandardEvents <HttpSiteImpl> {
+					class HttpSiteImpl: public daw::nodepp::base::enable_shared<HttpSiteImpl>, public daw::nodepp::base::StandardEvents <HttpSiteImpl> {
 					public:
 						using registered_pages_t = std::vector <site_registration> ;
 						using iterator = registered_pages_t::iterator;
 					
 					private:
-						base::EventEmitter m_emitter;
-						HttpServer m_server;
+						daw::nodepp::base::EventEmitter m_emitter;
+						daw::nodepp::lib::http::HttpServer m_server;
 						registered_pages_t m_registered;
-						std::unordered_map<uint16_t, std::function < void( HttpClientRequest, HttpServerResponse, uint16_t ) >> m_error_listeners;
+						std::unordered_map<uint16_t, std::function < void( HttpClientRequest, daw::nodepp::lib::http::HttpServerResponse, uint16_t ) >> m_error_listeners;
 
 						void sort_registered( );
-						void default_page_error_listener( HttpClientRequest request, HttpServerResponse response, uint16_t error_no );
+						void default_page_error_listener( daw::nodepp::lib::http::HttpClientRequest request, daw::nodepp::lib::http::HttpServerResponse response, uint16_t error_no );
 						void start( );
-						HttpSiteImpl( base::EventEmitter emitter );
-						HttpSiteImpl( HttpServer server, base::EventEmitter emitter );
+						HttpSiteImpl( daw::nodepp::base::EventEmitter emitter );
+						HttpSiteImpl( daw::nodepp::lib::http::HttpServer server, daw::nodepp::base::EventEmitter emitter );
 					public:
-						friend HttpSite lib::http::create_http_site( base::EventEmitter );
-						friend HttpSite lib::http::create_http_site( HttpServer, base::EventEmitter );
+						friend HttpSite daw::nodepp::lib::http::create_http_site( daw::nodepp::base::EventEmitter );
+						friend HttpSite daw::nodepp::lib::http::create_http_site( daw::nodepp::lib::http::HttpServer, daw::nodepp::base::EventEmitter );
 
 						HttpSiteImpl( HttpSiteImpl const & ) = delete;
 						HttpSiteImpl& operator=(HttpSiteImpl const &) = delete;	
@@ -95,19 +93,19 @@ namespace daw {
 						//////////////////////////////////////////////////////////////////////////
 						/// Summary:	Register a listener for a HTTP method and path on any
 						///				host
-						HttpSiteImpl& on_requests_for( HttpClientRequestMethod method, std::string path, std::function<void( HttpClientRequest, HttpServerResponse )> listener );
+						HttpSiteImpl& on_requests_for( daw::nodepp::lib::http::HttpClientRequestMethod method, std::string path, std::function<void( daw::nodepp::lib::http::HttpClientRequest, daw::nodepp::lib::http::HttpServerResponse )> listener );
 
 						//////////////////////////////////////////////////////////////////////////
 						/// Summary:	Register a listener for a HTTP method and path on a 
 						///				specific hostname
-						HttpSiteImpl& on_requests_for( std::string hostname, HttpClientRequestMethod method, std::string path, std::function<void( HttpClientRequest, HttpServerResponse )> listener );
+						HttpSiteImpl& on_requests_for( std::string hostname, daw::nodepp::lib::http::HttpClientRequestMethod method, std::string path, std::function<void( daw::nodepp::lib::http::HttpClientRequest, daw::nodepp::lib::http::HttpServerResponse )> listener );
 
-						base::EventEmitter& emitter( );
+						daw::nodepp::base::EventEmitter& emitter( );
 
 						void remove( iterator item );
 
 						iterator end( );
-						iterator match( boost::string_ref host, boost::string_ref path, HttpClientRequestMethod method );
+						iterator match( boost::string_ref host, boost::string_ref path, daw::nodepp::lib::http::HttpClientRequestMethod method );
 
 						bool has_error_handler( uint16_t error_no );
 						
@@ -118,7 +116,7 @@ namespace daw {
 
 						//////////////////////////////////////////////////////////////////////////
 						// Summary:	Create a generic error handler
-						HttpSiteImpl& on_any_page_error( std::function < void( HttpClientRequest, HttpServerResponse, uint16_t error_no ) > listener );
+						HttpSiteImpl& on_any_page_error( std::function < void( daw::nodepp::lib::http::HttpClientRequest, daw::nodepp::lib::http::HttpServerResponse, uint16_t error_no ) > listener );
 
 						//////////////////////////////////////////////////////////////////////////
 						// Summary:	Use the default error handler for specific HTTP error.
@@ -126,10 +124,10 @@ namespace daw {
 
 						//////////////////////////////////////////////////////////////////////////
 						// Summary:	Specify a callback to handle a specific page error
-						HttpSiteImpl& on_page_error( uint16_t error_no, std::function < void( HttpClientRequest, HttpServerResponse, uint16_t error_no ) > listener );
+						HttpSiteImpl& on_page_error( uint16_t error_no, std::function < void( daw::nodepp::lib::http::HttpClientRequest, daw::nodepp::lib::http::HttpServerResponse, uint16_t error_no ) > listener );
 						
 						
-						void emit_page_error( HttpClientRequest request, HttpServerResponse response, uint16_t error_no );
+						void emit_page_error( daw::nodepp::lib::http::HttpClientRequest request, daw::nodepp::lib::http::HttpServerResponse response, uint16_t error_no );
 						void emit_listening( boost::asio::ip::tcp::endpoint endpoint );
 
 						HttpSiteImpl& on_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener );

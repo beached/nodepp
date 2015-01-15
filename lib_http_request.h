@@ -44,7 +44,6 @@ namespace daw {
 		}
 		namespace lib {
 			namespace http {
-				using namespace daw::nodepp;
 				enum class HttpClientRequestMethod { Options, Get, Head, Post, Put, Delete, Trace, Connect, Any };
 
 				std::ostream& operator<<(std::ostream& os, HttpClientRequestMethod const method);
@@ -53,7 +52,7 @@ namespace daw {
 
 				std::string value_to_json( std::string const & name, HttpClientRequestMethod method );
 
-				struct HttpUrlQueryPair: public base::json::JsonLink {
+				struct HttpUrlQueryPair: public daw::nodepp::base::json::JsonLink {
 					std::string name;
 					boost::optional<std::string> value;
 					
@@ -68,7 +67,7 @@ namespace daw {
 					void set_links( );
 				};	// struct HttpUrlQueryPair	
 
-				struct HttpUrl: public base::json::JsonLink {
+				struct HttpUrl: public daw::nodepp::base::json::JsonLink {
 					std::string path;
 					boost::optional<std::vector<HttpUrlQueryPair>> query;
 					boost::optional<std::string> fragment;	
@@ -83,7 +82,7 @@ namespace daw {
 					void set_links( );
 				};	// struct HttpUrl
 
-				struct HttpRequestLine: public base::json::JsonLink {
+				struct HttpRequestLine: public daw::nodepp::base::json::JsonLink {
 					HttpClientRequestMethod method;
 					HttpUrl url;
 					std::string version;
@@ -99,10 +98,9 @@ namespace daw {
 				};	// struct HttpRequestLine
 
 				namespace impl {
-					using namespace daw::nodepp;
-					struct HttpClientRequestImpl: public base::json::JsonLink {
+					struct HttpClientRequestImpl: public daw::nodepp::base::json::JsonLink {
 						using headers_t = std::unordered_map < std::string, std::string > ;
-						lib::http::HttpRequestLine request;
+						daw::nodepp::lib::http::HttpRequestLine request;
 						headers_t headers;
 
 						~HttpClientRequestImpl( ) = default;

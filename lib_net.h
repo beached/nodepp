@@ -31,18 +31,17 @@ namespace daw {
 	namespace nodepp {
 		namespace lib {
 			namespace net {
-				using namespace daw::nodepp;
 
-				NetServer create_server( base::options_t options = base::options_t{ } );
+				NetServer create_server( daw::nodepp::base::options_t options = daw::nodepp::base::options_t{ } );
 				template<typename Listener>
-				NetServer create_server( base::options_t options, Listener listener ) {
+				NetServer create_server( daw::nodepp::base::options_t options, Listener listener ) {
 					return create_server( options ).on( "connection", listener );
 					
 				}
 
-				NetSocketStream create_connection( base::options_t options );
+				NetSocketStream create_connection( daw::nodepp::base::options_t options );
 				template<typename Listener>
-				NetServer create_connection( base::options_t options, Listener listener ) {
+				NetServer create_connection( daw::nodepp::base::options_t options, Listener listener ) {
 					return create_connection( options ).on( "connect", listener );
 
 				}

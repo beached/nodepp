@@ -74,7 +74,6 @@ namespace daw {
 		namespace lib {
 			namespace http {
 				namespace request_parser {
-					using namespace daw::nodepp;
 
 					namespace ascii = boost::spirit::ascii;
 					namespace qi = boost::spirit::qi;

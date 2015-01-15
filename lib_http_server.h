@@ -34,28 +34,27 @@ namespace daw {
 	namespace nodepp {
 		namespace lib {
 			namespace http {
-				using namespace daw::nodepp;
 				namespace impl {
 					class HttpServerImpl;
 				}
 				using HttpServer = std::shared_ptr < impl::HttpServerImpl > ;
 
-				HttpServer create_http_server( base::EventEmitter emitter = base::create_event_emitter( ) );
+				HttpServer create_http_server( daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
 
 				namespace impl {
 					//////////////////////////////////////////////////////////////////////////
 					// Summary:		An HTTP Server class 
-					// Requires:	lib::net::NetServer
-					class HttpServerImpl: public base::enable_shared<HttpServerImpl>, public base::StandardEvents < HttpServerImpl > {
-						lib::net::NetServer m_netserver;
-						base::EventEmitter m_emitter;
+					// Requires:	daw::nodepp::lib::net::NetServer
+					class HttpServerImpl: public daw::nodepp::base::enable_shared<HttpServerImpl>, public daw::nodepp::base::StandardEvents < HttpServerImpl > {
+						daw::nodepp::lib::net::NetServer m_netserver;
+						daw::nodepp::base::EventEmitter m_emitter;
 						std::list<HttpConnection> m_connections;
 
-						static void handle_connection( std::weak_ptr<HttpServerImpl> obj, lib::net::NetSocketStream socket );
+						static void handle_connection( std::weak_ptr<HttpServerImpl> obj, daw::nodepp::lib::net::NetSocketStream socket );
 
-						HttpServerImpl( base::EventEmitter emitter );
+						HttpServerImpl( daw::nodepp::base::EventEmitter emitter );
 					public:
-						friend lib::http::HttpServer lib::http::create_http_server( base::EventEmitter );
+						friend daw::nodepp::lib::http::HttpServer daw::nodepp::lib::http::create_http_server( daw::nodepp::base::EventEmitter );
 
 						HttpServerImpl( HttpServerImpl&& other );
 						HttpServerImpl& operator=(HttpServerImpl const &) = default;
@@ -63,7 +62,7 @@ namespace daw {
 						HttpServerImpl( HttpServerImpl const & ) = default;
 						~HttpServerImpl( ) = default;
 
-						base::EventEmitter& emitter( );
+						daw::nodepp::base::EventEmitter& emitter( );
 
 						void listen_on( uint16_t port );
 
@@ -71,7 +70,7 @@ namespace daw {
 
 						template<typename Listener>
 						void listen_on( uint16_t port, std::string hostname, uint16_t backlog, Listener listener ) {
-							base::rollback_event_on_exception( this, "listening", listener, [&]( ) {
+							daw::nodepp::base::rollback_event_on_exception( this, "listening", listener, [&]( ) {
 								listen_on( port, hostname, backlog );
 							} );
 						}
@@ -80,16 +79,16 @@ namespace daw {
 
 						template<typename Listener>
 						void listen_on( std::string path, Listener listener ) {
-							base::rollback_event_on_exception( this, "listening", listener, [&]( ) {
+							daw::nodepp::base::rollback_event_on_exception( this, "listening", listener, [&]( ) {
 								listen_on( path );
 							} );
 						}
 
-						void listen_on( base::ServiceHandle handle );
+						void listen_on( daw::nodepp::base::ServiceHandle handle );
 
 						template<typename Listener>
-						void listen_on( base::ServiceHandle handle, Listener listener ) {
-							base::rollback_event_on_exception( this, "listening", listener, [&]( ) {
+						void listen_on( daw::nodepp::base::ServiceHandle handle, Listener listener ) {
+							daw::nodepp::base::rollback_event_on_exception( this, "listening", listener, [&]( ) {
 								listen_on( std::move( handle ) );
 							} );
 						}
