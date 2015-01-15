@@ -70,7 +70,7 @@ namespace daw {
 				// Numbers
 				template<typename Number, typename std::enable_if<daw::traits::is_numeric<Number>::value, int>::type = 0>
 				std::string value_to_json_number( std::string const & name, Number const & value ) {
-					return details::json_name( name ) + to_string( value );
+					return details::json_name( name ) + std::to_string( value );
 				}
 
 				std::string value_to_json( std::string const & name, int const & value );
@@ -169,12 +169,43 @@ namespace daw {
 				struct JsonLink;
 
 				namespace details {
-					template<typename T, typename U = T>
-					void json_to_value( T & to, impl::value_t const & from ) {
-						to = get<U>( from );
+// 					// Anything
+// 					template<typename T, typename U = T>
+// 					void json_to_value( T & to, impl::value_t const & from ) {
+// 						to = get<U>( from );
+// 					}
+					
+					// String
+					void json_to_value( std::string & to, impl::value_t const & from ) {
+						assert( !from.is_null( ) );
+						to = get<std::string>( from );
 					}
 
-					template<typename T, typename U = T>
+					// Boolean
+					void json_to_value( bool & to, impl::value_t const & from ) {
+						assert( !from.is_null( ) );
+						to = get<bool>( from );
+					}
+
+					// Number, integral
+					template<typename T, typename std::enable_if<std::is_integral<T>::value, long>::type = 0>
+					void json_to_value( T & to, impl::value_t const & from ) {
+						assert( !from.is_null( ) );
+						auto result = get<int64_t>( from );
+						assert( static_cast<int64_t>(std::numeric_limits<T>::max( )) >= result );
+						assert( static_cast<int64_t>(std::numeric_limits<T>::min( )) <= result );
+						to = static_cast<T>(result);
+					}
+
+					// Number, float
+					template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long>::type = 0>
+					void json_to_value( T & to, impl::value_t const & from ) {
+						assert( !from.is_null( ) );
+						to = static_cast<T>(get<double>( from ));
+					}
+
+					// A nullable json value with a result of boost::optional
+					template<typename T>
 					void json_to_value( boost::optional<T> & to, impl::value_t const & from ) {
 						if( from.is_null( ) ) {
 							to.reset( );
@@ -185,7 +216,8 @@ namespace daw {
 						}
 					}
 
-					template<typename T, typename U = T>
+					// A nullable json value with a result of std::shared_ptr
+					template<typename T>
 					void json_to_value( std::shared_ptr<T> & to, impl::value_t const & from ) {
 						assert( to );
 						if( from.is_null( ) ) {
@@ -197,92 +229,69 @@ namespace daw {
 						}
 					}
 
-					template<typename U = std::string>
-					void json_to_value<std::string, U>( std::string & to, impl::value_t const & from ) {
-						assert( !from.is_null( ) );
-						to = get<U>( from );
-					}
-
-					template<typename U = bool>
-					void json_to_value<bool>( bool & to, impl::value_t const & from ) {
-						assert( !from.is_null( ) );
-						to = get<U>( from );
-					}
-
-					template<typename U = int64_t>
-					void json_to_value<int64_t>( int64_t & to, impl::value_t const & from ) {
-						assert( !from.is_null( ) );
-						to = get<U>( from );
-					}
-
-					template<typename U = double>
-					void json_to_value<double>( double & to, impl::value_t const & from ) {
-						assert( !from.is_null( ) );
-						to = get<U>( from );
-					}
-
-					template<typename T, typename U = impl::array_value>
-					void json_to_value<std::vector>( std::vector<T> & to, impl::value_t const & from ) {
-						assert( from.is_array( ) );
+					// Array
+					template<typename T>
+					void json_to_value( std::vector<T> & to, impl::value_t const & from ) {
+						assert( from.is_array( ) );						
+						auto const & source_array = from.get_array( ).items;						
 						to.clear( );
-						auto const & arry = from.get_array( ).items( );
-						to.resize( arry.size( ) );
-						for( size_t n = 0; n < to.size( ); ++n ) {
-							json_to_value<U>( to[n], arry[n] );
-						}
+						std::transform( std::begin( source_array ), std::end( source_array ), std::begin( to ), []( impl::value_t const & value_in ) {
+							T tmp;
+							json_to_value( tmp, value_in );
+							return tmp;
+						} );
 					}
 
-					template<typename T, typename U, typename V = T, typename W = U>
-					void json_to_value( T &, impl::value_t const &, boost::string_ref const, boost::string_ref const );
-
-					template<typename Key, typename Value, typename Key_From = Key, typename Value_From = Value>
-					void json_to_value<std::pair<Key, Value>>( std::pair<Key, Value> & to, impl::value_t const & from, boost::string_ref const KeyName = "key", boost::string_ref const ValueName = "value" ) {
+					template<typename Key, typename Value>
+					void json_to_value( std::pair<Key, Value> & to, impl::value_t const & from, boost::string_ref const KeyName = "key", boost::string_ref const ValueName = "value" ) {
 						assert( from.is_array( ) );
+						
 						auto const & arry = from.get_array( );
 						assert( arry.items.size( ) == 2 );
 
 						std::pair<Key, Value> result;
-						json_to_value <Key, Key_From>( result.first, arry.items[0] );
-						json_to_value<Value, Value_From>( result.second, arry.items[1] );
+						json_to_value( result.first, arry.items[0] );
+						json_to_value( result.second, arry.items[1] );
 						to = std::move( result );
 					}
 
-					template<typename Key, typename Value, typename Key_From = Key, typename Value_From = Value>
-					void json_to_value<std::map<Key, Value>>( std::map<Key, Value> & to, impl::value_t const & from, boost::string_ref const KeyName = "key", boost::string_ref const ValueName = "value" ) {
-						assert( from.is_array( ) );// we are an array of objects [ { "key" : key0, "value" : value1 }, ... { "key" : keyN, "value" : valueN } ]
-						auto const & arry = from.get_array( );
+					template<typename Key, typename Value>
+					void json_to_value( std::map<Key, Value> & to, impl::value_t const & from, boost::string_ref const KeyName = "key", boost::string_ref const ValueName = "value" ) {
+						assert( from.is_array( ) );	// we are an array of objects like [ { "key" : key0, "value" : value1 }, ... { "key" : keyN, "value" : valueN } ]
+						
+						auto const & source_array = from.get_array( ).items;
 						to.clear( );
-						for( auto const & obj : arry.items ) {
-							auto key_it = obj.find( KeyName );
-							assert( key_it != obj.end( ) );
+						std::transform( std::begin( source_array ), std::end( source_array ), std::begin( to ), []( impl::value_t const & kv_obj ) {
+							auto key_it = kv_obj.find( KeyName );
+							assert( key_it != kv_obj.end( ) );
 							Key key;
-							json_to_value<Key_From>( key, *key_it );
-
-							auto value_it = obj.find( ValueName );
-							assert( value_it != obj.end( ) );
+							json_to_value( key, *key_it );
+							auto value_it = kv_obj.find( ValueName );
+							assert( value_it != kv_obj.end( ) );
 							Value value;
-							json_to_value<Value_From>( value, *value_it );
-							to.emplace( std::move( key ), std::move( value ) );
-						}
+							json_to_value( value, *value_it );
+							return std::make_pair<Key, Value>( std::move( key ), std::move( value ) );
+						} );
 					}
 
-					template<typename Key, typename Value, typename Key_From = Key, typename Value_From = Value>
-					void json_to_value<std::unordered_map<Key, Value>>( std::map<Key, Value> & to, impl::value_t const & from, boost::string_ref const KeyName = "key", boost::string_ref const ValueName = "value" ) {
-						assert( from.is_array( ) );// we are an array of objects [ { "key" : key0, "value" : value1 }, ... { "key" : keyN, "value" : valueN } ]
-						auto const & arry = from.get_array( );
-						to.clear( );
-						for( auto const & obj : arry.items ) {
-							auto key_it = obj.find( KeyName );
-							assert( key_it != obj.end( ) );
-							Key key;
-							json_to_value<Key_From>( key, *key_it );
+					// TODO: merge map/unordered_map into one template, probably template template
+					template<typename Key, typename Value>
+					void json_to_value( std::unordered_map<Key, Value> & to, impl::value_t const & from, boost::string_ref const KeyName = "key", boost::string_ref const ValueName = "value" ) {
+						assert( from.is_array( ) );	// we are an array of objects like [ { "key" : key0, "value" : value1 }, ... { "key" : keyN, "value" : valueN } ]
 
-							auto value_it = obj.find( ValueName );
-							assert( value_it != obj.end( ) );
+						auto const & source_array = from.get_array( ).items;
+						to.clear( );
+						std::transform( std::begin( source_array ), std::end( source_array ), std::begin( to ), []( impl::value_t const & kv_obj ) {
+							auto key_it = kv_obj.find( KeyName );
+							assert( key_it != kv_obj.end( ) );
+							Key key;
+							json_to_value( key, *key_it );
+							auto value_it = kv_obj.find( ValueName );
+							assert( value_it != kv_obj.end( ) );
 							Value value;
-							json_to_value<Value_From>( value, *value_it );
-							to.emplace( std::move( key ), std::move( value ) );
-						}
+							json_to_value( value, *value_it );
+							return std::make_pair<Key, Value>( std::move( key ), std::move( value ) );
+						} );
 					}
 
 					void json_to_value( JsonLink & to, impl::value_t const & from );
