@@ -251,13 +251,14 @@ namespace daw {
 						
 						auto const & source_array = from.get_array( ).items;
 						to.clear( );
-						std::transform( std::begin( source_array ), std::end( source_array ), std::begin( to ), []( impl::value_t const & kv_obj ) {
-							auto key_it = kv_obj.find( KeyName );
-							assert( key_it != kv_obj.end( ) );
+						std::transform( std::begin( source_array ), std::end( source_array ), std::begin( to ), [&]( impl::value_t const & kv_obj ) {
+							auto const & obj = kv_obj.get_object( );
+							auto key_it = obj.find( KeyName );
+							assert( key_it != obj.end( ) );
 							Key key;
 							json_to_value( key, *key_it );
-							auto value_it = kv_obj.find( ValueName );
-							assert( value_it != kv_obj.end( ) );
+							auto value_it = obj.find( ValueName );
+							assert( value_it != obj.end( ) );
 							Value value;
 							json_to_value( value, *value_it );
 							return std::make_pair<Key, Value>( std::move( key ), std::move( value ) );
@@ -271,13 +272,14 @@ namespace daw {
 
 						auto const & source_array = from.get_array( ).items;
 						to.clear( );
-						std::transform( std::begin( source_array ), std::end( source_array ), std::begin( to ), []( impl::value_t const & kv_obj ) {
-							auto key_it = kv_obj.find( KeyName );
-							assert( key_it != kv_obj.end( ) );
+						std::transform( std::begin( source_array ), std::end( source_array ), std::begin( to ), [&]( impl::value_t const & kv_obj ) {
+							auto const & obj = kv_obj.get_object( );
+							auto key_it = obj.find( KeyName );
+							assert( key_it != obj.end( ) );
 							Key key;
 							json_to_value( key, *key_it );
-							auto value_it = kv_obj.find( ValueName );
-							assert( value_it != kv_obj.end( ) );
+							auto value_it = obj.find( ValueName );
+							assert( value_it != obj.end( ) );
 							Value value;
 							json_to_value( value, *value_it );
 							return std::make_pair<Key, Value>( std::move( key ), std::move( value ) );
@@ -415,7 +417,7 @@ namespace daw {
 
 						bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
 							assert( value_ptr );
-							auto result = decoder_helper<int64_t>( json_values, name );
+							auto result = decoder_helper<int64_t>( name, json_values );
 							assert( result <= std::numeric_limits<T>::max( ) );
 							assert( result >= std::numeric_limits<T>::min( ) );
 							*value_ptr = static_cast<T>(result);
@@ -433,7 +435,7 @@ namespace daw {
 
 						bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
 							assert( value_ptr );
-							auto result = nullable_decoder_helper<int64_t>( json_values, name );
+							auto result = nullable_decoder_helper<int64_t>( name, json_values );
 							if( result ) {
 								assert( result <= std::numeric_limits<T>::max( ) );
 								assert( result >= std::numeric_limits<T>::min( ) );

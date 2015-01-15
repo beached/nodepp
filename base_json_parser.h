@@ -99,7 +99,10 @@ namespace daw {
 						iterator find( boost::string_ref const key );
 						const_iterator find( boost::string_ref const key ) const;
 						iterator begin( );
+						const_iterator begin( ) const;
 						iterator end( );
+						const_iterator end( ) const;
+
 					};
 
 				}	// namespace impl

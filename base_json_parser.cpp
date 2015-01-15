@@ -185,8 +185,16 @@ namespace daw {
 						return members.end( );
 					}
 
+					object_value::const_iterator object_value::end( ) const {
+						return members.cend( );
+					}
+
 					object_value::iterator object_value::begin( ) {
 						return members.begin( );
+					}
+
+					object_value::const_iterator object_value::begin( ) const {
+						return members.cbegin( );
 					}
 
 					namespace {
