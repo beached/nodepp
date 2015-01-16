@@ -1,3 +1,6 @@
 [submodule "parse_json"]
 	path = parse_json
 	url = git@github.com:beached/parse_json
+[submodule "header_libraries"]
+	path = header_libraries
+	url = git@github.com:beached/header_libraries
