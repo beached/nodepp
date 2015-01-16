@@ -25,7 +25,8 @@
 
 #include "base_types.h"
 #include "lib_http_request.h"
-#include "base_json.h"
+#include "parse_json/daw_json.h"
+#include "utility.h"
 
 namespace daw {
 	namespace nodepp {
@@ -60,7 +61,7 @@ namespace daw {
 				}
 
 				std::string value_to_json( std::string const & name, HttpClientRequestMethod method ) {
-					return base::json::value_to_json( name, to_string( method ) );
+					return daw::json::value_to_json( name, to_string( method ) );
 				}
 
 				HttpClientRequestMethod http_request_method_from_string( std::string method ) {

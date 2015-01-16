@@ -6,9 +6,12 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Node++", "Node++.vcxproj", "{BF441ED6-2EF7-4016-9AEE-4E8008C4B5BE}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2DC1B0CE-B33E-464C-A624-3196C0261549} = {2DC1B0CE-B33E-464C-A624-3196C0261549}
+		{047599D7-3AD6-45FA-8704-CF2DA1B80888} = {047599D7-3AD6-45FA-8704-CF2DA1B80888}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PluginHttp", "Plugins\PluginHttp\PluginHttp.vcxproj", "{2DC1B0CE-B33E-464C-A624-3196C0261549}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "parse_json", "parse_json\parse_json.vcxproj", "{047599D7-3AD6-45FA-8704-CF2DA1B80888}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,6 +35,14 @@ Global
 		{2DC1B0CE-B33E-464C-A624-3196C0261549}.Release|Win32.ActiveCfg = Release|Win32
 		{2DC1B0CE-B33E-464C-A624-3196C0261549}.Release|Win32.Build.0 = Release|Win32
 		{2DC1B0CE-B33E-464C-A624-3196C0261549}.Release|x64.ActiveCfg = Release|Win32
+		{047599D7-3AD6-45FA-8704-CF2DA1B80888}.Debug|Win32.ActiveCfg = Debug|Win32
+		{047599D7-3AD6-45FA-8704-CF2DA1B80888}.Debug|Win32.Build.0 = Debug|Win32
+		{047599D7-3AD6-45FA-8704-CF2DA1B80888}.Debug|x64.ActiveCfg = Debug|x64
+		{047599D7-3AD6-45FA-8704-CF2DA1B80888}.Debug|x64.Build.0 = Debug|x64
+		{047599D7-3AD6-45FA-8704-CF2DA1B80888}.Release|Win32.ActiveCfg = Release|Win32
+		{047599D7-3AD6-45FA-8704-CF2DA1B80888}.Release|Win32.Build.0 = Release|Win32
+		{047599D7-3AD6-45FA-8704-CF2DA1B80888}.Release|x64.ActiveCfg = Release|x64
+		{047599D7-3AD6-45FA-8704-CF2DA1B80888}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

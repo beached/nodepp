@@ -32,7 +32,7 @@
 #include <vector>
 
 #include "base_types.h"
-#include "base_json.h"
+#include "parse_json/daw_json.h"
 
 
 namespace daw {
@@ -52,7 +52,7 @@ namespace daw {
 
 				std::string value_to_json( std::string const & name, HttpClientRequestMethod method );
 
-				struct HttpUrlQueryPair: public daw::nodepp::base::json::JsonLink {
+				struct HttpUrlQueryPair: public daw::json::JsonLink {
 					std::string name;
 					boost::optional<std::string> value;
 					
@@ -67,7 +67,7 @@ namespace daw {
 					void set_links( );
 				};	// struct HttpUrlQueryPair	
 
-				struct HttpUrl: public daw::nodepp::base::json::JsonLink {
+				struct HttpUrl: public daw::json::JsonLink {
 					std::string path;
 					boost::optional<std::vector<HttpUrlQueryPair>> query;
 					boost::optional<std::string> fragment;	
@@ -82,7 +82,7 @@ namespace daw {
 					void set_links( );
 				};	// struct HttpUrl
 
-				struct HttpRequestLine: public daw::nodepp::base::json::JsonLink {
+				struct HttpRequestLine: public daw::json::JsonLink {
 					HttpClientRequestMethod method;
 					HttpUrl url;
 					std::string version;
@@ -98,7 +98,7 @@ namespace daw {
 				};	// struct HttpRequestLine
 
 				namespace impl {
-					struct HttpClientRequestImpl: public daw::nodepp::base::json::JsonLink {
+					struct HttpClientRequestImpl: public daw::json::JsonLink {
 						using headers_t = std::unordered_map < std::string, std::string > ;
 						daw::nodepp::lib::http::HttpRequestLine request;
 						headers_t headers;

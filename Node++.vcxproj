@@ -163,8 +163,6 @@
     <ClInclude Include="base_error.h" />
     <ClInclude Include="base_enoding.h" />
     <ClInclude Include="base_event_emitter.h" />
-    <ClInclude Include="base_json.h" />
-    <ClInclude Include="base_json_parser.h" />
     <ClInclude Include="base_url.h" />
     <ClInclude Include="base_work_queue.h" />
     <ClInclude Include="base_write_buffer.h" />
@@ -206,8 +204,6 @@
     <ClCompile Include="base_encoding.cpp" />
     <ClCompile Include="base_error.cpp" />
     <ClCompile Include="base_event_emitter.cpp" />
-    <ClCompile Include="base_json.cpp" />
-    <ClCompile Include="base_json_parser.cpp" />
     <ClCompile Include="base_work_queue.cpp" />
     <ClCompile Include="base_write_buffer.cpp" />
     <ClCompile Include="lib_file.cpp" />
@@ -246,6 +242,16 @@
     <ClCompile Include="load_library_windows.cpp" />
     <ClCompile Include="load_plugin.cpp" />
     <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="parse_json\parse_json.vcxproj">
+      <Project>{047599d7-3ad6-45fa-8704-cf2da1b80888}</Project>
+      <Private>false</Private>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
