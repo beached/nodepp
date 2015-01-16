@@ -7,6 +7,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g -O3 -Weverything -Wno-c++9
 find_package(Boost 1.55.0 COMPONENTS system filesystem regex REQUIRED)
 find_package(Threads REQUIRED)
 
+add_subdirectory( parse_json )
+
 set(SOURCE_FILES
 		base_callback.cpp
 		base_callback.h
@@ -16,10 +18,6 @@ set(SOURCE_FILES
 		base_error.h
 		base_event_emitter.cpp
 		base_event_emitter.h
-		base_json.cpp
-		base_json.h
-		base_json_parser.cpp
-		base_json_parser.h
 		base_service_handle.cpp
 		base_service_handle.h
 		base_stream.h
@@ -79,7 +77,7 @@ set(SOURCE_FILES
 
 add_executable(NodePP ${SOURCE_FILES})
 
-target_link_libraries(NodePP  ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(NodePP parse_json  ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
 
 
