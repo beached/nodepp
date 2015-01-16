@@ -119,10 +119,9 @@
     <ClInclude Include="daw_traits.h" />
     <ClInclude Include="make_unique.h" />
     <ClInclude Include="range_algorithm.h" />
-    <ClInclude Include="ref_counted_value.h" />
     <ClInclude Include="scope_guard.h" />
     <ClInclude Include="daw_string.h" />
-    <ClInclude Include="utility.h" />
+    <ClInclude Include="daw_utility.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

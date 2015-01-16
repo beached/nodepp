@@ -25,7 +25,7 @@
 #include <codecvt>
 #include <locale>
 #include <string>
-#include "utility.h"
+#include "daw_utility.h"
 #include <windows.h>
 
 namespace daw {

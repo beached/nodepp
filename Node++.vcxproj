@@ -181,11 +181,6 @@
     <ClInclude Include="base_stream.h" />
     <ClInclude Include="base_types.h" />
     <ClInclude Include="lib_net_socket_stream.h" />
-    <ClInclude Include="load_library.h" />
-    <ClInclude Include="load_library_posix.h" />
-    <ClInclude Include="load_library_windows.h" />
-    <ClInclude Include="load_plugin.h" />
-    <ClInclude Include="plugin_base.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="base_callback.cpp" />

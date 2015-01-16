@@ -24,7 +24,7 @@
 
 #include <dlfcn.h>
 #include <string>
-#include "utility.h"
+#include "daw_utility.h"
 
 namespace daw {
 	namespace system {

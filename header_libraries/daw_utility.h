@@ -1,17 +1,17 @@
 // The MIT License (MIT)
-// 
+//
 // Copyright (c) 2014-2015 Darrell Wright
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files( the "Software" ), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
@@ -94,7 +94,6 @@ namespace daw {
 				return m_value == value;
 			}
 		};	// class EqualToImpl
-
 	}	// namespace impl
 	template<typename T>
 	impl::EqualToImpl<T> equal_to( T value ) {
@@ -175,7 +174,7 @@ namespace daw {
 
 	// for function pointers
 	template <typename ReturnType, typename... Args>
-	struct function_traits < ReturnType(*)(Args...) > {
+	struct function_traits < ReturnType( *)(Args...) > {
 		enum { arity = sizeof...(Args) };
 		using type = std::function < ReturnType( Args... ) > ;
 		using result_type = ReturnType;
@@ -190,19 +189,19 @@ namespace daw {
 	//handles bind & multiple function call operator()'s
 	template<typename ReturnType, typename... Args, class T>
 	auto make_function( T&& t )	-> std::function < decltype(ReturnType( t( std::declval<Args>( )... ) ))(Args...) > {
-		return{ std::forward<T>( t ) };
+		return { std::forward<T>( t ) };
 	}
 
 	//handles explicit overloads
 	template<typename ReturnType, typename... Args>
 	auto make_function( ReturnType( *p )(Args...) )	-> std::function < ReturnType( Args... ) > {
-		return{ p };
+		return { p };
 	}
 
 	//handles explicit overloads
 	template<typename ReturnType, typename... Args, typename ClassType>
 	auto make_function( ReturnType( ClassType::*p )(Args...) )	-> std::function < ReturnType( Args... ) > {
-		return{ p };
+		return { p };
 	}
 
 	template<typename T>
@@ -215,18 +214,18 @@ namespace daw {
 		assert( num_items <= container.size( ) );
 		std::vector<T> result( num_items );
 		auto first = std::begin( container );
-		std::copy( first, first + static_cast<typename std::vector<T>::difference_type>( num_items ), std::begin( result ) );
+		std::copy( first, first + static_cast<typename std::vector<T>::difference_type>(num_items), std::begin( result ) );
 		return result;
 	}
 
-	template<typename T> 
+	template<typename T>
 	void copy_vect_and_set( std::vector<T> & source, std::vector<T> & destination, size_t num_items, T const & replacement_value ) {
 		using item_size_t = typename std::vector<T>::difference_type;
 		assert( num_items < static_cast<size_t>(std::numeric_limits<item_size_t>::max( )) );
 		auto first = std::begin( source );
 		auto last = std::end( source );
 		auto max_dist = std::distance( first, last );
-		auto items = static_cast<item_size_t>( num_items );
+		auto items = static_cast<item_size_t>(num_items);
 		if( items < max_dist ) {
 			last = first + items;
 		}
@@ -333,7 +332,7 @@ namespace daw {
 
 	template<typename CharType>
 	CharType AsciiLower( CharType chr ) {
-		return chr | static_cast<CharType>(32);		
+		return chr | static_cast<CharType>(32);
 	}
 
 	template<typename CharType>
@@ -360,7 +359,7 @@ namespace daw {
 		for( size_t off = 0; off < upper_value.size( ); ++off ) {
 			auto const & left = upper_value[off];
 			auto const & right = daw::AsciiUpper( *(first + static_cast<std::ptrdiff_t>(off)) );
-			if( left != right  ) {
+			if( left != right ) {
 				return false;
 			}
 		}
@@ -385,7 +384,7 @@ namespace daw {
 			}
 			return *this;
 		}
-		
+
 		T& value( ) {
 			return m_value;
 		}
@@ -399,7 +398,7 @@ namespace daw {
 		}
 
 		T const & operator*() const {
-			return m_value.operator*( );
+			return m_value.operator*();
 		}
 
 		T const * operator->() const {
@@ -418,5 +417,4 @@ namespace daw {
 	MoveCapture<T> as_move_capture( T&& val ) {
 		return MoveCapture<T>( std::move( val ) );
 	}
-
-}	// namespace daw	
+}	// namespace daw

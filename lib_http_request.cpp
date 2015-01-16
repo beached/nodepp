@@ -1,17 +1,17 @@
 // The MIT License (MIT)
-// 
+//
 // Copyright (c) 2014-2015 Darrell Wright
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files( the "Software" ), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
@@ -26,7 +26,7 @@
 #include "base_types.h"
 #include "lib_http_request.h"
 #include "parse_json/daw_json.h"
-#include "utility.h"
+#include "daw_utility.h"
 
 namespace daw {
 	namespace nodepp {
@@ -100,28 +100,24 @@ namespace daw {
 					return is;
 				}
 
-				HttpUrlQueryPair::HttpUrlQueryPair( ): 
-					JsonLink( ), 
-					name( ), 
-					value( ) { 
-					
+				HttpUrlQueryPair::HttpUrlQueryPair( ) :
+					JsonLink( ),
+					name( ),
+					value( ) {
 					set_links( );
 				}
 
-				HttpUrlQueryPair::HttpUrlQueryPair( std::pair<std::string, boost::optional<std::string>> const & vals ) : 
-					JsonLink( ), 
-					name( vals.first ), 
-					value( vals.second ) { 
-					
+				HttpUrlQueryPair::HttpUrlQueryPair( std::pair<std::string, boost::optional<std::string>> const & vals ) :
+					JsonLink( ),
+					name( vals.first ),
+					value( vals.second ) {
 					set_links( );
 				}
 
-				
-				HttpUrlQueryPair::HttpUrlQueryPair( HttpUrlQueryPair && other ):
+				HttpUrlQueryPair::HttpUrlQueryPair( HttpUrlQueryPair && other ) :
 					JsonLink( std::move( other ) ),
 					name( std::move( other.name ) ),
 					value( std::move( other.value ) ) {
-
 					set_links( );
 				}
 
@@ -134,26 +130,24 @@ namespace daw {
 					return *this;
 				}
 
-				void HttpUrlQueryPair::set_links( ) { 
+				void HttpUrlQueryPair::set_links( ) {
 					link_string( "name", name );
 					link_string( "value", value );
 				}
 
-				HttpUrl::HttpUrl( ):
+				HttpUrl::HttpUrl( ) :
 					JsonLink( ),
 					path( ),
 					query( ),
 					fragment( ) {
-
 					set_links( );
 				}
 
-				HttpUrl::HttpUrl( HttpUrl && other ):
+				HttpUrl::HttpUrl( HttpUrl && other ) :
 					JsonLink( std::move( other ) ),
-					path(std::move( other.path ) ),
+					path( std::move( other.path ) ),
 					query( std::move( other.query ) ),
 					fragment( std::move( other.fragment ) ) {
-
 					set_links( );
 				}
 
@@ -177,8 +171,7 @@ namespace daw {
 					JsonLink( ),
 					method( ),
 					url( ),
-					version( ) { 
-				
+					version( ) {
 					set_links( );
 				}
 
@@ -187,7 +180,6 @@ namespace daw {
 					method( std::move( other.method ) ),
 					url( std::move( other.url ) ),
 					version( std::move( other.version ) ) {
-
 					set_links( );
 				}
 
@@ -208,19 +200,17 @@ namespace daw {
 				}
 
 				namespace impl {
-					HttpClientRequestImpl::HttpClientRequestImpl( ):
+					HttpClientRequestImpl::HttpClientRequestImpl( ) :
 						JsonLink( ),
 						request( ),
 						headers( ) {
-
 						set_links( );
 					}
 
-					HttpClientRequestImpl::HttpClientRequestImpl( HttpClientRequestImpl && other ):
+					HttpClientRequestImpl::HttpClientRequestImpl( HttpClientRequestImpl && other ) :
 						JsonLink( std::move( other ) ),
 						request( std::move( other.request ) ),
 						headers( std::move( other.headers ) ) {
-
 						set_links( );
 					}
 
@@ -238,11 +228,7 @@ namespace daw {
 						link_map( "headers", headers );
 					}
 				}	// namespace impl
-
 			} // namespace http
 		}	// namespace lib
-	
 	}	// namespace nodepp
 }	// namespace daw
-
-
