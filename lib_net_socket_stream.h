@@ -34,7 +34,7 @@
 #include "base_types.h"
 #include "base_write_buffer.h"
 #include "lib_net_socket_stream.h"
-#include "semaphore.h"
+#include "daw_semaphore.h"
 
 namespace daw {
 	namespace nodepp {

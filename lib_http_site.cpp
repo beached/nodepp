@@ -1,17 +1,17 @@
 // The MIT License (MIT)
-// 
+//
 // Copyright (c) 2014-2015 Darrell Wright
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files( the "Software" ), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
@@ -29,7 +29,7 @@
 
 #include "lib_http.h"
 #include "lib_http_site.h"
-#include "string.h"
+#include "daw_string.h"
 
 namespace daw {
 	namespace nodepp {
@@ -72,31 +72,31 @@ namespace daw {
 							.on_client_connected( [&]( HttpConnection connection ) {
 							auto obj = get_weak_ptr( );
 							connection->
-								on_error( get_weak_ptr( ), "child connection" )								
+								on_error( get_weak_ptr( ), "child connection" )
 								.on_request_made( [obj]( HttpClientRequest request, HttpServerResponse response ) {
-									run_if_valid( obj, "Processing request", "HttpSiteImpl::start( )#on_request_made", [&request, &response]( HttpSite self ) {
-										auto host = [&]( ) {
-											auto host_it = request->headers.find( "Host" );
-											if( request->headers.end( ) == host_it || "" == host_it->second ) {
-												return std::string( );
-											}
-											auto result = daw::string::split( host_it->second, ':' );
-											if( 0 < result.size( ) && result.size( ) <= 2 ) {
-												return result[0];
-											}
+								run_if_valid( obj, "Processing request", "HttpSiteImpl::start( )#on_request_made", [&request, &response]( HttpSite self ) {
+									auto host = [&]( ) {
+										auto host_it = request->headers.find( "Host" );
+										if( request->headers.end( ) == host_it || "" == host_it->second ) {
 											return std::string( );
-										}();
-										if( "" == host ) {
-											self->emit_page_error( request, response, 400 );
-										} else {
-											auto site = self->match( host, request->request.url.path, request->request.method );
-											if( self->end( ) == site ) {
-												self->emit_page_error( request, response, 404 );
-											} else {
-												site->listener( request, response );
-											}
 										}
-									} );
+										auto result = daw::string::split( host_it->second, ':' );
+										if( 0 < result.size( ) && result.size( ) <= 2 ) {
+											return result[0];
+										}
+										return std::string( );
+									}();
+									if( "" == host ) {
+										self->emit_page_error( request, response, 400 );
+									} else {
+										auto site = self->match( host, request->request.url.path, request->request.method );
+										if( self->end( ) == site ) {
+											self->emit_page_error( request, response, 404 );
+										} else {
+											site->listener( request, response );
+										}
+									}
+								} );
 							} );
 						} );
 					}
@@ -188,7 +188,7 @@ namespace daw {
 						}
 						handler( request, response, error_no );
 					}
-					
+
 					void HttpSiteImpl::emit_listening( boost::asio::ip::tcp::endpoint endpoint ) {
 						emitter( )->emit( "listening", std::move( endpoint ) );
 					}
@@ -202,7 +202,6 @@ namespace daw {
 						m_server->listen_on( port );
 						return *this;
 					}
-
 				}	// namespace impl
 
 				HttpSite create_http_site( base::EventEmitter emitter ) {
@@ -216,9 +215,7 @@ namespace daw {
 					result->start( );
 					return result;
 				}
-
 			} // namespace http
 		}	// namespace lib
 	}	// namespace nodepp
 }	// namespace daw
-

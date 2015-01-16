@@ -1,17 +1,17 @@
 // The MIT License (MIT)
-// 
+//
 // Copyright (c) 2014-2015 Darrell Wright
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files( the "Software" ), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
@@ -23,7 +23,6 @@
 #pragma once
 
 #include <boost/lexical_cast.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/spirit/include/qi_numeric.hpp>
 #include <boost/spirit/include/qi_parse.hpp>
 #include <iomanip>
@@ -31,12 +30,9 @@
 #include <locale>
 #include <regex>
 #include <sstream>
-#include <sstream>
 #include <stdexcept>
 #include <string>
-#include <string>
 #include <utility>
-#include <vector>
 #include <vector>
 
 #ifdef _MSC_VER
@@ -66,7 +62,6 @@ void clear( StringStreamType &ss ) {
 namespace daw {
 	namespace string {
 		namespace details {
-
 			template<typename Arg>
 			std::vector<details::string_t> unknowns_to_string( Arg arg ) {
 				std::vector<details::string_t> result;
@@ -126,24 +121,23 @@ namespace daw {
 
 		template < typename StringType >
 		struct ends_with_t {
-			ends_with_t( ) noexcept{ }
+			ends_with_t( ) noexcept { }
 			~ends_with_t( ) = default;
-			ends_with_t( ends_with_t const & ) noexcept{ }
-			ends_with_t( ends_with_t&& ) noexcept{ }
-			ends_with_t& operator=(ends_with_t) const noexcept{ return *this; }
-			bool operator==(ends_with_t const &) const noexcept{ return true; }
-			bool operator<(ends_with_t const &) const noexcept{ return false; }
+			ends_with_t( ends_with_t const & ) noexcept { }
+				ends_with_t( ends_with_t&& ) noexcept { }
+			ends_with_t& operator=(ends_with_t) const noexcept { return *this; }
+			bool operator==(ends_with_t const &) const noexcept { return true; }
+			bool operator<(ends_with_t const &) const noexcept { return false; }
 
-				bool operator()( StringType const & src, const char ending ) const noexcept{
+				bool operator()( StringType const & src, const char ending ) const noexcept {
 				return 0 < src.size( ) && ending == src[src.size( ) - 1];
 			}
 
-				bool operator()( StringType const & src, StringType const & ending ) const noexcept{
+				bool operator()( StringType const & src, StringType const & ending ) const noexcept {
 				auto pos = src.find_last_of( ending );
 				return details::string_t::npos != pos && pos == src.size( ) - 1;
 			}
 		};
-
 
 		template<typename StringType, typename Ending>
 		bool ends_with( StringType const & src, Ending const & ending ) {
@@ -273,16 +267,16 @@ namespace daw {
 			to = to_string( from );
 		}
 
-// 		template<class ValueType>
-// 		void convertToString( ValueType const & from, details::string_t& to, details::string_t const & locale_str ) {
-// 			#pragma message( "Use non-locale version" )
-// 			static std::stringstream ss;
-// 			clear( ss );
-// 			ss << from;
-// 			ss.imbue( std::locale( locale_str ) );
-// 			ss >> to;
-// 		}
-// 		
+		// 		template<class ValueType>
+		// 		void convertToString( ValueType const & from, details::string_t& to, details::string_t const & locale_str ) {
+		// 			#pragma message( "Use non-locale version" )
+		// 			static std::stringstream ss;
+		// 			clear( ss );
+		// 			ss << from;
+		// 			ss.imbue( std::locale( locale_str ) );
+		// 			ss >> to;
+		// 		}
+		//
 
 		template<typename StringType>
 		bool contains( StringType str, StringType match ) {

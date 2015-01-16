@@ -1,17 +1,17 @@
 // The MIT License (MIT)
-// 
+//
 // Copyright (c) 2014-2015 Darrell Wright
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files( the "Software" ), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
@@ -31,7 +31,7 @@
 #include "lib_http_headers.h"
 #include "lib_http_server_response.h"
 #include "range_algorithm.h"
-#include "string.h"
+#include "daw_string.h"
 
 namespace daw {
 	namespace nodepp {
@@ -39,7 +39,6 @@ namespace daw {
 			namespace http {
 				using namespace daw::nodepp;
 				namespace impl {
-
 					HttpServerResponseImpl::HttpServerResponseImpl( std::weak_ptr<lib::net::impl::NetSocketStreamImpl> socket, base::EventEmitter emitter ) :
 						m_emitter( emitter ),
 						m_socket( socket ),
@@ -119,7 +118,6 @@ namespace daw {
 						return *this;
 					}
 
-
 					namespace {
 						std::string gmt_timestamp( ) {
 							auto now = time( 0 );
@@ -144,14 +142,14 @@ namespace daw {
 							if( dte.empty( ) ) {
 								dte = gmt_timestamp( );
 							}
-							socket->write_async( m_headers.to_string( ) );							
+							socket->write_async( m_headers.to_string( ) );
 						} );
 						return *this;
 					}
 
-					HttpServerResponseImpl& HttpServerResponseImpl::send_body( ) {						
+					HttpServerResponseImpl& HttpServerResponseImpl::send_body( ) {
 						m_body_sent = on_socket_if_valid( [&]( lib::net::NetSocketStream socket ) {
-							HttpHeader content_header( "Content-Length", std::to_string(m_body.size( )) );
+							HttpHeader content_header( "Content-Length", std::to_string( m_body.size( ) ) );
 							socket->write_async( content_header.to_string( ) );
 							socket->write_async( "\r\n\r\n" );
 							socket->write_async( m_body );
@@ -197,7 +195,7 @@ namespace daw {
 					void HttpServerResponseImpl::close( ) {
 						send( );
 						on_socket_if_valid( []( lib::net::NetSocketStream socket ) {
-							socket->close( );								
+							socket->close( );
 						} );
 					}
 
@@ -211,11 +209,11 @@ namespace daw {
 					}
 
 					bool HttpServerResponseImpl::is_closed( ) const {
-						return m_socket.expired() || m_socket.lock( )->is_closed( );
+						return m_socket.expired( ) || m_socket.lock( )->is_closed( );
 					}
 
 					bool HttpServerResponseImpl::can_write( ) const {
-						return !m_socket.expired() && m_socket.lock( )->can_write( );
+						return !m_socket.expired( ) && m_socket.lock( )->can_write( );
 					}
 
 					bool HttpServerResponseImpl::is_open( ) {
@@ -226,7 +224,6 @@ namespace daw {
 						m_headers.add( std::move( header_name ), std::move( header_value ) );
 						return *this;
 					}
-
 				}	// namespace impl
 
 				HttpServerResponse create_http_server_response( std::weak_ptr<lib::net::impl::NetSocketStreamImpl> socket, base::EventEmitter emitter ) {
