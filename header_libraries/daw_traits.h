@@ -1,17 +1,17 @@
 // The MIT License (MIT)
-// 
+//
 // Copyright (c) 2014-2015 Darrell Wright
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files( the "Software" ), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
@@ -70,7 +70,7 @@ namespace daw {
 			typedef typename std::conditional<sizeof( First ) >= sizeof( next ), First, next>::type type;
 			static const size_t value = sizeof( type );
 		};
-	
+
 		template<typename BoolType>
 		bool are_true( BoolType b1 ) {
 			return true == b1;
@@ -143,66 +143,76 @@ namespace daw {
 		template<bool...> struct bool_sequence { };
 
 		template<bool... Bools>
-		using bool_and = std::is_same< bool_sequence< Bools...>, bool_sequence< (Bools || true)...> >;
+		using bool_and = std::is_same < bool_sequence< Bools...>, bool_sequence< (Bools || true)...> > ;
 
 		template<bool... Bools>
-		using bool_or = std::integral_constant<bool, !bool_and< !Bools... >::value >;
-
-		template< typename R, bool... Bs > 
-		using enable_if_any = std::enable_if< bool_or< Bs... >::value, R >;
+		using bool_or = std::integral_constant < bool, !bool_and< !Bools... >::value > ;
 
 		template< typename R, bool... Bs >
-		using enable_if_all = std::enable_if< bool_and< Bs... >::value, R >;
+		using enable_if_any = std::enable_if < bool_or< Bs... >::value, R > ;
 
+		template< typename R, bool... Bs >
+		using enable_if_all = std::enable_if < bool_and< Bs... >::value, R > ;
 
-	#define GENERATE_IS_STD_CONTAINER1( ContainerName ) \
+#define GENERATE_IS_STD_CONTAINER1( ContainerName ) \
 		template<typename T, typename = void> struct is_##ContainerName: std::false_type { }; \
 		template<typename T> struct is_##ContainerName < T, typename std::enable_if<std::is_same<T, std::ContainerName<typename T::value_type> >::value>::type> : std::true_type { };
-		
+
 		GENERATE_IS_STD_CONTAINER1( vector );
 		GENERATE_IS_STD_CONTAINER1( list );
 		GENERATE_IS_STD_CONTAINER1( set );
 		GENERATE_IS_STD_CONTAINER1( unordered_set );
 		GENERATE_IS_STD_CONTAINER1( deque );
 
-		#undef GENERATE_IS_STD_CONTAINER1
+#undef GENERATE_IS_STD_CONTAINER1
 
-	#define GENERATE_IS_STD_CONTAINER2( ContainerName ) \
+#define GENERATE_IS_STD_CONTAINER2( ContainerName ) \
 		template<typename T, typename = void> struct is_##ContainerName: std::false_type { }; \
 		template<typename T> struct is_##ContainerName < T, typename std::enable_if<std::is_same<T, std::ContainerName<typename T::key_type, typename T::mapped_type> >::value>::type> : std::true_type { };
 
 		GENERATE_IS_STD_CONTAINER2( map );
 		GENERATE_IS_STD_CONTAINER2( unordered_map );
 
-		#undef GENERATE_IS_STD_CONTAINER2
-
+#undef GENERATE_IS_STD_CONTAINER2
 
 		template<typename T, typename... Types>
-		struct is_one_of : std::false_type {};
+		struct is_one_of: std::false_type { };
 
 		template<typename T, typename Type>
-		struct is_one_of<T, Type> : std::is_same<T, Type> { };
+		struct is_one_of<T, Type> : std::is_same < T, Type > { };
 
 		template<typename T, typename Type, typename... Types>
-		struct is_one_of<T, Type, Types...>: std::integral_constant<bool, std::is_same<T, Type>::value || is_one_of<T, Types...>::value>{ };
+		struct is_one_of<T, Type, Types...> : std::integral_constant < bool, std::is_same<T, Type>::value || is_one_of<T, Types...>::value > { };
 
 		// Hack, need to figure out a way based on ability at compile time
 
+		template<typename Container, typename = void>
+		struct is_single_item_container: std::false_type { };
+
+		template<typename Container>
+		struct is_single_item_container < Container,
+			typename enable_if_any <void,
+			is_vector<Container>::value,
+			is_list<Container>::value,
+			is_set<Container>::value,
+			is_deque<Container>::value,
+			is_unordered_set<Container>::value
+			>::type > : std::true_type { };
 
 		template<typename Container, typename = void>
 		struct is_container: std::false_type { };
 
 		template<typename Container>
-		struct is_container < Container, 
+		struct is_container < Container,
 			typename enable_if_any <void,
-					is_vector<Container>::value,
-					is_list<Container>::value,
-					is_set<Container>::value,
-					is_deque<Container>::value,
-					is_unordered_set<Container>::value,
-					is_map<Container>::value,
-					is_unordered_map<Container>::value
-			>::type> : std::true_type { };
+			is_vector<Container>::value,
+			is_list<Container>::value,
+			is_set<Container>::value,
+			is_deque<Container>::value,
+			is_unordered_set<Container>::value,
+			is_map<Container>::value,
+			is_unordered_map<Container>::value
+			>::type > : std::true_type { };
 
 		template<typename Container, typename = void>
 		struct is_map_type: std::false_type { };
@@ -240,8 +250,7 @@ namespace daw {
 			uint32_t,
 			uint64_t,
 			float,
-			double > ::value >::type> : std::true_type { };
-
+			double > ::value > ::type > : std::true_type { };
 
 		template<typename T, typename = void>
 		struct is_container_or_array: public std::false_type { };
@@ -257,7 +266,6 @@ namespace daw {
 
 		template<typename T>
 		using is_container_or_array_t = typename is_container_or_array<T>::type;
-
 
 		namespace details {
 			template<typename T, typename NameGetter>

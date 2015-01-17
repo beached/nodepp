@@ -37,6 +37,12 @@
 
 namespace daw {
 	namespace json {
+		template<typename Derived> class JsonLink;
+
+		template<typename Derived> std::ostream& operator<<(std::ostream& os, JsonLink<Derived> const & data);
+		template<typename Derived> void json_to_value( JsonLink<Derived> & to, impl::value_t const & from );
+		template<typename Derived> std::string value_to_json( std::string const & name, JsonLink<Derived> const & obj );
+
 		template<typename Derived>
 		class JsonLink {
 			std::string m_name;
@@ -317,9 +323,9 @@ namespace daw {
 						// TODO: determine if correct course of action
 						throw std::runtime_error( "JSON object does not match expected object layout" );
 					}
-					auto container = *value_ptr;
+					assert( member->second.is_array( ) );
 					using details::json_to_value;
-					json_to_value( container, member->second );
+					json_to_value( *value_ptr, member->second );
 				};
 				m_data_map[name.to_string( )] = std::move( bind_functions );
 				return *this;
@@ -343,14 +349,9 @@ namespace daw {
 					if( member->second.is_null( ) ) {
 						*value_ptr = boost::optional<T>( );
 					} else {
-						auto container = *(*value_ptr);
-						container.clear( );
-						for( auto & item : member->second.get_array( ).items ) {
-							typename T::value_type result;
-							using details::json_to_value;
-							json_to_value( result, item );
-							container.push_back( std::move( result ) );
-						}
+						assert( member->second.is_array( ) );
+						using details::json_to_value;
+						json_to_value( *value_ptr, member->second );
 					}
 				};
 				m_data_map[name.to_string( )] = std::move( bind_functions );
@@ -372,18 +373,9 @@ namespace daw {
 						// TODO: determine if correct course of action
 						throw std::runtime_error( "JSON object does not match expected object layout" );
 					}
-					auto container = *value_ptr;
-					container.clear( );
 					assert( member->second.is_array( ) );
-					for( auto const & item : member->second.get_array( ).items ) {
-						auto const & obj = item.get_object( );
-						auto key = obj.find( "key" )->second.get_string( );
-						auto val = obj.find( "value" )->second;
-						typename T::mapped_type result;
-						using details::json_to_value;
-						json_to_value( result, val );
-						container[key] = std::move( result );
-					}
+					using details::json_to_value;
+					json_to_value( *value_ptr, member->second );
 				};
 				m_data_map[name.to_string( )] = std::move( bind_functions );
 				return *this;
@@ -407,17 +399,9 @@ namespace daw {
 						if( member->second.is_null( ) ) {
 							*value_ptr = boost::optional<T>( );
 						} else {
-							auto container = *(*value_ptr);
-							container.clear( );
-							for( auto const & item : member->second.get_array( ).items ) {
-								auto const & obj = item.get_object( );
-								auto key = obj.find( "key" )->second.get_string( );
-								auto val = obj.find( "value" )->second;
-								typename T::mapped_type result;
-								using details::json_to_value;
-								json_to_value( result, val );
-								container[key] = std::move( result );
-							}
+							assert( member->second.is_array( ) );
+							using details::json_to_value;
+							json_to_value( *value_ptr, member->second );
 						}
 					}
 				};
@@ -432,7 +416,7 @@ namespace daw {
 				bind_functions_t bind_functions;
 				bind_functions.encode = [value_ptr, name]( std::string & json_text ) {
 					assert( value_ptr );
-					json_text = value_to_json( name.to_string( ), boost::lexical_cast<std::string>(*value_ptr) );
+					json_text = generate::value_to_json( name.to_string( ), boost::lexical_cast<std::string>(*value_ptr) );
 				};
 				bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
 					assert( value_ptr );

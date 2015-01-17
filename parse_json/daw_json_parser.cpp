@@ -1,17 +1,17 @@
 // The MIT License (MIT)
-// 
+//
 // Copyright (c) 2014-2015 Darrell Wright
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files( the "Software" ), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
@@ -26,11 +26,15 @@
 #include <string>
 #include <type_traits>
 
+#include "daw_range.h"
+
 #include "daw_json_parser.h"
 
 namespace daw {
 	namespace json {
 		namespace impl {
+			using namespace daw::range;
+
 			value_t::value_t( int64_t const & value ) : m_value_type( value_types::integral ) {
 				m_value.integral = value;
 			}
@@ -96,8 +100,7 @@ namespace daw {
 				return *this;
 			}
 
-
-			value_t::value_t( value_t && other ):
+			value_t::value_t( value_t && other ) :
 				m_value( std::move( other.m_value ) ),
 				m_value_type( std::move( other.m_value_type ) ) {
 				other.m_value.string = nullptr;
@@ -296,61 +299,8 @@ namespace daw {
 
 			namespace {
 				template<typename Iterator>
-				struct Range {
-					Iterator first;
-					Iterator last;
-
-					Range& move_next( ) {
-						assert( first != last );
-						++first;
-						return *this;
-					}
-
-					Range& move_back( ) {
-						--first;
-						return *this;
-					}
-
-					Range& move_back( Iterator start ) {
-						assert( first > start );
-						--first;
-						return *this;
-					}
-
-					bool at_end( ) const {
-						return first == last;
-					}
-
-				};	// struct Range
-
-				template<typename Iterator>
-				Range<Iterator> make_range( Iterator first, Iterator last ) {
-					return Range < Iterator > { first, last };
-				}
-
-				template<typename Iterator>
-				void safe_advance( Range<Iterator> & range, typename std::iterator_traits<Iterator>::difference_type count ) {
-					assert( 0 <= count );
-					if( std::distance( range.first, range.last ) >= count ) {
-						range.first += count;
-					} else {
-						range.first = range.last;
-					}
-				}
-
-				template<typename Iterator>
 				bool contains( Iterator first, Iterator last, typename std::iterator_traits<Iterator>::value_type const & key ) {
 					return std::find( first, last, key ) != last;
-				}
-
-				template<typename Iterator>
-				bool contains( Range<Iterator> const & range, typename std::iterator_traits<Iterator>::value_type const & key ) {
-					return std::find( range.first, range.last, key ) != range.last;
-				}
-
-				template<typename Iterator>
-				bool at_end( Range<Iterator> const & range ) {
-					return range.first == range.last;
 				}
 
 				bool is_ws( char const * const it ) {
@@ -384,7 +334,7 @@ namespace daw {
 					bool result = std::distance( range.first, range.last ) >= static_cast<typename std::iterator_traits<Iterator>::difference_type>(value.size( ));
 					result = result && std::equal( range.first, range.first + value.size( ), std::begin( value ) );
 					if( result ) {
-						safe_advance( range, static_cast<typename std::iterator_traits<Iterator>::difference_type>( value.size( ) ) );
+						safe_advance( range, static_cast<typename std::iterator_traits<Iterator>::difference_type>(value.size( )) );
 					}
 					return result;
 				}
@@ -398,7 +348,7 @@ namespace daw {
 					current.move_next( );
 					int slash_count = 0;
 					while( !at_end( current ) ) {
-						auto cur_val = *current.first;
+						auto const & cur_val = current.front( );
 						if( '"' == cur_val && slash_count % 2 == 0 ) {
 							break;
 						}
@@ -442,17 +392,17 @@ namespace daw {
 				template<typename Iterator>
 				value_opt_t parse_number( Range<Iterator> & range ) {
 					auto current = range;
-					if( '-' == *current.first ) {
+					if( '-' == current.front( ) ) {
 						current.move_next( );
 					}
 					while( !at_end( current ) && is_digit( current.first ) ) { current.move_next( ); };
-					bool is_float = !at_end( current ) && '.' == *current.first;
+					bool is_float = !at_end( current ) && '.' == current.front( );
 					if( is_float ) {
 						current.move_next( );
 						while( !at_end( current ) && is_digit( current.first ) ) { current.move_next( ); };
 						if( is_equal_nc( current.first, 'e' ) ) {
 							current.move_next( );
-							if( '-' == *current.first ) {
+							if( '-' == current.front( ) ) {
 								current.move_next( );
 							}
 							while( !at_end( current ) && is_digit( current.first ) ) { current.move_next( ); };
@@ -464,13 +414,15 @@ namespace daw {
 
 					if( is_float ) {
 						try {
-							auto result = value_t( boost::lexical_cast<double>(range.first, static_cast<size_t>( std::distance( range.first, current.first ) ) ) );
+							assert( range.first <= current.first );
+							auto result = value_t( boost::lexical_cast<double>(range.first, static_cast<size_t>(std::distance( range.first, current.first ))) );
 							range = current;
 							return result;
 						} catch( boost::bad_lexical_cast const & ) { }
 					} else {
 						try {
-							auto result = value_t( boost::lexical_cast<int64_t>(range.first, static_cast<size_t>( std::distance( range.first, current.first ) ) ) );
+							assert( range.first <= current.first );
+							auto result = value_t( boost::lexical_cast<int64_t>(range.first, static_cast<size_t>(std::distance( range.first, current.first ))) );
 							range = current;
 							return result;
 						} catch( boost::bad_lexical_cast const & ) { }
@@ -500,7 +452,7 @@ namespace daw {
 						return boost::optional<object_value_item>( );
 					}
 					range = current;
-					
+
 					return std::make_pair< std::string, value_t >( std::move( lbl ), std::move( *value ) );
 				}
 
@@ -566,7 +518,7 @@ namespace daw {
 				value_opt_t parse_value( Range<Iterator>& range ) {
 					auto current = range;
 					skip_ws( current );
-					switch( *current.first ) {
+					switch( current.front( ) ) {
 					case '{':
 						if( auto obj = parse_object( current ) ) {
 							skip_ws( current );
@@ -612,7 +564,6 @@ namespace daw {
 					}
 					return value_opt_t( );
 				}
-
 			}	// namespace anonymous
 		}	// namespace impl
 
@@ -648,6 +599,5 @@ namespace daw {
 		template<> impl::array_value const & get<impl::array_value>( impl::value_t const & val ) {
 			return val.get_array( );
 		}
-
 	}	// namespace json
 }	// namespace daw

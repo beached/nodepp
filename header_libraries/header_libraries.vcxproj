@@ -116,6 +116,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="concurrent_queue.h" />
+    <ClInclude Include="daw_range.h" />
     <ClInclude Include="daw_traits.h" />
     <ClInclude Include="make_unique.h" />
     <ClInclude Include="range_algorithm.h" />

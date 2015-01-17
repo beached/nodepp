@@ -35,6 +35,7 @@
 #include <vector>
 
 #include "daw_json_parser.h"
+#include "daw_range.h"
 #include "daw_traits.h"
 
 namespace daw {
@@ -92,11 +93,11 @@ namespace daw {
 
 			std::string value_to_json( std::string const & name, double const & value );
 
-			// pair types
-			template<typename First, typename Second>
-			std::string value_to_json( std::string const & name, std::pair<First, Second> const & value ) {
-				return daw::json::details::json_name( name ) + "[ " + value_to_json( value.first ) + ", " + value_to_json( value.second ) + " ]";
-			}
+			template<typename T> void value_to_json( std::string const & name, std::shared_ptr<T> const & value );
+			template<typename T> void value_to_json( std::string const & name, std::weak_ptr<T> const & value );
+			template<typename Optional> std::string value_to_json( std::string const & name, boost::optional<Optional> const & value );
+			template<typename First, typename Second> std::string value_to_json( boost::string_ref name, std::pair<First, Second> const & value );
+			template<typename Container, typename std::enable_if<daw::traits::is_container<Container>::value, long>::type = 0> std::string value_to_json( std::string const & name, Container const & values );
 
 			template<typename T>
 			void value_to_json( std::string const & name, std::shared_ptr<T> const & value ) {
@@ -127,45 +128,26 @@ namespace daw {
 				}
 			}
 
-			template<typename Key, typename Value>
-			std::string value_to_json( std::string const & name, std::map<Key, Value> const & values ) {
-				std::stringstream result;
-				result << daw::json::details::json_name( name ) + "[ ";
-				bool is_first = true;
-				for( auto const & item : values ) {
-					result << (!is_first? ",": "");
-					is_first = false;
-					result << "{ " << value_to_json( "key", item.first ) << ", ";
-					result << value_to_json( "value", item.second ) << " }";
-				}
-				result << " ]";
-				return result.str( );
-			}
-
-			template<typename Key, typename Value>
-			std::string value_to_json( std::string const & name, std::unordered_map<Key, Value> const & values ) {
-				std::stringstream result;
-				result << daw::json::details::json_name( name ) + "[ ";
-				bool is_first = true;
-				for( auto const & item : values ) {
-					result << (!is_first? ",": "");
-					is_first = false;
-					result << "{ " << value_to_json( "key", item.first ) << ", ";
-					result << value_to_json( "value", item.second ) << " }";
-				}
-				result << " ]";
-				return result.str( );
+			// pair types
+			template<typename First, typename Second>
+			std::string value_to_json( boost::string_ref name, std::pair<First, Second> const & value ) {
+				return daw::json::details::json_name( name ) + "{ " + value_to_json( "key", value.first ) + ", " + value_to_json( "value", value.second ) + " }";
 			}
 
 			// container/array.
-			template<typename Container, typename std::enable_if<daw::traits::is_container<Container>::value, long>::type = 0>
+			template<typename Container, typename std::enable_if<daw::traits::is_container<Container>::value, long>::type>
 			std::string value_to_json( std::string const & name, Container const & values ) {
 				std::stringstream result;
 				result << daw::json::details::json_name( name ) + "[ ";
-				bool is_first = true;
-				for( auto const & item : values ) {
-					result << (!is_first? ",": "") << value_to_json( "", item );
-					is_first = false;
+				{
+					auto values_range = daw::make_range( values );
+					if( !at_end( values_range ) ) {
+						result << value_to_json( "", values_range.front( ) );
+						values_range.move_next( );
+						for( auto const & item : values_range ) {
+							result << "," << value_to_json( "", item );
+						}
+					}
 				}
 				result << " ]";
 				return result.str( );
