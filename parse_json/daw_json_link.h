@@ -468,7 +468,7 @@ namespace daw {
 		}
 
 		template<typename T>
-		auto value_to_json( std::string const & name, T const & obj ) -> decltype(obj.encode( )) {
+		std::string value_to_json( std::string const & name, JsonLink<T> const & obj ) {
 			return details::json_name( name ) + obj.encode( );
 		}
 	}	// namespace json
