@@ -111,7 +111,7 @@ namespace daw {
 		}
 
 		template<typename Container, typename std::enable_if<daw::traits::is_container<Container>::value, long>::type = 0>
-		auto make_range( Container & container )->Range < decltype(std::begin( container )) > {
+		Range<typename Container::iterator> make_range( Container & container ) {
 			using Iterator = decltype(std::begin( container ));
 			return Range<Iterator>( std::begin( container ), std::end( container ) );
 		}

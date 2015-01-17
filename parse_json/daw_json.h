@@ -41,13 +41,13 @@
 namespace daw {
 	namespace json {
 		namespace details {
-			std::string json_name( std::string const & name );
-			std::string enbrace( std::string const & json_value );
+			std::string json_name( boost::string_ref name );
+			std::string enbrace( boost::string_ref json_value );
 		}
 
-		std::string to_string( std::string const & value );
+//		std::string to_string( boost::string_ref value );
 
-		std::string enquote( std::string const & value );
+		std::string enquote( boost::string_ref value );
 
 		namespace generate {
 			// string
@@ -131,7 +131,7 @@ namespace daw {
 			// pair types
 			template<typename First, typename Second>
 			std::string value_to_json( boost::string_ref name, std::pair<First, Second> const & value ) {
-				return daw::json::details::json_name( name ) + "{ " + value_to_json( "key", value.first ) + ", " + value_to_json( "value", value.second ) + " }";
+				return daw::json::details::json_name( name.to_string( ) ) + "{ " + value_to_json( "key", value.first ) + ", " + value_to_json( "value", value.second ) + " }";
 			}
 
 			// container/array.
@@ -140,7 +140,7 @@ namespace daw {
 				std::stringstream result;
 				result << daw::json::details::json_name( name ) + "[ ";
 				{
-					auto values_range = daw::make_range( values );
+					auto values_range = daw::range::make_range( values );
 					if( !at_end( values_range ) ) {
 						result << value_to_json( "", values_range.front( ) );
 						values_range.move_next( );

@@ -14,7 +14,7 @@ set(SOURCE_FILES
 	daw_json_parser.h
 )
 
-include_directories( ../../header_libraries )
+include_directories( ../header_libraries )
 
 add_library (parse_json STATIC ${SOURCE_FILES})
 

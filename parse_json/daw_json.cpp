@@ -45,24 +45,24 @@ namespace daw {
 			return std::string( buffer, buffer + count + 1 );
 		}
 
-		std::string to_string( std::string const & value ) {
+/*		std::string to_string( std::string const & value ) {
 			return value;
 		}
-
-		std::string enquote( std::string const & value ) {
-			return "\"" + value + "\"";
+*/
+		std::string enquote( boost::string_ref value ) {
+			return "\"" + value.to_string( ) + "\"";
 		}
 
 		namespace details {
-			std::string json_name( std::string const & name ) {
+			std::string json_name( boost::string_ref name ) {
 				if( !name.empty( ) ) {
 					return enquote( name ) + ": ";
 				}
 				return std::string( );
 			}
 
-			std::string enbrace( std::string const & json_value ) {
-				return "{ " + json_value + " }";
+			std::string enbrace( boost::string_ref json_value ) {
+				return "{ " + json_value.to_string( ) + " }";
 			}
 		}
 
