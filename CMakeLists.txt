@@ -75,6 +75,8 @@ set(SOURCE_FILES
 		utility.h
 )
 
+include_directories( header_libraries )
+
 add_executable(NodePP ${SOURCE_FILES})
 
 target_link_libraries(NodePP parse_json  ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})

@@ -1,3 +1,0 @@
-[submodule "parse_json"]
-	path = parse_json
-	url = git@github.com:beached/parse_json
