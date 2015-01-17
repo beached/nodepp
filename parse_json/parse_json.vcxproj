@@ -149,6 +149,7 @@
   <ItemGroup>
     <ClCompile Include="daw_json.cpp" />
     <ClCompile Include="daw_json_parser.cpp" />
+    <ClCompile Include="daw_json_link.cpp" />
     <ClCompile Include="test.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -159,7 +160,7 @@
   <ItemGroup>
     <ClInclude Include="daw_json.h" />
     <ClInclude Include="daw_json_parser.h" />
-    <ClInclude Include="daw_traits.h" />
+    <ClInclude Include="daw_json_link.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\header_libraries\header_libraries.vcxproj">

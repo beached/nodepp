@@ -35,6 +35,7 @@ void localtime_s( struct tm* result, std::time_t const * source ) {
 
 namespace daw {
 	namespace json {
+		using namespace generate;
 		std::string ts_to_string( std::time_t const & timestamp, std::string format ) {
 			char buffer[200];
 			std::tm tm = { };
@@ -65,123 +66,48 @@ namespace daw {
 			}
 		}
 
-		// string
-		std::string value_to_json( std::string const & name, std::string const & value ) {
-			return details::json_name( name ) + enquote( value );
-		}
-
-		// bool
-		std::string value_to_json( std::string const & name, bool value ) {
-			return details::json_name( name ) + (value ? "true" : "false");
-		}
-
-		// null
-		std::string value_to_json( std::string const & name ) {
-			return details::json_name( name ) + "null";
-		}
-
-		// date -> actaually a string, but it javascript date format encodes the date
-		// 				std::string value_to_json_timestamp( std::string const & name, std::time_t const & timestamp ) {
-		// 					using daw::json::to_string;
-		// 					return details::json_name( name ) + enquote( to_string( timestamp ) );
-		// 				}
-
-		std::string value_to_json( std::string const & name, int const & value ) {
-			return value_to_json_number( name, value );
-		}
-
-		std::string value_to_json( std::string const & name, unsigned int const & value ) {
-			return value_to_json_number( name, value );
-		}
-
-		std::string value_to_json( std::string const & name, int64_t const & value ) {
-			return value_to_json_number( name, value );
-		}
-
-		std::string value_to_json( std::string const & name, uint64_t const & value ) {
-			return value_to_json_number( name, value );
-		}
-
-		std::string value_to_json( std::string const & name, double const & value ) {
-			return value_to_json_number( name, value );
-		}
-
-		std::string value_to_json( std::string const & name, JsonLink const & obj ) {
-			return details::json_name( name ) + obj.encode( );
-		}
-
-		JsonLink::JsonLink( std::string name ) :
-			m_name( std::move( name ) ),
-			m_data_map( ) { }
-
-		JsonLink::JsonLink( JsonLink && other ):
-			m_name( std::move( other.m_name ) ),
-			m_data_map( std::move( other.m_data_map ) ) { }
-
-		JsonLink& JsonLink::operator=(JsonLink && rhs) {
-			if( this != &rhs ) {
-				m_name = std::move( rhs.m_name );
-				m_data_map = std::move( rhs.m_data_map );
+		namespace generate {
+			// string
+			std::string value_to_json( std::string const & name, std::string const & value ) {
+				return details::json_name( name ) + enquote( value );
 			}
-			return *this;
-		}
 
-		std::string & JsonLink::json_object_name( ) {
-			return m_name;
-		}
-		std::string const & JsonLink::json_object_name( ) const {
-			return m_name;
-		}
-
-		void JsonLink::reset_jsonlink( ) {
-			m_data_map.clear( );
-			m_name.clear( );
-		}
-
-		std::string JsonLink::encode( ) const {
-			std::stringstream result;
-			std::string tmp;
-			auto is_first = true;
-			for( auto const & value : m_data_map ) {
-				value.second.encode( tmp );
-				result << (!is_first ? ", " : "") << tmp;
-				is_first = false;
+			// bool
+			std::string value_to_json( std::string const & name, bool value ) {
+				return details::json_name( name ) + (value ? "true" : "false");
 			}
-			return details::json_name( m_name ) + details::enbrace( result.str( ) );
-		}
 
-		void JsonLink::decode( boost::string_ref const json_text ) {
-			decode( parse_json( json_text ) );
-		}
-
-		void JsonLink::decode( json_obj const & json_values ) {
-			for( auto & value : m_data_map ) {
-				value.second.decode( json_values );
+			// null
+			std::string value_to_json( std::string const & name ) {
+				return details::json_name( name ) + "null";
 			}
-		}
 
-		std::ostream& operator<<(std::ostream& os, JsonLink const & data) {
-			os << data.encode( );
-			return os;
-		}
+			// date -> actaually a string, but it javascript date format encodes the date
+			// 				std::string value_to_json_timestamp( std::string const & name, std::time_t const & timestamp ) {
+			// 					using daw::json::to_string;
+			// 					return details::json_name( name ) + enquote( to_string( timestamp ) );
+			// 				}
 
-		// 				JsonLink& JsonLink::link_timestamp( std::string name, std::time_t& value ) {
-		// 					std::time_t *value_ptr = &value;
-		// 					m_data_map[name] = [value_ptr, name]( std::string & json_text, Action action ) {
-		// 						assert( value_ptr != nullptr );
-		// 						std::time_t& val = *value_ptr;
-		// 						switch( action ) {
-		// 						case Action::encode:
-		// 							json_text = value_to_json_timestamp( name, val );
-		// 							break;
-		// 						case Action::decode:
-		// 							json_to_value( json_text, val );
-		// 							break;
-		// 						}
-		// 					};
-		// 					return *this;
-		// 				}
-		//
+			std::string value_to_json( std::string const & name, int const & value ) {
+				return value_to_json_number( name, value );
+			}
+
+			std::string value_to_json( std::string const & name, unsigned int const & value ) {
+				return value_to_json_number( name, value );
+			}
+
+			std::string value_to_json( std::string const & name, int64_t const & value ) {
+				return value_to_json_number( name, value );
+			}
+
+			std::string value_to_json( std::string const & name, uint64_t const & value ) {
+				return value_to_json_number( name, value );
+			}
+
+			std::string value_to_json( std::string const & name, double const & value ) {
+				return value_to_json_number( name, value );
+			}
+		}	// namespace generate
 
 		namespace details {
 			// String
@@ -206,11 +132,6 @@ namespace daw {
 
 			void json_to_value( float & to, impl::value_t const & from ) {
 				to = static_cast<float>(from.get_real( ));
-			}
-
-			void json_to_value( JsonLink & to, impl::value_t const & from ) {
-				auto val = from;
-				to.decode( std::make_shared<impl::value_t>( std::move( val ) ) );
 			}
 		}	// namespace details
 	}	// namespace json
