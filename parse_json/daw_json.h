@@ -276,5 +276,6 @@ namespace daw {
 				result.decode( json_values );
 				return result;
 			}
-		}	// namespace json
-	}	// namespace daw
+		}	// namespace details
+	}	// namespace json
+}	// namespace daw

@@ -27,6 +27,8 @@
 #include <functional>
 #include <limits>
 #include <memory>
+#include <ostream>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
@@ -35,9 +37,8 @@
 
 namespace daw {
 	namespace json {
-		struct JsonLink {
-			enum class Action { encode, decode };
-		private:
+		template<typename Derived>
+		class JsonLink {
 			std::string m_name;
 			using encode_function_t = std::function < void( std::string & json_text ) > ;
 			using decode_function_t = std::function < void( json_obj json_values ) > ;
@@ -56,23 +57,62 @@ namespace daw {
 			}
 
 		public:
-			JsonLink( std::string name = "" );
+			JsonLink( std::string name = "" ) :
+				m_name( std::move( name ) ),
+				m_data_map( ) { }
+
 			~JsonLink( ) = default;
+
 			JsonLink( JsonLink const & ) = default;
+
 			JsonLink& operator=(JsonLink const &) = default;
-			JsonLink( JsonLink && other );
-			JsonLink& operator=(JsonLink && rhs);
 
-			std::string & json_object_name( );
+			JsonLink( JsonLink && other ) :
+				m_name( std::move( other.m_name ) ),
+				m_data_map( std::move( other.m_data_map ) ) { }
 
-			std::string const & json_object_name( ) const;
+			JsonLink& operator=(JsonLink && rhs) {
+				if( this != &rhs ) {
+					m_name = std::move( rhs.m_name );
+					m_data_map = std::move( rhs.m_data_map );
+				}
+				return *this;
+			}
 
-			std::string encode( ) const;
+			std::string & json_object_name( ) {
+				return m_name;
+			}
 
-			void decode( boost::string_ref const json_text );
-			void decode( json_obj const & json_values );
+			std::string const & json_object_name( ) const {
+				return m_name;
+			}
 
-			void reset_jsonlink( );
+			std::string encode( ) const {
+				std::stringstream result;
+				std::string tmp;
+				auto is_first = true;
+				for( auto const & value : m_data_map ) {
+					value.second.encode( tmp );
+					result << (!is_first ? ", " : "") << tmp;
+					is_first = false;
+				}
+				return details::json_name( m_name ) + details::enbrace( result.str( ) );
+			}
+
+			void decode( json_obj const & json_values ) {
+				for( auto & value : m_data_map ) {
+					value.second.decode( json_values );
+				}
+			}
+
+			void decode( boost::string_ref const json_text ) {
+				decode( parse_json( json_text ) );
+			}
+
+			void reset_jsonlink( ) {
+				m_data_map.clear( );
+				m_name.clear( );
+			}
 
 			template<typename T>
 			void call_decode( T &, json_obj ) { }
@@ -413,11 +453,23 @@ namespace daw {
 			}
 
 			//JsonLink& link_timestamp( std::string name, std::time_t& value );
-		};	// struct JsonLink
+		};	// class JsonLink
 
-		std::string value_to_json( std::string const & name, JsonLink const & obj );
-		void json_to_value( JsonLink & to, impl::value_t const & from );
+		template<typename Derived>
+		std::ostream& operator<<(std::ostream& os, JsonLink<Derived> const & data) {
+			os << data.encode( );
+			return os;
+		}
 
-		std::ostream& operator<<(std::ostream& os, daw::json::JsonLink const & data);
+		template<typename Derived>
+		void json_to_value( JsonLink<Derived> & to, impl::value_t const & from ) {
+			auto val = from;
+			to.decode( std::make_shared<impl::value_t>( std::move( val ) ) );
+		}
+
+		template<typename T>
+		auto value_to_json( std::string const & name, T const & obj ) -> decltype(obj.encode( )) {
+			return details::json_name( name ) + obj.encode( );
+		}
 	}	// namespace json
 }	// namespace daw
