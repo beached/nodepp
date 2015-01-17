@@ -61,7 +61,7 @@ namespace daw {
 				}
 
 				std::string value_to_json( std::string const & name, HttpClientRequestMethod method ) {
-					return daw::json::value_to_json( name, to_string( method ) );
+					return daw::json::generate::value_to_json( name, to_string( method ) );
 				}
 
 				HttpClientRequestMethod http_request_method_from_string( std::string method ) {

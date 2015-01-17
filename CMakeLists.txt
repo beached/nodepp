@@ -27,8 +27,7 @@ set(SOURCE_FILES
 		base_work_queue.h
 		base_write_buffer.cpp
 		base_write_buffer.h
-		concurrent_queue.h
-		daw_traits.h
+		daw_semaphore.h
 		lib_file.cpp
 		lib_file.h
 		lib_http_connection.cpp
@@ -58,28 +57,13 @@ set(SOURCE_FILES
 		lib_net_server.h
 		lib_net_socket_stream.cpp
 		lib_net_socket_stream.h
-		load_library.cpp
-		load_library.h
-		load_library_posix.cpp
-		load_library_posix.h
-		load_plugin.cpp
-		load_plugin.h
 		main.cpp
-		make_unique.h
-		plugin_base.h
-		range_algorithm.h
-		ref_counted_value.h
-		scope_guard.h
-		semaphore.h
-		string.h
-		utility.h
 )
 
-include_directories( header_libraries )
+include_directories( ./header_libraries )
 
 add_executable(NodePP ${SOURCE_FILES})
 
 target_link_libraries(NodePP parse_json  ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
-
 
 

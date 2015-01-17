@@ -26,6 +26,7 @@
 #include <boost/optional.hpp>
 #include <cstdint>
 #include <ctime>
+#include <iomanip>
 #include <ostream>
 #include <sstream>
 #include <string>
