@@ -57,13 +57,13 @@ namespace daw {
 					HttpSiteImpl::HttpSiteImpl( base::EventEmitter emitter ) :
 						m_emitter( std::move( emitter ) ),
 						m_server( create_http_server( ) ),
-						m_registered( ),
+						m_registered_sites( ),
 						m_error_listeners( ) { }
 
 					HttpSiteImpl::HttpSiteImpl( HttpServer server, base::EventEmitter emitter ) :
 						m_emitter( std::move( emitter ) ),
 						m_server( std::move( server ) ),
-						m_registered( ),
+						m_registered_sites( ),
 						m_error_listeners( ) { }
 
 					void HttpSiteImpl::start( ) {
@@ -106,36 +106,36 @@ namespace daw {
 					}
 
 					void HttpSiteImpl::sort_registered( ) {
-						daw::algorithm::sort( m_registered, []( site_registration const & lhs, site_registration const & rhs ) {
+						daw::algorithm::sort( m_registered_sites, []( site_registration const & lhs, site_registration const & rhs ) {
 							return lhs.host < rhs.host;
 						} );
 
-						daw::algorithm::stable_sort( m_registered, []( site_registration const & lhs, site_registration const & rhs ) {
+						daw::algorithm::stable_sort( m_registered_sites, []( site_registration const & lhs, site_registration const & rhs ) {
 							return lhs.path < rhs.path;
 						} );
 					}
 
 					HttpSiteImpl& HttpSiteImpl::on_requests_for( HttpClientRequestMethod method, std::string path, std::function<void( HttpClientRequest, HttpServerResponse )> listener ) {
-						m_registered.emplace_back( "*", std::move( path ), std::move( method ), listener );
+						m_registered_sites.emplace_back( "*", std::move( path ), std::move( method ), listener );
 						return *this;
 					}
 
 					HttpSiteImpl& HttpSiteImpl::on_requests_for( std::string hostname, HttpClientRequestMethod method, std::string path, std::function<void( HttpClientRequest, HttpServerResponse )> listener ) {
-						m_registered.emplace_back( std::move( hostname ), std::move( hostname ), std::move( method ), listener );
+						m_registered_sites.emplace_back( std::move( hostname ), std::move( hostname ), std::move( method ), listener );
 						return *this;
 					}
 
-					void HttpSiteImpl::remove( HttpSiteImpl::iterator item ) {
-						m_registered.erase( item );
+					void HttpSiteImpl::remove_site( HttpSiteImpl::iterator item ) {
+						m_registered_sites.erase( item );
 					}
 
 					HttpSiteImpl::iterator HttpSiteImpl::end( ) {
-						return m_registered.end( );
+						return m_registered_sites.end( );
 					}
 
-					HttpSiteImpl::iterator HttpSiteImpl::match( boost::string_ref host, boost::string_ref path, HttpClientRequestMethod method ) {
+					HttpSiteImpl::iterator HttpSiteImpl::match_site( boost::string_ref host, boost::string_ref path, HttpClientRequestMethod method ) {
 						auto key = site_registration( host.to_string( ), path.to_string( ), method );
-						iterator result = std::find_if( m_registered.begin( ), m_registered.end( ), [&key]( site_registration const & item ) {
+						iterator result = std::find_if( m_registered_sites.begin( ), m_registered_sites.end( ), [&key]( site_registration const & item ) {
 							return (key.host == "*" || item.host == "*" || key.host == item.host) &&
 								key.path == item.path &&
 								(key.method == HttpClientRequestMethod::Any || item.method == HttpClientRequestMethod::Any || key.method == item.method);
