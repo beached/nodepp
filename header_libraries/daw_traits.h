@@ -108,6 +108,37 @@ namespace daw {
 		};
 
 		template<typename, typename = void>
+		struct has_begin_member: std::false_type { };
+
+		template<typename T>
+		struct has_begin_member<T, void_t<typename T::begin>> : std::true_type { };
+
+		template<typename T> using has_begin_member_t = typename has_begin_member<T>::type;
+
+		template<typename, typename = void>
+		struct has_end_member: std::false_type { };
+
+		template<typename T>
+		struct has_end_member<T, void_t<typename T::end>> : std::true_type { };
+
+		template<typename T> using has_end_member_t = typename has_end_member<T>::type;
+
+		template<typename, typename = void>
+		struct is_container_like: std::false_type { };
+
+		template<typename T>
+		struct is_container_like < T, typename are_same_types<has_begin_member_t<T>, has_end_member_t<T>, std::true_type>::type > { };
+
+		template<typename T>
+		using is_string = typename std::is_same < std::string, typename std::decay<T>::type > ;
+
+		template<typename T>
+		using is_container_not_string = std::enable_if < !is_string<T>::value && is_container_like<T>::value > ;
+
+		template<typename T>
+		using is_container_not_string_t = typename std::enable_if<!is_string<T>::value && is_container_like<T>::value>::type;
+
+		template<typename, typename = void>
 		struct has_type_member: std::false_type { };
 
 		template<typename T>

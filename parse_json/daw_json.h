@@ -45,7 +45,7 @@ namespace daw {
 			std::string enbrace( boost::string_ref json_value );
 		}
 
-//		std::string to_string( boost::string_ref value );
+		//		std::string to_string( boost::string_ref value );
 
 		std::string enquote( boost::string_ref value );
 
@@ -97,7 +97,7 @@ namespace daw {
 			template<typename T> void value_to_json( std::string const & name, std::weak_ptr<T> const & value );
 			template<typename Optional> std::string value_to_json( std::string const & name, boost::optional<Optional> const & value );
 			template<typename First, typename Second> std::string value_to_json( boost::string_ref name, std::pair<First, Second> const & value );
-			template<typename Container, typename std::enable_if<daw::traits::is_container<Container>::value, long>::type = 0> std::string value_to_json( std::string const & name, Container const & values );
+			template<typename Container, daw::traits::is_container_not_string_t<Container> = 0> std::string value_to_json( std::string const & name, Container const & values );
 
 			template<typename T>
 			void value_to_json( std::string const & name, std::shared_ptr<T> const & value ) {
@@ -135,7 +135,7 @@ namespace daw {
 			}
 
 			// container/array.
-			template<typename Container, typename std::enable_if<daw::traits::is_container<Container>::value, long>::type>
+			template<typename Container, daw::traits::is_container_not_string_t<Container>>
 			std::string value_to_json( std::string const & name, Container const & values ) {
 				std::stringstream result;
 				result << daw::json::details::json_name( name ) + "[ ";
