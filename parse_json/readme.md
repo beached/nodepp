@@ -4,8 +4,4 @@
 Generating JSON
 ----------------
 
-
-
-
-Parsing JSON
--------------
+There are
