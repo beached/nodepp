@@ -38,6 +38,11 @@
 
 namespace daw {
 	namespace json {
+		namespace details {
+			std::string json_name( std::string const & name );
+			std::string enbrace( std::string const & json_value );
+		}
+
 		std::string to_string( std::string const & value );
 
 		std::string enquote( std::string const & value );
@@ -64,14 +69,14 @@ namespace daw {
 			// Integral Numbers
 			template<typename Number, typename std::enable_if<std::is_integral<Number>::value, int>::type = 0>
 			std::string value_to_json_number( std::string const & name, Number const & value ) {
-				return details::json_name( name ) + std::to_string( value );
+				return daw::json::details::json_name( name ) + std::to_string( value );
 			}
 
 			// Real Numbers
 			template<typename Number, typename std::enable_if<std::is_floating_point<Number>::value, int>::type = 0>
 			std::string value_to_json_number( std::string const & name, Number const & value ) {
 				std::stringstream ss;
-				ss << details::json_name( name );
+				ss << daw::json::details::json_name( name );
 				ss << std::setprecision( std::numeric_limits<Number>::max_digits10 ) << value;
 				return ss.str( );
 			}
@@ -89,7 +94,7 @@ namespace daw {
 			// pair types
 			template<typename First, typename Second>
 			std::string value_to_json( std::string const & name, std::pair<First, Second> const & value ) {
-				return details::json_name( name ) + "[ " + value_to_json( value.first ) + ", " + value_to_json( value.second ) + " ]";
+				return daw::json::details::json_name( name ) + "[ " + value_to_json( value.first ) + ", " + value_to_json( value.second ) + " ]";
 			}
 
 			template<typename T>
@@ -124,7 +129,7 @@ namespace daw {
 			template<typename Key, typename Value>
 			std::string value_to_json( std::string const & name, std::map<Key, Value> const & values ) {
 				std::stringstream result;
-				result << details::json_name( name ) + "[ ";
+				result << daw::json::details::json_name( name ) + "[ ";
 				bool is_first = true;
 				for( auto const & item : values ) {
 					result << (!is_first? ",": "");
@@ -139,7 +144,7 @@ namespace daw {
 			template<typename Key, typename Value>
 			std::string value_to_json( std::string const & name, std::unordered_map<Key, Value> const & values ) {
 				std::stringstream result;
-				result << details::json_name( name ) + "[ ";
+				result << daw::json::details::json_name( name ) + "[ ";
 				bool is_first = true;
 				for( auto const & item : values ) {
 					result << (!is_first? ",": "");
@@ -155,7 +160,7 @@ namespace daw {
 			template<typename Container, typename std::enable_if<daw::traits::is_container<Container>::value, long>::type = 0>
 			std::string value_to_json( std::string const & name, Container const & values ) {
 				std::stringstream result;
-				result << details::json_name( name ) + "[ ";
+				result << daw::json::details::json_name( name ) + "[ ";
 				bool is_first = true;
 				for( auto const & item : values ) {
 					result << (!is_first? ",": "") << value_to_json( "", item );
@@ -167,9 +172,6 @@ namespace daw {
 		}	// namespace generate
 
 		namespace details {
-			std::string json_name( std::string const & name );
-			std::string enbrace( std::string const & json_value );
-
 			void json_to_value( std::string & to, impl::value_t const & from );
 			void json_to_value( bool & to, impl::value_t const & from );
 			void json_to_value( int64_t & to, impl::value_t const & from );
@@ -244,7 +246,7 @@ namespace daw {
 				to = std::move( result );
 			}
 
-			template<typename MapLike, typename = std::enable_if<daw::traits::is_map_type<MapLike>::value, long> = 0>
+			template<typename MapLike, typename std::enable_if<daw::traits::is_map_type<MapLike>::value, long>::type = 0>
 			void json_to_value( MapLike & to, impl::value_t const & from, boost::string_ref const KeyName, boost::string_ref const ValueName ) {
 				assert( from.is_array( ) );	// we are an array of objects like [ { "key" : key0, "value" : value1 }, ... { "key" : keyN, "value" : valueN } ]
 				using Key = typename MapLike::key_type;

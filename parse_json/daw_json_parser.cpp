@@ -225,7 +225,7 @@ namespace daw {
 				}
 												  break;
 				case value_t::value_types::boolean:
-					os << value.get_boolean( ) ? "True" : "False";
+					os << (value.get_boolean( ) ? "True" : "False");
 					break;
 				case value_t::value_types::integral:
 					os << value.get_integral( );
@@ -384,7 +384,7 @@ namespace daw {
 					bool result = std::distance( range.first, range.last ) >= static_cast<typename std::iterator_traits<Iterator>::difference_type>(value.size( ));
 					result = result && std::equal( range.first, range.first + value.size( ), std::begin( value ) );
 					if( result ) {
-						safe_advance( range, value.size( ) );
+						safe_advance( range, static_cast<typename std::iterator_traits<Iterator>::difference_type>( value.size( ) ) );
 					}
 					return result;
 				}
@@ -464,13 +464,13 @@ namespace daw {
 
 					if( is_float ) {
 						try {
-							auto result = value_t( boost::lexical_cast<double>(range.first, std::distance( range.first, current.first ) ) );
+							auto result = value_t( boost::lexical_cast<double>(range.first, static_cast<size_t>( std::distance( range.first, current.first ) ) ) );
 							range = current;
 							return result;
 						} catch( boost::bad_lexical_cast const & ) { }
 					} else {
 						try {
-							auto result = value_t( boost::lexical_cast<int64_t>(range.first, std::distance( range.first, current.first ) ) );
+							auto result = value_t( boost::lexical_cast<int64_t>(range.first, static_cast<size_t>( std::distance( range.first, current.first ) ) ) );
 							range = current;
 							return result;
 						} catch( boost::bad_lexical_cast const & ) { }
