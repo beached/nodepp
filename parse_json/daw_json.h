@@ -241,11 +241,11 @@ namespace daw {
 					auto key_it = obj.find( KeyName );
 					assert( key_it != obj.end( ) );
 					Key key;
-					json_to_value( key, *key_it );
+					json_to_value( key, key_it->second );
 					auto value_it = obj.find( ValueName );
 					assert( value_it != obj.end( ) );
 					Value value;
-					json_to_value( value, *value_it );
+					json_to_value( value, value_it->second );
 					return std::make_pair<Key, Value>( std::move( key ), std::move( value ) );
 				} );
 			}
