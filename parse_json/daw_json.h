@@ -237,22 +237,15 @@ namespace daw {
 			template<typename MapLike, typename std::enable_if<daw::traits::is_map_type<MapLike>::value, long>::type>
 			void json_to_value( MapLike & to, impl::value_t const & from, boost::string_ref const KeyName, boost::string_ref const ValueName ) {
 				assert( from.is_array( ) );	// we are an array of objects like [ { "key" : key0, "value" : value1 }, ... { "key" : keyN, "value" : valueN } ]
-				using Key = typename MapLike::key_type;
-				using Value = typename MapLike::mapped_type;
+				using Key = typename std::remove_cv<typename MapLike::key_type>::type;
+				using Value = typename std::remove_cv<typename MapLike::mapped_type>::type;
 				auto const & source_array = from.get_array( ).items;
 				to.clear( );
 				using param_t = typename std::iterator_traits<decltype(std::begin( source_array ))>::value_type;
-				std::transform( std::begin( source_array ), std::end( source_array ), std::begin( to ), [&]( param_t const & kv_obj ) {
-					auto const & obj = kv_obj.get_object( );
-					auto key_it = obj.find( KeyName );
-					assert( key_it != obj.end( ) );
-					Key key;
-					json_to_value( key, key_it->second );
-					auto value_it = obj.find( ValueName );
-					assert( value_it != obj.end( ) );
-					Value value;
-					json_to_value( value, value_it->second );
-					return std::make_pair<Key, Value>( std::move( key ), std::move( value ) );
+				std::transform( std::begin( source_array ), std::end( source_array ), std::begin( to ), []( param_t const & kv_obj ) {
+					typename MapLike::value_type result;
+					json_to_value( result, kv_obj );
+					return result;
 				} );
 			}
 
