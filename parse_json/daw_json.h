@@ -236,7 +236,8 @@ namespace daw {
 				using Value = typename MapLike::mapped_type;
 				auto const & source_array = from.get_array( ).items;
 				to.clear( );
-				std::transform( std::begin( source_array ), std::end( source_array ), std::begin( to ), [&]( impl::value_t const & kv_obj ) {
+				using param_t = typename std::iterator_traits<decltype(std::begin(source_array))>::value_type;
+				std::transform( std::begin( source_array ), std::end( source_array ), std::begin( to ), [&]( param_t const & kv_obj ) {
 					auto const & obj = kv_obj.get_object( );
 					auto key_it = obj.find( KeyName );
 					assert( key_it != obj.end( ) );
