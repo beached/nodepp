@@ -96,10 +96,10 @@ namespace daw {
 			template<typename T> void value_to_json( std::string const & name, std::weak_ptr<T> const & value );
 			template<typename Optional>
 			std::string value_to_json( std::string const & name, boost::optional<Optional> const & value );
-			
+
 			template<typename First, typename Second>
 			std::string value_to_json( boost::string_ref name, std::pair<First, Second> const & value );
-			
+
 			// container/array.
 			template<typename Container, typename std::enable_if<daw::traits::is_container_not_string<Container>::value, long>::type = 0>
 			std::string value_to_json( std::string const & name, Container const & values ) {
@@ -153,7 +153,6 @@ namespace daw {
 			std::string value_to_json( boost::string_ref name, std::pair<First, Second> const & value ) {
 				return daw::json::details::json_name( name.to_string( ) ) + "{ " + value_to_json( "key", value.first ) + ", " + value_to_json( "value", value.second ) + " }";
 			}
-
 		}	// namespace generate
 
 		namespace details {
@@ -236,7 +235,7 @@ namespace daw {
 				using Value = typename MapLike::mapped_type;
 				auto const & source_array = from.get_array( ).items;
 				to.clear( );
-				using param_t = typename std::iterator_traits<decltype(std::begin(source_array))>::value_type;
+				using param_t = typename std::iterator_traits<decltype(std::begin( source_array ))>::value_type;
 				std::transform( std::begin( source_array ), std::end( source_array ), std::begin( to ), [&]( param_t const & kv_obj ) {
 					auto const & obj = kv_obj.get_object( );
 					auto key_it = obj.find( KeyName );

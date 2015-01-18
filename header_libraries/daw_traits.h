@@ -138,27 +138,22 @@ namespace daw {
 
 #ifdef _MSC_VER
 #define GENERATE_HAS_MEMBER_FUNCTION_TRAIT(MemberName) \
-			namespace details { \
-				template<class T> struct has_##MemberName##_member_impl; \
-				template<class T> struct has_##MemberName##_member_impl<T const> : has_##MemberName##_member_impl<T> { }; \
-				template<class T> struct has_##MemberName##_member_impl<T volatile> : has_##MemberName##_member_impl<T> { }; \
-				template<class T> struct has_##MemberName##_member_impl<T volatile const> : has_##MemberName##_member_impl<T> { }; \
-				template<class T> struct has_##MemberName##_member_impl<T &> : has_##MemberName##_member_impl<T> { }; \
-				template<class T> struct has_##MemberName##_member_impl<T *> { enum { value = 0 }; }; \
-				template<> struct has_##MemberName##_member_impl<void> { \
-				private: \
-					template<class T> static unsigned char (&test(int, T const &))[1U + 1U]; \
-					static unsigned char (&test(int, ...))[1U]; \
-				public: \
-					template<class T> static unsigned char (&check(int, has_##MemberName##_member_impl<T> *))[1U + sizeof(test(0, &T::MemberName))]; \
-					static unsigned char (&check(int, ...))[1U]; \
-						}; \
-				template<class T> struct has_##MemberName##_member_impl { \
-					enum { value = sizeof(has_##MemberName##_member_impl<void>::check(0, (has_##MemberName##_member_impl *)0)) > 2U }; \
-						}; \
-					} \
-			template<typename T, typename = void> struct has_##MemberName##_member: std::false_type { }; \
-			template<typename T> struct has_##MemberName##_member<T, typename std::enable_if<details::has_##MemberName##_member_impl<T>::value == 1>::type> : std::true_type { }; \
+			namespace impl { \
+				template<typename T> class has_##MemberName##_member_impl { \
+					struct Fallback { int MemberName; }; \
+					struct Derived : T, Fallback { }; \
+					template<typename U, U> struct Check; \
+					typedef char ArrayOfOne[1]; \
+					typedef char ArrayOfTwo[2]; \
+					template<typename U> static ArrayOfOne & func(Check<int Fallback::*, &U::MemberName> *); \
+					template<typename U> static ArrayOfTwo & func(...); \
+				  public: \
+					typedef has_##MemberName##_member_impl type; \
+					enum { value = sizeof(func<Derived>(0)) == 2 }; \
+										}; \
+						} \
+			template<typename T, typename = void> struct has_##MemberName##_member : std::false_type { }; \
+			template<typename T> struct has_##MemberName##_member<T, typename std::enable_if<impl::has_##MemberName##_member_impl<T>::value == 1>::type> : std::true_type { }; \
 			template<typename T> using has_##MemberName##_member_t = typename has_##MemberName##_member<T>::type;
 #else
 #define GENERATE_HAS_MEMBER_FUNCTION_TRAIT( MemberName ) \
