@@ -136,15 +136,20 @@ namespace daw {
 			template<typename T> using type_sink_t = typename type_sink<T>::type;
 		}
 
-#ifdef _MSC_VER
 #define GENERATE_HAS_MEMBER_FUNCTION_TRAIT(MemberName) \
 			namespace impl { \
-				template<typename T> class has_##MemberName##_member_impl { \
-					struct Fallback { int MemberName; }; \
+				template<typename T> \
+				class has_##MemberName##_member_impl { \
+					struct Fallback { \
+						int MemberName; \
+					}; \
 					struct Derived : T, Fallback { }; \
+					\
 					template<typename U, U> struct Check; \
-					typedef char ArrayOfOne[1]; \
-					typedef char ArrayOfTwo[2]; \
+					\
+					using ArrayOfOne = char[1]; \
+					using ArrayOfTwo = char[2]; \
+					\
 					template<typename U> static ArrayOfOne & func(Check<int Fallback::*, &U::MemberName> *); \
 					template<typename U> static ArrayOfTwo & func(...); \
 				  public: \
@@ -153,14 +158,14 @@ namespace daw {
 										}; \
 						} \
 			template<typename T, typename = void> struct has_##MemberName##_member : std::false_type { }; \
-			template<typename T> struct has_##MemberName##_member<T, typename std::enable_if<impl::has_##MemberName##_member_impl<T>::value == 1>::type> : std::true_type { }; \
+			template<typename T> struct has_##MemberName##_member<T, typename std::enable_if<impl::has_##MemberName##_member_impl<T>::value>::type> : std::true_type { }; \
 			template<typename T> using has_##MemberName##_member_t = typename has_##MemberName##_member<T>::type;
-#else
-#define GENERATE_HAS_MEMBER_FUNCTION_TRAIT( MemberName ) \
-			template<typename T, typename=void> struct has_##MemberName##_member: std::false_type { }; \
-			template<typename T> struct has_##MemberName##_member<T, details::type_sink_t<decltype(std::declval<T>( ).MemberName( ))>>: std::true_type { }; \
-			template<typename T> using has_##MemberName##_member_t = typename has_##MemberName##_member<T>::type;
-#endif
+			
+//			// This works on clang and is pretty, but not on MSVC
+//			template<typename T, typename=void> struct has_##MemberName##_member: std::false_type { }; \
+//			template<typename T> struct has_##MemberName##_member<T, details::type_sink_t<decltype(std::declval<T>( ).MemberName( ))>>: std::true_type { }; \
+//			template<typename T> using has_##MemberName##_member_t = typename has_##MemberName##_member<T>::type;
+
 #define GENERATE_HAS_MEMBER_TYPE_TRAIT( TypeName ) \
 			template<typename T, typename=void> struct has_##TypeName##_member: std::false_type { }; \
 			template<typename T> struct has_##TypeName##_member<T, details::type_sink_t<typename T::TypeName>>: std::true_type { }; \
