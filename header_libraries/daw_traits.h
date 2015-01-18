@@ -136,8 +136,8 @@ namespace daw {
 			template<typename T> using type_sink_t = typename type_sink<T>::type;
 		}
 
-#ifdef _MSC_VER_
-		#define GENERATE_HAS_MEMBER_FUNCTION_TRAIT(MemberName) \
+#ifdef _MSC_VER
+#define GENERATE_HAS_MEMBER_FUNCTION_TRAIT(MemberName) \
 			namespace details { \
 				template<class T> struct has_##MemberName##_member_impl; \
 				template<class T> struct has_##MemberName##_member_impl<T const> : has_##MemberName##_member_impl<T> { }; \
@@ -152,21 +152,21 @@ namespace daw {
 				public: \
 					template<class T> static unsigned char (&check(int, has_##MemberName##_member_impl<T> *))[1U + sizeof(test(0, &T::MemberName))]; \
 					static unsigned char (&check(int, ...))[1U]; \
-				}; \
+						}; \
 				template<class T> struct has_##MemberName##_member_impl { \
 					enum { value = sizeof(has_##MemberName##_member_impl<void>::check(0, (has_##MemberName##_member_impl *)0)) > 2U }; \
-				}; \
-			} \
+						}; \
+					} \
 			template<typename T, typename = void> struct has_##MemberName##_member: std::false_type { }; \
 			template<typename T> struct has_##MemberName##_member<T, typename std::enable_if<details::has_##MemberName##_member_impl<T>::value == 1>::type> : std::true_type { }; \
 			template<typename T> using has_##MemberName##_member_t = typename has_##MemberName##_member<T>::type;
 #else
-		#define GENERATE_HAS_MEMBER_FUNCTION_TRAIT( MemberName ) \
+#define GENERATE_HAS_MEMBER_FUNCTION_TRAIT( MemberName ) \
 			template<typename T, typename=void> struct has_##MemberName##_member: std::false_type { }; \
 			template<typename T> struct has_##MemberName##_member<T, details::type_sink_t<decltype(std::declval<T>( ).MemberName( ))>>: std::true_type { }; \
 			template<typename T> using has_##MemberName##_member_t = typename has_##MemberName##_member<T>::type;
 #endif
-		#define GENERATE_HAS_MEMBER_TYPE_TRAIT( TypeName ) \
+#define GENERATE_HAS_MEMBER_TYPE_TRAIT( TypeName ) \
 			template<typename T, typename=void> struct has_##TypeName##_member: std::false_type { }; \
 			template<typename T> struct has_##TypeName##_member<T, details::type_sink_t<typename T::TypeName>>: std::true_type { }; \
 			template<typename T> using has_##TypeName##_member_t = typename has_##TypeName##_member<T>::type;
