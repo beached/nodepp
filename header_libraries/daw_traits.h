@@ -37,17 +37,9 @@ namespace daw {
 		template<typename ...>
 		using void_t = void;
 
-		struct true_type: public std::true_type {
-			static value_type const value = true;
-		};
-
-		struct false_type: public std::false_type {
-			static value_type const value = false;
-		};
-
 		namespace details {
 			template<typename T>
-			false_type is_equality_comparable_impl( const T&, long );
+			std::false_type is_equality_comparable_impl( const T&, long );
 
 			template<typename T>
 			auto is_equality_comparable_impl( const T& value, int ) -> typename std::is_convertible<decltype(value == value), bool>::type;
@@ -99,91 +91,21 @@ namespace daw {
 
 		template<typename DataType1, typename DataType2>
 		struct are_same_types < DataType1, DataType2 > {
-			static const bool value = std::is_same<DataType1, DataType2>::value;
+			static bool const value = std::is_same<DataType1, DataType2>::value;
 			using type = bool;
 		};
 
 		template<typename DataType1, typename DataType2, typename DataType3>
 		struct are_same_types < DataType1, DataType2, DataType3 > {
-			static const bool value = std::is_same<DataType1, DataType2>::value && std::is_same<DataType1, DataType3>::value;
+			static bool const value = std::is_same<DataType1, DataType2>::value && std::is_same<DataType1, DataType3>::value;
 			using type = bool;
 		};
 
 		template<typename DataType1, typename DataType2, typename ...DataTypes>
 		struct are_same_types < DataType1, DataType2, DataTypes... > {
-			static const bool value = std::is_same<DataType1, DataType2>::value && are_same_types<DataTypes...>::value;
+			static bool const value = std::is_same<DataType1, DataType2>::value && are_same_types<DataTypes...>::value;
 			using type = bool;
 		};
-
-		template<typename, typename = void>
-		struct has_begin_member: false_type { };
-
-		template<typename T>
-		struct has_begin_member<T, void_t<typename T::begin>> : true_type { };
-
-		template<typename T> using has_begin_member_t = typename has_begin_member<T>::type;
-
-		template<typename, typename = void>
-		struct has_end_member: false_type { };
-
-		template<typename T>
-		struct has_end_member<T, void_t<typename T::end>> : true_type { };
-
-		template<typename T> using has_end_member_t = typename has_end_member<T>::type;
-
-		template<typename T>
-		using is_container_like = are_same_types<has_begin_member<T>, has_end_member<T>, true_type>;
-
-		template<typename T>
-		using is_container_like_t = typename is_container_like<T>::type;
-
-		template<typename T>
-		using is_string = std::enable_if<std::is_same < std::string, typename std::decay<T>>::value, true_type> ;
-
-		template<typename T>
-		using is_string_t = typename is_string<T>::type;
-
-		template <typename T>
-		using static_not = std::conditional<T::value, false_type, true_type>;
-
-		template<typename T>
-		using isnt_string = std::enable_if<static_not<is_string<T>>::value,true_type>;
-
-		template<typename T>
-		using isnt_string_t = typename isnt_string<T>::type;
-
-		template<typename, typename = void>
-		struct has_type_member: false_type { };
-
-		template<typename T>
-		struct has_type_member<T, void_t<typename T::type>> : true_type { };
-
-		template<typename, typename = void>
-		struct has_value_type_member: false_type { };
-
-		template<typename T>
-		struct has_value_type_member<T, void_t<typename T::value_type>> : true_type { };
-
-		template<typename, typename = void>
-		struct has_iterator_member: false_type { };
-
-		template<typename T>
-		struct has_iterator_member<T, void_t<typename T::iterator>> : true_type { };
-
-		template<typename, typename, typename = void>
-		struct has_push_back_member: false_type { };
-
-		namespace details {
-			template<typename T>
-			class has_begin_func {
-				typedef char no;
-				typedef char yes[2];
-				template<class C> static yes& test( char( *)[sizeof( &C::begin )] );
-				template<class C> static no& test( ... );
-			public:
-				enum { value = sizeof( test<T>( 0 ) ) == sizeof( yes& ) };
-			};
-		}
 
 		template<bool...> struct bool_sequence { };
 
@@ -193,25 +115,70 @@ namespace daw {
 		template<bool... Bools>
 		using bool_or = std::integral_constant < bool, !bool_and< !Bools... >::value > ;
 
-		
-
 		template< typename R, bool... Bs >
 		using enable_if_any = std::enable_if < bool_or< Bs... >::value, R > ;
 
 		template< typename R, bool... Bs >
 		using enable_if_all = std::enable_if < bool_and< Bs... >::value, R > ;
 
+		template<typename T, typename... Types>
+		struct is_one_of: std::false_type { };
+
+		template<typename T, typename Type>
+		struct is_one_of<T, Type> : std::is_same < T, Type > { };
+
+		template<typename T, typename Type, typename... Types>
+		struct is_one_of<T, Type, Types...> : std::integral_constant < bool, std::is_same<T, Type>::value || is_one_of<T, Types...>::value > { };
+
+		namespace details {
+			template<typename> struct type_sink { typedef void type; }; // consumes a type, and makes it `void`
+			template<typename T> using type_sink_t = typename type_sink<T>::type;
+		}
+
+	#define GENERATE_HAS_MEMBER_FUNCTION_TRAIT( MemberName ) \
+		template<typename T, typename=void> struct has_##MemberName##_member: std::false_type { }; \
+		template<typename T> struct has_##MemberName##_member<T, details::type_sink_t<decltype( std::declval<T>( ).MemberName( ) )>>: std::true_type { }; \
+		template<typename T> using has_##MemberName##_member_t = typename has_##MemberName##_member<T>::type;
+
+	#define GENERATE_HAS_MEMBER_TYPE_TRAIT( TypeName ) \
+		template<typename T, typename=void> struct has_##TypeName##_member: std::false_type { }; \
+		template<typename T> struct has_##TypeName##_member<T, details::type_sink_t<typename T::TypeName>>: std::true_type { }; \
+		template<typename T> using has_##TypeName##_member_t = typename has_##TypeName##_member<T>::type;
+
+
+		GENERATE_HAS_MEMBER_FUNCTION_TRAIT( begin );
+		GENERATE_HAS_MEMBER_FUNCTION_TRAIT( end );
+		GENERATE_HAS_MEMBER_FUNCTION_TRAIT( substr );
+		GENERATE_HAS_MEMBER_FUNCTION_TRAIT( push_back );
+		GENERATE_HAS_MEMBER_TYPE_TRAIT( type );
+		GENERATE_HAS_MEMBER_TYPE_TRAIT( value_type );
+		GENERATE_HAS_MEMBER_TYPE_TRAIT( iterator );
+
+		template<typename T, typename=void> struct is_container_like: std::false_type { };
+		template<typename T> struct is_container_like<T, enable_if_all<std::true_type, has_begin_member<T>::value, has_end_member<T>::value>>: std::true_type { };
+		template<typename T> using is_container_like_t = typename is_container_like<T>::type;
+
+		template<typename T, typename=void> struct is_string: std::false_type { };
+		template<typename T> struct is_string<T, enable_if_all<std::true_type, is_container_like_t<T>::value, has_substr_member_t<T>::value>>: std::true_type { };
+		template<typename T> using is_string_t = typename is_string<T>::type;
+
+		template <typename T>
+		using static_not = std::conditional<T::value, std::false_type, std::true_type>;
+
 		template<typename T>
-		using is_container_not_string = enable_if_all<true_type, isnt_string<T>::value, is_container_like<T>::value> ;
+		using isnt_string = typename std::enable_if<static_not<is_string<T>>::value, std::true_type>::type;
+
+		template<typename T>
+		using isnt_string_t = typename isnt_string<T>::type;
+
+		template<typename T>
+		using is_container_not_string = typename enable_if_all<std::true_type, isnt_string<T>::type::value, is_container_like<T>::type::value>::type ;
 		template<typename T, typename R=void>
 		using is_container_not_string_t = typename is_container_not_string<T>::type;
 
-
-
-
 #define GENERATE_IS_STD_CONTAINER1( ContainerName ) \
-		template<typename T, typename = void> struct is_##ContainerName: false_type { }; \
-		template<typename T> struct is_##ContainerName < T, typename std::enable_if<std::is_same<T, std::ContainerName<typename T::value_type> >::value>::type> : true_type { };
+		template<typename T, typename = void> struct is_##ContainerName: std::false_type { }; \
+		template<typename T> struct is_##ContainerName < T, typename std::enable_if<std::is_same<T, std::ContainerName<typename T::value_type> >::value>::type> : std::true_type { };
 
 		GENERATE_IS_STD_CONTAINER1( vector );
 		GENERATE_IS_STD_CONTAINER1( list );
@@ -222,27 +189,18 @@ namespace daw {
 #undef GENERATE_IS_STD_CONTAINER1
 
 #define GENERATE_IS_STD_CONTAINER2( ContainerName ) \
-		template<typename T, typename = void> struct is_##ContainerName: false_type { }; \
-		template<typename T> struct is_##ContainerName < T, typename std::enable_if<std::is_same<T, std::ContainerName<typename T::key_type, typename T::mapped_type> >::value>::type> : true_type { };
+		template<typename T, typename = void> struct is_##ContainerName: std::false_type { }; \
+		template<typename T> struct is_##ContainerName < T, typename std::enable_if<std::is_same<T, std::ContainerName<typename T::key_type, typename T::mapped_type> >::value>::type> : std::true_type { };
 
 		GENERATE_IS_STD_CONTAINER2( map );
 		GENERATE_IS_STD_CONTAINER2( unordered_map );
 
 #undef GENERATE_IS_STD_CONTAINER2
 
-		template<typename T, typename... Types>
-		struct is_one_of: false_type { };
-
-		template<typename T, typename Type>
-		struct is_one_of<T, Type> : std::is_same < T, Type > { };
-
-		template<typename T, typename Type, typename... Types>
-		struct is_one_of<T, Type, Types...> : std::integral_constant < bool, std::is_same<T, Type>::value || is_one_of<T, Types...>::value > { };
-
 		// Hack, need to figure out a way based on ability at compile time
 
 		template<typename Container, typename = void>
-		struct is_single_item_container: false_type { };
+		struct is_single_item_container: std::false_type { };
 
 		template<typename Container>
 		struct is_single_item_container < Container,
@@ -252,10 +210,10 @@ namespace daw {
 			is_set<Container>::value,
 			is_deque<Container>::value,
 			is_unordered_set<Container>::value
-			>::type > : true_type { };
+			>::type > : std::true_type { };
 
 		template<typename Container, typename = void>
-		struct is_container: false_type { };
+		struct is_container: std::false_type { };
 
 		template<typename Container>
 		struct is_container < Container,
@@ -267,20 +225,20 @@ namespace daw {
 			is_unordered_set<Container>::value,
 			is_map<Container>::value,
 			is_unordered_map<Container>::value
-			>::type > : true_type { };
+			>::type > : std::true_type { };
 
 		template<typename Container, typename = void>
-		struct is_map_type: false_type { };
+		struct is_map_type: std::false_type { };
 
 		template<typename Container>
 		struct is_map_type < Container,
 			typename enable_if_any <void,
 			is_map<Container>::value,
 			is_unordered_map<Container>::value
-			>::type > : true_type { };
+			>::type > : std::true_type { };
 
 		template<typename Numeric, typename = void>
-		struct is_numeric: false_type { };
+		struct is_numeric: std::false_type { };
 
 		template<typename Numeric>
 		struct is_numeric < Numeric, typename std::enable_if <
@@ -305,13 +263,13 @@ namespace daw {
 			uint32_t,
 			uint64_t,
 			float,
-			double > ::value > ::type > : true_type { };
+			double > ::value > ::type > : std::true_type { };
 
 		template<typename T, typename = void>
-		struct is_container_or_array: public false_type { };
+		struct is_container_or_array: public std::false_type { };
 
 		template<typename T>
-		struct is_container_or_array<T, typename std::enable_if<is_container<T>::value || std::is_array<T>::value>::type> : public true_type { };
+		struct is_container_or_array<T, typename std::enable_if<is_container<T>::value || std::is_array<T>::value>::type> : public std::true_type { };
 
 		template<typename T>
 		using is_container_t = typename is_container<T>::type;
@@ -322,27 +280,27 @@ namespace daw {
 		template<typename T>
 		using is_container_or_array_t = typename is_container_or_array<T>::type;
 
-		namespace details {
-			template<typename T, typename NameGetter>
-			class has_member_impl {
-				typedef char matched_return_type;
-				typedef long unmatched_return_type;
-
-				template<typename C>
-				static matched_return_type f( typename NameGetter::template get<C>* );
-
-				template<typename C>
-				static unmatched_return_type f( ... );
-			public:
-				static const bool value = (sizeof( f<T>( 0 ) ) == sizeof( matched_return_type ));
-			};
-		}	// namespace details
-
-		template<typename T, typename NameGetter>
-		struct has_member: std::integral_constant < bool, details::has_member_impl<T, NameGetter>::value > { };
+//		namespace details {
+//			template<typename T, typename NameGetter>
+//			class has_member_impl {
+//				typedef char matched_return_type;
+//				typedef long unmatched_return_type;
+//
+//				template<typename C>
+//				static matched_return_type f( typename NameGetter::template get<C>* );
+//
+//				template<typename C>
+//				static unmatched_return_type f( ... );
+//			public:
+//				static const bool value = (sizeof( f<T>( 0 ) ) == sizeof( matched_return_type ));
+//			};
+//		}	// namespace details
+//
+//		template<typename T, typename NameGetter>
+//		struct has_member: std::integral_constant < bool, details::has_member_impl<T, NameGetter>::value > { };
 	}	// namespace traits
 }	// namespace daw
 
 #define GENERATE_HAS_MEMBER( Member, MemberReturn ) \
-	template<typename T, typename = MemberReturn> struct has_##Member: false_type {}; \
-	template<typename T> struct has_##Member<T, decltype((void)T::Member, 0)> : true_type { };
+	template<typename T, typename = MemberReturn> struct has_##Member: std::false_type {}; \
+	template<typename T> struct has_##Member<T, decltype((void)T::Member, 0)> : std::true_type { };
