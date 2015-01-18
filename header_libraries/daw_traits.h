@@ -135,16 +135,15 @@ namespace daw {
 			template<typename T> using type_sink_t = typename type_sink<T>::type;
 		}
 
-	#define GENERATE_HAS_MEMBER_FUNCTION_TRAIT( MemberName ) \
+#define GENERATE_HAS_MEMBER_FUNCTION_TRAIT( MemberName ) \
 		template<typename T, typename=void> struct has_##MemberName##_member: std::false_type { }; \
 		template<typename T> struct has_##MemberName##_member<T, details::type_sink_t<decltype( std::declval<T>( ).MemberName( ) )>>: std::true_type { }; \
 		template<typename T> using has_##MemberName##_member_t = typename has_##MemberName##_member<T>::type;
 
-	#define GENERATE_HAS_MEMBER_TYPE_TRAIT( TypeName ) \
+#define GENERATE_HAS_MEMBER_TYPE_TRAIT( TypeName ) \
 		template<typename T, typename=void> struct has_##TypeName##_member: std::false_type { }; \
 		template<typename T> struct has_##TypeName##_member<T, details::type_sink_t<typename T::TypeName>>: std::true_type { }; \
 		template<typename T> using has_##TypeName##_member_t = typename has_##TypeName##_member<T>::type;
-
 
 		GENERATE_HAS_MEMBER_FUNCTION_TRAIT( begin );
 		GENERATE_HAS_MEMBER_FUNCTION_TRAIT( end );
@@ -154,25 +153,24 @@ namespace daw {
 		GENERATE_HAS_MEMBER_TYPE_TRAIT( value_type );
 		GENERATE_HAS_MEMBER_TYPE_TRAIT( iterator );
 
-		template<typename T, typename=void> struct is_container_like: std::false_type { };
-		template<typename T> struct is_container_like<T, typename std::enable_if<has_begin_member<T>::value && has_end_member<T>::value>::type>: std::true_type { };
+		template<typename T, typename = void> struct is_container_like: std::false_type { };
+		template<typename T> struct is_container_like<T, typename std::enable_if<has_begin_member<T>::value && has_end_member<T>::value>::type> : std::true_type { };
 		template<typename T> using is_container_like_t = typename is_container_like<T>::type;
 
-		template<typename T, typename=void> struct is_string: std::false_type { };
-		template<typename T> struct is_string<T, typename std::enable_if<is_container_like_t<T>::value && has_substr_member_t<T>::value>::type>: std::true_type { };
+		template<typename T, typename = void> struct is_string: std::false_type { };
+		template<typename T> struct is_string<T, typename std::enable_if<is_container_like_t<T>::value && has_substr_member_t<T>::value>::type> : std::true_type { };
 		template<typename T> using is_string_t = typename is_string<T>::type;
 
 		template <typename T>
-		using static_not = std::conditional<T::value, std::false_type, std::true_type>;
+		using static_not = std::conditional < T::value, std::false_type, std::true_type > ;
 
-		template<typename T, typename=void> struct isnt_string: std::false_type { };
-		template<typename T> struct isnt_string<T, typename std::enable_if<!is_string<T>::value>::type>: std::true_type { };
+		template<typename T, typename = void> struct isnt_string: std::false_type { };
+		template<typename T> struct isnt_string<T, typename std::enable_if<!is_string<T>::value>::type> : std::true_type { };
 		template<typename T> using isnt_string_t = typename isnt_string<T>::type;
 
-		template<typename T>
-		using is_container_not_string = typename enable_if_all<std::true_type, isnt_string<T>::type::value, is_container_like<T>::type::value>::type ;
-		template<typename T, typename R=void>
-		using is_container_not_string_t = typename is_container_not_string<T>::type;
+		template<typename T, typename = void> struct is_container_not_string: std::false_type { };
+		template<typename T> struct is_container_not_string<T, typename std::enable_if<isnt_string<T>::value && is_container_like<T>::value>::type> : std::true_type { };
+		template<typename T> using is_container_not_string_t = typename is_container_not_string<T>::type;
 
 #define GENERATE_IS_STD_CONTAINER1( ContainerName ) \
 		template<typename T, typename = void> struct is_##ContainerName: std::false_type { }; \
@@ -278,24 +276,24 @@ namespace daw {
 		template<typename T>
 		using is_container_or_array_t = typename is_container_or_array<T>::type;
 
-//		namespace details {
-//			template<typename T, typename NameGetter>
-//			class has_member_impl {
-//				typedef char matched_return_type;
-//				typedef long unmatched_return_type;
-//
-//				template<typename C>
-//				static matched_return_type f( typename NameGetter::template get<C>* );
-//
-//				template<typename C>
-//				static unmatched_return_type f( ... );
-//			public:
-//				static const bool value = (sizeof( f<T>( 0 ) ) == sizeof( matched_return_type ));
-//			};
-//		}	// namespace details
-//
-//		template<typename T, typename NameGetter>
-//		struct has_member: std::integral_constant < bool, details::has_member_impl<T, NameGetter>::value > { };
+		//		namespace details {
+		//			template<typename T, typename NameGetter>
+		//			class has_member_impl {
+		//				typedef char matched_return_type;
+		//				typedef long unmatched_return_type;
+		//
+		//				template<typename C>
+		//				static matched_return_type f( typename NameGetter::template get<C>* );
+		//
+		//				template<typename C>
+		//				static unmatched_return_type f( ... );
+		//			public:
+		//				static const bool value = (sizeof( f<T>( 0 ) ) == sizeof( matched_return_type ));
+		//			};
+		//		}	// namespace details
+		//
+		//		template<typename T, typename NameGetter>
+		//		struct has_member: std::integral_constant < bool, details::has_member_impl<T, NameGetter>::value > { };
 	}	// namespace traits
 }	// namespace daw
 
