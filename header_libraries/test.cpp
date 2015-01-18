@@ -23,6 +23,8 @@ void test( T const & val ) {
 int main(int, char**) {
 	std::string s;
 	std::vector<std::string> v;
+	int i;
+	test( i );
 	test( s );
 	test( v );
 	return EXIT_SUCCESS;

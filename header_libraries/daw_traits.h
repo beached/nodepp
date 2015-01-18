@@ -135,10 +135,35 @@ namespace daw {
 			template<typename> struct type_sink { typedef void type; }; // consumes a type, and makes it `void`
 			template<typename T> using type_sink_t = typename type_sink<T>::type;
 		}
-#define GENERATE_HAS_MEMBER_FUNCTION_TRAIT( MemberName ) \
-		template<typename T, typename=void> struct has_##MemberName##_member: std::false_type { }; \
-		template<typename T> struct has_##MemberName##_member<T, details::type_sink_t<decltype(std::declval<T>( ).MemberName( ))>>: std::true_type { }; \
-		template<typename T> using has_##MemberName##_member_t = typename has_##MemberName##_member<T>::type;
+
+#define GENERATE_HAS_MEMBER_FUNCTION_TRAIT(MemberName)                                                                  \
+	namespace details {\
+		template<class T> struct has_##MemberName##_member_impl;                                                            \
+		template<class T> struct has_##MemberName##_member_impl<T const> : has_##MemberName##_member_impl<T> { };                           \
+		template<class T> struct has_##MemberName##_member_impl<T volatile> : has_##MemberName##_member_impl<T> { };                        \
+		template<class T> struct has_##MemberName##_member_impl<T volatile const> : has_##MemberName##_member_impl<T> { };                  \
+		template<class T> struct has_##MemberName##_member_impl<T &> : has_##MemberName##_member_impl<T> { };                               \
+		template<class T> struct has_##MemberName##_member_impl<T *> { enum { value = 0 }; };                               \
+		template<> struct has_##MemberName##_member_impl<void> {\
+		private:                                                                                            \
+			template<class T> static unsigned char (&test(int, T const &))[1U + 1U];                    \
+			static unsigned char (&test(int, ...))[1U];                                                 \
+		public:                                                                                             \
+			template<class T> static unsigned char (&check(int, has_##MemberName##_member_impl<T> *))[1U + sizeof(test(0, &T::Member))];  \
+			static unsigned char (&check(int, ...))[1U];                                                \
+		};                                                                                                  \
+		template<class T> struct has_##MemberName##_member_impl {                                                             \
+			enum { value = sizeof(has_##MemberName##_member_impl<void>::check(0, (has_##MemberName##_member_impl *)0)) > 2U }; \
+		}; \
+	} \
+	template<typename T, typename = void> struct has_##MemberName##_member: std::false_type { };\
+	template<typename T> struct has_##MemberName##_member<T, typename std::enable_if<details::has_##MemberName##_member_impl<T>::value>::type> : std::true_type { };\
+	template<typename T> using has_##MemberName##_member_t = typename has_##MemberName##_member<T>::type;
+
+//#define GENERATE_HAS_MEMBER_FUNCTION_TRAIT( MemberName ) \
+//	template<typename T, typename=void> struct has_##MemberName##_member: std::false_type { }; \
+//	template<typename T> struct has_##MemberName##_member<T, details::type_sink_t<decltype(std::declval<T>( ).MemberName( ))>>: std::true_type { }; \
+//	template<typename T> using has_##MemberName##_member_t = typename has_##MemberName##_member<T>::type;
 
 #define GENERATE_HAS_MEMBER_TYPE_TRAIT( TypeName ) \
 		template<typename T, typename=void> struct has_##TypeName##_member: std::false_type { }; \
