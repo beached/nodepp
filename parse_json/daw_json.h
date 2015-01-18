@@ -162,15 +162,10 @@ namespace daw {
 			void json_to_value( double & to, impl::value_t const & from );
 			void json_to_value( float & to, impl::value_t const & from );
 			template<typename T> void json_to_value( std::shared_ptr<T> & to, impl::value_t const & from );
-			template<typename T> void json_to_value( std::vector<T> & to, impl::value_t const & from );
-			template<typename T>
-			void json_to_value( boost::optional<T> & to, impl::value_t const & from );
+			template<typename T> void json_to_value( boost::optional<T> & to, impl::value_t const & from );
 
-			template<typename Key, typename Value>
-			void json_to_value( std::pair<Key, Value> & to, impl::value_t const & from, boost::string_ref const KeyName = "key", boost::string_ref const ValueName = "value" );
-
-			template<typename MapLike, typename std::enable_if<daw::traits::is_map_type<MapLike>::value, long>::type = 0>
-			void json_to_value( MapLike & to, impl::value_t const & from, boost::string_ref const KeyName = "key", boost::string_ref const ValueName = "value" );
+			template<typename Container, typename std::enable_if<daw::traits::is_container_not_string<Container>::value, long>::type = 0>
+			void json_to_value( Container & to, impl::value_t const & from );
 
 			// Number, other integral
 			template<typename T, typename std::enable_if<std::is_integral<T>::value && !std::is_same<T, int64_t>::value, long>::type = 0>
@@ -207,20 +202,6 @@ namespace daw {
 				}
 			}
 
-			// Array
-			template<typename T>
-			void json_to_value( std::vector<T> & to, impl::value_t const & from ) {
-				assert( from.is_array( ) );
-				auto const & source_array = from.get_array( ).items;
-				to.resize( source_array.size( ) );
-
-				std::transform( std::begin( source_array ), std::end( source_array ), std::begin( to ), []( impl::value_t const & value_in ) {
-					T tmp;
-					json_to_value( tmp, value_in );
-					return tmp;
-				} );
-			}
-
 			template<typename Key, typename Value>
 			void json_to_value( std::pair<Key, Value> & to, impl::value_t const & from, boost::string_ref const KeyName, boost::string_ref const ValueName ) {
 				assert( from.is_array( ) );
@@ -228,25 +209,25 @@ namespace daw {
 				auto const & arry = from.get_array( );
 				assert( arry.items.size( ) == 2 );
 
-				std::pair<Key, Value> result;
-				json_to_value( result.first, arry.items[0] );
-				json_to_value( result.second, arry.items[1] );
-				to = std::move( result );
+				Key key;
+				json_to_value( key, arry.items[0] );
+				Value value;
+				json_to_value( value, arry.items[1] );
+				to = std::make_pair<Key, Value>( std::move( key ), std::move( value ) );
 			}
 
-			template<typename MapLike, typename std::enable_if<daw::traits::is_map_type<MapLike>::value, long>::type>
-			void json_to_value( MapLike & to, impl::value_t const & from, boost::string_ref const KeyName, boost::string_ref const ValueName ) {
-				assert( from.is_array( ) );	// we are an array of objects like [ { "key" : key0, "value" : value1 }, ... { "key" : keyN, "value" : valueN } ]
-				using Key = typename std::remove_cv<typename MapLike::key_type>::type;
-				using Value = typename std::remove_cv<typename MapLike::mapped_type>::type;
+			// Containers, but not string.  So has begin/end/value_type but not substr
+			template<typename Container, typename std::enable_if<daw::traits::is_container_not_string<Container>::value, long>::type>
+			void json_to_value( Container & to, impl::value_t const & from ) {
+				assert( from.is_array( ) );
 				auto const & source_array = from.get_array( ).items;
 				to.clear( );
-				using param_t = typename std::iterator_traits<decltype(std::begin( source_array ))>::value_type;
-				std::transform( std::begin( source_array ), std::end( source_array ), std::begin( to ), []( param_t const & kv_obj ) {
-					typename MapLike::value_type result;
-					json_to_value( result, kv_obj );
-					return result;
-				} );
+
+				for( auto const & source_value : source_array ) {
+					typename Container::value_type tmp;
+					json_to_value( tmp, source_value );
+					to.insert( std::end( to ), std::move( tmp ) );
+				}
 			}
 
 			template<typename T, typename EnableIf = decltype(std::declval<T>( ).serialize_to_json( ))>
