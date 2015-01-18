@@ -206,10 +206,8 @@ namespace daw {
 				}
 			}
 
-			template<typename K, typename V>
-			void json_to_value( std::pair<K, V> & to, impl::value_t const & from ) {
-				using Key = typename std::decay<K>::type;
-				using Value = typename std::decay<V>::type;
+			template<typename Key, typename Value>
+			void json_to_value( std::pair<Key, Value> & to, impl::value_t const & from ) {
 				static_assert(!std::is_const<decltype(to)>::value, "To parameter on json_to_value cannot be const");
 				assert( from.is_array( ) );
 
@@ -222,12 +220,12 @@ namespace daw {
 				Value value;
 				auto const & value_obj = arry.items[0].get_object( )["value"];
 				json_to_value( value, value_obj );
-				auto result( std::make_pair<K, V>( std::move( key ), std::move( value ) ) );
-				to = std::move( result );
+				to = std::make_pair<K, V>( std::move( key ), std::move( value ) );
 			}
 
-			// Containers, but not string.  So has begin/end/value_type but not substr
-			template<typename Container, typename std::enable_if<daw::traits::is_container_not_string<Container>::value, long>::type>
+			// Containers, but not string or map like.  Map like have a const key and that makes not
+			// doing bad things like const cast difficult.  So has begin/end/value_type but not substr
+			template<typename Container, typename std::enable_if<daw::traits::is_container_not_string_or_map_like<Container>::value, long>::type>
 			void json_to_value( Container & to, impl::value_t const & from ) {
 				static_assert(!std::is_const<Container>::value, "To parameter on json_to_value cannot be const");
 				assert( from.is_array( ) );
@@ -236,6 +234,22 @@ namespace daw {
 
 				for( auto const & source_value : source_array ) {
 					typename Container::value_type tmp;
+					json_to_value( tmp, source_value );
+					to.insert( std::end( to ), std::move( tmp ) );
+				}
+			}
+
+			template<typename Container, typename std::enable_if<daw::traits::is_map_like<Container>::value, long>::type>
+			void json_to_value( Container & to, impl::value_t const & from ) {
+				static_assert(!std::is_const<Container>::value, "To parameter on json_to_value cannot be const");
+				assert( from.is_array( ) );
+				auto const & source_array = from.get_array( ).items;
+				to.clear( );
+
+				for( auto const & source_value : source_array ) {
+					using key_t = typename std::decay<Container::key_type>::type;
+					using value_t = typename std::decay<Container::mapped_type>::type;
+					std::pair<key_t, value_t> tmp;
 					json_to_value( tmp, source_value );
 					to.insert( std::end( to ), std::move( tmp ) );
 				}
