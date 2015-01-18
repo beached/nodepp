@@ -26,8 +26,9 @@
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
-
+#include <unordered_map>
 #include "daw_json.h"
+#include "daw_json_link.h"
 
 struct Streamable {
 	std::string a;
@@ -54,13 +55,13 @@ std::ostream& operator<<(std::ostream& os, Streamable const & value) {
 	return os;
 }
 
-struct A: public daw::json::JsonLink {
+struct A: public daw::json::JsonLink<A> {
 	int a;
 	int b;
 	double c;
 	std::vector<int> d;
 	bool e;
-	A( ) : JsonLink( ), a( 1 ), b( 2 ), c( 1.23456789 ), d( 100, 5 ), e( true ) {
+	A( ) : JsonLink<A>( ), a( 1 ), b( 2 ), c( 1.23456789 ), d( 100, 5 ), e( true ) {
 		link_integral( "a", a );
 		link_integral( "b", b );
 		link_real( "c", c );
@@ -77,12 +78,12 @@ struct A: public daw::json::JsonLink {
 	}
 };
 
-struct B: public daw::json::JsonLink {
+struct B: public daw::json::JsonLink<B> {
 	A a;
 	std::string b;
 	Streamable c;
 	double d;
-	B( ) : JsonLink( ), a( ), b( "hello" ), c( ), d( 1.9233434e-12 ) {
+	B( ) : JsonLink<B>( ), a( ), b( "hello" ), c( ), d( 1.9233434e-12 ) {
 		link_object( "a", a );
 		link_string( "b", b );
 		link_streamable( "c", c );
@@ -114,4 +115,14 @@ BOOST_AUTO_TEST_CASE( SimpleTest ) {
 	B c;
 	c.decode( parsed );
 	BOOST_CHECK_EQUAL( b, c );
+}
+
+BOOST_AUTO_TEST_CASE( MapValues ) {
+	std::unordered_map<std::string, B> test_umap;
+	test_umap["a"] = B( );
+	auto enc = daw::json::generate::value_to_json( "test_umap", test_umap );
+	auto parsed = daw::json::parse_json( enc );
+	std::unordered_map<std::string, B> test_umap2;
+	daw::json::parse::json_to_value( test_umap2, parsed );
+	BOOST_CHECK_EQUAL( test_umap, test_umap2 );
 }

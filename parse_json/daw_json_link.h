@@ -324,7 +324,7 @@ namespace daw {
 						throw std::runtime_error( "JSON object does not match expected object layout" );
 					}
 					assert( member->second.is_array( ) );
-					using details::json_to_value;
+					using namespace parse;
 					json_to_value( *value_ptr, member->second );
 				};
 				m_data_map[name.to_string( )] = std::move( bind_functions );
@@ -350,7 +350,7 @@ namespace daw {
 						*value_ptr = boost::optional<T>( );
 					} else {
 						assert( member->second.is_array( ) );
-						using details::json_to_value;
+						using namespace parse;
 						json_to_value( *value_ptr, member->second );
 					}
 				};
@@ -374,7 +374,7 @@ namespace daw {
 						throw std::runtime_error( "JSON object does not match expected object layout" );
 					}
 					assert( member->second.is_array( ) );
-					using details::json_to_value;
+					using namespace parse;
 					json_to_value( *value_ptr, member->second );
 				};
 				m_data_map[name.to_string( )] = std::move( bind_functions );
@@ -400,7 +400,7 @@ namespace daw {
 							*value_ptr = boost::optional<T>( );
 						} else {
 							assert( member->second.is_array( ) );
-							using details::json_to_value;
+							using namespace parse;
 							json_to_value( *value_ptr, member->second );
 						}
 					}

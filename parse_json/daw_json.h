@@ -101,7 +101,7 @@ namespace daw {
 			std::string value_to_json( boost::string_ref name, std::pair<First, Second> const & value );
 
 			// container/array.
-			template<typename Container, typename std::enable_if<daw::traits::is_container_not_string<Container>::value, long>::type = 0>
+			template<typename Container, typename std::enable_if<daw::traits::is_vector_like_not_string<Container>::value, long>::type = 0>
 			std::string value_to_json( std::string const & name, Container const & values ) {
 				std::stringstream result;
 				result << daw::json::details::json_name( name ) + "[ ";
@@ -155,7 +155,7 @@ namespace daw {
 			}
 		}	// namespace generate
 
-		namespace details {
+		namespace parse {
 			void json_to_value( std::string & to, impl::value_t const & from );
 			void json_to_value( bool & to, impl::value_t const & from );
 			void json_to_value( int64_t & to, impl::value_t const & from );
@@ -164,9 +164,8 @@ namespace daw {
 			template<typename T> void json_to_value( std::shared_ptr<T> & to, impl::value_t const & from );
 			template<typename T> void json_to_value( boost::optional<T> & to, impl::value_t const & from );
 			template<typename Key, typename Value> void json_to_value( std::pair<Key, Value> & to, impl::value_t const & from );
-
-			template<typename Container, typename std::enable_if<daw::traits::is_container_not_string<Container>::value, long>::type = 0>
-			void json_to_value( Container & to, impl::value_t const & from );
+			template<typename MapContainer, typename std::enable_if<daw::traits::is_map_like<MapContainer>::value, long>::type = 0>	void json_to_value( MapContainer & to, impl::value_t const & from );
+			template<typename Container, typename std::enable_if<daw::traits::is_vector_like_not_string<Container>::value, long>::type = 0> void json_to_value( Container & to, impl::value_t const & from );
 
 			// Number, other integral
 			template<typename T, typename std::enable_if<std::is_integral<T>::value && !std::is_same<T, int64_t>::value, long>::type = 0>
@@ -220,12 +219,28 @@ namespace daw {
 				Value value;
 				auto const & value_obj = arry.items[0].get_object( )["value"];
 				json_to_value( value, value_obj );
-				to = std::make_pair<K, V>( std::move( key ), std::move( value ) );
+				to = std::make_pair<Key, Value>( std::move( key ), std::move( value ) );
+			}
+
+			template<typename MapContainer, typename std::enable_if<daw::traits::is_map_like<MapContainer>::value, long>::type>
+			void json_to_value( MapContainer & to, impl::value_t const & from ) {
+				static_assert(!std::is_const<MapContainer>::value, "To parameter on json_to_value cannot be const");
+				assert( from.is_array( ) );
+				auto const & source_array = from.get_array( ).items;
+				to.clear( );
+
+				for( auto const & source_value : source_array ) {
+					using key_t = typename std::decay<typename MapContainer::key_type>::type;
+					using value_t = typename std::decay<typename MapContainer::mapped_type>::type;
+					std::pair<key_t, value_t> tmp;
+					json_to_value( tmp, source_value );
+					to.insert( std::end( to ), std::move( tmp ) );
+				}
 			}
 
 			// Containers, but not string or map like.  Map like have a const key and that makes not
 			// doing bad things like const cast difficult.  So has begin/end/value_type but not substr
-			template<typename Container, typename std::enable_if<daw::traits::is_container_not_string_or_map_like<Container>::value, long>::type>
+			template<typename Container, typename std::enable_if<daw::traits::is_vector_like_not_string<Container>::value, long>::type>
 			void json_to_value( Container & to, impl::value_t const & from ) {
 				static_assert(!std::is_const<Container>::value, "To parameter on json_to_value cannot be const");
 				assert( from.is_array( ) );
@@ -234,22 +249,6 @@ namespace daw {
 
 				for( auto const & source_value : source_array ) {
 					typename Container::value_type tmp;
-					json_to_value( tmp, source_value );
-					to.insert( std::end( to ), std::move( tmp ) );
-				}
-			}
-
-			template<typename Container, typename std::enable_if<daw::traits::is_map_like<Container>::value, long>::type>
-			void json_to_value( Container & to, impl::value_t const & from ) {
-				static_assert(!std::is_const<Container>::value, "To parameter on json_to_value cannot be const");
-				assert( from.is_array( ) );
-				auto const & source_array = from.get_array( ).items;
-				to.clear( );
-
-				for( auto const & source_value : source_array ) {
-					using key_t = typename std::decay<Container::key_type>::type;
-					using value_t = typename std::decay<Container::mapped_type>::type;
-					std::pair<key_t, value_t> tmp;
 					json_to_value( tmp, source_value );
 					to.insert( std::end( to ), std::move( tmp ) );
 				}
@@ -266,6 +265,6 @@ namespace daw {
 				result.decode( json_values );
 				return result;
 			}
-		}	// namespace details
+		}	// namespace parse
 	}	// namespace json
 }	// namespace daw
