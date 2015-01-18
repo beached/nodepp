@@ -95,9 +95,14 @@ namespace daw {
 
 			template<typename T> void value_to_json( std::string const & name, std::shared_ptr<T> const & value );
 			template<typename T> void value_to_json( std::string const & name, std::weak_ptr<T> const & value );
-			template<typename Optional> std::string value_to_json( std::string const & name, boost::optional<Optional> const & value );
-			template<typename First, typename Second> std::string value_to_json( boost::string_ref name, std::pair<First, Second> const & value );
-			template<typename Container, daw::traits::is_container_not_string_t<Container> = 0> std::string value_to_json( std::string const & name, Container const & values );
+			template<typename Optional>
+			std::string value_to_json( std::string const & name, boost::optional<Optional> const & value );
+			
+			template<typename First, typename Second>
+			std::string value_to_json( boost::string_ref name, std::pair<First, Second> const & value );
+			
+			template<typename Container, daw::traits::is_container_not_string_t<Container> = 0> 
+			std::string value_to_json( std::string const & name, Container const & values );
 
 			template<typename T>
 			void value_to_json( std::string const & name, std::shared_ptr<T> const & value ) {
@@ -122,7 +127,7 @@ namespace daw {
 			template<typename Optional>
 			std::string value_to_json( std::string const & name, boost::optional<Optional> const & value ) {
 				if( value ) {
-					return value_to_json( name, value.get( ) );
+					return value_to_json( name, *value );
 				} else {
 					return value_to_json( name );
 				}
