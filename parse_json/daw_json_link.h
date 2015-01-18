@@ -121,21 +121,21 @@ namespace daw {
 			}
 
 			template<typename T>
-			void call_decode( T &, json_obj ) { }
+			static void call_decode( T &, json_obj ) { }
 
-			void call_decode( JsonLink & obj, json_obj json_values ) {
+			static void call_decode( JsonLink & obj, json_obj json_values ) {
 				obj.decode( std::move( json_values ) );
 			}
 
 			template<typename T>
-			void set_name( T &, boost::string_ref ) { }
+			static void set_name( T &, boost::string_ref ) { }
 
-			void set_name( JsonLink & obj, boost::string_ref name ) {
+			static void set_name( JsonLink & obj, boost::string_ref name ) {
 				obj.json_object_name( ) = name.to_string( );
 			}
 
 			template<typename T>
-			encode_function_t standard_encoder( boost::string_ref name, T & value ) {
+			static encode_function_t standard_encoder( boost::string_ref name, T const & value ) {
 				auto value_ptr = &value;
 				auto name_copy = name.to_string( );
 				return[value_ptr, name_copy]( std::string & json_text ) {
@@ -173,7 +173,7 @@ namespace daw {
 			}
 
 			template<typename T, typename U = T>
-			decode_function_t standard_decoder( boost::string_ref name, T & value ) {
+			static decode_function_t standard_decoder( boost::string_ref name, T & value ) {
 				auto value_ptr = &value;
 				auto name_copy = name.to_string( );
 				return[value_ptr, name_copy]( json_obj json_values ) mutable {
@@ -184,7 +184,7 @@ namespace daw {
 			}
 
 			template<typename T, typename U = T>
-			decode_function_t standard_decoder( boost::string_ref name, boost::optional<T> & value ) {
+			static decode_function_t standard_decoder( boost::string_ref name, boost::optional<T> & value ) {
 				auto value_ptr = &value;
 				auto name_copy = name.to_string( );
 				return[value_ptr, name_copy]( json_obj json_values ) mutable {
@@ -195,7 +195,7 @@ namespace daw {
 			}
 
 			template<typename T>
-			bind_functions_t standard_bind_functions( boost::string_ref name, T& value ) {
+			static bind_functions_t standard_bind_functions( boost::string_ref name, T& value ) {
 				bind_functions_t bind_functions;
 				bind_functions.encode = standard_encoder( name, value );
 				bind_functions.decode = standard_decoder( name, value );
