@@ -161,6 +161,16 @@ namespace daw {
 			void json_to_value( int64_t & to, impl::value_t const & from );
 			void json_to_value( double & to, impl::value_t const & from );
 			void json_to_value( float & to, impl::value_t const & from );
+			template<typename T> void json_to_value( std::shared_ptr<T> & to, impl::value_t const & from );
+			template<typename T> void json_to_value( std::vector<T> & to, impl::value_t const & from );
+			template<typename T>
+			void json_to_value( boost::optional<T> & to, impl::value_t const & from );
+
+			template<typename Key, typename Value>
+			void json_to_value( std::pair<Key, Value> & to, impl::value_t const & from, boost::string_ref const KeyName = "key", boost::string_ref const ValueName = "value" );
+
+			template<typename MapLike, typename std::enable_if<daw::traits::is_map_type<MapLike>::value, long>::type = 0>
+			void json_to_value( MapLike & to, impl::value_t const & from, boost::string_ref const KeyName = "key", boost::string_ref const ValueName = "value" );
 
 			// Number, other integral
 			template<typename T, typename std::enable_if<std::is_integral<T>::value && !std::is_same<T, int64_t>::value, long>::type = 0>
@@ -172,10 +182,6 @@ namespace daw {
 				to = static_cast<T>(result);
 			}
 
-			template<typename T> void json_to_value( std::shared_ptr<T> & to, impl::value_t const & from );
-			template<typename T> void json_to_value( std::vector<T> & to, impl::value_t const & from );
-			template<typename Key, typename Value> void json_to_value( std::pair<Key, Value> & to, impl::value_t const & from, boost::string_ref const KeyName = "key", boost::string_ref const ValueName = "value" );
-			template<typename MapLike, typename std::enable_if<daw::traits::is_map_type<MapLike>::value, long>::type = 0> void json_to_value( MapLike & to, impl::value_t const & from, boost::string_ref const KeyName = "key", boost::string_ref const ValueName = "value" );
 			// A nullable json value with a result of boost::optional
 			template<typename T>
 			void json_to_value( boost::optional<T> & to, impl::value_t const & from ) {
