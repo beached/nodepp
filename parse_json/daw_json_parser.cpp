@@ -297,6 +297,26 @@ namespace daw {
 				return members.cbegin( );
 			}
 
+			object_value::iterator object_value::insert( object_value::iterator where, object_value_item item ) {
+				return members.insert( where, std::move( item ) );
+			}
+
+			object_value::mapped_type & object_value::operator[]( boost::string_ref key ) {
+				auto pos = find( key );
+				if( end( ) == pos ) {
+					pos = insert( pos, std::make_pair<std::string, value_t>( key.to_string( ), value_t( nullptr ) ) );
+				}
+				return pos->second;
+			}
+
+			object_value::mapped_type const & object_value::operator[]( boost::string_ref key ) const {
+				auto pos = find( key );
+				if( end( ) == pos ) {
+					throw std::out_of_range( "Attempt to access an undefined value in a const object" );
+				}
+				return pos->second;
+			}
+
 			namespace {
 				template<typename Iterator>
 				bool contains( Iterator first, Iterator last, typename std::iterator_traits<Iterator>::value_type const & key ) {

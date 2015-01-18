@@ -171,6 +171,7 @@ namespace daw {
 			// Number, other integral
 			template<typename T, typename std::enable_if<std::is_integral<T>::value && !std::is_same<T, int64_t>::value, long>::type = 0>
 			void json_to_value( T & to, impl::value_t const & from ) {
+				static_assert(!std::is_const<decltype(to)>::value, "To parameter on json_to_value cannot be const");
 				assert( from.is_integral( ) );
 				auto result = get<int64_t>( from );
 				assert( static_cast<int64_t>(std::numeric_limits<T>::max( )) >= result );
@@ -181,6 +182,7 @@ namespace daw {
 			// A nullable json value with a result of boost::optional
 			template<typename T>
 			void json_to_value( boost::optional<T> & to, impl::value_t const & from ) {
+				static_assert(!std::is_const<decltype(to)>::value, "To parameter on json_to_value cannot be const");
 				if( from.is_null( ) ) {
 					to.reset( );
 				} else {
@@ -193,6 +195,7 @@ namespace daw {
 			// A nullable json value with a result of std::shared_ptr
 			template<typename T>
 			void json_to_value( std::shared_ptr<T> & to, impl::value_t const & from ) {
+				static_assert(!std::is_const<decltype(to)>::value, "To parameter on json_to_value cannot be const");
 				assert( to );
 				if( from.is_null( ) ) {
 					to.reset( );
@@ -203,23 +206,30 @@ namespace daw {
 				}
 			}
 
-			template<typename Key, typename Value>
-			void json_to_value( std::pair<Key, Value> & to, impl::value_t const & from ) {
+			template<typename K, typename V>
+			void json_to_value( std::pair<K, V> & to, impl::value_t const & from ) {
+				using Key = typename std::decay<K>::type;
+				using Value = typename std::decay<V>::type;
+				static_assert(!std::is_const<decltype(to)>::value, "To parameter on json_to_value cannot be const");
 				assert( from.is_array( ) );
 
 				auto const & arry = from.get_array( );
 				assert( arry.items.size( ) == 2 );
 
 				Key key;
-				json_to_value( key, arry.items[0] );
+				auto const & key_obj = arry.items[0].get_object( )["key"];
+				json_to_value( key, key_obj );
 				Value value;
-				json_to_value( value, arry.items[1] );
-				to = std::make_pair<Key, Value>( std::move( key ), std::move( value ) );
+				auto const & value_obj = arry.items[0].get_object( )["value"];
+				json_to_value( value, value_obj );
+				auto result( std::make_pair<K, V>( std::move( key ), std::move( value ) ) );
+				to = std::move( result );
 			}
 
 			// Containers, but not string.  So has begin/end/value_type but not substr
 			template<typename Container, typename std::enable_if<daw::traits::is_container_not_string<Container>::value, long>::type>
 			void json_to_value( Container & to, impl::value_t const & from ) {
+				static_assert(!std::is_const<Container>::value, "To parameter on json_to_value cannot be const");
 				assert( from.is_array( ) );
 				auto const & source_array = from.get_array( ).items;
 				to.clear( );

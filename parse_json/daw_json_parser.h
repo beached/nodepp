@@ -95,12 +95,21 @@ namespace daw {
 				std::vector<object_value_item> members;
 				using iterator = std::vector<object_value_item>::iterator;
 				using const_iterator = std::vector<object_value_item>::const_iterator;
+				using value_type = object_value_item;
+				using key_type = std::string;
+				using mapped_type = value_t;
+
 				iterator find( boost::string_ref const key );
 				const_iterator find( boost::string_ref const key ) const;
+
 				iterator begin( );
 				const_iterator begin( ) const;
 				iterator end( );
 				const_iterator end( ) const;
+
+				iterator insert( iterator where, object_value_item item );
+				mapped_type & operator[]( boost::string_ref key );
+				mapped_type const & operator[]( boost::string_ref key ) const;
 			};
 
 			std::ostream& operator<<(std::ostream& os, value_t const & value);
