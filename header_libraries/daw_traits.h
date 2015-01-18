@@ -155,21 +155,19 @@ namespace daw {
 		GENERATE_HAS_MEMBER_TYPE_TRAIT( iterator );
 
 		template<typename T, typename=void> struct is_container_like: std::false_type { };
-		template<typename T> struct is_container_like<T, enable_if_all<std::true_type, has_begin_member<T>::value, has_end_member<T>::value>>: std::true_type { };
+		template<typename T> struct is_container_like<T, typename std::enable_if<has_begin_member<T>::value && has_end_member<T>::value>::type>: std::true_type { };
 		template<typename T> using is_container_like_t = typename is_container_like<T>::type;
 
 		template<typename T, typename=void> struct is_string: std::false_type { };
-		template<typename T> struct is_string<T, enable_if_all<std::true_type, is_container_like_t<T>::value, has_substr_member_t<T>::value>>: std::true_type { };
+		template<typename T> struct is_string<T, typename std::enable_if<is_container_like_t<T>::value && has_substr_member_t<T>::value>::type>: std::true_type { };
 		template<typename T> using is_string_t = typename is_string<T>::type;
 
 		template <typename T>
 		using static_not = std::conditional<T::value, std::false_type, std::true_type>;
 
-		template<typename T>
-		using isnt_string = typename std::enable_if<static_not<is_string<T>>::value, std::true_type>::type;
-
-		template<typename T>
-		using isnt_string_t = typename isnt_string<T>::type;
+		template<typename T, typename=void> struct isnt_string: std::false_type { };
+		template<typename T> struct isnt_string<T, typename std::enable_if<!is_string<T>::value>::type>: std::true_type { };
+		template<typename T> using isnt_string_t = typename isnt_string<T>::type;
 
 		template<typename T>
 		using is_container_not_string = typename enable_if_all<std::true_type, isnt_string<T>::type::value, is_container_like<T>::type::value>::type ;
