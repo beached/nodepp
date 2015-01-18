@@ -106,11 +106,11 @@ namespace daw {
 
 		template<typename Iterator>
 		Range<Iterator> make_range( Iterator first, Iterator last ) {
-			assert( first <= last );
+			assert( std::distance( first, last ) >= 0 );
 			return Range < Iterator > { first, last };
 		}
 
-		template<typename Container, daw::traits::is_container_not_string_t<Container> = 0>
+		template<typename Container, std::enable_if<daw::traits::is_container_not_string_t<Container>::value, long> = 0>
 		Range<typename Container::iterator> make_range( Container & container ) {
 			using Iterator = decltype(std::begin( container ));
 			return Range<Iterator>( std::begin( container ), std::end( container ) );

@@ -30,7 +30,6 @@
 #include <ostream>
 #include <sstream>
 #include <string>
-#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -101,8 +100,24 @@ namespace daw {
 			template<typename First, typename Second>
 			std::string value_to_json( boost::string_ref name, std::pair<First, Second> const & value );
 			
-			template<typename Container, daw::traits::is_container_not_string_t<Container> = 0> 
-			std::string value_to_json( std::string const & name, Container const & values );
+			// container/array.
+			template<typename Container, typename std::enable_if<daw::traits::is_container_not_string<Container>::value, long>::type = 0>
+			std::string value_to_json( std::string const & name, Container const & values ) {
+				std::stringstream result;
+				result << daw::json::details::json_name( name ) + "[ ";
+				{
+					auto values_range = daw::range::make_range( values.begin( ), values.end( ) );
+					if( !at_end( values_range ) ) {
+						result << value_to_json( "", values_range.front( ) );
+						values_range.move_next( );
+						for( auto const & item : values_range ) {
+							result << "," << value_to_json( "", item );
+						}
+					}
+				}
+				result << " ]";
+				return result.str( );
+			}
 
 			template<typename T>
 			void value_to_json( std::string const & name, std::shared_ptr<T> const & value ) {
@@ -139,24 +154,6 @@ namespace daw {
 				return daw::json::details::json_name( name.to_string( ) ) + "{ " + value_to_json( "key", value.first ) + ", " + value_to_json( "value", value.second ) + " }";
 			}
 
-			// container/array.
-			template<typename Container, daw::traits::is_container_not_string_t<Container>>
-			std::string value_to_json( std::string const & name, Container const & values ) {
-				std::stringstream result;
-				result << daw::json::details::json_name( name ) + "[ ";
-				{
-					auto values_range = daw::range::make_range( values );
-					if( !at_end( values_range ) ) {
-						result << value_to_json( "", values_range.front( ) );
-						values_range.move_next( );
-						for( auto const & item : values_range ) {
-							result << "," << value_to_json( "", item );
-						}
-					}
-				}
-				result << " ]";
-				return result.str( );
-			}
 		}	// namespace generate
 
 		namespace details {
@@ -179,9 +176,7 @@ namespace daw {
 			template<typename T> void json_to_value( std::shared_ptr<T> & to, impl::value_t const & from );
 			template<typename T> void json_to_value( std::vector<T> & to, impl::value_t const & from );
 			template<typename Key, typename Value> void json_to_value( std::pair<Key, Value> & to, impl::value_t const & from, boost::string_ref const KeyName = "key", boost::string_ref const ValueName = "value" );
-			template<typename Key, typename Value> void json_to_value( std::map<Key, Value> & to, impl::value_t const & from, boost::string_ref const KeyName = "key", boost::string_ref const ValueName = "value" );
-			template<typename Key, typename Value> void json_to_value( std::unordered_map<Key, Value> & to, impl::value_t const & from, boost::string_ref const KeyName = "key", boost::string_ref const ValueName = "value" );
-
+			template<typename MapLike, typename std::enable_if<daw::traits::is_map_type<MapLike>::value, long>::type = 0> void json_to_value( MapLike & to, impl::value_t const & from, boost::string_ref const KeyName = "key", boost::string_ref const ValueName = "value" );
 			// A nullable json value with a result of boost::optional
 			template<typename T>
 			void json_to_value( boost::optional<T> & to, impl::value_t const & from ) {
@@ -234,7 +229,7 @@ namespace daw {
 				to = std::move( result );
 			}
 
-			template<typename MapLike, typename std::enable_if<daw::traits::is_map_type<MapLike>::value, long>::type = 0>
+			template<typename MapLike, typename std::enable_if<daw::traits::is_map_type<MapLike>::value, long>::type>
 			void json_to_value( MapLike & to, impl::value_t const & from, boost::string_ref const KeyName, boost::string_ref const ValueName ) {
 				assert( from.is_array( ) );	// we are an array of objects like [ { "key" : key0, "value" : value1 }, ... { "key" : keyN, "value" : valueN } ]
 				using Key = typename MapLike::key_type;
