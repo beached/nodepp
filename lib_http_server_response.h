@@ -1,17 +1,17 @@
 // The MIT License (MIT)
-// 
+//
 // Copyright (c) 2014-2015 Darrell Wright
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files( the "Software" ), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
@@ -43,11 +43,11 @@ namespace daw {
 				namespace impl {
 					class HttpServerResponseImpl;
 				}
-				using HttpServerResponse = std::shared_ptr < impl::HttpServerResponseImpl >;
+				using HttpServerResponse = std::shared_ptr < impl::HttpServerResponseImpl > ;
 				HttpServerResponse create_http_server_response( std::weak_ptr<daw::nodepp::lib::net::impl::NetSocketStreamImpl> socket, daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
 
 				namespace impl {
-					class HttpServerResponseImpl: public daw::nodepp::base::enable_shared< HttpServerResponseImpl >, public daw::nodepp::base::stream::StreamWritableEvents<HttpServerResponseImpl> {
+					class HttpServerResponseImpl: public daw::nodepp::base::enable_shared< HttpServerResponseImpl >, public daw::nodepp::base::stream::StreamWritableEvents < HttpServerResponseImpl > {
 						daw::nodepp::base::EventEmitter m_emitter;
 						std::weak_ptr<daw::nodepp::lib::net::impl::NetSocketStreamImpl> m_socket;
 						HttpVersion m_version;
@@ -56,9 +56,9 @@ namespace daw {
 						bool m_status_sent;
 						bool m_headers_sent;
 						bool m_body_sent;
-						
+
 						HttpServerResponseImpl( std::weak_ptr<daw::nodepp::lib::net::impl::NetSocketStreamImpl> socket, daw::nodepp::base::EventEmitter emitter );
-						
+
 						bool on_socket_if_valid( std::function<void( daw::nodepp::lib::net::NetSocketStream )> action );
 
 					public:
@@ -67,10 +67,10 @@ namespace daw {
 						HttpServerResponseImpl( HttpServerResponseImpl const & ) = delete;
 						~HttpServerResponseImpl( ) = default;
 						HttpServerResponseImpl& operator=(HttpServerResponseImpl const &) = delete;
-	
+
 						HttpServerResponseImpl( HttpServerResponseImpl&& other ) = delete;
 						HttpServerResponseImpl& operator=(HttpServerResponseImpl && rhs) = delete;
-							
+
 						daw::nodepp::base::EventEmitter& emitter( );
 
 						HttpServerResponseImpl& write( daw::nodepp::base::data_t const & data );
@@ -78,13 +78,13 @@ namespace daw {
 						HttpServerResponseImpl& end( );
 						HttpServerResponseImpl& end( daw::nodepp::base::data_t const & data );
 						HttpServerResponseImpl& end( boost::string_ref data, daw::nodepp::base::Encoding const & encoding = daw::nodepp::base::Encoding( ) );
-	
+
 						void close( );
 						void start( );
 
 						HttpHeaders& headers( );
 						HttpHeaders const & headers( ) const;
-	
+
 						HttpServerResponseImpl& send_status( uint16_t status_code = 200 );
 						HttpServerResponseImpl& send_status( uint16_t status_code, boost::string_ref status_msg );
 						HttpServerResponseImpl& send_headers( );
@@ -95,12 +95,10 @@ namespace daw {
 						bool is_open( );
 						bool is_closed( ) const;
 						bool can_write( ) const;
-	
-						HttpServerResponseImpl& add_header( std::string header_name, std::string header_value );
-						
-					};	// struct HttpServerResponseImpl						
-				}	// namespace impl								
 
+						HttpServerResponseImpl& add_header( std::string header_name, std::string header_value );
+					};	// struct HttpServerResponseImpl
+				}	// namespace impl
 			}	// namespace http
 		}	// namespace lib
 	}	// namespace nodepp

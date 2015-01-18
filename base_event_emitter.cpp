@@ -1,17 +1,17 @@
 // The MIT License (MIT)
-// 
+//
 // Copyright (c) 2014-2015 Darrell Wright
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files( the "Software" ), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
@@ -38,14 +38,13 @@ namespace daw {
 					m_max_listeners( 10 ),
 					m_emit_depth( std::make_shared<std::atomic_int_least8_t>( 0 ) ) { }
 
-
 				std::unordered_map<std::string, EventEmitterImpl::listener_list_t> & EventEmitterImpl::listeners( ) {
 					return *m_listeners;
 				}
 
 				bool EventEmitterImpl::at_max_listeners( boost::string_ref event ) {
 					auto result = 0 != m_max_listeners;
-					result &= listeners( )[event.to_string()].size( ) >= m_max_listeners;
+					result &= listeners( )[event.to_string( )].size( ) >= m_max_listeners;
 					return result;
 				}
 

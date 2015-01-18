@@ -1,17 +1,17 @@
 // The MIT License (MIT)
-// 
+//
 // Copyright (c) 2014-2015 Darrell Wright
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files( the "Software" ), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
@@ -40,7 +40,6 @@ namespace daw {
 		namespace lib {
 			namespace http {
 				namespace impl {
-
 					using namespace daw::nodepp;
 
 					HttpServerImpl::HttpServerImpl( base::EventEmitter emitter ) :
@@ -80,12 +79,12 @@ namespace daw {
 
 					void HttpServerImpl::handle_connection( std::weak_ptr<HttpServerImpl> obj, lib::net::NetSocketStream socket ) {
 						auto msocket = daw::as_move_capture( std::move( socket ) );
-						run_if_valid( obj, "Exception while connecting", "HttpServerImpl::handle_connection", [obj,msocket]( HttpServer self ) mutable {
+						run_if_valid( obj, "Exception while connecting", "HttpServerImpl::handle_connection", [obj, msocket]( HttpServer self ) mutable {
 							auto connection = create_http_connection( msocket.move_out( ) );
 							auto it = self->m_connections.emplace( self->m_connections.end( ), connection );
-							
+
 							connection->on_error( self, "HttpServerImpl::handle_connection" )
-								.on_closed( [it, obj] ( ) mutable { 
+								.on_closed( [it, obj]( ) mutable {
 								if( !obj.expired( ) ) {
 									auto self_l = obj.lock( );
 									try {
@@ -97,7 +96,7 @@ namespace daw {
 							} ).start( );
 
 							try {
-								self->emit_client_connected( std::move( connection ) );								
+								self->emit_client_connected( std::move( connection ) );
 							} catch( ... ) {
 								self->emit_error( std::current_exception( ), "Running connection listeners", "HttpServerImpl::handle_connection" );
 							}
@@ -117,7 +116,6 @@ namespace daw {
 					void HttpServerImpl::listen_on( std::string ) { throw std::runtime_error( "Method not implemented" ); }
 
 					void HttpServerImpl::listen_on( base::ServiceHandle ) { throw std::runtime_error( "Method not implemented" ); }
-
 
 					size_t& HttpServerImpl::max_header_count( ) { throw std::runtime_error( "Method not implemented" ); }
 					size_t const & HttpServerImpl::max_header_count( ) const { throw std::runtime_error( "Method not implemented" ); }
@@ -153,14 +151,11 @@ namespace daw {
 						emitter( )->add_listener( "closed", listener, true );
 						return *this;
 					}
-
-
 				}	// namespace impl
 
 				HttpServer create_http_server( base::EventEmitter emitter ) {
 					return HttpServer( new impl::HttpServerImpl( std::move( emitter ) ) );
 				}
-
 			} // namespace http
 		}	// namespace lib
 	}	// namespace nodepp

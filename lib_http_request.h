@@ -51,7 +51,7 @@ namespace daw {
 
 				std::string value_to_json( std::string const & name, HttpClientRequestMethod method );
 
-				struct HttpUrlQueryPair: public daw::json::JsonLink<HttpUrlQueryPair> {
+				struct HttpUrlQueryPair: public daw::json::JsonLink < HttpUrlQueryPair > {
 					std::string name;
 					boost::optional<std::string> value;
 

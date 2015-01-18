@@ -163,6 +163,7 @@ namespace daw {
 			void json_to_value( float & to, impl::value_t const & from );
 			template<typename T> void json_to_value( std::shared_ptr<T> & to, impl::value_t const & from );
 			template<typename T> void json_to_value( boost::optional<T> & to, impl::value_t const & from );
+			template<typename Key, typename Value> void json_to_value( std::pair<Key, Value> & to, impl::value_t const & from );
 
 			template<typename Container, typename std::enable_if<daw::traits::is_container_not_string<Container>::value, long>::type = 0>
 			void json_to_value( Container & to, impl::value_t const & from );
@@ -203,7 +204,7 @@ namespace daw {
 			}
 
 			template<typename Key, typename Value>
-			void json_to_value( std::pair<Key, Value> & to, impl::value_t const & from, boost::string_ref const KeyName, boost::string_ref const ValueName ) {
+			void json_to_value( std::pair<Key, Value> & to, impl::value_t const & from ) {
 				assert( from.is_array( ) );
 
 				auto const & arry = from.get_array( );

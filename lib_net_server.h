@@ -1,17 +1,17 @@
 // The MIT License (MIT)
-// 
+//
 // Copyright (c) 2014-2015 Darrell Wright
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files( the "Software" ), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
@@ -87,17 +87,17 @@ namespace daw {
 						NetServerImpl& on_next_connection( std::function<void( NetSocketStream socket )> listener );
 
 						//////////////////////////////////////////////////////////////////////////
-						/// Summary:	Event emitted when the server is bound after calling 
+						/// Summary:	Event emitted when the server is bound after calling
 						/// listen( ... )
 						NetServerImpl& on_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener );
 
 						//////////////////////////////////////////////////////////////////////////
-						/// Summary:	Event emitted when the server is bound after calling 
+						/// Summary:	Event emitted when the server is bound after calling
 						/// listen( ... )
 						NetServerImpl& on_next_listening( std::function<void( )> listener );
 
 						//////////////////////////////////////////////////////////////////////////
-						/// Summary:	Event emitted when the server closes and all connections 
+						/// Summary:	Event emitted when the server closes and all connections
 						/// are closed
 						NetServerImpl& on_closed( std::function<void( )> listener );
 
@@ -106,12 +106,12 @@ namespace daw {
 						void emit_connection( NetSocketStream socket );
 
 						//////////////////////////////////////////////////////////////////////////
-						/// Summary:	Event emitted when the server is bound after calling 
+						/// Summary:	Event emitted when the server is bound after calling
 						///				listen( ... )
 						void emit_listening( boost::asio::ip::tcp::endpoint endpoint );
 
 						//////////////////////////////////////////////////////////////////////////
-						/// Summary:	Event emitted when the server is bound after calling 
+						/// Summary:	Event emitted when the server is bound after calling
 						///				listen( ... )
 						void emit_closed( );
 
@@ -120,10 +120,8 @@ namespace daw {
 						static void handle_accept( std::weak_ptr<NetServerImpl> obj, NetSocketStream&& socket, boost::system::error_code const & err );
 
 						void start_accept( );
-
 					};	// class NetServerImpl
 				}	// namespace impl
-
 			}	// namespace net
 		}	// namespace lib
 	}	// namespace nodepp

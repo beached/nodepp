@@ -1,17 +1,17 @@
 // The MIT License (MIT)
-// 
+//
 // Copyright (c) 2014-2015 Darrell Wright
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files( the "Software" ), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
@@ -28,15 +28,13 @@
 
 #include "base_event_emitter.h"
 
-
 namespace daw {
 	namespace thread {
-
 		//////////////////////////////////////////////////////////////////////////
-		// Allows threads to wait for the counter to return to 0 after being 
+		// Allows threads to wait for the counter to return to 0 after being
 		// incremented with reserve and decremented with notify
 		template<typename Counter>
-		class Semaphore: public daw::nodepp::base::enable_shared<Semaphore<Counter>> {
+		class Semaphore: public daw::nodepp::base::enable_shared < Semaphore<Counter> > {
 			mutable std::mutex m_mutex;
 			std::condition_variable m_condition;
 			Counter m_counter;
@@ -79,7 +77,7 @@ namespace daw {
 				std::unique_lock<std::mutex> lck( m_mutex );
 				return m_counter;
 			}
-			
+
 			void lock_and_do( std::function<void( Counter const & )> action ) {
 				std::unique_lock<std::mutex> lck( m_mutex );
 				action( m_counter );
@@ -97,8 +95,6 @@ namespace daw {
 				m_condition.notify_all( );
 				return result;
 			}
-
 		};	// class Semaphore
-
 	}	// namespace thread
 }	// namespace daw

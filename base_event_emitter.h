@@ -1,17 +1,17 @@
 // The MIT License (MIT)
-// 
+//
 // Copyright (c) 2014-2015 Darrell Wright
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files( the "Software" ), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
@@ -39,7 +39,7 @@ namespace daw {
 	namespace nodepp {
 		namespace base {
 			template<typename T>
-			struct enable_shared: public std::enable_shared_from_this< T > {
+			struct enable_shared: public std::enable_shared_from_this < T > {
 				std::shared_ptr<T> get_ptr( ) { return static_cast<T*>(this)->shared_from_this( ); }
 				std::weak_ptr<T> get_weak_ptr( ) { return get_ptr( ); }
 			};	// struct enable_shared
@@ -54,10 +54,10 @@ namespace daw {
 			namespace impl {
 				//////////////////////////////////////////////////////////////////////////
 				/// Summary:	Allows for the dispatch of events to subscribed listeners
-				///				Callbacks can be be c-style function pointers, lambda's or 
+				///				Callbacks can be be c-style function pointers, lambda's or
 				///				std::function with the correct signature.
 				///	Requires:	base::Callback
-				///	
+				///
 				struct EventEmitterImpl {
 					using listener_list_t = std::vector < std::pair<bool, Callback> > ;
 					using listeners_t = std::unordered_map < std::string, listener_list_t > ;
@@ -100,7 +100,7 @@ namespace daw {
 							if( event != "newListener" ) {
 								emit_listener_added( event, callback );
 							}
-							listeners( )[event.to_string()].emplace_back( run_once, callback );
+							listeners( )[event.to_string( )].emplace_back( run_once, callback );
 							return callback.id( );
 						} else {
 							// TODO: implement logging to fail gracefully.  For now throw
@@ -119,7 +119,7 @@ namespace daw {
 					}
 
 					template<typename... Args>
-					void emit( std::string event, Args&&... args ) {						
+					void emit( std::string event, Args&&... args ) {
 						if( event.empty( ) ) {
 							throw std::runtime_error( "Empty event name passed to emit" );
 						}
@@ -147,14 +147,14 @@ namespace daw {
 					bool at_max_listeners( boost::string_ref event );
 				};	// class EventEmitterImpl
 			}	// namespace impl
-			
+
 			//////////////////////////////////////////////////////////////////////////
 			// Allows one to have the Events defined in event emitter
 			template<typename Child>
 			class StandardEvents {
 				Child& child( ) {
 					return *static_cast<Child*>(this);
-				}				
+				}
 
 				void emit_error( base::Error error ) {
 					emitter( )->emit( "error", std::move( error ) );
@@ -179,7 +179,7 @@ namespace daw {
 				}
 
 				//////////////////////////////////////////////////////////////////////////
-				/// Summary:	Callback is called whenever a new listener is added for 
+				/// Summary:	Callback is called whenever a new listener is added for
 				///				any callback
 				Child& on_listener_added( std::function<void( std::string, Callback )> listener ) {
 					emitter( )->add_listener( "listener_added", listener );
@@ -195,7 +195,7 @@ namespace daw {
 				}
 
 				//////////////////////////////////////////////////////////////////////////
-				/// Summary: Callback is called whenever a listener is removed for 
+				/// Summary: Callback is called whenever a listener is removed for
 				/// any callback
 				Child& on_listener_removed( std::function<void( std::string, Callback )> listener ) {
 					emitter( )->add_listener( "listener_removed", listener );
@@ -203,7 +203,7 @@ namespace daw {
 				}
 
 				//////////////////////////////////////////////////////////////////////////
-				/// Summary: Callback is called the next time a listener is removed for 
+				/// Summary: Callback is called the next time a listener is removed for
 				/// any callback
 				Child& on_next_listener_removed( std::function<void( std::string, Callback )> listener ) {
 					emitter( )->add_listener( "listener_removed", listener, true );
@@ -228,7 +228,7 @@ namespace daw {
 				Child& on_error( std::shared_ptr<StandardEventsChild> error_destination, std::string where ) {
 					return on_error( std::weak_ptr<StandardEventsChild>( error_destination ), std::move( where ) );
 				}
-			
+
 				//////////////////////////////////////////////////////////////////////////
 				/// Summary: Emit an error event
 				void emit_error( boost::string_ref description, boost::string_ref where ) {
@@ -248,12 +248,11 @@ namespace daw {
 					emit_error( std::move( err ) );
 				}
 
-
 				//////////////////////////////////////////////////////////////////////////
 				/// Summary: Emit an error event
 				void emit_error( boost::system::error_code const & error, boost::string_ref where ) {
 					base::Error err( error );
-					err.add( "where", where.to_string() );
+					err.add( "where", where.to_string( ) );
 
 					emit_error( err );
 				}
@@ -296,18 +295,18 @@ namespace daw {
 						auto self = obj.lock( );
 						auto mself = daw::as_move_capture( daw::copy( self ) );
 						auto mfunc = daw::as_move_capture( std::move( func ) );
-						emit_error_on_throw( self, err_description, where, [mfunc, mself]( ) mutable {							
+						emit_error_on_throw( self, err_description, where, [mfunc, mself]( ) mutable {
 							mfunc.value( )(mself.move_out( ));
 						} );
 					}
 				}
-			
+
 				//////////////////////////////////////////////////////////////////////////
 				/// Summary:	Creates a callback on the event source that calls a
-				///				mirroring emitter on the destination obj. Unless the 
+				///				mirroring emitter on the destination obj. Unless the
 				///				callbacks are of the form std::function<void( )> the
 				///				callback parameters must be template parameters here.
-				///				e.g. 
+				///				e.g.
 				///				obj_emitter.delegate_to<boost::asio::ip::tcp::endpoint>( "listening", dest_obj.get_weak_ptr( ), "listening" );
 				template<typename... Args, typename DestinationType>
 				Child& delegate_to( boost::string_ref source_event, std::weak_ptr<DestinationType> destination_obj, std::string destination_event ) {
@@ -319,8 +318,7 @@ namespace daw {
 					emitter( )->on( source_event, handler );
 					return child( );
 				}
-
-			};	// class StandardEvents			
+			};	// class StandardEvents
 
 			template<typename This, typename Listener, typename Action>
 			static auto rollback_event_on_exception( This me, boost::string_ref event, Listener listener, Action action_to_try, bool run_listener_once = false ) -> decltype(action_to_try( )) {
@@ -333,7 +331,6 @@ namespace daw {
 					std::rethrow_exception( std::current_exception( ) );
 				}
 			}
-			
 		}	// namespace base
 	}	// namespace nodepp
 }	// namespace daw

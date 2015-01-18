@@ -1,17 +1,17 @@
 // The MIT License (MIT)
-// 
+//
 // Copyright (c) 2014-2015 Darrell Wright
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files( the "Software" ), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
@@ -62,7 +62,7 @@ namespace daw {
 				explicit value_t( object_value value );
 				~value_t( );
 				value_t( value_t const & other );
-				value_t & operator=(value_t const & rhs );
+				value_t & operator=(value_t const & rhs);
 				value_t( value_t && );
 				value_t & operator=(value_t &&);
 				int64_t const & get_integral( ) const;
@@ -80,16 +80,16 @@ namespace daw {
 				bool is_boolean( ) const;
 				bool is_null( ) const;
 				bool is_array( ) const;
-				bool is_object( ) const;				
+				bool is_object( ) const;
 			};
 
-			using value_opt_t = boost::optional < value_t >;
+			using value_opt_t = boost::optional < value_t > ;
 
 			struct array_value {
 				std::vector<value_t> items;
 			};
 
-			using object_value_item = std::pair < std::string, value_t >;
+			using object_value_item = std::pair < std::string, value_t > ;
 
 			struct object_value {
 				std::vector<object_value_item> members;
@@ -101,14 +101,12 @@ namespace daw {
 				const_iterator begin( ) const;
 				iterator end( );
 				const_iterator end( ) const;
-
 			};
 
 			std::ostream& operator<<(std::ostream& os, value_t const & value);
 			std::ostream& operator<<(std::ostream& os, std::shared_ptr<value_t> const & value);
-
 		}	// namespace impl
-		using json_obj = std::shared_ptr < impl::value_t >;
+		using json_obj = std::shared_ptr < impl::value_t > ;
 
 		json_obj parse_json( boost::string_ref const json_text );
 
@@ -123,7 +121,5 @@ namespace daw {
 		template<> bool const & get<bool>( impl::value_t const & val );
 		template<> impl::object_value const & get<impl::object_value>( impl::value_t const & val );
 		template<> impl::array_value const & get<impl::array_value>( impl::value_t const & val );
-
-
 	}	// namespace json
 }	// namespace daw

@@ -1,17 +1,17 @@
 // The MIT License (MIT)
-// 
+//
 // Copyright (c) 2014-2015 Darrell Wright
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files( the "Software" ), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
@@ -30,7 +30,6 @@ namespace daw {
 	namespace nodepp {
 		namespace lib {
 			namespace file {
-
 				namespace {
 					std::streampos file_size( std::ifstream & stream ) {
 						if( !stream ) {
@@ -50,7 +49,7 @@ namespace daw {
 				std::streampos file_size( boost::string_ref path ) {
 					std::ifstream in_file( path.to_string( ), std::ifstream::ate | std::ifstream::binary );
 					return file_size( in_file );
-				}				
+				}
 
 				base::OptionalError read_file( boost::string_ref path, base::data_t & buffer, bool append_buffer ) {
 					std::ifstream in_file( path.to_string( ), std::ifstream::ate | std::ifstream::binary );
@@ -73,7 +72,7 @@ namespace daw {
 					}
 
 					size_t first_pos = append_buffer ? buffer.size( ) : 0;
-					buffer.resize( first_pos + static_cast<size_t>( fsize ) );
+					buffer.resize( first_pos + static_cast<size_t>(fsize) );
 
 					if( !in_file.read( buffer.data( ) + first_pos, fsize ) ) {
 						auto result = base::create_optional_error( "Error reading file" );
@@ -89,7 +88,7 @@ namespace daw {
 							buffer.reset( new base::data_t );
 						} else if( !append_buffer ) {
 							buffer->resize( 0 );
-						}					
+						}
 						if( auto err = read_file( path, *buffer ) ) {
 							throw *err;
 						}
@@ -99,12 +98,12 @@ namespace daw {
 				}
 
 				base::OptionalError write_file( boost::string_ref path, base::data_t const & buffer, FileWriteMode mode, size_t bytes_to_write ) {
-					// TODO: Write to a temp file first and then move 
+					// TODO: Write to a temp file first and then move
 					if( 0 == bytes_to_write || bytes_to_write > buffer.size( ) ) {
 						bytes_to_write = buffer.size( );	// TODO: verify this is what we want.  Covers errors but that may be OK
-					} 
+					}
 					std::ofstream out_file;
-					switch (mode) {
+					switch( mode ) {
 					case FileWriteMode::AppendOrCreate:
 						out_file.open( path.to_string( ), std::ostream::binary | std::ostream::out | std::ostream::app );
 						break;
@@ -117,7 +116,7 @@ namespace daw {
 						}
 						out_file.open( path.to_string( ), std::ostream::binary | std::ostream::out );
 						break;
-					}												   
+					}
 					case FileWriteMode::OverwriteOrCreate:
 						out_file.open( path.to_string( ), std::ostream::binary | std::ostream::out | std::ostream::trunc );
 						break;
@@ -129,15 +128,14 @@ namespace daw {
 						error->add( "where", "write_file#open" );
 						return error;
 					}
-					if( !out_file.write( buffer.data( ), static_cast<std::streamoff>( bytes_to_write ) ) ) {
+					if( !out_file.write( buffer.data( ), static_cast<std::streamoff>(bytes_to_write) ) ) {
 						auto error = base::create_optional_error( "Error writing data to file" );
 						error->add( "where", "write_file#write" );
 						return error;
 					}
 					return base::create_optional_error( );
 				}
-				
-				
+
 				int64_t write_file_async( boost::string_ref path, base::data_t buffer, std::function<void( int64_t write_id, base::OptionalError error )> callback, FileWriteMode mode, size_t bytes_to_write ) {
 					auto mbuffer = daw::as_move_capture( std::move( buffer ) );
 					auto result = base::CommonWorkQueue( )->add_work_item( [path, mbuffer, mode, bytes_to_write]( int64_t ) mutable {
@@ -149,7 +147,6 @@ namespace daw {
 					}, true );
 					return result;
 				}
-
 			}	// namespace file
 		}	// namespace lib
 	}	// namespace nodepp

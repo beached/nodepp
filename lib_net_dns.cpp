@@ -1,17 +1,17 @@
 // The MIT License (MIT)
-// 
+//
 // Copyright (c) 2014-2015 Darrell Wright
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files( the "Software" ), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
@@ -39,15 +39,15 @@ namespace daw {
 				namespace impl {
 					using namespace boost::asio::ip;
 					using namespace daw::nodepp;
-	
+
 					NetDnsImpl::NetDnsImpl( base::EventEmitter emitter ) :
 						m_resolver( daw::make_unique<boost::asio::ip::tcp::resolver>( base::ServiceHandle::get( ) ) ),
 						m_emitter( emitter ) { }
-	
+
 					NetDnsImpl::NetDnsImpl( NetDnsImpl&& other ):
 						m_resolver( std::move( other.m_resolver ) ),
 						m_emitter( std::move( other.m_emitter ) ) { }
-	
+
 					NetDnsImpl& NetDnsImpl::operator=(NetDnsImpl && rhs) {
 						if( this != &rhs ) {
 							m_resolver = std::move( rhs.m_resolver );
@@ -55,14 +55,14 @@ namespace daw {
 						}
 						return *this;
 					}
-	
+
 					base::EventEmitter& NetDnsImpl::emitter( ) {
 						return m_emitter;
 					}
 
 					void NetDnsImpl::resolve( boost::asio::ip::tcp::resolver::query & query ) {
 						std::weak_ptr<NetDnsImpl> obj( get_ptr( ) );
-						
+
 						m_resolver->async_resolve( query, [obj]( boost::system::error_code const & err, boost::asio::ip::tcp::resolver::iterator it ) {
 							handle_resolve( obj, err, std::move( it ) );
 						} );
@@ -72,22 +72,22 @@ namespace daw {
 						auto query = tcp::resolver::query( address.to_string( ), "", boost::asio::ip::resolver_query_base::numeric_host );
 						resolve( query );
 					}
-	
+
 					void NetDnsImpl::resolve( boost::string_ref address, uint16_t port ) {
-						auto query = tcp::resolver::query( address.to_string( ), std::to_string(port), boost::asio::ip::resolver_query_base::numeric_host );
+						auto query = tcp::resolver::query( address.to_string( ), std::to_string( port ), boost::asio::ip::resolver_query_base::numeric_host );
 						resolve( query );
 					}
-	
+
 					NetDnsImpl& NetDnsImpl::on_resolved( std::function<void( boost::asio::ip::tcp::resolver::iterator )> listener ) {
 						emitter( )->add_listener( "resolved", listener );
 						return *this;
 					}
-	
+
 					NetDnsImpl& NetDnsImpl::on_next_resolved( std::function<void( boost::asio::ip::tcp::resolver::iterator )> listener ) {
 						emitter( )->add_listener( "resolved", listener, true );
 						return *this;
 					}
-	
+
 					void NetDnsImpl::handle_resolve( std::weak_ptr<NetDnsImpl> obj, boost::system::error_code const & err, boost::asio::ip::tcp::resolver::iterator it ) {
 						run_if_valid( obj, "Exception while resolving dns query", "NetDnsImpl::handle_resolve", [&]( NetDns self ) {
 							if( !err ) {
@@ -97,8 +97,8 @@ namespace daw {
 							}
 						} );
 					}
-	
-					void NetDnsImpl::emit_resolved( boost::asio::ip::tcp::resolver::iterator it ) {						
+
+					void NetDnsImpl::emit_resolved( boost::asio::ip::tcp::resolver::iterator it ) {
 						emitter( )->emit( "resolved", std::move( it ) );
 					}
 				}	// namespace impl
@@ -106,7 +106,6 @@ namespace daw {
 				NetDns create_net_dns( base::EventEmitter emitter ) {
 					return NetDns( new impl::NetDnsImpl( std::move( emitter ) ) );
 				}
-
 			}	// namespace net
 		}	// namespace lib
 	}	// namespace nodepp

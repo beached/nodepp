@@ -1,17 +1,17 @@
 // The MIT License (MIT)
-// 
+//
 // Copyright (c) 2014-2015 Darrell Wright
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files( the "Software" ), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
@@ -36,25 +36,22 @@ namespace daw {
 				namespace impl {
 					namespace {
 						void err400( lib::net::NetSocketStream& socket ) {
-							// 400 bad request							
-							
-							std::string body_str( "<html><body><h2>Could not parse request</h2>\r\n</body></html>\r\n" );							
+							// 400 bad request
+
+							std::string body_str( "<html><body><h2>Could not parse request</h2>\r\n</body></html>\r\n" );
 							std::string header( "HTTP/1.1 400 Bad Request\r\nConnection: close\r\nContent-Type: text/html\r\nContent-Length: " + std::to_string( body_str.size( ) ) + "\r\n\r\n" );
 							socket->write_async( header + body_str );
 							socket->end( body_str );
 						}
-
 					}	// namespace anonymous
-
 
 					HttpConnectionImpl::HttpConnectionImpl( lib::net::NetSocketStream&& socket, base::EventEmitter emitter ) :
 						m_socket( std::move( socket ) ),
-						m_emitter( std::move( emitter) ) {
-					}
+						m_emitter( std::move( emitter ) ) { }
 
 					void HttpConnectionImpl::start( ) {
 						auto obj = get_weak_ptr( );
-						m_socket->on_next_data_received( [obj] ( std::shared_ptr<base::data_t> data_buffer, bool ) mutable {
+						m_socket->on_next_data_received( [obj]( std::shared_ptr<base::data_t> data_buffer, bool ) mutable {
 							if( data_buffer ) {
 								run_if_valid( obj, "Exception in processing received data", "HttpConnectionImpl::start#on_next_data_received", [&]( HttpConnection self ) {
 									try {
@@ -80,7 +77,7 @@ namespace daw {
 
 						m_socket->read_async( );
 					}
- 
+
 					base::EventEmitter& HttpConnectionImpl::emitter( ) {
 						return m_emitter;
 					}
@@ -102,7 +99,6 @@ namespace daw {
 					void HttpConnectionImpl::emit_request_made( HttpClientRequest request, HttpServerResponse response ) {
 						emitter( )->emit( "request_made", request, response );
 					}
-
 
 					// Event callbacks
 
@@ -136,13 +132,11 @@ namespace daw {
 					lib::net::NetSocketStream HttpConnectionImpl::socket( ) {
 						return m_socket;
 					}
-
 				}	// namespace impl
 
 				HttpConnection create_http_connection( lib::net::NetSocketStream&& socket, base::EventEmitter emitter ) {
 					return HttpConnection( new impl::HttpConnectionImpl( std::move( socket ), std::move( emitter ) ) );
 				}
-
 			} // namespace http
 		}	// namespace lib
 	}	// namespace nodepp

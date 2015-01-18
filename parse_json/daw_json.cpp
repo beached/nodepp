@@ -45,10 +45,10 @@ namespace daw {
 			return std::string( buffer, buffer + count + 1 );
 		}
 
-/*		std::string to_string( std::string const & value ) {
-			return value;
-		}
-*/
+		/*		std::string to_string( std::string const & value ) {
+					return value;
+					}
+					*/
 		std::string enquote( boost::string_ref value ) {
 			return "\"" + value.to_string( ) + "\"";
 		}
@@ -136,4 +136,3 @@ namespace daw {
 		}	// namespace details
 	}	// namespace json
 }	// namespace daw1
-

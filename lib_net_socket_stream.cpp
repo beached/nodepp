@@ -1,17 +1,17 @@
 // The MIT License (MIT)
-// 
+//
 // Copyright (c) 2014-2015 Darrell Wright
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files( the "Software" ), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
@@ -48,12 +48,10 @@ namespace daw {
 				using namespace daw::nodepp;
 				using namespace boost::asio::ip;
 
-
 				//////////////////////////////////////////////////////////////////////////
 				/// Helpers
-				/// 
+				///
 				namespace impl {
-
 					namespace {
 						base::data_t get_clear_buffer( base::data_t& original_buffer, size_t num_items, size_t new_size = 1024 ) {
 							base::data_t new_buffer( new_size, 0 );
@@ -125,7 +123,7 @@ namespace daw {
 					}
 
 					NetSocketStreamImpl& NetSocketStreamImpl::set_read_mode( NetSocketStreamImpl::ReadUntil mode ) {
-						m_read_options.read_mode =  mode;
+						m_read_options.read_mode = mode;
 						return *this;
 					}
 
@@ -154,7 +152,7 @@ namespace daw {
 						m_read_options.read_predicate.reset( );
 						return *this;
 					}
-					
+
 					void NetSocketStreamImpl::handle_connect( std::weak_ptr<NetSocketStreamImpl> obj, boost::system::error_code const & err, tcp::resolver::iterator ) {
 						run_if_valid( obj, "Exception while connecting", "NetSocketStreamImpl::handle_connect", [&err]( NetSocketStream self ) {
 							if( !err ) {
@@ -189,7 +187,7 @@ namespace daw {
 									}
 									bool end_of_file = err && 2 == err.value( );
 									self->emit_data_received( new_data, end_of_file );
-								} else {	// Queue up for a													
+								} else {	// Queue up for a
 									self->m_response_buffers.insert( self->m_response_buffers.cend( ), new_data->cbegin( ), new_data->cend( ) );
 								}
 								self->m_bytes_read += bytes_transfered;
@@ -219,11 +217,10 @@ namespace daw {
 						} );
 						if( obj.expired( ) ) {
 							if( !outstanding_writes.expired( ) ) {
-								outstanding_writes.lock( )->dec_counter( );								
+								outstanding_writes.lock( )->dec_counter( );
 							}
 						}
 					}
-
 
 					void NetSocketStreamImpl::emit_connect( ) {
 						emitter( )->emit( "connect" );
@@ -304,12 +301,11 @@ namespace daw {
 						return *this;
 					}
 
-
 					NetSocketStreamImpl&  NetSocketStreamImpl::connect( boost::string_ref host, uint16_t port ) {
 						tcp::resolver resolver( base::ServiceHandle::get( ) );
 
 						auto obj = get_weak_ptr( );
-						boost::asio::async_connect( *m_socket, resolver.resolve( { host.to_string(), std::to_string(port) } ), [obj]( boost::system::error_code const & err, tcp::resolver::iterator it ) {
+						boost::asio::async_connect( *m_socket, resolver.resolve( { host.to_string( ), std::to_string( port ) } ), [obj]( boost::system::error_code const & err, tcp::resolver::iterator it ) {
 							handle_connect( obj, err, it );
 						} );
 						return *this;
@@ -364,7 +360,7 @@ namespace daw {
 							if( m_socket && m_socket->is_open( ) ) {
 								boost::system::error_code err;
 								m_socket->shutdown( boost::asio::ip::tcp::socket::shutdown_both, err );
-								if( emit_cb && err && err.value() != 107 ) {	// Already shutdown is ignored
+								if( emit_cb && err && err.value( ) != 107 ) {	// Already shutdown is ignored
 									emit_error( err, "NetSocketStreamImpl::close#shutdown" );
 								}
 								if( !m_state.closed ) {
@@ -376,7 +372,6 @@ namespace daw {
 								}
 								m_socket.reset( );
 							}
-							
 						} catch( ... ) {
 							//emit_error( std::current_exception( ), "Error calling shutdown on socket", "NetSocketStreamImplImpl::close( )" );
 						}
@@ -426,7 +421,6 @@ namespace daw {
 
 					base::data_t  NetSocketStreamImpl::read( std::size_t ) { throw std::runtime_error( "Method not implemented" ); }
 
-
 					bool NetSocketStreamImpl::is_closed( ) const {
 						return m_state.closed;
 					}
@@ -443,8 +437,6 @@ namespace daw {
 				NetSocketStream create_net_socket_stream( boost::asio::io_service& io_service, std::size_t max_read_size, base::EventEmitter emitter ) {
 					return NetSocketStream( new impl::NetSocketStreamImpl( io_service, max_read_size, emitter ) );
 				}
-
-
 			}	// namespace net
 		}	// namespace lib
 	}	// namespace nodepp

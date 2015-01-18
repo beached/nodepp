@@ -1,17 +1,17 @@
 // The MIT License (MIT)
-// 
+//
 // Copyright (c) 2014-2015 Darrell Wright
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files( the "Software" ), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
@@ -23,7 +23,6 @@
 #define BOOST_TEST_MODULE parse_json
 #include <boost/test/unit_test.hpp>
 
-
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
@@ -34,14 +33,13 @@ struct Streamable {
 	std::string a;
 	Streamable( ) : a( "This is a test!" ) { }
 
-	bool operator==(Streamable const & rhs) const { 
+	bool operator==(Streamable const & rhs) const {
 		return a == rhs.a;
 	}
 
 	bool operator!=(Streamable const & rhs) const {
 		return a != rhs.a;
 	}
-
 };
 
 std::istream& operator>>(std::istream& is, Streamable & value) {
@@ -101,7 +99,7 @@ struct B: public daw::json::JsonLink {
 };
 
 template<typename Stream>
-auto fsize( Stream & stream ) -> decltype( stream.tellg( ) ) { 
+auto fsize( Stream & stream ) -> decltype(stream.tellg( )) {
 	auto cur_pos = stream.tellg( );
 	stream.seekg( 0, std::fstream::end );
 	auto result = stream.tellg( );
@@ -109,8 +107,7 @@ auto fsize( Stream & stream ) -> decltype( stream.tellg( ) ) {
 	return result;
 }
 
-
-BOOST_AUTO_TEST_CASE( SimpleTest ) {	
+BOOST_AUTO_TEST_CASE( SimpleTest ) {
 	B b;
 	auto enc = b.encode( );
 	auto parsed = daw::json::parse_json( enc );

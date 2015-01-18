@@ -1,17 +1,17 @@
 // The MIT License (MIT)
-// 
+//
 // Copyright (c) 2014-2015 Darrell Wright
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files( the "Software" ), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
@@ -29,43 +29,43 @@
 namespace daw {
 	namespace nodepp {
 		namespace base {
-			Error::Error( boost::string_ref description ) : 
-				std::exception( ), 
-				m_keyvalues( ), 
-				m_frozen( false ), 
-				m_child( ), 
+			Error::Error( boost::string_ref description ) :
+				std::exception( ),
+				m_keyvalues( ),
+				m_frozen( false ),
+				m_child( ),
 				m_exception( ) {
-				m_keyvalues.emplace( "description", description.to_string() );
+				m_keyvalues.emplace( "description", description.to_string( ) );
 			}
 
 			Error::~Error( ) { }
 
 			Error::Error( boost::system::error_code const & err ) :
-				std::exception( ), 
-				m_keyvalues( ), 
-				m_frozen( false ), 
-				m_child( ), 
+				std::exception( ),
+				m_keyvalues( ),
+				m_frozen( false ),
+				m_child( ),
 				m_exception( ) {
 				m_keyvalues.emplace( "description", err.message( ) );
-				m_keyvalues.emplace( "category", std::string(err.category( ).name( )) );
-				m_keyvalues.emplace( "error_code", std::to_string(err.value( )) );
- 			}
+				m_keyvalues.emplace( "category", std::string( err.category( ).name( ) ) );
+				m_keyvalues.emplace( "error_code", std::to_string( err.value( ) ) );
+			}
 
 			Error::Error( boost::string_ref description, std::exception_ptr ex_ptr ) :
-				std::exception( ), 
-				m_keyvalues( ), 
-				m_frozen( false ), 
-				m_child( ), 
+				std::exception( ),
+				m_keyvalues( ),
+				m_frozen( false ),
+				m_child( ),
 				m_exception( std::move( ex_ptr ) ) {
-				m_keyvalues.emplace( "description", description.to_string() );
+				m_keyvalues.emplace( "description", description.to_string( ) );
 			}
 
 			Error::Error( Error && other ) :
-				std::exception( std::move( other ) ), 
-				m_keyvalues( std::move( other.m_keyvalues ) ), 
-				m_frozen( std::move( other.m_frozen ) ), 
-				m_child( std::move( other.m_child ) ), 
-				m_exception( std::move( other.m_exception ) ) { 
+				std::exception( std::move( other ) ),
+				m_keyvalues( std::move( other.m_keyvalues ) ),
+				m_frozen( std::move( other.m_frozen ) ),
+				m_child( std::move( other.m_child ) ),
+				m_exception( std::move( other.m_exception ) ) {
 				assert( m_keyvalues.find( "description" ) != m_keyvalues.end( ) );
 			}
 
@@ -119,7 +119,7 @@ namespace daw {
 
 			bool Error::has_exception( ) const {
 				assert( m_keyvalues.find( "description" ) != m_keyvalues.end( ) );
-				if( has_child() && child( ).has_exception( ) ) {
+				if( has_child( ) && child( ).has_exception( ) ) {
 					return true;
 				}
 				return static_cast<bool>(m_exception);
@@ -170,7 +170,7 @@ namespace daw {
 					}
 				}
 				if( has_child( ) ) {
-					ss << child( ).to_string( prefix.to_string() + "# " );
+					ss << child( ).to_string( prefix.to_string( ) + "# " );
 				}
 				ss << "\n";
 				return ss.str( );
@@ -180,11 +180,10 @@ namespace daw {
 				os << error.to_string( );
 				return os;
 			}
-			
+
 			OptionalError create_optional_error( ) {
 				return OptionalError( );
 			}
-
-	}	// namespace base
-}	// namespace nodepp
+		}	// namespace base
+	}	// namespace nodepp
 }	// namespace daw

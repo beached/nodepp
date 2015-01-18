@@ -3,7 +3,7 @@
 //////////////////////////////////////////////////////////////////////////
 /// Summary:	concurrent queue by Anthony Williams from
 ///				https://www.justsoftwaresolutions.co.uk/threading/implementing-a-thread-safe-queue-using-condition-variables.html
-///				
+///
 //////////////////////////////////////////////////////////////////////////
 
 #include <condition_variable>
@@ -60,15 +60,13 @@ namespace daw {
 			m_queue.pop( );
 		}
 
-		void reset() {
+		void reset( ) {
 			m_forced_exit = false;
 		}
 
 		void exit_all( ) {
 			m_forced_exit = true;
 			m_condition.notify_all( );
-
 		}
-
 	};	// class concurrent_queue
 }	// namespace daw
