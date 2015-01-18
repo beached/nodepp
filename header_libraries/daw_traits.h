@@ -137,7 +137,7 @@ namespace daw {
 		}
 #define GENERATE_HAS_MEMBER_FUNCTION_TRAIT( MemberName ) \
 		template<typename T, typename=void> struct has_##MemberName##_member: std::false_type { }; \
-		template<typename T> struct has_##MemberName##_member<T, details::type_sink_t<decltype(std::declval<T*>( )->MemberName( ))>>: std::true_type { }; \
+		template<typename T> struct has_##MemberName##_member<T, details::type_sink_t<decltype(std::declval<T>( ).MemberName( ))>>: std::true_type { }; \
 		template<typename T> using has_##MemberName##_member_t = typename has_##MemberName##_member<T>::type;
 
 #define GENERATE_HAS_MEMBER_TYPE_TRAIT( TypeName ) \
