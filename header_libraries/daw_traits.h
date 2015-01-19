@@ -48,6 +48,8 @@ namespace daw {
 		template<typename T>
 		struct is_equality_comparable: decltype(details::is_equality_comparable_impl( std::declval<const T&>( ), 1 )) {};
 
+		//////////////////////////////////////////////////////////////////////////
+		/// Summary: is like a regular type see http://www.stepanovpapers.com/DeSt98.pdf
 		template<typename T>
 		struct is_regular: std::integral_constant < bool, std::is_default_constructible<T>::value &&
 			std::is_copy_constructible<T>::value && std::is_move_constructible<T>::value &&
@@ -57,7 +59,10 @@ namespace daw {
 		template <typename... Args>
 		struct max_sizeof;
 
-		//the biggest of one thing is that one thing
+		//////////////////////////////////////////////////////////////////////////
+		/// Summary:	Return the largest sizeof in list of types.  Used to pad
+		///				unions and small value optimization
+		///
 		template <typename First>
 		struct max_sizeof < First > {
 			typedef First type;
@@ -72,56 +77,72 @@ namespace daw {
 			static const size_t value = sizeof( type );
 		};
 
+		//////////////////////////////////////////////////////////////////////////
+		/// Summary:	Returns true if all values passed are true
+		///
 		template<typename BoolType>
 		bool are_true( BoolType b1 ) {
-			return true == b1;
+			return b1 == true;
 		}
 
-		template<class BoolType>
-		bool are_true( BoolType b1, BoolType b2 ) {
-			return are_true( b1 ) && are_true( b2 );
+		template<typename BoolType1, typename BoolType2>
+		bool are_true( BoolType1 b1, BoolType2 b2 ) {
+			return b1 == true && b2 == true;
 		}
 
-		template<class BoolType, class ...Booleans>
-		bool are_true( BoolType b1, BoolType b2, Booleans... others ) {
+		template<typename BoolType1, typename BoolType2, typename ...Booleans>
+		bool are_true( BoolType1 b1, BoolType2 b2, Booleans... others ) {
 			return are_true( b1, b2 ) && are_true( others... );
 		}
 
-		template<typename... DataTypes>
-		struct are_same_types;
+		//////////////////////////////////////////////////////////////////////////
+		/// Summary:	Are all template parameters the same
+		///
+		template<typename T, typename... Rest>
+		struct are_same_types: std::false_type { };
 
-		template<typename DataType1, typename DataType2>
-		struct are_same_types < DataType1, DataType2 > {
-			static bool const value = std::is_same<DataType1, DataType2>::value;
-			using type = bool;
-		};
+		template<typename T, typename First>
+		struct are_same_types<T, First> : std::is_same < T, First > { };
 
-		template<typename DataType1, typename DataType2, typename DataType3>
-		struct are_same_types < DataType1, DataType2, DataType3 > {
-			static bool const value = std::is_same<DataType1, DataType2>::value && std::is_same<DataType1, DataType3>::value;
-			using type = bool;
-		};
+		template<typename T, typename First, typename... Rest>
+		struct are_same_types<T, First, Rest...>
+			: std::integral_constant < bool, std::is_same<T, First>::value || are_same_types<T, Rest...>::value >
+		{ };
 
-		template<typename DataType1, typename DataType2, typename ...DataTypes>
-		struct are_same_types < DataType1, DataType2, DataTypes... > {
-			static bool const value = std::is_same<DataType1, DataType2>::value && are_same_types<DataTypes...>::value;
-			using type = bool;
-		};
-
+		//////////////////////////////////////////////////////////////////////////
+		/// Summary:	A sequence of bool values
+		///
 		template<bool...> struct bool_sequence { };
 
+		//////////////////////////////////////////////////////////////////////////
+		/// Summary:	Integral constant with result of and'ing all bool's supplied
+		///
 		template<bool... Bools>
 		using bool_and = std::is_same < bool_sequence< Bools...>, bool_sequence< (Bools || true)...> > ;
 
+		//////////////////////////////////////////////////////////////////////////
+		/// Summary:	Integral constant with result of or'ing all bool's supplied
+		///
 		template<bool... Bools>
 		using bool_or = std::integral_constant < bool, !bool_and< !Bools... >::value > ;
 
+		//////////////////////////////////////////////////////////////////////////
+		/// Summary:	Similar to enable_if but enabled when any of the
+		///				parameters is true
+		///
 		template< typename R, bool... Bs >
 		using enable_if_any = std::enable_if < bool_or< Bs... >::value, R > ;
 
+		//////////////////////////////////////////////////////////////////////////
+		/// Summary:	Similar to enable_if but enabled when all of the
+		///				parameters is true
+		///
 		template< typename R, bool... Bs >
 		using enable_if_all = std::enable_if < bool_and< Bs... >::value, R > ;
 
+		//////////////////////////////////////////////////////////////////////////
+		/// Summary:	Is type T on of the other types
+		///
 		template<typename T, typename... Types>
 		struct is_one_of: std::false_type { };
 
@@ -142,7 +163,7 @@ namespace daw {
 				class has_##MemberName##_member_impl { \
 					struct Fallback { \
 						int MemberName; \
-													}; \
+																																																																	}; \
 					struct Derived : T, Fallback { }; \
 					\
 					template<typename U, U> struct Check; \
@@ -155,16 +176,16 @@ namespace daw {
 				  public: \
 					typedef has_##MemberName##_member_impl type; \
 					enum { value = sizeof(func<Derived>(0)) == 2 }; \
-																		}; \
-														} \
+																																																																						}; \
+																																																																		} \
 			template<typename T, typename = void> struct has_##MemberName##_member : std::false_type { }; \
 			template<typename T> struct has_##MemberName##_member<T, typename std::enable_if<impl::has_##MemberName##_member_impl<T>::value>::type> : std::true_type { }; \
 			template<typename T> using has_##MemberName##_member_t = typename has_##MemberName##_member<T>::type;
 
 		//			// This works on clang and is pretty, but not on MSVC
 		//			template<typename T, typename=void> struct has_##MemberName##_member: std::false_type { }; \
-								//			template<typename T> struct has_##MemberName##_member<T, details::type_sink_t<decltype(std::declval<T>( ).MemberName( ))>>: std::true_type { }; \
-								//			template<typename T> using has_##MemberName##_member_t = typename has_##MemberName##_member<T>::type;
+																																																												//			template<typename T> struct has_##MemberName##_member<T, details::type_sink_t<decltype(std::declval<T>( ).MemberName( ))>>: std::true_type { }; \
+																																																												//			template<typename T> using has_##MemberName##_member_t = typename has_##MemberName##_member<T>::type;
 
 #define GENERATE_HAS_MEMBER_TYPE_TRAIT( TypeName ) \
 			template<typename T, typename=void> struct has_##TypeName##_member: std::false_type { }; \
