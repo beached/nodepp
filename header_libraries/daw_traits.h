@@ -169,7 +169,7 @@ namespace daw {
 				class has_##MemberName##_member_impl { \
 					struct Fallback { \
 						int MemberName; \
-																																																																																																																																																																																																											}; \
+																																																																																																																																																																																																																	}; \
 					struct Derived : T, Fallback { }; \
 					\
 					template<typename U, U> struct Check; \
@@ -182,8 +182,8 @@ namespace daw {
 				  public: \
 					typedef has_##MemberName##_member_impl type; \
 					enum { value = sizeof(func<Derived>(0)) == 2 }; \
-																										}; /*struct has_##MemberName##_member_impl*/ \
-																									} /* namespace impl */ \
+																																}; /*struct has_##MemberName##_member_impl*/ \
+																															} /* namespace impl */ \
 			template<typename T> using has_##MemberName##_member = std::integral_constant<bool, impl::has_##MemberName##_member_impl<T>::value>; \
 			template<typename T> using has_##MemberName##_member_t = typename has_##MemberName##_member<T>::type;
 
@@ -225,8 +225,7 @@ namespace daw {
 		template <typename T> using static_not = std::conditional < T::value, std::false_type, std::true_type > ;
 
 #define GENERATE_IS_STD_CONTAINER1( ContainerName ) \
-		template<typename T, typename = void> struct is_##ContainerName: std::false_type { }; \
-		template<typename T> struct is_##ContainerName < T, typename std::enable_if<std::is_same<T, std::ContainerName<typename T::value_type> >::value>::type> : std::true_type { }; \
+		template<typename T> using is_##ContainerName = std::integral_constant<bool, std::is_same<T, std::ContainerName<typename T::value_type> >::value>; \
 		template<typename T> using is_##ContainerName##_t = typename is_##ContainerName <T>::type;
 
 		GENERATE_IS_STD_CONTAINER1( vector );
@@ -238,8 +237,7 @@ namespace daw {
 #undef GENERATE_IS_STD_CONTAINER1
 
 #define GENERATE_IS_STD_CONTAINER2( ContainerName ) \
-		template<typename T, typename = void> struct is_##ContainerName: std::false_type { }; \
-		template<typename T> struct is_##ContainerName < T, typename std::enable_if<std::is_same<T, std::ContainerName<typename T::key_type, typename T::mapped_type> >::value>::type> : std::true_type { }; \
+		template<typename T> using is_##ContainerName = std::integral_constant<bool, std::is_same<T, std::ContainerName<typename T::key_type, typename T::mapped_type> >::value>; \
 		template<typename T> using is_##ContainerName##_t = typename is_##ContainerName <T>::type;
 
 		GENERATE_IS_STD_CONTAINER2( map );
