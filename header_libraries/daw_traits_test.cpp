@@ -172,7 +172,7 @@ BOOST_AUTO_TEST_CASE( enable_if_all_test ) {
 		BOOST_REQUIRE_MESSAGE( false == result, "1. Enable if all should have defaulted to string only with a std::string value" );
 	}
 	{
-		auto result = enable_if_all_func_test( std::string( ), true, 134, std::string( "dfd" ) );
+		auto result = enable_if_all_func_test( std::string( "" ), true, 134, std::string( "dfd" ) );
 		BOOST_REQUIRE_MESSAGE( false == result, "2. Enable if all should have ran templated version with multiple params including a boolean but failed and defaulted to non-templated version" );
 	}
 	{
