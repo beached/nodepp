@@ -7,7 +7,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g -O3 -Weverything -Wno-c++9
 find_package(Boost 1.55.0 COMPONENTS system filesystem regex REQUIRED)
 find_package(Threads REQUIRED)
 
+enable_testing( )
+
 add_subdirectory( parse_json )
+add_subdirectory( header_libraries )
 
 set(SOURCE_FILES
 		base_callback.cpp

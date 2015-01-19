@@ -20,7 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#define BOOST_TEST_MODULE parse_json
+#define BOOST_TEST_MODULE parse_json_test
 #include <boost/test/unit_test.hpp>
 
 #include <cstdlib>
@@ -123,6 +123,6 @@ BOOST_AUTO_TEST_CASE( MapValues ) {
 	auto enc = daw::json::generate::value_to_json( "test_umap", test_umap );
 	auto parsed = daw::json::parse_json( enc );
 	std::unordered_map<std::string, B> test_umap2;
-	daw::json::parse::json_to_value( test_umap2, parsed );
+	daw::json::parse::json_to_value( test_umap2, *parsed );
 	BOOST_CHECK_EQUAL( test_umap, test_umap2 );
 }
