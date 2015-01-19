@@ -169,7 +169,7 @@ namespace daw {
 				class has_##MemberName##_member_impl { \
 					struct Fallback { \
 						int MemberName; \
-																																																																																																																																									}; \
+																																																																																																																																																															}; \
 					struct Derived : T, Fallback { }; \
 					\
 					template<typename U, U> struct Check; \
@@ -182,16 +182,12 @@ namespace daw {
 				  public: \
 					typedef has_##MemberName##_member_impl type; \
 					enum { value = sizeof(func<Derived>(0)) == 2 }; \
-																																																																																																																																														}; \
-																																																																																																																																										} \
+																																																																																																																																																																				}; \
+																																																																																																																																																																} \
 			template<typename T, typename = void> struct has_##MemberName##_member : std::false_type { }; \
 			template<typename T> struct has_##MemberName##_member<T, typename std::enable_if<impl::has_##MemberName##_member_impl<T>::value>::type> : std::true_type { }; \
-			template<typename T> using has_##MemberName##_member_t = typename has_##MemberName##_member<T>::type;
-
-		//			// This works on clang and is pretty, but not on MSVC
-		//			template<typename T, typename=void> struct has_##MemberName##_member: std::false_type { }; \
-																																																																																																																																				//			template<typename T> struct has_##MemberName##_member<T, details::type_sink_t<decltype(std::declval<T>( ).MemberName( ))>>: std::true_type { }; \
-																																																																																																																																				//			template<typename T> using has_##MemberName##_member_t = typename has_##MemberName##_member<T>::type;
+			template<typename T> using has_##MemberName##_member_t = typename has_##MemberName##_member<T>::type;																																																																																																																//			template<typename T> struct has_##MemberName##_member<T, details::type_sink_t<decltype(std::declval<T>( ).MemberName( ))>>: std::true_type { }; \
+																																																																																																																																												//			template<typename T> using has_##MemberName##_member_t = typename has_##MemberName##_member<T>::type;
 
 #define GENERATE_HAS_MEMBER_TYPE_TRAIT( TypeName ) \
 			template<typename T, typename=void> struct has_##TypeName##_member: std::false_type { }; \
@@ -207,35 +203,35 @@ namespace daw {
 		GENERATE_HAS_MEMBER_TYPE_TRAIT( mapped_type );
 		GENERATE_HAS_MEMBER_TYPE_TRAIT( iterator );
 
-		template<typename T, typename = void> struct is_container_like: std::false_type { };
-		template<typename T> struct is_container_like<T, typename std::enable_if<has_begin_member<T>::value && has_end_member<T>::value>::type> : std::true_type { };
-		template<typename T> using is_container_like_t = typename is_container_like<T>::type;
-
 		template<typename T>
 		using is_string = std::is_convertible < T, std::string > ;
-
-		template<typename T, typename = void> struct is_map_like: std::false_type { };
-		template<typename T> struct is_map_like<T, typename std::enable_if<is_container_like_t<T>::value && has_mapped_type_member<T>::value>::type> : std::true_type { };
-		template<typename T> using is_map_like_t = typename is_string<T>::type;
-
-		template<typename T, typename = void> struct isnt_map_like: std::false_type { };
-		template<typename T> struct isnt_map_like<T, typename std::enable_if<!is_map_like<T>::value>::type> : std::true_type { };
-		template<typename T> using isnt_map_like_t = typename is_string<T>::type;
-
-		template <typename T>
-		using static_not = std::conditional < T::value, std::false_type, std::true_type > ;
 
 		template<typename T, typename = void> struct isnt_string: std::false_type { };
 		template<typename T> struct isnt_string<T, typename std::enable_if<!is_string<T>::value>::type> : std::true_type { };
 		template<typename T> using isnt_string_t = typename isnt_string<T>::type;
 
+		template<typename T, typename = void> struct is_container_like: std::false_type { };
+		template<typename T> struct is_container_like<T, typename std::enable_if<has_begin_member<T>::value && has_end_member<T>::value>::type> : std::true_type { };
+		template<typename T> using is_container_like_t = typename is_container_like<T>::type;
+
 		template<typename T, typename = void> struct is_container_not_string: std::false_type { };
 		template<typename T> struct is_container_not_string<T, typename std::enable_if<isnt_string<T>::value && is_container_like<T>::value>::type> : std::true_type { };
 		template<typename T> using is_container_not_string_t = typename is_container_not_string<T>::type;
 
+		template<typename T, typename = void> struct is_map_like: std::false_type { };
+		template<typename T> struct is_map_like<T, typename std::enable_if<is_container_like_t<T>::value && has_mapped_type_member<T>::value>::type> : std::true_type { };
+		template<typename T> using is_map_like_t = typename is_map_like<T>::type;
+
+		template<typename T, typename = void> struct isnt_map_like: std::false_type { };
+		template<typename T> struct isnt_map_like<T, typename std::enable_if<!is_map_like<T>::value>::type> : std::true_type { };
+		template<typename T> using isnt_map_like_t = typename isnt_map_like<T>::type;
+
 		template<typename T, typename = void> struct is_vector_like_not_string: std::false_type { };
 		template<typename T> struct is_vector_like_not_string<T, typename std::enable_if<is_container_not_string<T>::value && isnt_map_like<T>::value>::type> : std::true_type { };
-		template<typename T> using is_vector_not_string_t = typename is_container_not_string<T>::type;
+		template<typename T> using is_vector_not_string_t = typename is_vector_like_not_string<T>::type;
+
+		template <typename T>
+		using static_not = std::conditional < T::value, std::false_type, std::true_type > ;
 
 #define GENERATE_IS_STD_CONTAINER1( ContainerName ) \
 		template<typename T, typename = void> struct is_##ContainerName: std::false_type { }; \
@@ -298,33 +294,8 @@ namespace daw {
 			is_unordered_map<Container>::value
 			>::type > : std::true_type { };
 
-		template<typename Numeric, typename = void>
-		struct is_numeric: std::false_type { };
-
-		template<typename Numeric>
-		struct is_numeric < Numeric, typename std::enable_if <
-			is_one_of <typename std::decay<Numeric>::type,
-			char,
-			unsigned char,
-			int,
-			unsigned int,
-			short,
-			unsigned short,
-			long,
-			unsigned long,
-			long long,
-			unsigned long long,
-			size_t,
-			int8_t,
-			int16_t,
-			int32_t,
-			int64_t,
-			uint8_t,
-			uint16_t,
-			uint32_t,
-			uint64_t,
-			float,
-			double > ::value > ::type > : std::true_type { };
+		template<typename T>
+		using is_numeric = std::integral_constant < bool, std::is_floating_point<T>::value || std::is_integral<T>::value > ;
 
 		template<typename T, typename = void>
 		struct is_container_or_array: public std::false_type { };
