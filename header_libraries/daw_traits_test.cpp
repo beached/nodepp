@@ -159,7 +159,7 @@ BOOST_AUTO_TEST_CASE( enable_if_any_test ) {
 	}
 }
 
-bool enable_if_all_func_test( std::string, ... ) { return false; }
+bool enable_if_all_func_test( bool ) { return false; }
 
 template<typename... Args, typename = typename daw::traits::enable_if_all<bool, std::is_same<bool, Args>::value...>::type>
 bool enable_if_all_func_test( Args... args ) {
@@ -168,16 +168,12 @@ bool enable_if_all_func_test( Args... args ) {
 
 BOOST_AUTO_TEST_CASE( enable_if_all_test ) {
 	{
-		auto result = enable_if_all_func_test( std::string( "" ) );
+		auto result = enable_if_all_func_test( true );
 		BOOST_REQUIRE_MESSAGE( false == result, "1. Enable if all should have defaulted to string only with a std::string value" );
 	}
 	{
-		auto result = enable_if_all_func_test( std::string( "" ), true, 134, std::string( "dfd" ) );
-		BOOST_REQUIRE_MESSAGE( false == result, "2. Enable if all should have ran templated version with multiple params including a boolean but failed and defaulted to non-templated version" );
-	}
-	{
-		auto result = enable_if_all_func_test( false );
-		BOOST_REQUIRE_MESSAGE( true == result, "3. Enable if any should have worked with a false" );
+		auto result = enable_if_all_func_test( true, true, true, true, true );
+		BOOST_REQUIRE_MESSAGE( true == result, "2. Enable if all should have ran templated version with multiple params including a boolean but failed and defaulted to non-templated version" );
 	}
 }
 
