@@ -20,7 +20,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#define BOOST_TEST_MODULE concurrent_queue_test
 #include <boost/test/unit_test.hpp>
 
 #include <cstdint>
@@ -30,6 +29,4 @@
 
 #include "concurrent_queue.h"
 
-BOOST_AUTO_TEST_CASE( none_yet ) {
-
-}
+BOOST_AUTO_TEST_CASE( concurrent_queue_none_yet ) { }

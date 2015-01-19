@@ -20,7 +20,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#define BOOST_TEST_MODULE daw_utility_test
 #include <boost/test/unit_test.hpp>
 
 #include <cstdint>
@@ -30,6 +29,7 @@
 
 #include "daw_utility.h"
 
-BOOST_AUTO_TEST_CASE( none_yet ) {
-
+BOOST_AUTO_TEST_CASE( daw_utility_round_to_nearest ) {
+	BOOST_REQUIRE( daw::round_to_nearest( 1.1111111, 1.1 ) == 1.1 );
+	BOOST_REQUIRE( daw::round_to_nearest( -3, -5.0 ) == -5 );
 }

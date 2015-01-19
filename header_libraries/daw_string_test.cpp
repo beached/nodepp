@@ -20,7 +20,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#define BOOST_TEST_MODULE daw_string_test
 #include <boost/test/unit_test.hpp>
 
 #include <cstdint>
@@ -30,6 +29,4 @@
 
 #include "daw_string.h"
 
-BOOST_AUTO_TEST_CASE( none_yet ) {
-
-}
+BOOST_AUTO_TEST_CASE( daw_string_none_yet ) { }

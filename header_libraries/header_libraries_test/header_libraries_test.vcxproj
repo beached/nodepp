@@ -144,10 +144,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
+    <ClCompile Include="..\concurrent_queue_test.cpp" />
+    <ClCompile Include="..\daw_range_test.cpp" />
+    <ClCompile Include="..\daw_string_test.cpp" />
     <ClCompile Include="..\daw_traits_test.cpp">
+      <SubType>
+      </SubType>
+    </ClCompile>
+    <ClCompile Include="..\daw_utility_test.cpp" />
+    <ClCompile Include="..\make_unique_test.cpp" />
+    <ClCompile Include="..\range_algorithm_test.cpp" />
+    <ClCompile Include="..\scope_guard_test.cpp" />
+    <ClCompile Include="test_main.cpp">
       <SubType>
       </SubType>
     </ClCompile>

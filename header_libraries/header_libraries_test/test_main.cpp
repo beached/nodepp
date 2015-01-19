@@ -20,13 +20,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#define BOOST_TEST_MODULE header_libraries
 #include <boost/test/unit_test.hpp>
 
-#include <cstdint>
-#include <string>
-#include <unordered_map>
-#include <vector>
-
-#include "range_algorithm.h"
-
-BOOST_AUTO_TEST_CASE( range_algorithm_none_yet ) { }
+BOOST_AUTO_TEST_CASE( test_main_stubb ) {
+	// TODO: Your test code here
+}
