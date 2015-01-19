@@ -19,6 +19,9 @@ set(HEADER_PREFIXES
 
 enable_testing( )
 
+#add_definitions( -DBOOST_TEST_MAIN )
+ADD_DEFINITIONS(-DBOOST_TEST_DYN_LINK) 
+
 foreach( CUR_PREFIX ${HEADER_PREFIXES} )
 	add_executable( ${CUR_PREFIX}_test_bin ${CUR_PREFIX}.h ${CUR_PREFIX}_test.cpp )
 	target_link_libraries( ${CUR_PREFIX}_test_bin ${Boost_LIBRARIES} )

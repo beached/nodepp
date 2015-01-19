@@ -22,6 +22,7 @@
 
 #define BOOST_TEST_MODULE daw_traits_test
 #include <boost/test/unit_test.hpp>
+
 #include <cstdint>
 #include <string>
 #include <unordered_map>
