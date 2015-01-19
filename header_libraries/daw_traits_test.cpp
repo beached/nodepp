@@ -137,6 +137,32 @@ BOOST_AUTO_TEST_CASE( bool_or_test ) {
 	}
 }
 
+bool enable_if_any_func_test( ... ) { return false; }
+
+template<bool... Booleans>
+auto enable_if_any_func_test( Booleans... vals ) -> typename daw::traits::enable_if_any<bool, vals...>::type {
+	return true;
+}
+
+BOOST_AUTO_TEST_CASE( enable_if_any_test ) {
+	{
+		auto result = enable_if_any_func_test( false, false, false );
+		BOOST_REQUIRE_MESSAGE( false == result, "1. Enable if any should not have worked with all false values" );
+	}
+	{
+		auto result = enable_if_any_func_test( true, true, true );
+		BOOST_REQUIRE_MESSAGE( true == result, "2. Enable if any should have worked with all true values" );
+	}
+	{
+		auto result = enable_if_any_func_test( false );
+		BOOST_REQUIRE_MESSAGE( false == result, "3. Enable if any should not have worked with a false" );
+	}
+	{
+		auto result = enable_if_any_func_test( true );
+		BOOST_REQUIRE_MESSAGE( true == result, "4. Enable if any should have worked with a true value" );
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( has_begin_member_test ) {
