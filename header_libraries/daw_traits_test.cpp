@@ -255,3 +255,14 @@ BOOST_AUTO_TEST_CASE( daw_traits_is_string_test ) {
 	BOOST_REQUIRE_MESSAGE( true == daw::traits::is_string<decltype("this is a test")>::value, "4. Character array should convert to string" );
 	BOOST_REQUIRE_MESSAGE( false == daw::traits::is_string<std::vector<char>>::value, "5. Vector of char should not convert to string" );
 }
+
+BOOST_AUTO_TEST_CASE( daw_traits_isnt_string_test ) {
+	BOOST_REQUIRE_MESSAGE( false == daw::traits::isnt_string<std::string>::value, "1. isnt_string should return true for std::string" );
+	BOOST_REQUIRE_MESSAGE( true == daw::traits::isnt_string<std::vector<std::string>>::value, "2. isnt_string should return false for std::vector<std::string>" );
+	struct T {
+		int x;
+	};
+	BOOST_REQUIRE_MESSAGE( true == daw::traits::isnt_string<std::vector<std::string>>::value, "3. isnt_string should return false for struct T" );
+	BOOST_REQUIRE_MESSAGE( false == daw::traits::isnt_string<decltype("this is a test")>::value, "4. Character array should convert to string" );
+	BOOST_REQUIRE_MESSAGE( true == daw::traits::isnt_string<std::vector<char>>::value, "5. Vector of char should not convert to string" );
+}
