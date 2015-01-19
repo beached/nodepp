@@ -101,7 +101,7 @@ namespace daw {
 			std::string value_to_json( boost::string_ref name, std::pair<First, Second> const & value );
 
 			template<typename MapLike, typename std::enable_if<daw::traits::is_map_like<MapLike>::value, long>::type = 0>
-			void value_to_json( boost::string_ref name, MapLike const & values );
+			std::string value_to_json( boost::string_ref name, MapLike const & values );
 
 			// container/array.
 			template<typename Container, typename std::enable_if<daw::traits::is_vector_like_not_string<Container>::value, long>::type = 0>
@@ -159,7 +159,7 @@ namespace daw {
 
 			// map like types
 			template<typename MapLike, typename std::enable_if<daw::traits::is_map_like<MapLike>::value, long>::type>
-			void value_to_json( boost::string_ref name, MapLike const & values ) {
+			std::string value_to_json( boost::string_ref name, MapLike const & values ) {
 				std::stringstream result;
 				result << daw::json::details::json_name( name ) << "[ ";
 				{
