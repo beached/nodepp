@@ -50,61 +50,64 @@ namespace daw {
 
 		namespace generate {
 			// string
-			std::string value_to_json( std::string const & name, std::string const & value );
+			std::string value_to_json( boost::string_ref name, std::string const & value );
 
 			// bool
-			std::string value_to_json( std::string const & name, bool value );
+			std::string value_to_json( boost::string_ref name, bool value );
 
 			// null
-			std::string value_to_json( std::string const & name );
+			std::string value_to_json( boost::string_ref name );
 
 			// date -> actaually a string, but it javascript date format encodes the date
-			std::string value_to_json_timestamp( std::string const & name, std::time_t const & value );
+			//std::string value_to_json_timestamp( boost::string_ref name, std::time_t const & value );
 
 			// Template Declarations
 
 			// boost optional.  will error out if T does not support value_to_json
 			template<typename Optional>
-			std::string value_to_json( std::string const & name, boost::optional<Optional> const & value );
+			std::string value_to_json( boost::string_ref name, boost::optional<Optional> const & value );
 
 			// Integral Numbers
 			template<typename Number, typename std::enable_if<std::is_integral<Number>::value, int>::type = 0>
-			std::string value_to_json_number( std::string const & name, Number const & value ) {
+			std::string value_to_json_number( boost::string_ref name, Number const & value ) {
 				return daw::json::details::json_name( name ) + std::to_string( value );
 			}
 
 			// Real Numbers
 			template<typename Number, typename std::enable_if<std::is_floating_point<Number>::value, int>::type = 0>
-			std::string value_to_json_number( std::string const & name, Number const & value ) {
+			std::string value_to_json_number( boost::string_ref name, Number const & value ) {
 				std::stringstream ss;
 				ss << daw::json::details::json_name( name );
 				ss << std::setprecision( std::numeric_limits<Number>::max_digits10 ) << value;
 				return ss.str( );
 			}
 
-			std::string value_to_json( std::string const & name, int const & value );
+			std::string value_to_json( boost::string_ref name, int const & value );
 
-			std::string value_to_json( std::string const & name, unsigned int const & value );
+			std::string value_to_json( boost::string_ref name, unsigned int const & value );
 
-			std::string value_to_json( std::string const & name, int64_t const & value );
+			std::string value_to_json( boost::string_ref name, int64_t const & value );
 
-			std::string value_to_json( std::string const & name, uint64_t const & value );
+			std::string value_to_json( boost::string_ref name, uint64_t const & value );
 
-			std::string value_to_json( std::string const & name, double const & value );
+			std::string value_to_json( boost::string_ref name, double const & value );
 
-			template<typename T> void value_to_json( std::string const & name, std::shared_ptr<T> const & value );
-			template<typename T> void value_to_json( std::string const & name, std::weak_ptr<T> const & value );
+			template<typename T> void value_to_json( boost::string_ref name, std::shared_ptr<T> const & value );
+			template<typename T> void value_to_json( boost::string_ref name, std::weak_ptr<T> const & value );
 			template<typename Optional>
-			std::string value_to_json( std::string const & name, boost::optional<Optional> const & value );
+			std::string value_to_json( boost::string_ref name, boost::optional<Optional> const & value );
 
 			template<typename First, typename Second>
 			std::string value_to_json( boost::string_ref name, std::pair<First, Second> const & value );
 
+			template<typename MapLike, typename std::enable_if<daw::traits::is_map_like<MapLike>::value, long>::type = 0>
+			void value_to_json( boost::string_ref name, MapLike const & values );
+
 			// container/array.
 			template<typename Container, typename std::enable_if<daw::traits::is_vector_like_not_string<Container>::value, long>::type = 0>
-			std::string value_to_json( std::string const & name, Container const & values ) {
+			std::string value_to_json( boost::string_ref name, Container const & values ) {
 				std::stringstream result;
-				result << daw::json::details::json_name( name ) + "[ ";
+				result << daw::json::details::json_name( name ) << "[ ";
 				{
 					auto values_range = daw::range::make_range( values.begin( ), values.end( ) );
 					if( !at_end( values_range ) ) {
@@ -120,7 +123,7 @@ namespace daw {
 			}
 
 			template<typename T>
-			void value_to_json( std::string const & name, std::shared_ptr<T> const & value ) {
+			void value_to_json( boost::string_ref name, std::shared_ptr<T> const & value ) {
 				if( !value ) {
 					value_to_json( name );
 				}
@@ -128,7 +131,7 @@ namespace daw {
 			}
 
 			template<typename T>
-			void value_to_json( std::string const & name, std::weak_ptr<T> const & value ) {
+			void value_to_json( boost::string_ref name, std::weak_ptr<T> const & value ) {
 				if( !value.expired( ) ) {
 					auto shared_value = value.lock( );
 					if( !shared_value ) {
@@ -140,7 +143,7 @@ namespace daw {
 
 			// boost optional.  will error out if T does not support value_to_json
 			template<typename Optional>
-			std::string value_to_json( std::string const & name, boost::optional<Optional> const & value ) {
+			std::string value_to_json( boost::string_ref name, boost::optional<Optional> const & value ) {
 				if( value ) {
 					return value_to_json( name, *value );
 				} else {
@@ -152,6 +155,25 @@ namespace daw {
 			template<typename First, typename Second>
 			std::string value_to_json( boost::string_ref name, std::pair<First, Second> const & value ) {
 				return daw::json::details::json_name( name.to_string( ) ) + "{ " + value_to_json( "key", value.first ) + ", " + value_to_json( "value", value.second ) + " }";
+			}
+
+			// map like types
+			template<typename MapLike, typename std::enable_if<daw::traits::is_map_like<MapLike>::value, long>::type>
+			void value_to_json( boost::string_ref name, MapLike const & values ) {
+				std::stringstream result;
+				result << daw::json::details::json_name( name ) << "[ ";
+				{
+					auto values_range = daw::range::make_range( values.begin( ), values.end( ) );
+					if( !at_end( values_range ) ) {
+						result << value_to_json( "", values_range.front( ) );
+						values_range.move_next( );
+						for( auto const & item : values_range ) {
+							result << "," << value_to_json( "", item );
+						}
+					}
+				}
+				result << " ]";
+				return result.str( );
 			}
 		}	// namespace generate
 

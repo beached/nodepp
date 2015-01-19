@@ -68,17 +68,17 @@ namespace daw {
 
 		namespace generate {
 			// string
-			std::string value_to_json( std::string const & name, std::string const & value ) {
+			std::string value_to_json( boost::string_ref name, std::string const & value ) {
 				return details::json_name( name ) + enquote( value );
 			}
 
 			// bool
-			std::string value_to_json( std::string const & name, bool value ) {
+			std::string value_to_json( boost::string_ref name, bool value ) {
 				return details::json_name( name ) + (value ? "true" : "false");
 			}
 
 			// null
-			std::string value_to_json( std::string const & name ) {
+			std::string value_to_json( boost::string_ref name ) {
 				return details::json_name( name ) + "null";
 			}
 
@@ -88,28 +88,28 @@ namespace daw {
 			// 					return details::json_name( name ) + enquote( to_string( timestamp ) );
 			// 				}
 
-			std::string value_to_json( std::string const & name, int const & value ) {
+			std::string value_to_json( boost::string_ref name, int const & value ) {
 				return value_to_json_number( name, value );
 			}
 
-			std::string value_to_json( std::string const & name, unsigned int const & value ) {
+			std::string value_to_json( boost::string_ref name, unsigned int const & value ) {
 				return value_to_json_number( name, value );
 			}
 
-			std::string value_to_json( std::string const & name, int64_t const & value ) {
+			std::string value_to_json( boost::string_ref name, int64_t const & value ) {
 				return value_to_json_number( name, value );
 			}
 
-			std::string value_to_json( std::string const & name, uint64_t const & value ) {
+			std::string value_to_json( boost::string_ref name, uint64_t const & value ) {
 				return value_to_json_number( name, value );
 			}
 
-			std::string value_to_json( std::string const & name, double const & value ) {
+			std::string value_to_json( boost::string_ref name, double const & value ) {
 				return value_to_json_number( name, value );
 			}
 		}	// namespace generate
 
-		namespace details {
+		namespace parse {
 			// String
 			void json_to_value( std::string & to, impl::value_t const & from ) {
 				to = from.get_string( );
