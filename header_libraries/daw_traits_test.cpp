@@ -232,6 +232,7 @@ BOOST_AUTO_TEST_CASE( daw_traits_has_value_type_member ) {
 		int x;
 	};
 	BOOST_REQUIRE_MESSAGE( false == daw::traits::has_value_type_member<T>::value, "2. T should not have a value_type" );
+	BOOST_REQUIRE_MESSAGE( false == daw::traits::has_value_type_member<int>::value, "3. int should not have a value_type" );
 }
 
 BOOST_AUTO_TEST_CASE( daw_traits_is_container_like ) {
