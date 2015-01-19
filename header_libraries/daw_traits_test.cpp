@@ -94,6 +94,48 @@ BOOST_AUTO_TEST_CASE( are_same_types_test ) {
 	}
 }
 
+BOOST_AUTO_TEST_CASE( bool_and_test ) {
+	{
+		auto result = daw::traits::bool_and<true, true, true>::value;
+		BOOST_REQUIRE_MESSAGE( true == result, "1. All true's in bool_and should return true" );
+	}
+	{
+		auto result = daw::traits::bool_and<true, false, false>::value;
+		BOOST_REQUIRE_MESSAGE( false == result, "2. A mix of true's and false's in bool_and should return false" );
+	}
+	{
+		auto result = daw::traits::bool_and<true>::value;
+		BOOST_REQUIRE_MESSAGE( true == result, "3. A true in bool_and should return true" );
+	}
+	{
+		auto result = daw::traits::bool_and<false>::value;
+		BOOST_REQUIRE_MESSAGE( false == result, "4. A false in bool_and should return false" );
+	}
+}
+
+BOOST_AUTO_TEST_CASE( bool_or_test ) {
+	{
+		auto result = daw::traits::bool_or<true, true, true>::value;
+		BOOST_REQUIRE_MESSAGE( true == result, "1. All true's in bool_or should return true" );
+	}
+	{
+		auto result = daw::traits::bool_or<true, false, false>::value;
+		BOOST_REQUIRE_MESSAGE( true == result, "2. A mix of true's and false's in bool_or should return true" );
+	}
+	{
+		auto result = daw::traits::bool_or<true>::value;
+		BOOST_REQUIRE_MESSAGE( true == result, "3. A true in bool_or should return true" );
+	}
+	{
+		auto result = daw::traits::bool_or<false>::value;
+		BOOST_REQUIRE_MESSAGE( false == result, "4. A false in bool_or should return false" );
+	}
+	{
+		auto result = daw::traits::bool_or<false, false>::value;
+		BOOST_REQUIRE_MESSAGE( false == result, "5. Two false's in bool_or should return false" );
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( has_begin_member_test ) {
