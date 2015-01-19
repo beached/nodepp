@@ -80,14 +80,19 @@ namespace daw {
 		//////////////////////////////////////////////////////////////////////////
 		/// Summary:	Returns true if all values passed are true
 		///
-		template<typename BoolType>
+		template<typename BoolType, typename std::enable_if<!std::is_integral<BoolType>::value, long >::type = 0 >
 		bool are_true( BoolType b1 ) {
 			return b1 == true;
 		}
 
+		template<typename IntLike, typename std::enable_if<std::is_integral<IntLike>::value, long>::type = 0>
+		bool are_true( IntLike b1 ) {
+			return b1 != 0;
+		}
+
 		template<typename BoolType1, typename BoolType2>
 		bool are_true( BoolType1 b1, BoolType2 b2 ) {
-			return b1 == true && b2 == true;
+			return are_true( b1 ) && are_true( b2 );
 		}
 
 		template<typename BoolType1, typename BoolType2, typename ...Booleans>
@@ -164,7 +169,7 @@ namespace daw {
 				class has_##MemberName##_member_impl { \
 					struct Fallback { \
 						int MemberName; \
-																																																																																																			}; \
+																																																																																																																															}; \
 					struct Derived : T, Fallback { }; \
 					\
 					template<typename U, U> struct Check; \
@@ -177,16 +182,16 @@ namespace daw {
 				  public: \
 					typedef has_##MemberName##_member_impl type; \
 					enum { value = sizeof(func<Derived>(0)) == 2 }; \
-																																																																																																								}; \
-																																																																																																				} \
+																																																																																																																																				}; \
+																																																																																																																																} \
 			template<typename T, typename = void> struct has_##MemberName##_member : std::false_type { }; \
 			template<typename T> struct has_##MemberName##_member<T, typename std::enable_if<impl::has_##MemberName##_member_impl<T>::value>::type> : std::true_type { }; \
 			template<typename T> using has_##MemberName##_member_t = typename has_##MemberName##_member<T>::type;
 
 		//			// This works on clang and is pretty, but not on MSVC
 		//			template<typename T, typename=void> struct has_##MemberName##_member: std::false_type { }; \
-																																																																																														//			template<typename T> struct has_##MemberName##_member<T, details::type_sink_t<decltype(std::declval<T>( ).MemberName( ))>>: std::true_type { }; \
-																																																																																														//			template<typename T> using has_##MemberName##_member_t = typename has_##MemberName##_member<T>::type;
+																																																																																																																										//			template<typename T> struct has_##MemberName##_member<T, details::type_sink_t<decltype(std::declval<T>( ).MemberName( ))>>: std::true_type { }; \
+																																																																																																																										//			template<typename T> using has_##MemberName##_member_t = typename has_##MemberName##_member<T>::type;
 
 #define GENERATE_HAS_MEMBER_TYPE_TRAIT( TypeName ) \
 			template<typename T, typename=void> struct has_##TypeName##_member: std::false_type { }; \
@@ -207,7 +212,7 @@ namespace daw {
 		template<typename T> using is_container_like_t = typename is_container_like<T>::type;
 
 		template<typename T, typename = void> struct is_string: std::false_type { };
-		template<typename T> struct is_string<T, typename enable_if_all<void, is_container_like_t<T>::value, has_substr_member_t<T>::value>::type> : std::true_type { };
+		template<typename T> struct is_string<T, typename std::enable_if<is_container_like_t<T>::value && has_substr_member_t<T>::value>::type> : std::true_type { };
 		template<typename T> using is_string_t = typename is_string<T>::type;
 
 		template<typename T, typename = void> struct is_map_like: std::false_type { };
