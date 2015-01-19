@@ -166,7 +166,7 @@ namespace daw {
 #define GENERATE_HAS_MEMBER_FUNCTION_TRAIT(MemberName) \
 			namespace impl { \
 			template<typename T, typename = void> \
-			class has_##MemberName##_member_impl: std:false_type {}; \
+			class has_##MemberName##_member_impl: public std::false_type {}; \
 		template<typename T> \
 		class has_##MemberName##_member_impl< T, typename std::enable_if<std::is_class<T>::value>::type> { \
 					struct Fallback { \
