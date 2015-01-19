@@ -222,7 +222,7 @@ BOOST_AUTO_TEST_CASE( daw_traits_has_substr_member_test ) {
 			int x;
 			bool substr( ) { }
 		};
-		BOOST_REQUIRE_MESSAGE( false == daw::traits::has_substr_member<T>::value, "4. struct T should have a substr method" );
+		BOOST_REQUIRE_MESSAGE( true == daw::traits::has_substr_member<T>::value, "4. struct T should have a substr method" );
 	}
 }
 

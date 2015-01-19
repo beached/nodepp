@@ -169,7 +169,7 @@ namespace daw {
 				class has_##MemberName##_member_impl { \
 					struct Fallback { \
 						int MemberName; \
-																																																																																																																															}; \
+																																																																																																																																									}; \
 					struct Derived : T, Fallback { }; \
 					\
 					template<typename U, U> struct Check; \
@@ -182,16 +182,16 @@ namespace daw {
 				  public: \
 					typedef has_##MemberName##_member_impl type; \
 					enum { value = sizeof(func<Derived>(0)) == 2 }; \
-																																																																																																																																				}; \
-																																																																																																																																} \
+																																																																																																																																														}; \
+																																																																																																																																										} \
 			template<typename T, typename = void> struct has_##MemberName##_member : std::false_type { }; \
 			template<typename T> struct has_##MemberName##_member<T, typename std::enable_if<impl::has_##MemberName##_member_impl<T>::value>::type> : std::true_type { }; \
 			template<typename T> using has_##MemberName##_member_t = typename has_##MemberName##_member<T>::type;
 
 		//			// This works on clang and is pretty, but not on MSVC
 		//			template<typename T, typename=void> struct has_##MemberName##_member: std::false_type { }; \
-																																																																																																																										//			template<typename T> struct has_##MemberName##_member<T, details::type_sink_t<decltype(std::declval<T>( ).MemberName( ))>>: std::true_type { }; \
-																																																																																																																										//			template<typename T> using has_##MemberName##_member_t = typename has_##MemberName##_member<T>::type;
+																																																																																																																																				//			template<typename T> struct has_##MemberName##_member<T, details::type_sink_t<decltype(std::declval<T>( ).MemberName( ))>>: std::true_type { }; \
+																																																																																																																																				//			template<typename T> using has_##MemberName##_member_t = typename has_##MemberName##_member<T>::type;
 
 #define GENERATE_HAS_MEMBER_TYPE_TRAIT( TypeName ) \
 			template<typename T, typename=void> struct has_##TypeName##_member: std::false_type { }; \
@@ -211,9 +211,8 @@ namespace daw {
 		template<typename T> struct is_container_like<T, typename std::enable_if<has_begin_member<T>::value && has_end_member<T>::value>::type> : std::true_type { };
 		template<typename T> using is_container_like_t = typename is_container_like<T>::type;
 
-		template<typename T, typename = void> struct is_string: std::false_type { };
-		template<typename T> struct is_string<T, typename std::enable_if<is_container_like_t<T>::value && has_substr_member_t<T>::value>::type> : std::true_type { };
-		template<typename T> using is_string_t = typename is_string<T>::type;
+		template<typename T>
+		using is_string = std::is_convertible < T, std::string > ;
 
 		template<typename T, typename = void> struct is_map_like: std::false_type { };
 		template<typename T> struct is_map_like<T, typename std::enable_if<is_container_like_t<T>::value && has_mapped_type_member<T>::value>::type> : std::true_type { };

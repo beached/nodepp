@@ -30,6 +30,7 @@
 #include "daw_utility.h"
 
 BOOST_AUTO_TEST_CASE( daw_utility_round_to_nearest ) {
-	BOOST_REQUIRE( daw::round_to_nearest( 1.1111111, 1.1 ) == 1.1 );
+	BOOST_REQUIRE( daw::round_to_nearest( 123, 25.0 ) == 125 );
 	BOOST_REQUIRE( daw::round_to_nearest( -3, -5.0 ) == -5 );
+	BOOST_REQUIRE( daw::round_to_nearest( 133, 25.0 ) == 125 );
 }
