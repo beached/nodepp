@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE( bool_or_test ) {
 		auto result = daw::traits::bool_or<true>::value;
 		BOOST_REQUIRE_MESSAGE( true == result, "3. A true in bool_or should return true" );
 	}
-	{
+	{	// Seems to fail in MSVC 2013, not clang++ or g++
 		auto result = daw::traits::bool_or<false>::value;
 		BOOST_REQUIRE_MESSAGE( false == result, "4. A false in bool_or should return false" );
 	}
@@ -208,6 +208,22 @@ BOOST_AUTO_TEST_CASE( has_begin_member_test ) {
 			int x;
 		};
 		BOOST_REQUIRE_MESSAGE( false == daw::traits::has_begin_member<T>::value, "4. struct T should not have a begin( ) method" );
+	}
+}
+
+BOOST_AUTO_TEST_CASE( has_substr_member_test ) {
+	BOOST_REQUIRE_MESSAGE( true == daw::traits::has_substr_member<std::string>::value, "1. std::string should have a substr method" );
+	BOOST_REQUIRE_MESSAGE( false == daw::traits::has_substr_member<std::vector<int>>::value, "2. std::vector should not have a substr method" );
+	{
+		using test_t = std::unordered_map < std::string, int > ;// Macro's and comma parameters
+		BOOST_REQUIRE_MESSAGE( false == daw::traits::has_substr_member<test_t>::value, "3. std::unordered should not have a substr method" );
+	}
+	{
+		struct T {
+			int x;
+			bool substr( ) { }
+		};
+		BOOST_REQUIRE_MESSAGE( false == daw::traits::has_substr_member<T>::value, "4. struct T should have a substr method" );
 	}
 }
 
