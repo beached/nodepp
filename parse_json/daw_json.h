@@ -61,50 +61,36 @@ namespace daw {
 			// date -> actaually a string, but it javascript date format encodes the date
 			//std::string value_to_json_timestamp( boost::string_ref name, std::time_t const & value );
 
-			// Template Declarations
-
-			// boost optional.  will error out if T does not support value_to_json
-			template<typename Optional>
-			std::string value_to_json( boost::string_ref name, boost::optional<Optional> const & value );
-
-			// Integral Numbers
-			template<typename Number, typename std::enable_if<std::is_integral<Number>::value, int>::type = 0>
-			std::string value_to_json_number( boost::string_ref name, Number const & value ) {
-				return daw::json::details::json_name( name ) + std::to_string( value );
-			}
-
-			// Real Numbers
-			template<typename Number, typename std::enable_if<std::is_floating_point<Number>::value, int>::type = 0>
-			std::string value_to_json_number( boost::string_ref name, Number const & value ) {
-				std::stringstream ss;
-				ss << daw::json::details::json_name( name );
-				ss << std::setprecision( std::numeric_limits<Number>::max_digits10 ) << value;
-				return ss.str( );
-			}
-
+			std::string value_to_json( boost::string_ref name, double const & value );
 			std::string value_to_json( boost::string_ref name, int const & value );
-
+			std::string value_to_json( boost::string_ref name, int64_t const & value );
+			std::string value_to_json( boost::string_ref name, uint64_t const & value );
 			std::string value_to_json( boost::string_ref name, unsigned int const & value );
 
-			std::string value_to_json( boost::string_ref name, int64_t const & value );
-
-			std::string value_to_json( boost::string_ref name, uint64_t const & value );
-
-			std::string value_to_json( boost::string_ref name, double const & value );
-
-			template<typename T> void value_to_json( boost::string_ref name, std::shared_ptr<T> const & value );
-			template<typename T> void value_to_json( boost::string_ref name, std::weak_ptr<T> const & value );
-			template<typename Optional>
-			std::string value_to_json( boost::string_ref name, boost::optional<Optional> const & value );
+			// Template value_to_json Declarations
+			template<typename Container, typename std::enable_if<daw::traits::is_container_not_string<Container>::value, long>::type = 0>
+			std::string value_to_json( boost::string_ref name, Container const & values );
 
 			template<typename First, typename Second>
 			std::string value_to_json( boost::string_ref name, std::pair<First, Second> const & value );
 
-			template<typename MapLike, typename std::enable_if<daw::traits::is_map_like<MapLike>::value, long>::type = 0>
-			std::string value_to_json( boost::string_ref name, MapLike const & values );
+			template<typename Number, typename std::enable_if<std::is_floating_point<Number>::value, int>::type = 0>
+			std::string value_to_json_number( boost::string_ref name, Number const & value );
 
-			// container/array.
-			template<typename Container, typename std::enable_if<daw::traits::is_vector_like_not_string<Container>::value, long>::type = 0>
+			template<typename Number, typename std::enable_if<std::is_integral<Number>::value, int>::type = 0>
+			std::string value_to_json_number( boost::string_ref name, Number const & value );
+
+			template<typename T>
+			std::string value_to_json( boost::string_ref name, boost::optional<T> const & value );
+
+			template<typename T>
+			void value_to_json( boost::string_ref name, std::shared_ptr<T> const & value );
+
+			template<typename T>
+			void value_to_json( boost::string_ref name, std::weak_ptr<T> const & value );
+
+			// Template value_to_json definitions
+			template<typename Container, typename std::enable_if<daw::traits::is_container_not_string<Container>::value, long>::type>
 			std::string value_to_json( boost::string_ref name, Container const & values ) {
 				std::stringstream result;
 				result << daw::json::details::json_name( name ) << "[ ";
@@ -120,6 +106,32 @@ namespace daw {
 				}
 				result << " ]";
 				return result.str( );
+			}
+
+			template<typename First, typename Second>
+			std::string value_to_json( boost::string_ref name, std::pair<First, Second> const & value ) {
+				return daw::json::details::json_name( name.to_string( ) ) + "{ " + value_to_json( "key", value.first ) + ", " + value_to_json( "value", value.second ) + " }";
+			}
+
+			template<typename Number, typename std::enable_if<std::is_floating_point<Number>::value, int>::type> std::string value_to_json_number( boost::string_ref name, Number const & value ) {
+				std::stringstream ss;
+				ss << daw::json::details::json_name( name );
+				ss << std::setprecision( std::numeric_limits<Number>::max_digits10 ) << value;
+				return ss.str( );
+			}
+
+			template<typename Number, typename std::enable_if<std::is_integral<Number>::value, int>::type>
+			std::string value_to_json_number( boost::string_ref name, Number const & value ) {
+				return daw::json::details::json_name( name ) + std::to_string( value );
+			}
+
+			template<typename T>
+			std::string value_to_json( boost::string_ref name, boost::optional<T> const & value ) {
+				if( value ) {
+					return value_to_json( name, *value );
+				} else {
+					return value_to_json( name );
+				}
 			}
 
 			template<typename T>
@@ -140,90 +152,46 @@ namespace daw {
 					value_to_json( name, *shared_value );
 				}
 			}
-
-			// boost optional.  will error out if T does not support value_to_json
-			template<typename Optional>
-			std::string value_to_json( boost::string_ref name, boost::optional<Optional> const & value ) {
-				if( value ) {
-					return value_to_json( name, *value );
-				} else {
-					return value_to_json( name );
-				}
-			}
-
-			// pair types
-			template<typename First, typename Second>
-			std::string value_to_json( boost::string_ref name, std::pair<First, Second> const & value ) {
-				return daw::json::details::json_name( name.to_string( ) ) + "{ " + value_to_json( "key", value.first ) + ", " + value_to_json( "value", value.second ) + " }";
-			}
-
-			// map like types
-			template<typename MapLike, typename std::enable_if<daw::traits::is_map_like<MapLike>::value, long>::type>
-			std::string value_to_json( boost::string_ref name, MapLike const & values ) {
-				std::stringstream result;
-				result << daw::json::details::json_name( name ) << "[ ";
-				{
-					auto values_range = daw::range::make_range( values.begin( ), values.end( ) );
-					if( !at_end( values_range ) ) {
-						result << value_to_json( "", values_range.front( ) );
-						values_range.move_next( );
-						for( auto const & item : values_range ) {
-							result << "," << value_to_json( "", item );
-						}
-					}
-				}
-				result << " ]";
-				return result.str( );
-			}
 		}	// namespace generate
 
 		namespace parse {
-			void json_to_value( std::string & to, impl::value_t const & from );
 			void json_to_value( bool & to, impl::value_t const & from );
-			void json_to_value( int64_t & to, impl::value_t const & from );
 			void json_to_value( double & to, impl::value_t const & from );
 			void json_to_value( float & to, impl::value_t const & from );
-			template<typename T> void json_to_value( std::shared_ptr<T> & to, impl::value_t const & from );
-			template<typename T> void json_to_value( boost::optional<T> & to, impl::value_t const & from );
-			template<typename Key, typename Value> void json_to_value( std::pair<Key, Value> & to, impl::value_t const & from );
-			template<typename MapContainer, typename std::enable_if<daw::traits::is_map_like<MapContainer>::value, long>::type = 0>	void json_to_value( MapContainer & to, impl::value_t const & from );
-			template<typename Container, typename std::enable_if<daw::traits::is_vector_like_not_string<Container>::value, long>::type = 0> void json_to_value( Container & to, impl::value_t const & from );
+			void json_to_value( int64_t & to, impl::value_t const & from );
+			void json_to_value( std::string & to, impl::value_t const & from );
 
-			// Number, other integral
+			// Template json_to_value declarations
+			template<typename Container, typename std::enable_if<daw::traits::is_vector_like_not_string<Container>::value, long>::type = 0>
+			void json_to_value( Container & to, impl::value_t const & from );
+
+			template<typename Key, typename Value>
+			void json_to_value( std::pair<Key, Value> & to, impl::value_t const & from );
+
+			template<typename MapContainer, typename std::enable_if<daw::traits::is_map_like<MapContainer>::value, long>::type = 0>
+			void json_to_value( MapContainer & to, impl::value_t const & from );
+
 			template<typename T, typename std::enable_if<std::is_integral<T>::value && !std::is_same<T, int64_t>::value, long>::type = 0>
-			void json_to_value( T & to, impl::value_t const & from ) {
-				static_assert(!std::is_const<decltype(to)>::value, "To parameter on json_to_value cannot be const");
-				assert( from.is_integral( ) );
-				auto result = get<int64_t>( from );
-				assert( static_cast<int64_t>(std::numeric_limits<T>::max( )) >= result );
-				assert( static_cast<int64_t>(std::numeric_limits<T>::min( )) <= result );
-				to = static_cast<T>(result);
-			}
+			void json_to_value( T & to, impl::value_t const & from );
 
-			// A nullable json value with a result of boost::optional
 			template<typename T>
-			void json_to_value( boost::optional<T> & to, impl::value_t const & from ) {
-				static_assert(!std::is_const<decltype(to)>::value, "To parameter on json_to_value cannot be const");
-				if( from.is_null( ) ) {
-					to.reset( );
-				} else {
-					T result;
-					json_to_value( result, from );
-					*to = std::move( result );
-				}
-			}
+			void json_to_value( boost::optional<T> & to, impl::value_t const & from );
 
-			// A nullable json value with a result of std::shared_ptr
 			template<typename T>
-			void json_to_value( std::shared_ptr<T> & to, impl::value_t const & from ) {
-				static_assert(!std::is_const<decltype(to)>::value, "To parameter on json_to_value cannot be const");
-				assert( to );
-				if( from.is_null( ) ) {
-					to.reset( );
-				} else {
-					T result;
-					json_to_value( result, from );
-					*to = std::move( result );
+			void json_to_value( std::shared_ptr<T> & to, impl::value_t const & from );
+
+			// Template json_to_value definitions
+			template<typename Container, typename std::enable_if<daw::traits::is_vector_like_not_string<Container>::value, long>::type>
+			void json_to_value( Container & to, impl::value_t const & from ) {
+				static_assert(!std::is_const<Container>::value, "To parameter on json_to_value cannot be const");
+				assert( from.is_array( ) );
+				auto const & source_array = from.get_array( ).items;
+				to.clear( );
+
+				for( auto const & source_value : source_array ) {
+					typename Container::value_type tmp;
+					json_to_value( tmp, source_value );
+					to.insert( std::end( to ), std::move( tmp ) );
 				}
 			}
 
@@ -260,25 +228,39 @@ namespace daw {
 				}
 			}
 
-			// Containers, but not string or map like.  Map like have a const key and that makes not
-			// doing bad things like const cast difficult.  So has begin/end/value_type but not substr
-			template<typename Container, typename std::enable_if<daw::traits::is_vector_like_not_string<Container>::value, long>::type>
-			void json_to_value( Container & to, impl::value_t const & from ) {
-				static_assert(!std::is_const<Container>::value, "To parameter on json_to_value cannot be const");
-				assert( from.is_array( ) );
-				auto const & source_array = from.get_array( ).items;
-				to.clear( );
+			template<typename T, typename std::enable_if<std::is_integral<T>::value && !std::is_same<T, int64_t>::value, long>::type>
+			void json_to_value( T & to, impl::value_t const & from ) {
+				static_assert(!std::is_const<decltype(to)>::value, "To parameter on json_to_value cannot be const");
+				assert( from.is_integral( ) );
+				auto result = get<int64_t>( from );
+				assert( static_cast<int64_t>(std::numeric_limits<T>::max( )) >= result );
+				assert( static_cast<int64_t>(std::numeric_limits<T>::min( )) <= result );
+				to = static_cast<T>(result);
+			}
 
-				for( auto const & source_value : source_array ) {
-					typename Container::value_type tmp;
-					json_to_value( tmp, source_value );
-					to.insert( std::end( to ), std::move( tmp ) );
+			template<typename T>
+			void json_to_value( boost::optional<T> & to, impl::value_t const & from ) {
+				static_assert(!std::is_const<decltype(to)>::value, "To parameter on json_to_value cannot be const");
+				if( from.is_null( ) ) {
+					to.reset( );
+				} else {
+					T result;
+					json_to_value( result, from );
+					*to = std::move( result );
 				}
 			}
 
-			template<typename T, typename EnableIf = decltype(std::declval<T>( ).serialize_to_json( ))>
-			std::ostream& operator<<(std::ostream& os, T const & data) {
-				os << data.serialize_to_json( );
+			template<typename T>
+			void json_to_value( std::shared_ptr<T> & to, impl::value_t const & from ) {
+				static_assert(!std::is_const<decltype(to)>::value, "To parameter on json_to_value cannot be const");
+				assert( to );
+				if( from.is_null( ) ) {
+					to.reset( );
+				} else {
+					T result;
+					json_to_value( result, from );
+					*to = std::move( result );
+				}
 			}
 
 			template<typename T>
@@ -290,3 +272,8 @@ namespace daw {
 		}	// namespace parse
 	}	// namespace json
 }	// namespace daw
+
+template<typename T, typename EnableIf = decltype(std::declval<T>( ).serialize_to_json( ))>
+std::ostream& operator<<(std::ostream& os, T const & data) {
+	os << data.serialize_to_json( );
+}
