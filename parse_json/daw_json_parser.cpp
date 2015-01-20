@@ -35,6 +35,10 @@ namespace daw {
 		namespace impl {
 			using namespace daw::range;
 
+			value_t::value_t( ) : m_value_type( value_types::null ) {
+				m_value.null = nullptr;
+			}
+
 			value_t::value_t( int64_t const & value ) : m_value_type( value_types::integral ) {
 				m_value.integral = value;
 			}
@@ -45,6 +49,10 @@ namespace daw {
 
 			value_t::value_t( std::string value ) : m_value_type( value_types::string ) {
 				m_value.string = new std::string( std::move( value ) );
+			}
+
+			value_t::value_t( boost::string_ref value ): m_value_type( value_types::string ) {
+				m_value.string = new std::string( value.to_string( ) );
 			}
 
 			value_t::value_t( bool value ) : m_value_type( value_types::boolean ) {
@@ -269,6 +277,10 @@ namespace daw {
 				return os;
 			}
 
+			object_value_item make_object_value_item( std::string first, value_t second ) {
+				return std::make_pair<std::string, value_t>( std::move( first ), std::move( second ) );
+			}
+
 			object_value::iterator object_value::find( boost::string_ref const key ) {
 				return std::find_if( members.begin( ), members.end( ), [key]( object_value_item const & item ) {
 					return item.first == key;
@@ -299,6 +311,10 @@ namespace daw {
 
 			object_value::iterator object_value::insert( object_value::iterator where, object_value_item item ) {
 				return members.insert( where, std::move( item ) );
+			}
+
+			void object_value::push_back( object_value_item item ) {
+				members.push_back( std::move( item ) );
 			}
 
 			object_value::mapped_type & object_value::operator[]( boost::string_ref key ) {
@@ -490,7 +506,7 @@ namespace daw {
 						if( !item ) {
 							return value_opt_t( );
 						}
-						result.members.push_back( *item );
+						result.push_back( *item );
 						skip_ws( current );
 						if( !is_equal( current.first, ',' ) ) {
 							break;

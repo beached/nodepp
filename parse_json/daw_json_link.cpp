@@ -3,20 +3,32 @@
 namespace daw {
 	namespace json {
 		namespace schema {
-			::daw::json::impl::value_t get_schema( ) {
-				return ::daw::json::impl::value_t( nullptr );
+			using namespace ::daw::json::impl;
+
+			value_t get_schema( boost::string_ref name ) {
+				return make_type_obj( name, value_t( "null" ) );
 			}
 
-			::daw::json::impl::value_t get_schema( bool const & ) {
-				return ::daw::json::impl::value_t( false );
+			value_t get_schema( boost::string_ref name, bool const & ) {
+				return make_type_obj( name, value_t( "bool" ) );
 			}
 
-			::daw::json::impl::value_t get_schema( nullptr_t ) {
-				return ::daw::json::impl::value_t( nullptr );
+			value_t get_schema( boost::string_ref name, nullptr_t ) {
+				return make_type_obj( name, value_t( "null" ) );
 			}
 
-			::daw::json::impl::value_t get_schema( std::string const & ) {
-				return ::daw::json::impl::value_t( "" );
+			value_t get_schema( boost::string_ref name, std::string const & ) {
+				return make_type_obj( name, value_t( "string" ) );
+			}
+
+			value_t make_type_obj( boost::string_ref name, value_t selected_type ) {
+				object_value result;
+				if( !name.empty( ) ) {
+					result.push_back( make_object_value_item( "name", value_t( name ) ) );
+				}
+				result.push_back( make_object_value_item( "type", std::move( selected_type ) ) );
+
+				return value_t( std::move( result ) );
 			}
 		}	// namespace schema
 	}	// namespace json

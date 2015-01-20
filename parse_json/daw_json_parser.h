@@ -53,9 +53,11 @@ namespace daw {
 			private:
 				value_types m_value_type;
 			public:
+				value_t( );
 				explicit value_t( int64_t const & value );
 				explicit value_t( double const & value );
 				explicit value_t( std::string value );
+				explicit value_t( boost::string_ref value );
 				explicit value_t( bool value );
 				explicit value_t( std::nullptr_t value );
 				explicit value_t( array_value value );
@@ -91,6 +93,8 @@ namespace daw {
 
 			using object_value_item = std::pair < std::string, value_t > ;
 
+			object_value_item make_object_value_item( std::string first, value_t second );
+
 			struct object_value {
 				std::vector<object_value_item> members;
 				using iterator = std::vector<object_value_item>::iterator;
@@ -108,6 +112,7 @@ namespace daw {
 				const_iterator end( ) const;
 
 				iterator insert( iterator where, object_value_item item );
+				void push_back( object_value_item item );
 				mapped_type & operator[]( boost::string_ref key );
 				mapped_type const & operator[]( boost::string_ref key ) const;
 			};
