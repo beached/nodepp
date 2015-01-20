@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include <boost/lexical_cast.hpp>
 #include <boost/optional.hpp>
 #include <boost/utility/string_ref.hpp>
 #include <functional>

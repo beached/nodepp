@@ -158,6 +158,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="daw_json.h" />
+    <ClInclude Include="daw_json_details.h" />
+    <ClInclude Include="daw_json_interface.h" />
     <ClInclude Include="daw_json_parser.h" />
     <ClInclude Include="daw_json_link.h" />
   </ItemGroup>

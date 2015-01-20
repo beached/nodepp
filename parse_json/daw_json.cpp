@@ -84,7 +84,7 @@ namespace daw {
 
 			// date -> actaually a string, but it javascript date format encodes the date
 			// 				std::string value_to_json_timestamp( std::string const & name, std::time_t const & timestamp ) {
-			// 					using daw::json::to_string;
+			// 					using ::daw::json::to_string;
 			// 					return details::json_name( name ) + enquote( to_string( timestamp ) );
 			// 				}
 
@@ -111,26 +111,26 @@ namespace daw {
 
 		namespace parse {
 			// String
-			void json_to_value( std::string & to, impl::value_t const & from ) {
+			void json_to_value( std::string & to, ::daw::json::impl::value_t const & from ) {
 				to = from.get_string( );
 			}
 
 			// Boolean
-			void json_to_value( bool & to, impl::value_t const & from ) {
+			void json_to_value( bool & to, ::daw::json::impl::value_t const & from ) {
 				to = from.get_boolean( );
 			}
 
 			// Number, integer
-			void json_to_value( int64_t & to, impl::value_t const & from ) {
+			void json_to_value( int64_t & to, ::daw::json::impl::value_t const & from ) {
 				to = from.get_integral( );
 			}
 
 			// Number, real
-			void json_to_value( double & to, impl::value_t const & from ) {
+			void json_to_value( double & to, ::daw::json::impl::value_t const & from ) {
 				to = from.get_real( );
 			}
 
-			void json_to_value( float & to, impl::value_t const & from ) {
+			void json_to_value( float & to, ::daw::json::impl::value_t const & from ) {
 				to = static_cast<float>(from.get_real( ));
 			}
 		}	// namespace details

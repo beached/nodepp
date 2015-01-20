@@ -51,10 +51,10 @@ namespace daw {
 		//////////////////////////////////////////////////////////////////////////
 		/// Summary: is like a regular type see http://www.stepanovpapers.com/DeSt98.pdf
 		template<typename T>
-		struct is_regular: std::integral_constant < bool, std::is_default_constructible<T>::value &&
+		using is_regular = std::integral_constant < bool, std::is_default_constructible<T>::value &&
 			std::is_copy_constructible<T>::value && std::is_move_constructible<T>::value &&
 			std::is_copy_assignable<T>::value && std::is_move_assignable<T>::value &&
-			is_equality_comparable<T>::value > { };
+			is_equality_comparable<T>::value > ;
 
 		template <typename... Args>
 		struct max_sizeof;
@@ -171,7 +171,7 @@ namespace daw {
 		class has_##MemberName##_member_impl< T, typename std::enable_if<std::is_class<T>::value>::type> { \
 					struct Fallback { \
 						int MemberName; \
-																																																																																																																																																																																																																																																					}; \
+																																																																																																																																																																																																																																																							}; \
 					struct Derived : T, Fallback { }; \
 					\
 					template<typename U, U> struct Check; \
@@ -184,8 +184,8 @@ namespace daw {
 				  public: \
 					typedef has_##MemberName##_member_impl type; \
 					enum { value = sizeof(func<Derived>(0)) == 2 }; \
-																																																																				}; /*struct has_##MemberName##_member_impl*/ \
-																																																																			} /* namespace impl */ \
+																																																																						}; /*struct has_##MemberName##_member_impl*/ \
+																																																																					} /* namespace impl */ \
 			template<typename T> using has_##MemberName##_member = std::integral_constant<bool, impl::has_##MemberName##_member_impl<T>::value>; \
 			template<typename T> using has_##MemberName##_member_t = typename has_##MemberName##_member<T>::type;
 
