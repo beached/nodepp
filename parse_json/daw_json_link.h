@@ -90,7 +90,7 @@ namespace daw {
 				using ::daw::json::impl::make_object_value_item;
 				daw::json::impl::object_value result;
 
-				static daw::json::impl::object_value_item const obj_type { "type", daw::json::impl::value_t( daw::traits::is_map_like<T>::value ? "map" : "array" ) };
+				static daw::json::impl::object_value_item const obj_type { "type", daw::json::impl::value_t( daw::traits::is_map_like<T>::value ? std::string( "map" ) : std::string( "array" ) ) };
 				result.push_back( obj_type );
 				typename T::value_type t;
 				result.push_back( make_object_value_item( "element_type", get_schema( "", t ) ) );
@@ -134,7 +134,7 @@ namespace daw {
 			struct bind_functions_t {
 				encode_function_t encode;
 				decode_function_t decode;
-				bind_functions_t( ) : endcode( nullptr ), decode( nulptr ) { }
+				bind_functions_t( ) : encode( nullptr ), decode( nullptr ) { }
 			};
 
 			struct data_description_t {
@@ -304,7 +304,7 @@ namespace daw {
 				auto value_ptr = &value;
 				set_name( value, name.to_string( ) );
 				data_description_t data_description;
-				data_description.json_type = ::daw::json::impl::value_t( 0 );
+				data_description.json_type = get_schema( name, value );
 
 				data_description.bind_functions.encode = standard_encoder( name, value );
 
@@ -324,7 +324,7 @@ namespace daw {
 				auto value_ptr = &value;
 				set_name( value, name.to_string( ) );
 				data_description_t data_description;
-				data_description.json_type = ::daw::json::impl::value_t( 0 );
+				data_description.json_type = get_schema( name, value );
 				data_description.bind_functions.encode = standard_encoder( name, value );
 
 				data_description.bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
@@ -345,7 +345,7 @@ namespace daw {
 				auto value_ptr = &value;
 				set_name( value, name.to_string( ) );
 				data_description_t data_description;
-				data_description.json_type = ::daw::json::impl::value_t( 0.0 );
+				data_description.json_type = get_schema( name, value );
 				data_description.bind_functions.encode = standard_encoder( name, value );
 				data_description.bind_functions.decode = standard_decoder<double>( name, value );
 				m_data_map[name.to_string( )] = std::move( data_description );
@@ -391,8 +391,8 @@ namespace daw {
 				set_name( value, name.to_string( ) );
 				data_description_t data_description;
 				data_description.json_type = value ? value->get_schema_obj( ) : (T { }).get_schema( );
-				bind_functions.encode = standard_encoder( name, value );
-				bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
+				data_description.bind_functions.encode = standard_encoder( name, value );
+				data_description.bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
 					assert( value_ptr );
 					assert( json_values );
 					auto obj = json_values->get_object( );
@@ -407,7 +407,7 @@ namespace daw {
 						(*value_ptr)->decode( std::make_shared<impl::value_t>( member->second ) );
 					}
 				};
-				m_data_map[name.to_string( )] = std::move( bind_functions );
+				m_data_map[name.to_string( )] = std::move( data_description );
 				return *this;
 			}
 
@@ -416,8 +416,9 @@ namespace daw {
 				auto value_ptr = &value;
 				set_name( value, name.to_string( ) );
 				data_description_t data_description;
-				data_description.json_type = ::daw::json::impl::value_t( )
-					data_description.bind_functions.encode = standard_encoder( name, value );
+				using ::daw::json::schema::get_schema;
+				data_description.json_type = get_schema( name, value );
+				data_description.bind_functions.encode = standard_encoder( name, value );
 				data_description.bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
 					assert( value_ptr );
 					assert( json_values );

@@ -68,17 +68,17 @@ namespace daw {
 				value_t( value_t && );
 				value_t & operator=(value_t &&);
 				int64_t const & get_integral( ) const;
-				int64_t & get_integral( ) const;
+				int64_t & get_integral( );
 				double const & get_real( ) const;
-				double & get_real( ) const;
+				double & get_real( );
 				std::string const & get_string( ) const;
-				std::string & get_string( ) const;
+				std::string & get_string( );
 				bool const & get_boolean( ) const;
-				bool & get_boolean( ) const;
+				bool & get_boolean( );
 				object_value const & get_object( ) const;
-				object_value & get_object( ) const;
+				object_value & get_object( );
 				array_value const & get_array( ) const;
-				array_value & get_array( ) const;
+				array_value & get_array( );
 				value_types type( ) const;
 				void cleanup( );
 

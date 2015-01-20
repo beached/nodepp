@@ -205,7 +205,19 @@ namespace daw {
 				return *m_value.object;
 			}
 
+			object_value & value_t::get_object( ) {
+				assert( m_value_type == value_types::object );
+				assert( m_value.object != nullptr );
+				return *m_value.object;
+			}
+
 			array_value const & value_t::get_array( ) const {
+				assert( m_value_type == value_types::array );
+				assert( m_value.array != nullptr );
+				return *m_value.array;
+			}
+
+			array_value & value_t::get_array( ) {
 				assert( m_value_type == value_types::array );
 				assert( m_value.array != nullptr );
 				return *m_value.array;
