@@ -134,7 +134,17 @@ namespace daw {
 				return m_value.boolean;
 			}
 
+			bool & value_t::get_boolean( ) {
+				assert( m_value_type == value_types::boolean );
+				return m_value.boolean;
+			}
+
 			int64_t const & value_t::get_integral( ) const {
+				assert( m_value_type == value_types::integral );
+				return m_value.integral;
+			}
+
+			int64_t & value_t::get_integral( ) {
 				assert( m_value_type == value_types::integral );
 				return m_value.integral;
 			}
@@ -144,7 +154,18 @@ namespace daw {
 				return m_value.real;
 			}
 
+			double & value_t::get_real( ) {
+				assert( m_value_type == value_types::real );
+				return m_value.real;
+			}
+
 			std::string const & value_t::get_string( ) const {
+				assert( m_value_type == value_types::string );
+				assert( m_value.string != nullptr );
+				return *m_value.string;
+			}
+
+			std::string & value_t::get_string( ) {
 				assert( m_value_type == value_types::string );
 				assert( m_value.string != nullptr );
 				return *m_value.string;
