@@ -76,9 +76,13 @@ namespace daw {
 				using ::daw::json::impl::make_object_value_item;
 
 				::daw::json::impl::object_value result;
-				result.push_back( make_object_value_item( "key", get_schema( "key", typename std::decay<Key>::type ) ) );
-				result.push_back( make_object_value_item( "value", get_schema( "value", typename std::decay<Value>::type ) ) );
-				return make_type_obj( name, std::move( ::daw::json::impl::value_t( std::move( ojb ) ) ) );
+				using key_t = typename std::decay<Key>::type;
+				using value_t = typename std::decay<Value>::type;
+				key_t k;
+				value_t v;
+				result.push_back( make_object_value_item( "key", get_schema( "key", k ) ) );
+				result.push_back( make_object_value_item( "value", get_schema( "value", v ) ) );
+				return make_type_obj( name, std::move( ::daw::json::impl::value_t( std::move( result ) ) ) );
 			}
 
 			template<typename T, typename std::enable_if<daw::traits::is_container_not_string<T>::value, long>::type>
@@ -88,33 +92,35 @@ namespace daw {
 
 				static daw::json::impl::object_value_item const obj_type { "type", daw::json::impl::value_t( daw::traits::is_map_like<T>::value ? "map" : "array" ) };
 				result.push_back( obj_type );
-				result.push_back( make_object_value_item( "element_type", get_schema( "", typename T::value_type t ) ) );
+				typename T::value_type t;
+				result.push_back( make_object_value_item( "element_type", get_schema( "", t ) ) );
 				return make_type_obj( name, ::daw::json::impl::value_t( std::move( result ) ) );
 			}
 
 			template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long>::type>
 			::daw::json::impl::value_t get_schema( boost::string_ref name, T const & ) {
-				return make_type_obj( name, ::daw::json::impl::value_t( "real" ) );
+				return make_type_obj( name, ::daw::json::impl::value_t( std::string( "real" ) ) );
 			}
 
 			template<typename T, typename std::enable_if<std::is_integral<T>::value, long>::type>
 			::daw::json::impl::value_t get_schema( boost::string_ref name, T const & ) {
-				return make_type_obj( name, ::daw::json::impl::value_t( "integer" ) );
+				return make_type_obj( name, ::daw::json::impl::value_t( std::string( "integer" ) ) );
 			}
 
 			template<typename T>
 			::daw::json::impl::value_t get_schema( boost::string_ref name, boost::optional<T> const & ) {
-				auto result = get_schema( name, T );
-				auto const & obj = result.get_object( );
-				obj.push_back( make_object_value_item( "nullable", ::daw::json:impl::value_t( "nullable" ) ) );
+				T t;
+				auto result = get_schema( name, t );
+				auto & obj = result.get_object( );
+				obj.push_back( make_object_value_item( "nullable", ::daw::json::impl::value_t( std::string( "nullable" ) ) ) );
 				return result;
 			}
 
 			template<typename T, typename std::enable_if<daw::traits::is_streamable<T>::value, long>::type>
 			::daw::json::impl::value_t get_schema( boost::string_ref name, T const & ) {
-				auto result = make_type_obj( name, value_t( "string" ) );
-				auto const & obj = result.get_object( );
-				obj.push_back( make_object_value_item( "string_object", ::daw::json:impl::value_t( "string_object" ) ) );
+				auto result = make_type_obj( name, ::daw::json::impl::value_t( std::string( "string" ) ) );
+				auto & obj = result.get_object( );
+				obj.push_back( make_object_value_item( "string_object", ::daw::json::impl::value_t( std::string( "string_object" ) ) ) );
 				return result;
 			}
 		}
@@ -348,7 +354,7 @@ namespace daw {
 
 			template<typename T>
 			JsonLink& link_string( boost::string_ref name, T& value ) {
-				return link_value( name, value, ::daw::json::impl::value_t( "" ) );
+				return link_value( name, value, ::daw::json::impl::value_t( std::string( "" ) ) );
 			}
 
 			template<typename T>
