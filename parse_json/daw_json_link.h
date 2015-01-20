@@ -43,7 +43,8 @@ namespace daw {
 
 		template<typename Derived> std::ostream& operator<<(std::ostream& os, JsonLink<Derived> const & data);
 		template<typename Derived> void json_to_value( JsonLink<Derived> & to, impl::value_t const & from );
-		template<typename Derived> std::string value_to_json( std::string const & name, JsonLink<Derived> const & obj );
+		template<typename Derived> std::string value_to_json( boost::string_ref name, JsonLink<Derived> const & obj );
+		template<typename Derived> ::daw::json::impl::value_t get_schema( boost::string_ref name, JsonLink<Derived> const & obj );
 
 		namespace schema {
 			::daw::json::impl::value_t get_schema( boost::string_ref name );
@@ -62,6 +63,12 @@ namespace daw {
 			::daw::json::impl::value_t get_schema( boost::string_ref name, T const & );
 
 			template<typename T, typename std::enable_if<std::is_integral<T>::value, long>::type = 0>
+			::daw::json::impl::value_t get_schema( boost::string_ref name, T const & );
+
+			template<typename T>
+			::daw::json::impl::value_t get_schema( boost::string_ref name, boost::optional<T> const & );
+
+			template<typename T, typename std::enable_if<daw::traits::is_streamable<T>::value, long>::type = 0>
 			::daw::json::impl::value_t get_schema( boost::string_ref name, T const & );
 
 			template<typename Key, typename Value>
@@ -93,6 +100,22 @@ namespace daw {
 			template<typename T, typename std::enable_if<std::is_integral<T>::value, long>::type>
 			::daw::json::impl::value_t get_schema( boost::string_ref name, T const & ) {
 				return make_type_obj( name, ::daw::json::impl::value_t( "integer" ) );
+			}
+
+			template<typename T>
+			::daw::json::impl::value_t get_schema( boost::string_ref name, boost::optional<T> const & ) {
+				auto result = get_schema( name, T );
+				auto const & obj = result.get_object( );
+				obj.push_back( make_object_value_item( "nullable", ::daw::json:impl::value_t( "nullable" ) ) );
+				return result;
+			}
+
+			template<typename T, typename std::enable_if<daw::traits::is_streamable<T>::value, long>::type>
+			::daw::json::impl::value_t get_schema( boost::string_ref name, T const & ) {
+				auto result = make_type_obj( name, value_t( "string" ) );
+				auto const & obj = result.get_object( );
+				obj.push_back( make_object_value_item( "string_object", ::daw::json:impl::value_t( "string_object" ) ) );
+				return result;
 			}
 		}
 
@@ -157,7 +180,7 @@ namespace daw {
 				return m_name;
 			}
 
-			::daw::json::impl::value_t get_schema( ) const {
+			::daw::json::impl::value_t get_schema_obj( ) const {
 				throw std::runtime_error( "Method not implemented" );
 			}
 
@@ -338,7 +361,7 @@ namespace daw {
 				auto value_ptr = &value;
 				set_name( value, name.to_string( ) );
 				data_description_t data_description;
-				data_description.json_type = value.get_schema( );
+				data_description.json_type = value.get_schema_obj( );
 				data_description.bind_functions.encode = standard_encoder( name, value );
 				data_description.bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
 					assert( value_ptr );
@@ -361,7 +384,7 @@ namespace daw {
 				auto value_ptr = &value;
 				set_name( value, name.to_string( ) );
 				data_description_t data_description;
-				data_description.json_type = value ? value->get_schema( ) : (T { }).get_schema( );
+				data_description.json_type = value ? value->get_schema_obj( ) : (T { }).get_schema( );
 				bind_functions.encode = standard_encoder( name, value );
 				bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
 					assert( value_ptr );
@@ -411,7 +434,8 @@ namespace daw {
 				auto value_ptr = &value;
 				set_name( value, name.to_string( ) );
 				data_description_t data_description;
-				data_description.json_type = daw::json::schema::get_schema( name, value );
+				using ::daw::json::schema::get_schema;
+				data_description.json_type = get_schema( name, value );
 				data_description.bind_functions.encode = standard_encoder( name, value );
 				data_description.bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
 					assert( value_ptr );
@@ -439,7 +463,8 @@ namespace daw {
 				auto value_ptr = &value;
 				set_name( value, name.to_string( ) );
 				data_description_t data_description;
-				data_description.json_type = daw::json::schema::get_schema( name, value );
+				using ::daw::json::schema::get_schema;
+				data_description.json_type = get_schema( name, value );
 				data_description.bind_functions.encode = standard_encoder( name, value );
 				data_description.bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
 					assert( value_ptr );
@@ -492,7 +517,8 @@ namespace daw {
 				auto value_ptr = &value;
 				set_name( value, name );
 				data_description_t data_description;
-				data_description.json_type = daw::json::schema::get_schema( name, value );
+				using daw::json::schema::get_schema;
+				data_description.json_type = get_schema( name, value );
 				data_description.bind_functions.encode = [value_ptr, name]( std::string & json_text ) {
 					assert( value_ptr );
 					json_text = generate::value_to_json( name.to_string( ), boost::lexical_cast<std::string>(*value_ptr) );
@@ -530,14 +556,14 @@ namespace daw {
 			to.decode( std::make_shared<impl::value_t>( std::move( val ) ) );
 		}
 
-		template<typename T>
-		std::string value_to_json( std::string const & name, JsonLink<T> const & obj ) {
+		template<typename Derived>
+		std::string value_to_json( boost::string_ref name, JsonLink<Derived> const & obj ) {
 			return details::json_name( name ) + obj.encode( );
 		}
 
-		template<typename T>
-		::daw::json::impl::value_t get_schema( JsonLink<T> & obj ) {
-			return obj.get_schema( );
+		template<typename Derived>
+		::daw::json::impl::value_t get_schema( boost::string_ref name, JsonLink<Derived> const & obj ) {
+			return obj.get_schema_obj( );
 		}
 	}	// namespace json
 }	// namespace daw

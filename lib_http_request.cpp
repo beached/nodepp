@@ -194,7 +194,7 @@ namespace daw {
 				}
 
 				void HttpRequestLine::set_links( ) {
-					link_streamable<decltype(method)>( "method", method );
+					link_streamable( "method", method );
 					link_object( "url", url );
 					link_string( "version", version );
 				}

@@ -40,13 +40,23 @@ namespace daw {
 
 		namespace details {
 			template<typename T>
-			std::false_type is_equality_comparable_impl( const T&, long );
+			std::false_type is_equality_comparable_impl( T const &, long );
 
 			template<typename T>
-			auto is_equality_comparable_impl( const T& value, int ) -> typename std::is_convertible<decltype(value == value), bool>::type;
+			auto is_equality_comparable_impl( T const & value, int ) -> typename std::is_convertible<decltype(value == value), bool>::type;
 		}	// namespace details
 		template<typename T>
-		struct is_equality_comparable: decltype(details::is_equality_comparable_impl( std::declval<const T&>( ), 1 )) {};
+		struct is_equality_comparable: decltype(details::is_equality_comparable_impl( std::declval<T const &>( ), 1 )) {};
+
+		namespace details {
+			template<typename T>
+			std::false_type is_streamable_impl( T const &, long );
+
+			template<typename T>
+			auto is_streamable_impl( T const & value, int ) -> typename std::is_convertible<decltype(std::ostream << value), std::ostream>::type;
+		}
+		template<typename T>
+		struct is_streamable: decltype(details::is_streamable_impl( std::declval<T const &>( ), 1 )) {};
 
 		//////////////////////////////////////////////////////////////////////////
 		/// Summary: is like a regular type see http://www.stepanovpapers.com/DeSt98.pdf
@@ -171,7 +181,7 @@ namespace daw {
 		class has_##MemberName##_member_impl< T, typename std::enable_if<std::is_class<T>::value>::type> { \
 					struct Fallback { \
 						int MemberName; \
-																																																																																																																																																																																																																																																							}; \
+																																																																																																																																																																																																																																																									}; \
 					struct Derived : T, Fallback { }; \
 					\
 					template<typename U, U> struct Check; \
@@ -184,8 +194,8 @@ namespace daw {
 				  public: \
 					typedef has_##MemberName##_member_impl type; \
 					enum { value = sizeof(func<Derived>(0)) == 2 }; \
-																																																																						}; /*struct has_##MemberName##_member_impl*/ \
-																																																																					} /* namespace impl */ \
+																																																																								}; /*struct has_##MemberName##_member_impl*/ \
+																																																																							} /* namespace impl */ \
 			template<typename T> using has_##MemberName##_member = std::integral_constant<bool, impl::has_##MemberName##_member_impl<T>::value>; \
 			template<typename T> using has_##MemberName##_member_t = typename has_##MemberName##_member<T>::type;
 
