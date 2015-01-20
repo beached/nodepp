@@ -29,4 +29,6 @@
 
 #include "scope_guard.h"
 
-BOOST_AUTO_TEST_CASE( scope_guard_none_yet ) { }
+BOOST_AUTO_TEST_CASE( scope_guard_none_yet ) {
+	BOOST_WARN_MESSAGE( true, "scope_guard_test unimplemented" );
+}

@@ -35,6 +35,7 @@
 #include <unordered_map>
 
 #include "daw_json.h"
+#include "daw_json_parser.h"
 
 namespace daw {
 	namespace json {
@@ -43,6 +44,57 @@ namespace daw {
 		template<typename Derived> std::ostream& operator<<(std::ostream& os, JsonLink<Derived> const & data);
 		template<typename Derived> void json_to_value( JsonLink<Derived> & to, impl::value_t const & from );
 		template<typename Derived> std::string value_to_json( std::string const & name, JsonLink<Derived> const & obj );
+
+		namespace schema {
+			::daw::json::impl::value_t get_schema( );
+			::daw::json::impl::value_t get_schema( bool const & );
+			::daw::json::impl::value_t get_schema( nullptr_t );
+			::daw::json::impl::value_t get_schema( std::string const & );
+
+			template<typename Key, typename Value>
+			::daw::json::impl::value_t get_schema( std::pair<Key, Value> const & );
+
+			template<typename T, typename std::enable_if<daw::traits::is_container_not_string<T>::value, long>::type = 0>
+			::daw::json::impl::value_t get_schema( T const & );
+
+			template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long>::type = 0>
+			::daw::json::impl::value_t get_schema( T const & );
+
+			template<typename T, typename std::enable_if<std::is_integral<T>::value, long>::type = 0>
+			::daw::json::impl::value_t get_schema( T const & );
+
+			template<typename Key, typename Value>
+			::daw::json::impl::value_t get_schema( std::pair<Key, Value> const & ) {
+				::daw::json::impl::object_value_item key;
+				key.first = "key";
+				key.second = get_schema( typename std::decay<Key>::type k );
+				::daw::json::impl::object_value obj;
+				obj.members.push_back( std::move( key ) );
+				::daw::json::impl::object_value_item value;
+				value.first = "value";
+				value.second = get_schema( typename std::decay<Value>::type v );
+				obj.members.push_back( std::move( value ) );
+				obj.members.emplace_back( std::mov );
+				return ::daw::json::impl::value_t( std::move( ojb ) );
+			}
+
+			template<typename T, typename std::enable_if<daw::traits::is_container_not_string<T>::value, long>::type>
+			::daw::json::impl::value_t get_schema( T const & ) {
+				::daw::json::impl::array_value arry_val;
+				arry_val.items.push_back( get_schema( T t ) );
+				return ::daw::json::impl::value_t( arry_val );
+			}
+
+			template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long>::type>
+			::daw::json::impl::value_t get_schema( T const & ) {
+				return ::daw::json::impl::value_t( 0.0 );
+			}
+
+			template<typename T, typename std::enable_if<std::is_integral<T>::value, long>::type>
+			::daw::json::impl::value_t get_schema( T const & ) {
+				return ::daw::json::impl::value_t( 0 );
+			}
+		}
 
 		template<typename Derived>
 		class JsonLink {
@@ -54,12 +106,21 @@ namespace daw {
 				encode_function_t encode;
 				decode_function_t decode;
 			};
-			std::unordered_map<std::string, bind_functions_t> m_data_map;
+
+			struct data_description_t {
+				::daw::json::impl::value_t json_type;
+				bind_functions_t bind_functions;
+			};	// struct data_description
+
+			std::unordered_map<std::string, data_description_t> m_data_map;
 
 			template<typename T>
-			JsonLink& link_value( boost::string_ref name, T& value ) {
+			JsonLink& link_value( boost::string_ref name, T& value, ::daw::json::impl::value_t json_type ) {
 				set_name( value, name );
-				m_data_map[name.to_string( )] = standard_bind_functions( name, value );
+				data_description_t data_description;
+				data_description.json_type = std::move( json_type );
+				data_description.bind_functions = standard_bind_functions( name, value );
+				m_data_map[name.to_string( )] = std::move( data_description );
 				return *this;
 			}
 
@@ -94,12 +155,16 @@ namespace daw {
 				return m_name;
 			}
 
+			::daw::json::impl::value_t( ) get_schema( ) const {
+				throw std::runtime_error( "Method not implemented" );
+			}
+
 			std::string encode( ) const {
 				std::stringstream result;
 				std::string tmp;
 				auto is_first = true;
 				for( auto const & value : m_data_map ) {
-					value.second.encode( tmp );
+					value.second.bind_functions.encode( tmp );
 					result << (!is_first ? ", " : "") << tmp;
 					is_first = false;
 				}
@@ -108,7 +173,7 @@ namespace daw {
 
 			void decode( json_obj const & json_values ) {
 				for( auto & value : m_data_map ) {
-					value.second.decode( json_values );
+					value.second.bind_functions.decode( json_values );
 				}
 			}
 
@@ -207,17 +272,19 @@ namespace daw {
 			JsonLink& link_integral( boost::string_ref name, T& value ) {
 				auto value_ptr = &value;
 				set_name( value, name.to_string( ) );
-				bind_functions_t bind_functions;
-				bind_functions.encode = standard_encoder( name, value );
+				data_description_t data_description;
+				data_description.json_type = ::daw::json::impl::value_t( 0 );
 
-				bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
+				data_description.bind_functions.encode = standard_encoder( name, value );
+
+				data_description.bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
 					assert( value_ptr );
 					auto result = decoder_helper<int64_t>( name, json_values );
 					assert( result <= std::numeric_limits<T>::max( ) );
 					assert( result >= std::numeric_limits<T>::min( ) );
 					*value_ptr = static_cast<T>(result);
 				};
-				m_data_map[name.to_string( )] = std::move( bind_functions );
+				m_data_map[name.to_string( )] = std::move( data_description );
 				return *this;
 			}
 
@@ -225,10 +292,11 @@ namespace daw {
 			JsonLink& link_integral( boost::string_ref name, boost::optional<T>& value ) {
 				auto value_ptr = &value;
 				set_name( value, name.to_string( ) );
-				bind_functions_t bind_functions;
-				bind_functions.encode = standard_encoder( name, value );
+				data_description_t data_description;
+				data_description.json_type = ::daw::json::impl::value_t( 0 );
+				data_description.bind_functions.encode = standard_encoder( name, value );
 
-				bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
+				data_description.bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
 					assert( value_ptr );
 					auto result = nullable_decoder_helper<int64_t>( name, json_values );
 					if( result ) {
@@ -237,7 +305,7 @@ namespace daw {
 					}
 					*value_ptr = static_cast<T>(result);
 				};
-				m_data_map[name.to_string( )] = std::move( bind_functions );
+				m_data_map[name.to_string( )] = std::move( data_description );
 				return *this;
 			}
 
@@ -245,30 +313,32 @@ namespace daw {
 			JsonLink& link_real( boost::string_ref name, T& value ) {
 				auto value_ptr = &value;
 				set_name( value, name.to_string( ) );
-				bind_functions_t bind_functions;
-				bind_functions.encode = standard_encoder( name, value );
-				bind_functions.decode = standard_decoder<double>( name, value );
-				m_data_map[name.to_string( )] = std::move( bind_functions );
+				data_description_t data_description;
+				data_description.json_type = ::daw::json::impl::value_t( 0.0 );
+				data_description.bind_functions.encode = standard_encoder( name, value );
+				data_description.bind_functions.decode = standard_decoder<double>( name, value );
+				m_data_map[name.to_string( )] = std::move( data_description );
 				return *this;
 			}
 
 			template<typename T>
 			JsonLink& link_string( boost::string_ref name, T& value ) {
-				return link_value( name, value );
+				return link_value( name, value, ::daw::json::impl::value_t( "" ) );
 			}
 
 			template<typename T>
 			JsonLink& link_boolean( boost::string_ref name, T& value ) {
-				return link_value( name, value );
+				return link_value( name, value, ::daw::json::impl::value_t( false ) );
 			}
 
 			template<typename T>
 			JsonLink& link_object( boost::string_ref name, T& value ) {
 				auto value_ptr = &value;
 				set_name( value, name.to_string( ) );
-				bind_functions_t bind_functions;
-				bind_functions.encode = standard_encoder( name, value );
-				bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
+				data_description_t data_description;
+				data_description.json_type = value.get_schema( );
+				data_description.bind_functions.encode = standard_encoder( name, value );
+				data_description.bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
 					assert( value_ptr );
 					assert( json_values );
 					auto obj = json_values->get_object( );
@@ -280,7 +350,7 @@ namespace daw {
 					assert( member->second.is_object( ) );
 					value_ptr->decode( std::make_shared<impl::value_t>( member->second ) );
 				};
-				m_data_map[name.to_string( )] = std::move( bind_functions );
+				m_data_map[name.to_string( )] = std::move( data_description );
 				return *this;
 			}
 
@@ -288,7 +358,8 @@ namespace daw {
 			JsonLink& link_object( boost::string_ref name, boost::optional<T>& value ) {
 				auto value_ptr = &value;
 				set_name( value, name.to_string( ) );
-				bind_functions_t bind_functions;
+				data_description_t data_description;
+				data_description.json_type = value ? value->get_schema( ) : (T { }).get_schema( );
 				bind_functions.encode = standard_encoder( name, value );
 				bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
 					assert( value_ptr );
@@ -313,9 +384,10 @@ namespace daw {
 			JsonLink& link_array( boost::string_ref name, T& value ) {
 				auto value_ptr = &value;
 				set_name( value, name.to_string( ) );
-				bind_functions_t bind_functions;
-				bind_functions.encode = standard_encoder( name, value );
-				bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
+				data_description_t data_description;
+				data_description.json_type = ::daw::json::impl::value_t( )
+					data_description.bind_functions.encode = standard_encoder( name, value );
+				data_description.bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
 					assert( value_ptr );
 					assert( json_values );
 					auto obj = json_values->get_object( );
@@ -328,7 +400,7 @@ namespace daw {
 					using namespace parse;
 					json_to_value( *value_ptr, member->second );
 				};
-				m_data_map[name.to_string( )] = std::move( bind_functions );
+				m_data_map[name.to_string( )] = std::move( data_description );
 				return *this;
 			}
 
@@ -336,9 +408,10 @@ namespace daw {
 			JsonLink& link_array( boost::string_ref name, boost::optional<T>& value ) {
 				auto value_ptr = &value;
 				set_name( value, name.to_string( ) );
-				bind_functions_t bind_functions;
-				bind_functions.encode = standard_encoder( name, value );
-				bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
+				data_description_t data_description;
+				data_description.json_type = "array?";
+				data_description.bind_functions.encode = standard_encoder( name, value );
+				data_description.bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
 					assert( value_ptr );
 					assert( json_values );
 					auto obj = json_values->get_object( );
@@ -355,7 +428,7 @@ namespace daw {
 						json_to_value( *value_ptr, member->second );
 					}
 				};
-				m_data_map[name.to_string( )] = std::move( bind_functions );
+				m_data_map[name.to_string( )] = std::move( data_description );
 				return *this;
 			}
 
@@ -363,9 +436,10 @@ namespace daw {
 			JsonLink& link_map( boost::string_ref name, T& value ) {
 				auto value_ptr = &value;
 				set_name( value, name.to_string( ) );
-				bind_functions_t bind_functions;
-				bind_functions.encode = standard_encoder( name, value );
-				bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
+				data_description_t data_description;
+				data_description.json_type = "map";
+				data_description.bind_functions.encode = standard_encoder( name, value );
+				data_description.bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
 					assert( value_ptr );
 					assert( json_values );
 					auto val_obj = json_values->get_object( );
@@ -378,7 +452,7 @@ namespace daw {
 					using namespace parse;
 					json_to_value( *value_ptr, member->second );
 				};
-				m_data_map[name.to_string( )] = std::move( bind_functions );
+				m_data_map[name.to_string( )] = std::move( data_description );
 				return *this;
 			}
 
@@ -386,9 +460,10 @@ namespace daw {
 			JsonLink& link_map( boost::string_ref name, boost::optional<T>& value ) {
 				auto value_ptr = &value;
 				set_name( value, name.to_string( ) );
-				bind_functions_t bind_functions;
-				bind_functions.encode = standard_encoder( name, value );
-				bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
+				data_description_t data_description;
+				data_description.json_type = "map?";
+				data_description.bind_functions.encode = standard_encoder( name, value );
+				data_description.bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
 					assert( value_ptr );
 					assert( json_values );
 					auto val_obj = json_values->get_object( );
@@ -406,7 +481,7 @@ namespace daw {
 						}
 					}
 				};
-				m_data_map[name.to_string( )] = std::move( bind_functions );
+				m_data_map[name.to_string( )] = std::move( data_description );
 				return *this;
 			}
 
@@ -414,12 +489,13 @@ namespace daw {
 			JsonLink& link_streamable( boost::string_ref name, T& value ) {
 				auto value_ptr = &value;
 				set_name( value, name );
-				bind_functions_t bind_functions;
-				bind_functions.encode = [value_ptr, name]( std::string & json_text ) {
+				data_description_t data_description;
+				data_description.json_type = "object_string";
+				data_description.bind_functions.encode = [value_ptr, name]( std::string & json_text ) {
 					assert( value_ptr );
 					json_text = generate::value_to_json( name.to_string( ), boost::lexical_cast<std::string>(*value_ptr) );
 				};
-				bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
+				data_description.bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
 					assert( value_ptr );
 					assert( json_values );
 					auto obj = json_values->get_object( );
@@ -433,7 +509,7 @@ namespace daw {
 					auto str = ss.str( );
 					ss >> *value_ptr;
 				};
-				m_data_map[name.to_string( )] = std::move( bind_functions );
+				m_data_map[name.to_string( )] = std::move( data_description );
 				return *this;
 			}
 
@@ -455,6 +531,11 @@ namespace daw {
 		template<typename T>
 		std::string value_to_json( std::string const & name, JsonLink<T> const & obj ) {
 			return details::json_name( name ) + obj.encode( );
+		}
+
+		template<typename T>
+		::daw::json::impl::value_t get_schema( JsonLink<T> & obj ) {
+			return obj.get_schema( );
 		}
 	}	// namespace json
 }	// namespace daw

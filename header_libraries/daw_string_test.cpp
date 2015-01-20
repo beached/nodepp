@@ -29,4 +29,6 @@
 
 #include "daw_string.h"
 
-BOOST_AUTO_TEST_CASE( daw_string_none_yet ) { }
+BOOST_AUTO_TEST_CASE( daw_string_none_yet ) {
+	BOOST_WARN_MESSAGE( true, "daw_string_test unimplemented" );
+}

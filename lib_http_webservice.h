@@ -20,15 +20,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <boost/test/unit_test.hpp>
+#pragma once
 
-#include <cstdint>
-#include <string>
-#include <unordered_map>
-#include <vector>
-
-#include "make_unique.h"
-
-BOOST_AUTO_TEST_CASE( make_unique_none_yet ) {
-	BOOST_WARN_MESSAGE( true, "make_unique_test unimplemented" );
-}
+namespace daw {
+	namespace nodepp {
+		namespace lib {
+			namespace http {
+				class HttpWebService {
+					//
+				};	// class HttpWebService
+			}	// namespace http
+		}	// namespace lib
+	}	// namespace nodepp
+}	// namespace daw

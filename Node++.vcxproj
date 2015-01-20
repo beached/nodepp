@@ -173,6 +173,7 @@
     <ClInclude Include="lib_http_server_response.h" />
     <ClInclude Include="lib_http_site.h" />
     <ClInclude Include="lib_http_version.h" />
+    <ClInclude Include="lib_http_webservice.h" />
     <ClInclude Include="lib_net.h" />
     <ClInclude Include="lib_net_address.h" />
     <ClInclude Include="base_service_handle.h" />
