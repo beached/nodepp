@@ -24,6 +24,7 @@
 
 #include <boost/optional.hpp>
 #include <boost/utility/string_ref.hpp>
+#include <iomanip>
 #include <memory>
 #include <sstream>
 #include <string>

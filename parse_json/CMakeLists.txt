@@ -9,6 +9,8 @@ find_package(Boost 1.55.0 COMPONENTS system filesystem unit_test_framework REQUI
 set(SOURCE_FILES
 	daw_json.cpp
 	daw_json.h
+	daw_json_details.h
+	daw_json_interface.h
 	daw_json_link.h
 	daw_json_parser.cpp
 	daw_json_parser.h
