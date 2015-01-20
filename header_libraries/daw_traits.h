@@ -53,7 +53,7 @@ namespace daw {
 			std::false_type is_streamable_impl( T const &, long );
 
 			template<typename T>
-			auto is_streamable_impl( T const & value, int ) -> typename std::is_convertible<decltype(std::ostream << value), std::ostream>::type;
+			auto is_streamable_impl( T const & value, int ) -> typename std::is_convertible<decltype(std::declval<std::ostream>( ) << value), std::ostream>::type;
 		}
 		template<typename T>
 		struct is_streamable: decltype(details::is_streamable_impl( std::declval<T const &>( ), 1 )) {};

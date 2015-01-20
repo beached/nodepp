@@ -51,6 +51,7 @@ set(SOURCE_FILES
 		lib_http_statuscodes.cpp
 		lib_http_version.cpp
 		lib_http_version.h
+		lib_http_webservice.h
 		lib_net_address.cpp
 		lib_net_address.h
 		lib_net_dns.cpp

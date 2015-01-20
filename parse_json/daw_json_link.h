@@ -49,7 +49,7 @@ namespace daw {
 		namespace schema {
 			::daw::json::impl::value_t get_schema( boost::string_ref name );
 			::daw::json::impl::value_t get_schema( boost::string_ref name, bool const & );
-			::daw::json::impl::value_t get_schema( boost::string_ref name, nullptr_t );
+			::daw::json::impl::value_t get_schema( boost::string_ref name, std::nullptr_t );
 			::daw::json::impl::value_t get_schema( boost::string_ref name, std::string const & );
 			::daw::json::impl::value_t make_type_obj( boost::string_ref name, ::daw::json::impl::value_t selected_type );
 
@@ -76,8 +76,8 @@ namespace daw {
 				using ::daw::json::impl::make_object_value_item;
 
 				::daw::json::impl::object_value result;
-				result.push_back( make_object_value_item( "key", get_schema( "key", typename std::decay<Key>::type k ) ) );
-				result.push_back( make_object_value_item( "value", get_schema( "value", typename std::decay<Value>::type v ) ) );
+				result.push_back( make_object_value_item( "key", get_schema( "key", typename std::decay<Key>::type ) ) );
+				result.push_back( make_object_value_item( "value", get_schema( "value", typename std::decay<Value>::type ) ) );
 				return make_type_obj( name, std::move( ::daw::json::impl::value_t( std::move( ojb ) ) ) );
 			}
 

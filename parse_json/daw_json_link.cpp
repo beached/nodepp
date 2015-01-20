@@ -13,7 +13,7 @@ namespace daw {
 				return make_type_obj( name, value_t( "bool" ) );
 			}
 
-			value_t get_schema( boost::string_ref name, nullptr_t ) {
+			value_t get_schema( boost::string_ref name, std::nullptr_t ) {
 				return make_type_obj( name, value_t( "null" ) );
 			}
 
