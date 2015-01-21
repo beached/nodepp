@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include <boost/type_traits.hpp>
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -172,7 +173,7 @@ namespace daw {
 		class has_##MemberName##_member_impl< T, typename std::enable_if<std::is_class<T>::value>::type> { \
 					struct Fallback { \
 						int MemberName; \
-																																																																																																																																																																																																																																																																																																																																																																																															}; \
+																																																																																																																																																																																																																																																																																																																																																																																																					}; \
 					struct Derived : T, Fallback { }; \
 					\
 					template<typename U, U> struct Check; \
@@ -185,8 +186,8 @@ namespace daw {
 				  public: \
 					typedef has_##MemberName##_member_impl type; \
 					enum { value = sizeof(func<Derived>(0)) == 2 }; \
-																																																																																																																																																																																																														}; /*struct has_##MemberName##_member_impl*/ \
-																																																																																																																																																																																																													} /* namespace impl */ \
+																																																																																																																																																																																																																				}; /*struct has_##MemberName##_member_impl*/ \
+																																																																																																																																																																																																																			} /* namespace impl */ \
 			template<typename T> using has_##MemberName##_member = std::integral_constant<bool, impl::has_##MemberName##_member_impl<T>::value>; \
 			template<typename T> using has_##MemberName##_member_t = typename has_##MemberName##_member<T>::type;
 
@@ -268,20 +269,8 @@ namespace daw {
 
 		template<typename T> using is_container_or_array_t = typename is_container_or_array<T>::type;
 
-		template <typename T>
-		struct is_streamable_impl {
-			typedef char one;
-			typedef long two;
-
-			template <typename C> static one test( decltype(std::declval<std::ostream&>( ) << std::declval<C>( )) );
-			template <typename C> static two test( ... );
-
-		public:
-			enum { value = sizeof( test<T>( 0 ) ) == sizeof( char ) };
-		};
-
 		template<typename T>
-		using is_streamable = std::integral_constant < bool, is_numeric<T>::value || is_streamable_impl<T>::value > ;
+		using is_streamable = std::integral_constant < bool, boost::has_left_shift<std::ostream&, T const &, std::ostream&>::value > ;
 
 		template<typename T>
 		using is_streamable_t = typename is_streamable<T>::type;
