@@ -40,6 +40,8 @@ int main( int, char const ** ) {
 		auto req = request->encode( );
 		request->decode( req );
 
+		auto schema = request->get_schema_obj( );
+
 		response->on_all_writes_completed( [response]( ) mutable {
 			response->close( );
 		} ).send_status( 200 )

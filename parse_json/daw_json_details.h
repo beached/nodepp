@@ -121,16 +121,16 @@ namespace daw {
 			template<typename Key, typename Value>
 			void json_to_value( std::pair<Key, Value> & to, ::daw::json::impl::value_t const & from ) {
 				static_assert(!std::is_const<decltype(to)>::value, "To parameter on json_to_value cannot be const");
-				assert( from.is_array( ) );
+				assert( from.is_object( ) );
 
-				auto const & arry = from.get_array( );
-				assert( arry.items.size( ) == 2 );
+				auto const & obj = from.get_object( );
+				assert( obj.members.size( ) == 2 );
 
 				Key key;
-				auto const & key_obj = arry.items[0].get_object( )["key"];
+				auto const & key_obj = obj["key"];
 				json_to_value( key, key_obj );
 				Value value;
-				auto const & value_obj = arry.items[0].get_object( )["value"];
+				auto const & value_obj = obj["value"];
 				json_to_value( value, value_obj );
 				to = std::make_pair<Key, Value>( std::move( key ), std::move( value ) );
 			}

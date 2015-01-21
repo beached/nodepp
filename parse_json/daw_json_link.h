@@ -187,7 +187,11 @@ namespace daw {
 			}
 
 			::daw::json::impl::value_t get_schema_obj( ) const {
-				throw std::runtime_error( "Method not implemented" );
+				::daw::json::impl::object_value result;
+				for( auto const & value : m_data_map ) {
+					result.push_back( ::daw::json::impl::make_object_value_item( value.first, value.second.json_type ) );
+				}
+				return ::daw::json::impl::value_t( std::move( result ) );
 			}
 
 			std::string encode( ) const {

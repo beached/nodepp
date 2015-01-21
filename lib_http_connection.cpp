@@ -64,7 +64,7 @@ namespace daw {
 										} else {
 											err400( self->m_socket );
 										}
-									} catch( std::exception const & ) {
+									} catch( std::exception const &ex ) {
 										err400( self->m_socket );
 									}
 								} );
