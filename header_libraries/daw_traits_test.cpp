@@ -26,7 +26,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-
+#include <iostream>
 #include "daw_traits.h"
 
 BOOST_AUTO_TEST_CASE( daw_traits_is_equality_comparable ) {
