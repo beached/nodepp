@@ -268,3 +268,26 @@ BOOST_AUTO_TEST_CASE( daw_traits_isnt_string ) {
 	BOOST_REQUIRE_MESSAGE( false == daw::traits::isnt_string<decltype("this is a test")>::value, "4. Character array should convert to string" );
 	BOOST_REQUIRE_MESSAGE( true == daw::traits::isnt_string<std::vector<char>>::value, "5. Vector of char should not convert to string" );
 }
+
+struct TestNoOS {
+	int x;
+	TestNoOS( ) : x( 1 ) { }
+};
+
+struct TestYesOS {
+	int x;
+	TestYesOS( ) : x( 1 ) { }
+};
+
+std::ostream& operator<<(std::ostream &os, TestYesOS const & t) {
+	os << t.x;
+	return os;
+}
+
+BOOST_AUTO_TEST_CASE( daw_traits_is_streamable ) {
+	BOOST_REQUIRE_MESSAGE( true == daw::traits::is_streamable<int>::value, "1. int should have an ostream overload" );
+
+	BOOST_REQUIRE_MESSAGE( false == daw::traits::is_streamable<TestNoOS>::value, "2. TestNoOS should not have an ostream overload" );
+
+	BOOST_REQUIRE_MESSAGE( true == daw::traits::is_streamable<TestYesOS>::value, "3. TestYesOS should have an ostream overload" );
+}
