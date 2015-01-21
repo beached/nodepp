@@ -46,9 +46,9 @@ namespace daw {
 		}
 
 		/*		std::string to_string( std::string const & value ) {
-					return value;
-					}
-					*/
+		return value;
+		}
+		*/
 		std::string enquote( boost::string_ref value ) {
 			return "\"" + value.to_string( ) + "\"";
 		}
@@ -67,19 +67,20 @@ namespace daw {
 		}
 
 		namespace generate {
+			using namespace ::daw::json::details;
 			// string
 			std::string value_to_json( boost::string_ref name, std::string const & value ) {
-				return details::json_name( name ) + enquote( value );
+				return json_name( name ) + enquote( value );
 			}
 
 			// bool
 			std::string value_to_json( boost::string_ref name, bool value ) {
-				return details::json_name( name ) + (value ? "true" : "false");
+				return json_name( name ) + (value ? "true" : "false");
 			}
 
 			// null
 			std::string value_to_json( boost::string_ref name ) {
-				return details::json_name( name ) + "null";
+				return json_name( name ) + "null";
 			}
 
 			// date -> actaually a string, but it javascript date format encodes the date
@@ -107,6 +108,50 @@ namespace daw {
 			std::string value_to_json( boost::string_ref name, double const & value ) {
 				return value_to_json_number( name, value );
 			}
+
+			std::string value_to_json( boost::string_ref name, ::daw::json::impl::value_t & value ) {
+				using ::daw::json::impl::value_t;
+				switch( value.type( ) ) {
+				case value_t::value_types::array:
+					return value_to_json( name, value.get_array( ).items );
+				case value_t::value_types::object:
+					return value_to_json_object( name, value.get_object( ) );
+				case value_t::value_types::boolean:
+					return value_to_json( name, value.get_boolean( ) );
+				case value_t::value_types::integral:
+					return value_to_json( name, value.get_integral( ) );
+				case value_t::value_types::real:
+					return value_to_json( name, value.get_real( ) );
+				case value_t::value_types::string:
+					return value_to_json( name, value.get_string( ) );
+				case value_t::value_types::null:
+					return value_to_json( name );
+				default:
+					throw std::logic_error( "Unrecognized value_t type" );
+				}
+			}
+
+			std::string value_to_json( boost::string_ref name, ::daw::json::impl::value_t && value ) { }
+
+			std::string value_to_json_object( boost::string_ref name, ::daw::json::impl::object_value const & object ) {
+				std::stringstream result;
+				result << json_name( name ) << "{";
+				auto range = ::daw::range::make_range( object.members.begin( ), object.members.end( ) );
+				if( !range.at_end( ) ) {
+					auto const & cur_name = range.front( ).first;
+					auto const & cur_value = range.front( ).second;
+					result << value_to_json( cur_name, cur_value );
+					range.move_next( );
+				}
+				for( auto const & value : range ) {
+					auto const & cur_name = value.first;
+					auto const & cur_value = value.second;
+					result << ", " << value_to_json( cur_name, cur_value );
+				}
+
+				result << "}";
+				return result.str( );
+			}
 		}	// namespace generate
 
 		namespace parse {
@@ -133,6 +178,6 @@ namespace daw {
 			void json_to_value( float & to, ::daw::json::impl::value_t const & from ) {
 				to = static_cast<float>(from.get_real( ));
 			}
-		}	// namespace details
+		}	// namespace parse
 	}	// namespace json
 }	// namespace daw1

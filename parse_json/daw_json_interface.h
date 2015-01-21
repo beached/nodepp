@@ -45,6 +45,7 @@ namespace daw {
 		namespace generate {
 			//////////////////////////////////////////////////////////////////////////
 			/// Summary: Convert an optionally named value to a json string
+
 			std::string value_to_json( boost::string_ref name, std::string const & value );
 			std::string value_to_json( boost::string_ref name, bool value );
 			std::string value_to_json( boost::string_ref name );	// Null
@@ -53,6 +54,9 @@ namespace daw {
 			std::string value_to_json( boost::string_ref name, int64_t const & value );
 			std::string value_to_json( boost::string_ref name, uint64_t const & value );
 			std::string value_to_json( boost::string_ref name, unsigned int const & value );
+			std::string value_to_json( boost::string_ref name, ::daw::json::impl::value_t & value );
+
+			std::string value_to_json_object( boost::string_ref name, ::daw::json::impl::object_value const & object );
 
 			// Template value_to_json Declarations
 			template<typename Container, typename std::enable_if<daw::traits::is_container_not_string<Container>::value, long>::type = 0>
