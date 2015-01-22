@@ -45,7 +45,7 @@ namespace daw {
 				result << ::daw::json::details::json_name( name ) << "[ ";
 				{
 					auto values_range = daw::range::make_range( values.begin( ), values.end( ) );
-					if( !at_end( values_range ) ) {
+					if( !values_range.empty( ) ) {
 						result << value_to_json( "", values_range.front( ) );
 						values_range.move_next( );
 						for( auto const & item : values_range ) {
@@ -62,7 +62,8 @@ namespace daw {
 				return ::daw::json::details::json_name( name.to_string( ) ) + "{ " + value_to_json( "key", value.first ) + ", " + value_to_json( "value", value.second ) + " }";
 			}
 
-			template<typename Number, typename std::enable_if<std::is_floating_point<Number>::value, int>::type> std::string value_to_json_number( boost::string_ref name, Number const & value ) {
+			template<typename Number, typename std::enable_if<std::is_floating_point<Number>::value, int>::type>
+			std::string value_to_json_number( boost::string_ref name, Number const & value ) {
 				std::stringstream ss;
 				ss << ::daw::json::details::json_name( name );
 				ss << std::setprecision( std::numeric_limits<Number>::max_digits10 ) << value;
@@ -110,12 +111,11 @@ namespace daw {
 				assert( from.is_array( ) );
 				auto const & source_array = from.get_array( ).items;
 				to.clear( );
-
-				for( auto const & source_value : source_array ) {
+				std::transform( std::begin( source_array ), std::end( source_array ), std::back_inserter( to ), []( ::daw::json::impl::value_t const & value ) {
 					typename Container::value_type tmp;
-					json_to_value( tmp, source_value );
-					to.insert( std::end( to ), std::move( tmp ) );
-				}
+					json_to_value( tmp, value );
+					return tmp;
+				} );
 			}
 
 			template<typename Key, typename Value>
@@ -141,14 +141,13 @@ namespace daw {
 				assert( from.is_array( ) );
 				auto const & source_array = from.get_array( ).items;
 				to.clear( );
-
-				for( auto const & source_value : source_array ) {
+				std::transform( std::begin( source_array ), std::end( source_array ), std::inserter( to, std::end( to ) ), []( ::daw::json::impl::value_t const & value ) {
 					using key_t = typename std::decay<typename MapContainer::key_type>::type;
 					using value_t = typename std::decay<typename MapContainer::mapped_type>::type;
 					std::pair<key_t, value_t> tmp;
-					json_to_value( tmp, source_value );
-					to.insert( std::end( to ), std::move( tmp ) );
-				}
+					json_to_value( tmp, value );
+					return tmp;
+				} );
 			}
 
 			template<typename T, typename std::enable_if<std::is_integral<T>::value && !std::is_same<T, int64_t>::value, long>::type>

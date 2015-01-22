@@ -54,7 +54,7 @@ namespace daw {
 			std::string value_to_json( boost::string_ref name, int64_t const & value );
 			std::string value_to_json( boost::string_ref name, uint64_t const & value );
 			std::string value_to_json( boost::string_ref name, unsigned int const & value );
-			std::string value_to_json( boost::string_ref name, ::daw::json::impl::value_t & value );
+			std::string value_to_json( boost::string_ref name, ::daw::json::impl::value_t const & value );
 
 			std::string value_to_json_object( boost::string_ref name, ::daw::json::impl::object_value const & object );
 
@@ -111,8 +111,6 @@ namespace daw {
 
 			template<typename T, typename std::enable_if<has_decode_member<T>::value, long>::type = 0>
 			T decode_to_new( boost::string_ref json_values );
-
-			// Template json_to_value definitions
 		}	// namespace parse
 	}	// namespace json
 }	// namespace daw

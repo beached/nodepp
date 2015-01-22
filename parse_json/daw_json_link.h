@@ -188,21 +188,26 @@ namespace daw {
 
 			::daw::json::impl::value_t get_schema_obj( ) const {
 				::daw::json::impl::object_value result;
-				for( auto const & value : m_data_map ) {
-					result.push_back( ::daw::json::impl::make_object_value_item( value.first, value.second.json_type ) );
-				}
+				using mapped_value_t = typename decltype(m_data_map)::value_type;
+				std::transform( std::cbegin( m_data_map ), std::cend( m_data_map ), std::back_inserter( result ), []( mapped_value_t const & value ) {
+					return ::daw::json::impl::make_object_value_item( value.first, value.second.json_type );
+				} );
 				return ::daw::json::impl::value_t( std::move( result ) );
 			}
 
 			std::string encode( ) const {
 				std::stringstream result;
 				std::string tmp;
-				auto is_first = true;
-				for( auto const & value : m_data_map ) {
-					value.second.bind_functions.encode( tmp );
-					result << (!is_first ? ", " : "") << tmp;
-					is_first = false;
+				auto range = daw::range::make_range( m_data_map );
+				if( !range.empty( ) ) {
+					result << tmp;
+					range.move_next( );
+					for( auto const & value : range ) {
+						value.second.bind_functions.encode( tmp );
+						result << tmp;
+					}
 				}
+
 				return details::json_name( m_name ) + details::enbrace( result.str( ) );
 			}
 

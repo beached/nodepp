@@ -109,7 +109,7 @@ namespace daw {
 				return value_to_json_number( name, value );
 			}
 
-			std::string value_to_json( boost::string_ref name, ::daw::json::impl::value_t & value ) {
+			std::string value_to_json( boost::string_ref name, ::daw::json::impl::value_t const & value ) {
 				using ::daw::json::impl::value_t;
 				switch( value.type( ) ) {
 				case value_t::value_types::array:
@@ -131,22 +131,16 @@ namespace daw {
 				}
 			}
 
-			std::string value_to_json( boost::string_ref name, ::daw::json::impl::value_t && value ) { }
-
 			std::string value_to_json_object( boost::string_ref name, ::daw::json::impl::object_value const & object ) {
 				std::stringstream result;
 				result << json_name( name ) << "{";
 				auto range = ::daw::range::make_range( object.members.begin( ), object.members.end( ) );
-				if( !range.at_end( ) ) {
-					auto const & cur_name = range.front( ).first;
-					auto const & cur_value = range.front( ).second;
-					result << value_to_json( cur_name, cur_value );
+				if( !range.empty( ) ) {
+					result << value_to_json( range.front( ).first, range.front( ).second );
 					range.move_next( );
-				}
-				for( auto const & value : range ) {
-					auto const & cur_name = value.first;
-					auto const & cur_value = value.second;
-					result << ", " << value_to_json( cur_name, cur_value );
+					for( auto const & value : range ) {
+						result << ", " << value_to_json( range.front( ).first, range.front( ).second );
+					}
 				}
 
 				result << "}";

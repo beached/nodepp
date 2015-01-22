@@ -42,12 +42,14 @@ int main( int, char const ** ) {
 
 		auto schema = request->get_schema_obj( );
 
+		auto schema_json = daw::json::generate::value_to_json( "", schema );
+
 		response->on_all_writes_completed( [response]( ) mutable {
 			response->close( );
 		} ).send_status( 200 )
 			.add_header( "Content-Type", "application/json" )
 			.add_header( "Connection", "close" )
-			.end( req );
+			.end( schema_json );
 	} )/*.on_error( []( base::Error error ) {
 		std::cerr << ""; //error << std::endl;
 		} )*/.listen_on( 8080 )/*.on_page_error( 404, []( lib::http::HttpClientRequest request, lib::http::HttpServerResponse response, uint16_t ) {
