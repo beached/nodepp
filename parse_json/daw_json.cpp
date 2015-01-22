@@ -83,12 +83,6 @@ namespace daw {
 				return json_name( name ) + "null";
 			}
 
-			// date -> actaually a string, but it javascript date format encodes the date
-			// 				std::string value_to_json_timestamp( std::string const & name, std::time_t const & timestamp ) {
-			// 					using ::daw::json::to_string;
-			// 					return details::json_name( name ) + enquote( to_string( timestamp ) );
-			// 				}
-
 			std::string value_to_json( boost::string_ref name, int const & value ) {
 				return value_to_json_number( name, value );
 			}

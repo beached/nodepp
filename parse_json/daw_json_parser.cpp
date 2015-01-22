@@ -27,7 +27,7 @@
 #include <type_traits>
 
 #include "daw_range.h"
-
+#include "daw_json_interface.h"
 #include "daw_json_parser.h"
 
 namespace daw {

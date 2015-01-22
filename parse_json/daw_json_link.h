@@ -146,10 +146,11 @@ namespace daw {
 			std::unordered_map<std::string, data_description_t> m_data_map;
 
 			template<typename T>
-			JsonLink& link_value( boost::string_ref name, T& value, ::daw::json::impl::value_t json_type ) {
+			JsonLink& link_value( boost::string_ref name, T& value ) {
 				set_name( value, name );
 				data_description_t data_description;
-				data_description.json_type = std::move( json_type );
+				using ::daw::json::schema::get_schema;
+				data_description.json_type = get_schema( name, value );
 				data_description.bind_functions = standard_bind_functions( name, value );
 				m_data_map[name.to_string( )] = std::move( data_description );
 				return *this;
@@ -200,14 +201,14 @@ namespace daw {
 				std::string tmp;
 				auto range = daw::range::make_range( m_data_map );
 				if( !range.empty( ) ) {
+					range.front( ).second.bind_functions.encode( tmp );
 					result << tmp;
 					range.move_next( );
 					for( auto const & value : range ) {
 						value.second.bind_functions.encode( tmp );
-						result << tmp;
+						result << "," << tmp;
 					}
 				}
-
 				return details::json_name( m_name ) + details::enbrace( result.str( ) );
 			}
 
@@ -361,14 +362,20 @@ namespace daw {
 				return *this;
 			}
 
-			template<typename T>
-			JsonLink& link_string( boost::string_ref name, T& value ) {
-				return link_value( name, value, ::daw::json::impl::value_t( std::string( "" ) ) );
+			JsonLink& link_string( boost::string_ref name, boost::optional<std::string> & value ) {
+				return link_value( name, value );
 			}
 
-			template<typename T>
-			JsonLink& link_boolean( boost::string_ref name, T& value ) {
-				return link_value( name, value, ::daw::json::impl::value_t( false ) );
+			JsonLink& link_string( boost::string_ref name, std::string & value ) {
+				return link_value( name, value );
+			}
+
+			JsonLink& link_boolean( boost::string_ref name, bool& value ) {
+				return link_value( name, value );
+			}
+
+			JsonLink& link_boolean( boost::string_ref name, boost::optional<bool>& value ) {
+				return link_value( name, value );
 			}
 
 			template<typename T>
@@ -560,11 +567,11 @@ namespace daw {
 			//JsonLink& link_timestamp( std::string name, std::time_t& value );
 		};	// class JsonLink
 
-		template<typename Derived>
-		std::ostream& operator<<(std::ostream& os, JsonLink<Derived> const & data) {
-			os << data.encode( );
-			return os;
-		}
+		// 		template<typename Derived>
+		// 		std::ostream& operator<<(std::ostream& os, JsonLink<Derived> const & data) {
+		// 			os << data.encode( );
+		// 			return os;
+		// 		}
 
 		template<typename Derived>
 		void json_to_value( JsonLink<Derived> & to, impl::value_t const & from ) {

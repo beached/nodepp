@@ -122,7 +122,6 @@ namespace daw {
 				mapped_type & operator[]( boost::string_ref key );
 				mapped_type const & operator[]( boost::string_ref key ) const;
 			};
-
 			std::ostream& operator<<(std::ostream& os, value_t const & value);
 			std::ostream& operator<<(std::ostream& os, std::shared_ptr<value_t> const & value);
 		}	// namespace impl
