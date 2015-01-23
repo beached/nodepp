@@ -33,7 +33,8 @@ int main( int, char const ** ) {
 	using namespace daw::nodepp;
 	using namespace lib::http;
 
-	auto site = create_http_site( );
+	create_web_service <
+		auto site = create_http_site( );
 	site->on_listening( []( boost::asio::ip::tcp::endpoint endpoint ) {
 		std::cout << "Listening on " << endpoint << "\n";
 	} ).on_requests_for( HttpClientRequestMethod::Get, "/", [&]( HttpClientRequest request, HttpServerResponse response ) {

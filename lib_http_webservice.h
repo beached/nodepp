@@ -22,13 +22,40 @@
 
 #pragma once
 
+#include <boost/utility/string_ref.hpp>
+#include <memory>
+#include <type_traits>
+
+#include "base_event_emitter.h"
+#include "daw_json_link.h"
+#include "lib_http_request.h"
+#include "lib_http_server.h"
+
 namespace daw {
 	namespace nodepp {
 		namespace lib {
 			namespace http {
-				class HttpWebService {
-					//
-				};	// class HttpWebService
+				namespace impl {
+					template<typename ResultType, typename... Arguments> class HttpWebService;
+				}
+
+				template<typename ResultType, typename... Arguments> using HttpWebService = std::shared_ptr < impl::HttpWebServiceImpl < ResultType, Arguments... > > ;
+
+				namespace impl {
+					template<typename ResultType, typename... Arguments>
+					class HttpWebServiceImpl: public daw::nodepp::base::enable_shared<HttpWebService>, public public daw::nodepp::base::StandardEvents < HttpWebService > {
+						static_assert < std::is_base_of<JsonLink<ResultType>, ResultType>::value, "ResultType must derive from JsonLink<ResultType>" );
+						static_assert < std::is_base_of<JsonLink<Arguments...>, ResultType>::value, "Arguments must derive from JsonLink<Arguments>" );
+
+						HttpWebServiceImpl( boost::string_ref base_path, daw::nodepp::lib::http::HttpClientRequestMethod method, std::function < JsonLink<ResultType>( JsonLink<Arguments>... ) ) { }
+
+						HttpWebServiceImpl& connect( HttpServer & server );
+						//
+					};	// class HttpWebService
+				}
+
+				template < typename ResultType, typename... Arguments, typename sizeof( decltype(value_to_json( ResultType )) ) != 0 && sizeof( decltype(value_to_json( Arguments )) ) != 0 >
+				HttpWebService create_web_service( ) { }
 			}	// namespace http
 		}	// namespace lib
 	}	// namespace nodepp
