@@ -173,7 +173,7 @@ namespace daw {
 		class has_##MemberName##_member_impl< T, typename std::enable_if<std::is_class<T>::value>::type> { \
 					struct Fallback { \
 						int MemberName; \
-																																																																																																																																																																																																																																																																																																																																																																																																																					}; \
+																																																																																																																																																																																																																																																																																																																																																																																																																							}; \
 					struct Derived : T, Fallback { }; \
 					\
 					template<typename U, U> struct Check; \
@@ -186,8 +186,8 @@ namespace daw {
 				  public: \
 					typedef has_##MemberName##_member_impl type; \
 					enum { value = sizeof(func<Derived>(0)) == 2 }; \
-																																																																																																																																																																																																																																				}; /*struct has_##MemberName##_member_impl*/ \
-																																																																																																																																																																																																																																			} /* namespace impl */ \
+																																																																																																																																																																																																																																						}; /*struct has_##MemberName##_member_impl*/ \
+																																																																																																																																																																																																																																					} /* namespace impl */ \
 			template<typename T> using has_##MemberName##_member = std::integral_constant<bool, impl::has_##MemberName##_member_impl<T>::value>; \
 			template<typename T> using has_##MemberName##_member_t = typename has_##MemberName##_member<T>::type;
 
@@ -280,5 +280,18 @@ namespace daw {
 
 		template<template<class> class Base, typename Derived>
 		using is_mixed_from_t = typename is_mixed_from<Base, Derived>::type;
+
+		template<typename Result, typename... Arguments>
+		class function_exists {
+		private:
+			typedef char One;
+			typedef struct { char a[2]; } Two;
+			template<typename R, typename... A> static One test( R json_to_value( A... ) );
+			// Will be chosen if T is anything except a class.
+			template<typename C> static Two test( ... );
+		public:
+			enum { Yes = sizeof( function_exits<Result, Arguments...>::test<Result, Arguments...>( 0 ) ) == 1 };
+			enum { No = !Yes };
+		};
 	}	// namespace traits
 }	// namespace daw

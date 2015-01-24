@@ -60,7 +60,7 @@ namespace daw {
 					};	// class HttpWebService
 				}
 
-				template < typename ResultType, typename Arguments, typename sizeof( decltype(value_to_json( ResultType )) ) != 0 && sizeof( decltype(value_to_json( Arguments )) ) != 0 >
+				template < typename ResultType, typename Arguments>
 				HttpWebService<ResultType, Arguments> create_web_service( boost::string_ref base_path, daw::nodepp::lib::http::HttpClientRequestMethod method, std::function < JsonLink<ResultType>( JsonLink<Arguments> )> handler ) {
 					//
 					return std::make_shared<HttpWebService<ResultType, Arguments>>( base_path, method, handler );
