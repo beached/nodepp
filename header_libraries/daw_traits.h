@@ -275,10 +275,10 @@ namespace daw {
 		template<typename T>
 		using is_streamable_t = typename is_streamable<T>::type;
 
-		template<template<typename> typename Base, typename Derived>
+		template<template<class> class Base, typename Derived>
 		using is_mixed_from = std::integral_constant < bool, std::is_base_of<Base<Derived>, Derived>::value > ;
 
-		template<template<typename> typename Base, typename Derived>
+		template<template<class> class Base, typename Derived>
 		using is_mixed_from_t = typename is_mixed_from<Base, Derived>::type;
 	}	// namespace traits
 }	// namespace daw

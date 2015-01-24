@@ -122,8 +122,8 @@ namespace daw {
 
 		template<typename Container, typename std::enable_if<daw::traits::is_container_not_string<Container>::value, long>::type = 0>
 		Range<typename Container::const_iterator> make_range( Container const & container ) {
-			using Iterator = decltype(std::cbegin( container ));
-			return Range<Iterator>( std::cbegin( container ), std::cend( container ) );
+			using Iterator = decltype(std::begin( container ));
+			return Range<Iterator>( std::begin( container ), std::end( container ) );
 		}
 
 		template<typename Iterator>
