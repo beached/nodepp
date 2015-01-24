@@ -281,17 +281,24 @@ namespace daw {
 		template<template<class> class Base, typename Derived>
 		using is_mixed_from_t = typename is_mixed_from<Base, Derived>::type;
 
-		template<typename Result, typename... Arguments>
-		class function_exists {
-		private:
-			typedef char One;
-			typedef struct { char a[2]; } Two;
-			template<typename R, typename... A> static One test( R json_to_value( A... ) );
-			// Will be chosen if T is anything except a class.
-			template<typename C> static Two test( ... );
-		public:
-			enum { Yes = sizeof( function_exits<Result, Arguments...>::test<Result, Arguments...>( 0 ) ) == 1 };
-			enum { No = !Yes };
-		};
+		#define CREATE_FUNCTION_EXISTS( functitle, funcname ) \
+		namespace impl { \
+			template<typename Result, typename... Arguments> \
+			class functitle##_exists_impl { \
+			private: \
+				typedef char One; \
+				typedef struct { char a[2]; } Two; \
+				template<typename R, typename... A> static One _test( R funcname( A... ) ); \
+				template<typename R, typename... A> static Two _test( ... ); \
+			public: \
+				enum { value = sizeof( functitle##_exists_impl<Result, Arguments...>::_test<Result, Arguments...>( std::declval<Arguments>( )... ) ) == 1 }; \
+			}; \
+		} \
+		template<typename Result, typename... Arguments> \
+		using funcname##_exists = std::integral_constant<bool, impl::functitle##_exists_impl<Result, Arguments...>::value >; \
+		template<typename Result, typename... Arguments> \
+		using funcname##_exists_t = typename funcname##_exists<Result, Arguments...>::type;
+
 	}	// namespace traits
 }	// namespace daw
+
