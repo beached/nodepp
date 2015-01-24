@@ -37,7 +37,7 @@ namespace daw {
 		namespace lib {
 			namespace http {
 				namespace impl {
-					template<typename ResultType, typename... Arguments> class HttpWebServiceImpl;
+					template<typename ResultType, typename Argument> class HttpWebServiceImpl;
 				}
 
 				template<typename ResultType, typename Argument>
@@ -51,8 +51,6 @@ namespace daw {
 					public:
 						HttpWebServiceImpl( boost::string_ref base_path, daw::nodepp::lib::http::HttpClientRequestMethod method, std::function < daw::json::JsonLink<ResultType>( daw::json::JsonLink<Argument> )> handler ) { }
 
-						HttpClientRequestImpl( ) { }
-
 						HttpWebServiceImpl& connect( HttpServer & server ) {
 							return *this;
 						}
@@ -61,7 +59,7 @@ namespace daw {
 				}
 
 				template < typename ResultType, typename Argument>
-				HttpWebService<ResultType, Argument> create_web_service( boost::string_ref base_path, daw::nodepp::lib::http::HttpClientRequestMethod method, std::function < JsonLink<ResultType>( JsonLink<Argument> )> handler ) {
+				HttpWebService<ResultType, Argument> create_web_service( boost::string_ref base_path, daw::nodepp::lib::http::HttpClientRequestMethod method, std::function < daw::json::JsonLink<ResultType>( daw::json::JsonLink<Argument> )> handler ) {
 					//
 					return std::make_shared<HttpWebService<ResultType, Argument>>( base_path, method, handler );
 				}

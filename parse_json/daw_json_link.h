@@ -190,7 +190,7 @@ namespace daw {
 			::daw::json::impl::value_t get_schema_obj( ) const {
 				::daw::json::impl::object_value result;
 				using mapped_value_t = typename decltype(m_data_map)::value_type;
-				std::transform( std::cbegin( m_data_map ), std::cend( m_data_map ), std::back_inserter( result ), []( mapped_value_t const & value ) {
+				std::transform( std::begin( m_data_map ), std::end( m_data_map ), std::back_inserter( result ), []( mapped_value_t const & value ) {
 					return ::daw::json::impl::make_object_value_item( value.first, value.second.json_type );
 				} );
 				return ::daw::json::impl::value_t( std::move( result ) );

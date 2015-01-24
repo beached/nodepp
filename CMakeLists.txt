@@ -65,6 +65,7 @@ set(SOURCE_FILES
 )
 
 include_directories( ./header_libraries )
+include_directories( ./parse_json )
 
 add_executable(NodePP ${SOURCE_FILES})
 

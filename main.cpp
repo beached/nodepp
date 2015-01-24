@@ -46,7 +46,7 @@ int main( int, char const ** ) {
 	};
 
 	auto test = create_web_service( "/people", HttpClientRequestMethod::Get, []( X id ) {
-		return X( 2 * id );
+		return X( 2 * id.x );
 	} );
 
 	auto site = create_http_site( );

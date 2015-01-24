@@ -133,7 +133,7 @@ namespace daw {
 					result << value_to_json( range.front( ).first, range.front( ).second );
 					range.move_next( );
 					for( auto const & value : range ) {
-						result << ", " << value_to_json( range.front( ).first, range.front( ).second );
+						result << ", " << value_to_json( value.first, value.second );
 					}
 				}
 
