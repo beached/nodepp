@@ -61,7 +61,7 @@ namespace daw {
 				template < typename ResultType, typename Argument> //, typename std::enable_if<daw::traits::is_mixed_from<daw::json::JsonLink, ResultType>::value && daw::traits::is_mixed_from<daw::json::JsonLink, Argument>::value, long>::type = 0>
 				HttpWebService<ResultType, Argument> create_web_service( boost::string_ref base_path, daw::nodepp::lib::http::HttpClientRequestMethod method, std::function < ResultType( Argument const & )> handler ) {
 					//
-					return std::make_shared<HttpWebService<ResultType, Argument>>( base_path, method, handler );
+					return std::make_shared<impl::HttpWebServiceImpl<ResultType, Argument>>( base_path, method, handler );
 				}
 			}	// namespace http
 		}	// namespace lib

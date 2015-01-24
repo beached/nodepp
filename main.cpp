@@ -35,18 +35,18 @@ int main( int, char const ** ) {
 	using namespace daw::nodepp::lib::http;
 
 	struct X: public daw::json::JsonLink < X > {
-		int x;
-		X( int val = 0 ) : x( std::move( val ) ) {
+		int value;
+		X( int val = 0 ) : value( std::move( val ) ) {
 			set_links( );
 		}
 
 		void set_links( ) {
-			link_integral( "x", x );
+			link_integral( "value", value );
 		}
 	};
 
 	std::function<X( X const & )> ws_handler = []( X const & id ) {
-		return X( 2 * id.x );
+		return X( 2 * id.value );
 	};
 
 	auto test = create_web_service( "/people", HttpClientRequestMethod::Get, ws_handler );

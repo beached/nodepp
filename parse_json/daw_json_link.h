@@ -314,6 +314,7 @@ namespace daw {
 				auto value_ptr = &value;
 				set_name( value, name.to_string( ) );
 				data_description_t data_description;
+				using daw::json::schema::get_schema;
 				data_description.json_type = get_schema( name, value );
 
 				data_description.bind_functions.encode = standard_encoder( name, value );
@@ -334,6 +335,7 @@ namespace daw {
 				auto value_ptr = &value;
 				set_name( value, name.to_string( ) );
 				data_description_t data_description;
+				using daw::json::schema::get_schema;
 				data_description.json_type = get_schema( name, value );
 				data_description.bind_functions.encode = standard_encoder( name, value );
 
@@ -355,6 +357,7 @@ namespace daw {
 				auto value_ptr = &value;
 				set_name( value, name.to_string( ) );
 				data_description_t data_description;
+				using daw::json::schema::get_schema;
 				data_description.json_type = get_schema( name, value );
 				data_description.bind_functions.encode = standard_encoder( name, value );
 				data_description.bind_functions.decode = standard_decoder<double>( name, value );
@@ -512,6 +515,8 @@ namespace daw {
 				set_name( value, name.to_string( ) );
 				data_description_t data_description;
 				data_description.json_type = "map?";
+				using ::daw::json::schema::get_schema;
+				data_description.json_type = get_schema( name, value );
 				data_description.bind_functions.encode = standard_encoder( name, value );
 				data_description.bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
 					assert( value_ptr );
