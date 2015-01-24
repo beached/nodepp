@@ -40,7 +40,7 @@ namespace daw {
 					template<typename ResultType, typename Argument> class HttpWebServiceImpl;
 				}
 
-				template<typename ResultType, typename Argument, typename std::enable_if<daw::traits::is_mixed_from<daw::json::JsonLink, ResultType>::value && daw::traits::is_mixed_from<daw::json::JsonLink, Argument>::value, long>::type = 0>
+				template<typename ResultType, typename Argument> //, typename std::enable_if<daw::traits::is_mixed_from<daw::json::JsonLink, ResultType>::value && daw::traits::is_mixed_from<daw::json::JsonLink, Argument>::value, long>::type = 0>
 				using HttpWebService = std::shared_ptr < impl::HttpWebServiceImpl < ResultType, Argument > > ;
 
 				namespace impl {
@@ -49,7 +49,7 @@ namespace daw {
 						// 						static_assert < std::is_base_of<JsonLink<ResultType>, ResultType>::value, "ResultType must derive from JsonLink<ResultType>" );
 						// 						static_assert < std::is_base_of<JsonLink<Argument...>, ResultType>::value, "Argument must derive from JsonLink<Argument>" );
 					public:
-						HttpWebServiceImpl( boost::string_ref base_path, daw::nodepp::lib::http::HttpClientRequestMethod method, std::function < daw::json::JsonLink<ResultType>( daw::json::JsonLink<Argument> )> handler ) { }
+						HttpWebServiceImpl( boost::string_ref base_path, daw::nodepp::lib::http::HttpClientRequestMethod method, std::function < ResultType( Argument const & )> handler ) { }
 
 						HttpWebServiceImpl& connect( HttpServer & server ) {
 							return *this;
@@ -58,8 +58,8 @@ namespace daw {
 					};	// class HttpWebService
 				}
 
-				template < typename ResultType, typename Argument, typename std::enable_if<daw::traits::is_mixed_from<daw::json::JsonLink, ResultType>::value && daw::traits::is_mixed_from<daw::json::JsonLink, Argument>::value, long>::type = 0>
-				HttpWebService<ResultType, Argument> create_web_service( boost::string_ref base_path, daw::nodepp::lib::http::HttpClientRequestMethod method, std::function < daw::json::JsonLink<ResultType>( daw::json::JsonLink<Argument> )> handler ) {
+				template < typename ResultType, typename Argument> //, typename std::enable_if<daw::traits::is_mixed_from<daw::json::JsonLink, ResultType>::value && daw::traits::is_mixed_from<daw::json::JsonLink, Argument>::value, long>::type = 0>
+				HttpWebService<ResultType, Argument> create_web_service( boost::string_ref base_path, daw::nodepp::lib::http::HttpClientRequestMethod method, std::function < ResultType( Argument const & )> handler ) {
 					//
 					return std::make_shared<HttpWebService<ResultType, Argument>>( base_path, method, handler );
 				}

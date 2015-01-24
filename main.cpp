@@ -45,9 +45,11 @@ int main( int, char const ** ) {
 		}
 	};
 
-	auto test = create_web_service( "/people", HttpClientRequestMethod::Get, []( X id ) {
+	std::function<X( X const & )> ws_handler = []( X const & id ) {
 		return X( 2 * id.x );
-	} );
+	};
+
+	auto test = create_web_service( "/people", HttpClientRequestMethod::Get, ws_handler );
 
 	auto site = create_http_site( );
 	site->on_listening( []( boost::asio::ip::tcp::endpoint endpoint ) {
