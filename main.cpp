@@ -23,18 +23,33 @@
 #include <cstdlib>
 #include <memory>
 
+#include "base_work_queue.h"
+#include "daw_json.h"
 #include "lib_http_request.h"
 #include "lib_http_site.h"
-#include "base_work_queue.h"
-
+#include "lib_http_webservice.h"
 #include "parse_json/daw_json_link.h"
 
 int main( int, char const ** ) {
 	using namespace daw::nodepp;
-	using namespace lib::http;
+	using namespace daw::nodepp::lib::http;
 
-	create_web_service <
-		auto site = create_http_site( );
+	struct X: public daw::json::JsonLink < X > {
+		int x;
+		X( int val = 0 ) : x( std::move( val ) ) {
+			set_links( );
+		}
+
+		void set_links( ) {
+			link_integral( "x", x );
+		}
+	};
+
+	auto test = create_web_service( "/people", HttpClientRequestMethod::Get, []( X id ) {
+		return X( 2 * id );
+	} );
+
+	auto site = create_http_site( );
 	site->on_listening( []( boost::asio::ip::tcp::endpoint endpoint ) {
 		std::cout << "Listening on " << endpoint << "\n";
 	} ).on_requests_for( HttpClientRequestMethod::Get, "/", [&]( HttpClientRequest request, HttpServerResponse response ) {

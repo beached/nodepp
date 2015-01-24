@@ -23,6 +23,7 @@
 #pragma once
 
 #include <boost/utility/string_ref.hpp>
+#include <functional>
 #include <memory>
 #include <type_traits>
 
@@ -36,26 +37,34 @@ namespace daw {
 		namespace lib {
 			namespace http {
 				namespace impl {
-					template<typename ResultType, typename... Arguments> class HttpWebService;
+					template<typename ResultType, typename... Arguments> class HttpWebServiceImpl;
 				}
 
-				template<typename ResultType, typename... Arguments> using HttpWebService = std::shared_ptr < impl::HttpWebServiceImpl < ResultType, Arguments... > > ;
+				template<typename ResultType, typename Arguments>
+				using HttpWebService = std::shared_ptr < impl::HttpWebServiceImpl < ResultType, Arguments > > ;
 
 				namespace impl {
-					template<typename ResultType, typename... Arguments>
-					class HttpWebServiceImpl: public daw::nodepp::base::enable_shared<HttpWebService>, public public daw::nodepp::base::StandardEvents < HttpWebService > {
-						static_assert < std::is_base_of<JsonLink<ResultType>, ResultType>::value, "ResultType must derive from JsonLink<ResultType>" );
-						static_assert < std::is_base_of<JsonLink<Arguments...>, ResultType>::value, "Arguments must derive from JsonLink<Arguments>" );
+					template<typename ResultType, typename Arguments>
+					class HttpWebServiceImpl: public daw::nodepp::base::enable_shared<HttpWebServiceImpl<ResultType, Arguments>>, public daw::nodepp::base::StandardEvents < HttpWebServiceImpl<ResultType, Arguments> > {
+						// 						static_assert < std::is_base_of<JsonLink<ResultType>, ResultType>::value, "ResultType must derive from JsonLink<ResultType>" );
+						// 						static_assert < std::is_base_of<JsonLink<Arguments...>, ResultType>::value, "Arguments must derive from JsonLink<Arguments>" );
+					public:
+						HttpWebServiceImpl( boost::string_ref base_path, daw::nodepp::lib::http::HttpClientRequestMethod method, std::function < daw::json::JsonLink<ResultType>( daw::json::JsonLink<Arguments> )> handler ) { }
 
-						HttpWebServiceImpl( boost::string_ref base_path, daw::nodepp::lib::http::HttpClientRequestMethod method, std::function < JsonLink<ResultType>( JsonLink<Arguments>... ) ) { }
+						HttpClientRequestImpl( ) { }
 
-						HttpWebServiceImpl& connect( HttpServer & server );
+						HttpWebServiceImpl& connect( HttpServer & server ) {
+							return *this;
+						}
 						//
 					};	// class HttpWebService
 				}
 
-				template < typename ResultType, typename... Arguments, typename sizeof( decltype(value_to_json( ResultType )) ) != 0 && sizeof( decltype(value_to_json( Arguments )) ) != 0 >
-				HttpWebService create_web_service( ) { }
+				template < typename ResultType, typename Arguments, typename sizeof( decltype(value_to_json( ResultType )) ) != 0 && sizeof( decltype(value_to_json( Arguments )) ) != 0 >
+				HttpWebService<ResultType, Arguments> create_web_service( boost::string_ref base_path, daw::nodepp::lib::http::HttpClientRequestMethod method, std::function < JsonLink<ResultType>( JsonLink<Arguments> )> handler ) {
+					//
+					return std::make_shared<HttpWebService<ResultType, Arguments>>( base_path, method, handler );
+				}
 			}	// namespace http
 		}	// namespace lib
 	}	// namespace nodepp

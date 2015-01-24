@@ -291,3 +291,15 @@ BOOST_AUTO_TEST_CASE( daw_traits_is_streamable ) {
 
 	BOOST_REQUIRE_MESSAGE( true == daw::traits::is_streamable<TestYesOS>::value, "3. TestYesOS should have an ostream overload" );
 }
+
+BOOST_AUTO_TEST_CASE( daw_traits_is_mixed_from ) {
+	template<typename Derived>
+	struct Base { };
+
+	struct Derived: public Base < Derived > { };
+	struct NonDerived { };
+
+	BOOST_REQUIRE_MESSAGE( true == daw::traits::is_mixed_from<Base, Derived>::value, "Base<Child> should be a base for Child" );
+
+	BOOST_REQUIRE_MESSAGE( true == daw::traits::is_mixed_from<Base, NonDerived>::value, "Base<NonDerived> should not be a base for NonDerived" );
+}
