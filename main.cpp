@@ -49,7 +49,7 @@ int main( int, char const ** ) {
 		return X( 2 * id.value );
 	};
 
-	auto test = create_web_service( "/people", HttpClientRequestMethod::Get, ws_handler );
+	auto test = create_web_service( HttpClientRequestMethod::Get, "/people", ws_handler );
 
 	auto site = create_http_site( );
 	site->on_listening( []( boost::asio::ip::tcp::endpoint endpoint ) {

@@ -36,7 +36,8 @@ namespace daw {
 				EventEmitterImpl::EventEmitterImpl( ) :
 					m_listeners( std::make_shared<listeners_t>( ) ),
 					m_max_listeners( 10 ),
-					m_emit_depth( std::make_shared<std::atomic_int_least8_t>( 0 ) ) { }
+					m_emit_depth( std::make_shared<std::atomic_int_least8_t>( 0 ) ),
+					m_allow_cb_without_params( true ) { }
 
 				std::unordered_map<std::string, EventEmitterImpl::listener_list_t> & EventEmitterImpl::listeners( ) {
 					return *m_listeners;

@@ -67,6 +67,9 @@ namespace daw {
 					std::shared_ptr<std::unordered_map<std::string, listener_list_t>> m_listeners;
 					size_t m_max_listeners;
 					std::shared_ptr<std::atomic_int_least8_t> m_emit_depth;
+				protected:
+					bool m_allow_cb_without_params;
+				private:
 					EventEmitterImpl( );
 				public:
 					friend base::EventEmitter base::create_event_emitter( );
@@ -131,7 +134,19 @@ namespace daw {
 						auto& callbacks = listeners( )[event];
 						for( auto& callback : callbacks ) {
 							if( !callback.second.empty( ) ) {
-								callback.second.exec( args... );
+								try {
+									callback.second.exec( args... );
+								} catch( boost::bad_any_cast const & ) {
+									if( m_allow_cb_without_params ) {
+										try {
+											callback.second.exec( );
+										} catch( boost::bad_any_cast const & ) {
+											throw std::runtime_error( "Type of event listener does not match.  This shouldn't happen" );
+										}
+									} else {
+										throw;
+									}
+								}
 							}
 						}
 
@@ -211,6 +226,26 @@ namespace daw {
 				}
 
 				//////////////////////////////////////////////////////////////////////////
+				/// Summary:	Callback is called when the subscribed object is exiting.
+				///				This does not necessarily, but can be, from it's
+				///				destructor.  Make sure to wrap in try/catch if in
+				///				destructor
+				Child& on_exit( std::function<void( OptionalError error )> listener ) {
+					emitter( )->add_listener( "exit", listener );
+					return child( );
+				}
+
+				//////////////////////////////////////////////////////////////////////////
+				/// Summary:	Callback is called when the subscribed object is exiting.
+				///				This does not necessarily, but can be, from it's
+				///				destructor.  Make sure to wrap in try/catch if in
+				///				destructor
+				Child& on_next_exit( std::function<void( OptionalError error )> listener ) {
+					emitter( )->add_listener( "exit", listener, true );
+					return child( );
+				}
+
+				//////////////////////////////////////////////////////////////////////////
 				/// Summary: Delegate error callbacks to another error handler
 				template<typename StandardEventsChild>
 				Child& on_error( std::weak_ptr<StandardEventsChild> error_destination, std::string where ) {
@@ -278,6 +313,21 @@ namespace daw {
 				///				that has been removed
 				void emit_listener_removed( boost::string_ref event, Callback listener ) {
 					emitter( )->emit( "listener_removed", event, std::move( listener ) );
+				}
+
+				//////////////////////////////////////////////////////////////////////////
+				/// Summary:	Emit and event when exiting to alert others that they
+				///				may want to stop and exit. This version allows for an
+				///				error reason
+				void emit_exit( Error error ) {
+					emitter( )->emit( "exit", create_optional_error( std::move( error ) ) );
+				}
+
+				//////////////////////////////////////////////////////////////////////////
+				/// Summary:	Emit and event when exiting to alert others that they
+				///				may want to stop and exit.
+				void emit_exit( ) {
+					emitter( )->emit( "exit", create_optional_error( ) );
 				}
 
 				template<typename Class, typename Func>

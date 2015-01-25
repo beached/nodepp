@@ -28,9 +28,10 @@
 #include <type_traits>
 
 #include "base_event_emitter.h"
+#include "base_work_queue.h"
 #include "daw_json_link.h"
 #include "lib_http_request.h"
-#include "lib_http_server.h"
+#include "lib_http_site.h"
 
 namespace daw {
 	namespace nodepp {
@@ -40,6 +41,7 @@ namespace daw {
 					template<typename ResultType, typename Argument> class HttpWebServiceImpl;
 				}
 
+				// TODO: build trait that allows for types that are jsonlink like or have a value_to_json/json_to_value overload
 				template<typename ResultType, typename Argument> //, typename std::enable_if<daw::traits::is_mixed_from<daw::json::JsonLink, ResultType>::value && daw::traits::is_mixed_from<daw::json::JsonLink, Argument>::value, long>::type = 0>
 				using HttpWebService = std::shared_ptr < impl::HttpWebServiceImpl < ResultType, Argument > > ;
 
@@ -49,19 +51,35 @@ namespace daw {
 						// 						static_assert < std::is_base_of<JsonLink<ResultType>, ResultType>::value, "ResultType must derive from JsonLink<ResultType>" );
 						// 						static_assert < std::is_base_of<JsonLink<Argument...>, ResultType>::value, "Argument must derive from JsonLink<Argument>" );
 					public:
-						HttpWebServiceImpl( boost::string_ref base_path, daw::nodepp::lib::http::HttpClientRequestMethod method, std::function < ResultType( Argument const & )> handler ) { }
+						HttpWebServiceImpl( daw::nodepp::lib::http::HttpClientRequestMethod method, boost::string_ref base_path, std::function < ResultType( Argument const & )> handler, bool synchronous = false ) { }
 
-						HttpWebServiceImpl& connect( HttpServer & server ) {
+						template<typename T>
+						T decode( boost::string_ref json_text );
+
+						HttpWebServiceImpl& connect( HttpSite & site ) {
+							auto self = get_weak_ptr( );
+							site->delegate_to( "exit", self, "exit" ).
+								delegate_to( "error", self, "error" ).
+								on_requests_for( method, base_path, [self, handler, synchronous]( daw::nodepp::lib::http::HttpClientRequest request, daw::nodepp::lib::http::HttpServerResponse response ) {
+								switch( request->request.method ) {
+								case daw::nodepp::lib::http::HttpClientRequestMethod::Get:
+
+								case daw::nodepp::lib::http::HttpClientRequestMethod::Post:
+								default:
+									throw std::runtime_error( "Web Service HTTP Method not implemented" );
+								}
+							} );
 							return *this;
 						}
+
 						//
 					};	// class HttpWebService
 				}
 
 				template < typename ResultType, typename Argument> //, typename std::enable_if<daw::traits::is_mixed_from<daw::json::JsonLink, ResultType>::value && daw::traits::is_mixed_from<daw::json::JsonLink, Argument>::value, long>::type = 0>
-				HttpWebService<ResultType, Argument> create_web_service( boost::string_ref base_path, daw::nodepp::lib::http::HttpClientRequestMethod method, std::function < ResultType( Argument const & )> handler ) {
+				HttpWebService<ResultType, Argument> create_web_service( daw::nodepp::lib::http::HttpClientRequestMethod method, boost::string_ref base_path, std::function < ResultType( Argument const & )> handler, bool synchronous = false ) {
 					//
-					return std::make_shared<impl::HttpWebServiceImpl<ResultType, Argument>>( base_path, method, handler );
+					return std::make_shared<impl::HttpWebServiceImpl<ResultType, Argument>>( base_path, method, handler, synchronous );
 				}
 			}	// namespace http
 		}	// namespace lib

@@ -96,11 +96,26 @@ namespace daw {
 					void set_links( );
 				};	// struct HttpRequestLine
 
+				struct HttpClientRequestBody: public daw::json::JsonLink < HttpClientRequestBody > {
+					std::string mime_type;
+					std::string content;
+
+					~HttpClientRequestBody( ) = default;
+					HttpClientRequestBody( HttpClientRequestBody const & ) = default;
+					HttpClientRequestBody& operator=(HttpClientRequestBody const &) = default;
+
+					HttpClientRequestBody( );
+					HttpClientRequestBody( HttpClientRequestBody && other );
+					HttpClientRequestBody& operator=(HttpClientRequestBody && rhs);
+					void set_links( );
+				};
+
 				namespace impl {
 					struct HttpClientRequestImpl: public daw::json::JsonLink < HttpClientRequestImpl > {
 						using headers_t = std::unordered_map < std::string, std::string > ;
 						daw::nodepp::lib::http::HttpRequestLine request;
 						headers_t headers;
+						boost::optional<daw::nodepp::lib::http::HttpClientRequestBody> body;
 
 						~HttpClientRequestImpl( ) = default;
 						HttpClientRequestImpl( HttpClientRequestImpl const & ) = default;

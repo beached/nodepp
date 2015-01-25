@@ -22,6 +22,7 @@
 
 #include <boost/utility/string_ref.hpp>
 #include <boost/algorithm/string/split.hpp>
+#include <boost/utility/string_ref.hpp>
 #include <cstdint>
 #include <string>
 #include <utility>
@@ -120,8 +121,8 @@ namespace daw {
 						return *this;
 					}
 
-					HttpSiteImpl& HttpSiteImpl::on_requests_for( std::string hostname, HttpClientRequestMethod method, std::string path, std::function<void( HttpClientRequest, HttpServerResponse )> listener ) {
-						m_registered_sites.emplace_back( std::move( hostname ), std::move( hostname ), std::move( method ), listener );
+					HttpSiteImpl& HttpSiteImpl::on_requests_for( boost::string_ref hostname, HttpClientRequestMethod method, std::string path, std::function<void( HttpClientRequest, HttpServerResponse )> listener ) {
+						m_registered_sites.emplace_back( hostname.to_string( ), std::move( hostname ), std::move( method ), listener );
 						return *this;
 					}
 

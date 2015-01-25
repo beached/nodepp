@@ -97,7 +97,7 @@ namespace daw {
 						//////////////////////////////////////////////////////////////////////////
 						/// Summary:	Register a listener for a HTTP method and path on a
 						///				specific hostname
-						HttpSiteImpl& on_requests_for( std::string hostname, daw::nodepp::lib::http::HttpClientRequestMethod method, std::string path, std::function<void( daw::nodepp::lib::http::HttpClientRequest, daw::nodepp::lib::http::HttpServerResponse )> listener );
+						HttpSiteImpl& on_requests_for( boost::string_ref hostname, daw::nodepp::lib::http::HttpClientRequestMethod method, std::string path, std::function<void( daw::nodepp::lib::http::HttpClientRequest, daw::nodepp::lib::http::HttpServerResponse )> listener );
 
 						daw::nodepp::base::EventEmitter& emitter( );
 

@@ -131,6 +131,7 @@ namespace daw {
 				}
 
 				void HttpUrlQueryPair::set_links( ) {
+					reset_jsonlink( );
 					link_string( "name", name );
 					link_string( "value", value );
 				}
@@ -162,6 +163,7 @@ namespace daw {
 				}
 
 				void HttpUrl::set_links( ) {
+					reset_jsonlink( );
 					link_string( "path", path );
 					link_array( "query", query );
 					link_string( "fragment", fragment );
@@ -194,23 +196,53 @@ namespace daw {
 				}
 
 				void HttpRequestLine::set_links( ) {
+					reset_jsonlink( );
 					link_streamable( "method", method );
 					link_object( "url", url );
 					link_string( "version", version );
+				}
+
+				HttpClientRequestBody::HttpClientRequestBody( ) : mime_type( ), content( ) {
+					set_links( );
+				}
+
+				HttpClientRequestBody::HttpClientRequestBody( HttpClientRequestBody && other ):
+					JsonLink<HttpClientRequestBody>( std::move( other ) ),
+					mime_type( std::move( other.mime_type ) ),
+					content( std::move( other.content ) ) {
+					reset_jsonlink( );
+					set_links( );
+				}
+
+				HttpClientRequestBody& HttpClientRequestBody::operator=(HttpClientRequestBody && rhs) {
+					if( this != &rhs ) {
+						mime_type = std::move( rhs.mime_type );
+						content = std::move( rhs.content );
+						set_links( );
+					}
+					return *this;
+				}
+
+				void HttpClientRequestBody::set_links( ) {
+					reset_jsonlink( );
+					link_string( "mime_type", mime_type );
+					link_string( "content", content );
 				}
 
 				namespace impl {
 					HttpClientRequestImpl::HttpClientRequestImpl( ) :
 						JsonLink( ),
 						request( ),
-						headers( ) {
+						headers( ),
+						body( ) {
 						set_links( );
 					}
 
 					HttpClientRequestImpl::HttpClientRequestImpl( HttpClientRequestImpl && other ) :
 						JsonLink( std::move( other ) ),
 						request( std::move( other.request ) ),
-						headers( std::move( other.headers ) ) {
+						headers( std::move( other.headers ) ),
+						body( std::move( other.body ) ) {
 						set_links( );
 					}
 
@@ -218,14 +250,17 @@ namespace daw {
 						if( this != &rhs ) {
 							request = std::move( rhs.request );
 							headers = std::move( rhs.headers );
+							body = std::move( rhs.body );
 							set_links( );
 						}
 						return *this;
 					}
 
 					void HttpClientRequestImpl::set_links( ) {
+						reset_jsonlink( );
 						link_object( "request", request );
 						link_map( "headers", headers );
+						link_object( "body", body );
 					}
 				}	// namespace impl
 			} // namespace http
