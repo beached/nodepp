@@ -108,7 +108,7 @@ namespace daw {
 					HttpClientRequestBody( HttpClientRequestBody && other );
 					HttpClientRequestBody& operator=(HttpClientRequestBody && rhs);
 					void set_links( );
-				};
+				};	// struct HttpClientRequestBody
 
 				namespace impl {
 					struct HttpClientRequestImpl: public daw::json::JsonLink < HttpClientRequestImpl > {
