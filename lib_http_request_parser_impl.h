@@ -64,7 +64,7 @@ BOOST_FUSION_ADAPT_STRUCT(
 
 	BOOST_FUSION_ADAPT_STRUCT(
 	daw::nodepp::lib::http::impl::HttpClientRequestImpl,
-	(daw::nodepp::lib::http::HttpRequestLine, request)
+	(daw::nodepp::lib::http::HttpRequestLine, request_line)
 	(daw::nodepp::lib::http::impl::HttpClientRequestImpl::headers_t, headers)
 	)
 

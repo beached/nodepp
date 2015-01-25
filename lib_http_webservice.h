@@ -62,9 +62,15 @@ namespace daw {
 								delegate_to( "error", self, "error" ).
 								on_requests_for( method, base_path, [self, handler, synchronous]( daw::nodepp::lib::http::HttpClientRequest request, daw::nodepp::lib::http::HttpServerResponse response ) {
 								switch( request->request.method ) {
-								case daw::nodepp::lib::http::HttpClientRequestMethod::Get:
-
+								case daw::nodepp::lib::http::HttpClientRequestMethod::Get: {
+									daw::json::impl::object_value obj;
+									//if(  )
+									for( auto const & query_item : request->request )
+										break;
+								}
 								case daw::nodepp::lib::http::HttpClientRequestMethod::Post:
+
+									break;
 								default:
 									throw std::runtime_error( "Web Service HTTP Method not implemented" );
 								}

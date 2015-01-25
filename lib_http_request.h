@@ -110,10 +110,13 @@ namespace daw {
 					void set_links( );
 				};	// struct HttpClientRequestBody
 
+				struct HttpClientRequestHeaders: public daw::json::JsonLink < HttpClientRequestHeaders > {
+				};
+
 				namespace impl {
 					struct HttpClientRequestImpl: public daw::json::JsonLink < HttpClientRequestImpl > {
 						using headers_t = std::unordered_map < std::string, std::string > ;
-						daw::nodepp::lib::http::HttpRequestLine request;
+						daw::nodepp::lib::http::HttpRequestLine request_line;
 						headers_t headers;
 						boost::optional<daw::nodepp::lib::http::HttpClientRequestBody> body;
 

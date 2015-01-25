@@ -404,12 +404,12 @@ namespace daw {
 				return *this;
 			}
 
-			template<typename T>
-			JsonLink& link_object( boost::string_ref name, boost::optional<JsonLink<T>>& value ) {
+			template<typename T, typename std::enable_if<std::is_base_of<JsonLink<T>, T>::value, long>::type = 0>
+			JsonLink& link_object( boost::string_ref name, boost::optional<T>& value ) {
 				auto value_ptr = &value;
 				set_name( value, name.to_string( ) );
 				data_description_t data_description;
-				data_description.json_type = (T { }).get_schema( );
+				data_description.json_type = (T { }).get_schema_obj( );
 				data_description.bind_functions.encode = standard_encoder( name, value );
 				data_description.bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
 					assert( value_ptr );

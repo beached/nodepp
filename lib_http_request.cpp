@@ -232,7 +232,7 @@ namespace daw {
 				namespace impl {
 					HttpClientRequestImpl::HttpClientRequestImpl( ) :
 						JsonLink( ),
-						request( ),
+						request_line( ),
 						headers( ),
 						body( ) {
 						set_links( );
@@ -240,7 +240,7 @@ namespace daw {
 
 					HttpClientRequestImpl::HttpClientRequestImpl( HttpClientRequestImpl && other ) :
 						JsonLink( std::move( other ) ),
-						request( std::move( other.request ) ),
+						request_line( std::move( other.request_line ) ),
 						headers( std::move( other.headers ) ),
 						body( std::move( other.body ) ) {
 						set_links( );
@@ -248,7 +248,7 @@ namespace daw {
 
 					HttpClientRequestImpl& HttpClientRequestImpl::operator=(HttpClientRequestImpl && rhs) {
 						if( this != &rhs ) {
-							request = std::move( rhs.request );
+							request_line = std::move( rhs.request_line );
 							headers = std::move( rhs.headers );
 							body = std::move( rhs.body );
 							set_links( );
@@ -258,7 +258,7 @@ namespace daw {
 
 					void HttpClientRequestImpl::set_links( ) {
 						reset_jsonlink( );
-						link_object( "request", request );
+						link_object( "request", request_line );
 						link_map( "headers", headers );
 						link_object( "body", body );
 					}
