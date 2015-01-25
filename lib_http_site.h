@@ -60,8 +60,8 @@ namespace daw {
 
 						bool operator==(site_registration const & rhs) const;
 
-						site_registration( std::string Host, std::string Path, daw::nodepp::lib::http::HttpClientRequestMethod Method );
-						site_registration( std::string Host, std::string Path, daw::nodepp::lib::http::HttpClientRequestMethod Method, std::function < void( daw::nodepp::lib::http::HttpClientRequest, daw::nodepp::lib::http::HttpServerResponse ) > Listener );
+						site_registration( boost::string_ref Host, boost::string_ref Path, daw::nodepp::lib::http::HttpClientRequestMethod Method );
+						site_registration( boost::string_ref Host, boost::string_ref Path, daw::nodepp::lib::http::HttpClientRequestMethod Method, std::function < void( daw::nodepp::lib::http::HttpClientRequest, daw::nodepp::lib::http::HttpServerResponse ) > Listener );
 					};	// site_registration
 
 					class HttpSiteImpl: public daw::nodepp::base::enable_shared<HttpSiteImpl>, public daw::nodepp::base::StandardEvents < HttpSiteImpl > {

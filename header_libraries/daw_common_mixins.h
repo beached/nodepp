@@ -39,7 +39,7 @@ namespace daw {
 			Derived const & self( ) const {
 				return *dynamic_cast<Derived const *>(this);
 			}
-			using container_t = decltype(self( ).container( ));
+			using container_t = decltype(std::declval<Derived>( ).container( ));
 
 		public:
 			using iterator = typename container_t::iterator;

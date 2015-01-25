@@ -32,3 +32,4 @@
 BOOST_AUTO_TEST_CASE( make_unique_none_yet ) {
 	BOOST_WARN_MESSAGE( true, "make_unique_test unimplemented" );
 }
+

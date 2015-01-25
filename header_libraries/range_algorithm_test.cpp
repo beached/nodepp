@@ -32,3 +32,4 @@
 BOOST_AUTO_TEST_CASE( range_algorithm_none_yet ) {
 	BOOST_WARN_MESSAGE( true, "range_algorithm_test unimplemented" );
 }
+

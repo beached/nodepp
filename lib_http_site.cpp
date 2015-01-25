@@ -43,15 +43,15 @@ namespace daw {
 						return rhs.host == host && rhs.path == path && rhs.method == method;
 					}
 
-					site_registration::site_registration( std::string Host, std::string Path, HttpClientRequestMethod Method, std::function < void( HttpClientRequest, HttpServerResponse ) > Listener ) :
-						host( std::move( Host ) ),
-						path( std::move( Path ) ),
+					site_registration::site_registration( boost::string_ref Host, boost::string_ref Path, HttpClientRequestMethod Method, std::function < void( HttpClientRequest, HttpServerResponse ) > Listener ) :
+						host( Host.to_string( ) ),
+						path( Path.to_string( ) ),
 						method( std::move( Method ) ),
 						listener( std::move( Listener ) ) { }
 
-					site_registration::site_registration( std::string Host, std::string Path, HttpClientRequestMethod Method ) :
-						host( std::move( Host ) ),
-						path( std::move( Path ) ),
+					site_registration::site_registration( boost::string_ref Host, boost::string_ref Path, HttpClientRequestMethod Method ) :
+						host( Host.to_string( ) ),
+						path( Path.to_string( ) ),
 						method( std::move( Method ) ),
 						listener( nullptr ) { }
 

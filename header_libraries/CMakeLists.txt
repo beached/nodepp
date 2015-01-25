@@ -9,6 +9,7 @@ find_package(Boost 1.55.0 COMPONENTS system filesystem unit_test_framework REQUI
 
 set(HEADER_PREFIXES
 		concurrent_queue
+		daw_common_mixins
 		daw_range
 		daw_string
 		daw_traits

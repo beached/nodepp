@@ -50,6 +50,10 @@ namespace daw {
 					class HttpWebServiceImpl: public daw::nodepp::base::enable_shared<HttpWebServiceImpl<ResultType, Argument>>, public daw::nodepp::base::StandardEvents < HttpWebServiceImpl<ResultType, Argument> > {
 						// 						static_assert < std::is_base_of<JsonLink<ResultType>, ResultType>::value, "ResultType must derive from JsonLink<ResultType>" );
 						// 						static_assert < std::is_base_of<JsonLink<Argument...>, ResultType>::value, "Argument must derive from JsonLink<Argument>" );
+						daw::nodepp::lib::http::HttpClientRequestMethod m_method;
+						std::string m_base_path;
+						std::function < ResultType( Argument const & )> m_handler;
+						bool m_synchronous;
 					public:
 						HttpWebServiceImpl( daw::nodepp::lib::http::HttpClientRequestMethod method, boost::string_ref base_path, std::function < ResultType( Argument const & )> handler, bool synchronous = false ) { }
 
@@ -57,10 +61,10 @@ namespace daw {
 						T decode( boost::string_ref json_text );
 
 						HttpWebServiceImpl& connect( HttpSite & site ) {
-							auto self = get_weak_ptr( );
+							auto self = this->get_weak_ptr( );
 							site->delegate_to( "exit", self, "exit" ).
 								delegate_to( "error", self, "error" ).
-								on_requests_for( method, base_path, [self, handler, synchronous]( daw::nodepp::lib::http::HttpClientRequest request, daw::nodepp::lib::http::HttpServerResponse response ) {
+								on_requests_for( m_method, m_base_path, [self, m_handler, m_synchronous]( daw::nodepp::lib::http::HttpClientRequest request, daw::nodepp::lib::http::HttpServerResponse response ) {
 								switch( request->request.method ) {
 								case daw::nodepp::lib::http::HttpClientRequestMethod::Get: {
 									daw::json::impl::object_value obj;

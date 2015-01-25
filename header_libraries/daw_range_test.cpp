@@ -32,3 +32,4 @@
 BOOST_AUTO_TEST_CASE( daw_range_none_yet ) {
 	BOOST_WARN_MESSAGE( true, "daw_range_test unimplemented" );
 }
+
