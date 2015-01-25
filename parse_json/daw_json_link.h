@@ -381,8 +381,8 @@ namespace daw {
 				return link_value( name, value );
 			}
 
-			template<typename T>
-			JsonLink& link_object( boost::string_ref name, JsonLink<T>& value ) {
+			template<typename T, typename std::enable_if<daw::traits::is_mixed_from<JsonLink, T>::value, long>::type = 0>
+			JsonLink& link_object( boost::string_ref name, T& value ) {
 				auto value_ptr = &value;
 				set_name( value, name.to_string( ) );
 				data_description_t data_description;
@@ -404,8 +404,8 @@ namespace daw {
 				return *this;
 			}
 
-			template<typename T>
-			JsonLink& link_object( boost::string_ref name, boost::optional<JsonLink<T>>& value ) {
+			template<typename T, typename std::enable_if<daw::traits::is_mixed_from<JsonLink, T>::value, long>::type = 0>
+			JsonLink& link_object( boost::string_ref name, boost::optional<T>& value ) {
 				auto value_ptr = &value;
 				set_name( value, name.to_string( ) );
 				data_description_t data_description;
