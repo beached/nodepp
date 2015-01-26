@@ -65,7 +65,7 @@ namespace daw {
 							site->delegate_to( "exit", self, "exit" ).
 								delegate_to( "error", self, "error" ).
 								on_requests_for( m_method, m_base_path, [self, m_handler, m_synchronous]( daw::nodepp::lib::http::HttpClientRequest request, daw::nodepp::lib::http::HttpServerResponse response ) {
-								switch( request->request.method ) {
+								switch( request->request_line.method ) {
 								case daw::nodepp::lib::http::HttpClientRequestMethod::Get: {
 									daw::json::impl::object_value obj;
 									//if(  )
