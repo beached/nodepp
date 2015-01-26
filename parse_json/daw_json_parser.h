@@ -31,6 +31,8 @@
 #include <string>
 #include <vector>
 
+#include "daw_common_mixins.h"
+
 namespace daw {
 	namespace json {
 		namespace impl {
@@ -101,26 +103,34 @@ namespace daw {
 
 			object_value_item make_object_value_item( std::string first, value_t second );
 
-			struct object_value {
+			struct object_value: public daw::mixins::VectorLike < object_value > {
 				std::vector<object_value_item> members;
-				using iterator = std::vector<object_value_item>::iterator;
-				using const_iterator = std::vector<object_value_item>::const_iterator;
-				using value_type = object_value_item;
+				inline std::vector<object_value_item> & container( ) {
+					return members;
+				}
+
+				inline std::vector<object_value_item> const & container( ) const {
+					return members;
+				}
+
+				// 				using iterator = std::vector<object_value_item>::iterator;
+				// 				using const_iterator = std::vector<object_value_item>::const_iterator;
+				// 				using value_type = object_value_item;
 				using key_type = std::string;
 				using mapped_type = value_t;
 
 				iterator find( boost::string_ref const key );
 				const_iterator find( boost::string_ref const key ) const;
 
-				iterator begin( );
-				const_iterator begin( ) const;
-				iterator end( );
-				const_iterator end( ) const;
+				// 				iterator begin( );
+				// 				const_iterator begin( ) const;
+				// 				iterator end( );
+				// 				const_iterator end( ) const;
 
 				iterator insert( iterator where, object_value_item item );
-				void push_back( object_value_item item );
-				mapped_type & operator[]( boost::string_ref key );
-				mapped_type const & operator[]( boost::string_ref key ) const;
+				// 				void push_back( object_value_item item );
+				// 				mapped_type & operator[]( boost::string_ref key );
+				// 				mapped_type const & operator[]( boost::string_ref key ) const;
 			};
 			std::ostream& operator<<(std::ostream& os, value_t const & value);
 			std::ostream& operator<<(std::ostream& os, std::shared_ptr<value_t> const & value);

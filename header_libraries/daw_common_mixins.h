@@ -33,14 +33,13 @@ namespace daw {
 		class VectorLike {
 		private:
 			Derived& self( ) {
-				return *dynamic_cast<Derived*>(this);
+				return *static_cast<Derived*>(this);
 			}
 
 			Derived const & self( ) const {
-				return *dynamic_cast<Derived const *>(this);
+				return *static_cast<Derived const *>(this);
 			}
 			using container_t = decltype(std::declval<Derived>( ).container( ));
-
 		public:
 			using iterator = typename container_t::iterator;
 			using const_iterator = typename container_t::const_iterator;
