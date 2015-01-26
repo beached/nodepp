@@ -103,7 +103,7 @@ namespace daw {
 
 			object_value_item make_object_value_item( std::string first, value_t second );
 
-			struct object_value: public daw::mixins::VectorLike < object_value > {
+			struct object_value: public daw::mixins::VectorLike < object_value, std::vector<object_value_item> > {
 				std::vector<object_value_item> members;
 				inline std::vector<object_value_item> & container( ) {
 					return members;
@@ -127,10 +127,10 @@ namespace daw {
 				// 				iterator end( );
 				// 				const_iterator end( ) const;
 
-				iterator insert( iterator where, object_value_item item );
+				// 				iterator insert( iterator where, object_value_item item );
 				// 				void push_back( object_value_item item );
-				// 				mapped_type & operator[]( boost::string_ref key );
-				// 				mapped_type const & operator[]( boost::string_ref key ) const;
+				mapped_type & operator[]( boost::string_ref key );
+				mapped_type const & operator[]( boost::string_ref key ) const;
 			};
 			std::ostream& operator<<(std::ostream& os, value_t const & value);
 			std::ostream& operator<<(std::ostream& os, std::shared_ptr<value_t> const & value);

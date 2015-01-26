@@ -29,68 +29,155 @@ namespace daw {
 		///				with a member that is a container.
 		///				Requires a member in Derived called container( ) that
 		///				returns the container
-		template<typename Derived>
+		template<typename Derived, typename container_type>
 		class VectorLike {
 		private:
-			Derived& self( ) {
+			Derived & derived( ) {
 				return *static_cast<Derived*>(this);
 			}
 
-			Derived const & self( ) const {
-				return *static_cast<Derived const *>(this);
+			Derived const & derived( ) const {
+				return *static_cast<Derived const*>(this);
 			}
-			using container_t = decltype(std::declval<Derived>( ).container( ));
 		public:
-			using iterator = typename container_t::iterator;
-			using const_iterator = typename container_t::const_iterator;
-			using value_type = typename container_t::value_type;
-			using reference = typename container_t::reference;
-			using const_reference = typename container_t::const_reference;
-			using size_type = typename container_t::size_type;
+			using conainter_type = container_type;
+			using iterator = typename container_type::iterator;
+			using const_iterator = typename container_type::const_iterator;
+			using value_type = typename container_type::value_type;
+			using reference = typename container_type::reference;
+			using const_reference = typename container_type::const_reference;
+			using size_type = typename container_type::size_type;
 
-			auto begin( ) -> decltype(self( ).container( ).begin( )) {
-				return self( ).container( ).begin( );
+			iterator begin( ) {
+				return derived( ).container( ).begin( );
 			}
 
-			auto end( ) -> decltype(self( ).container( ).end( )) {
-				return self( ).container( ).end( );
+			iterator end( ) {
+				return derived( ).container( ).end( );
 			}
 
-			auto cbegin( ) -> decltype(self( ).container( ).cbegin( )) {
-				return self( ).container( ).cbegin( );
+			const_iterator begin( ) const {
+				return derived( ).container( ).begin( );
 			}
 
-			auto cend( ) -> decltype(self( ).container( ).cend( )) {
-				return self( ).container( ).cend( );
+			const_iterator end( ) const {
+				return derived( ).container( ).end( );
 			}
 
-			reference operator[]( size_type n ) {
-				return self( ).container( )[n];
+			const_iterator cbegin( ) {
+				return derived( ).container( ).cbegin( );
 			}
 
-			const_reference operator[]( size_type n ) const {
-				return self( ).container( )[n];
-			}
-
-			reference at( size_type n ) {
-				return self( ).container( ).at( n );
-			}
-
-			const_reference at( size_type n ) const {
-				return self( ).container( ).at( n );
+			const_iterator cend( ) {
+				return derived( ).container( ).cend( );
 			}
 
 			void push_back( value_type && value ) {
-				self( ).container( ).push_back( std::move( value ) );
+				derived( ).container( ).insert( end( ), value );
 			}
 
 			void push_back( const_reference value ) {
-				self( ).container( ).push_back( value );
+				derived( ).container( ).insert( end( ), value );
 			}
 
 			template<typename... Args>
 			void emplace_back( Args&&... args ) {
-				self( ).container( ).emplace_back( std::forward<Args>( args )... );
+				derived( ).container( ).emplace( end( ), std::forward<Args>( args )... );
+			}
+
+			iterator insert( iterator where, value_type item ) {
+				return derived( ).container( ).insert( where, std::move( item ) );
+			}
+
+			reference operator[]( size_type pos ) {
+				return *(begin( ) + pos);
+			}
+
+			const_reference operator[]( size_type pos ) const {
+				return *(cbegin( ) + pos);
+			}
+
+			size_type size( ) const {
+				return std::distance( cbegin( ), cend( ) );
+			}
+		};
+
+		/////////////////////////////////////11/////////////////////////////////////
+		/// Summary:	Provides a minimal interface for a map like container
+		///				with a member that is a container.
+		///				Requires a member in Derived called container( ) that
+		///				returns the container, find( ) that searches
+		///				for a key and key_type and mapped_type
+		template<typename Derived, typename MapType>
+		class MapLike {
+		private:
+			Derived & derived( ) {
+				return *static_cast<Derived*>(this);
+			}
+
+			Derived const & derived( ) const {
+				return *static_cast<Derived const*>(this);
+			}
+		public:
+			using container_type = MapType;
+			using iterator = typename container_type::iterator;
+			using const_iterator = typename container_type::const_iterator;
+			using value_type = typename container_type::value_type;
+			using reference = typename container_type::reference;
+			using const_reference = typename container_type::const_reference;
+			using size_type = typename container_type::size_type;
+
+			iterator begin( ) {
+				return derived( ).container( ).begin( );
+			}
+
+			iterator end( ) {
+				return derived( ).container( ).end( );
+			}
+
+			const_iterator begin( ) const {
+				return derived( ).container( ).begin( );
+			}
+
+			const_iterator end( ) const {
+				return derived( ).container( ).end( );
+			}
+
+			const_iterator cbegin( ) {
+				return derived( ).container( ).cbegin( );
+			}
+
+			const_iterator cend( ) {
+				return derived( ).container( ).cend( );
+			}
+
+			void push_back( value_type && value ) {
+				derived( ).container( ).insert( end( ), value );
+			}
+
+			void push_back( const_reference value ) {
+				derived( ).container( ).insert( end( ), value );
+			}
+
+			template<typename... Args>
+			void emplace_back( Args&&... args ) {
+				derived( ).container( ).emplace( end( ), std::forward<Args>( args )... );
+			}
+
+			iterator insert( iterator where, value_type item ) {
+				return derived( ).container( ).insert( where, std::move( item ) );
+			}
+
+			reference operator[]( typename container_type::key_type key ) {
+				return derived( ).find( key );
+			}
+
+			const_reference operator[]( typename container_type::key_type key ) const {
+				return derived( ).find( key );
+			}
+
+			size_type size( ) const {
+				return std::distance( cbegin( ), cend( ) );
 			}
 		};
 	}	// namespace mixins

@@ -326,30 +326,30 @@ namespace daw {
 				} );
 			}
 
-			object_value::iterator object_value::end( ) {
-				return members.end( );
-			}
+			// 			object_value::iterator object_value::end( ) {
+			// 				return members.end( );
+			// 			}
+			//
+			// 			object_value::const_iterator object_value::end( ) const {
+			// 				return members.cend( );
+			// 			}
+			//
+			// 			object_value::iterator object_value::begin( ) {
+			// 				return members.begin( );
+			// 			}
+			//
+			// 			object_value::const_iterator object_value::begin( ) const {
+			// 				return members.cbegin( );
+			// 			}
 
-			object_value::const_iterator object_value::end( ) const {
-				return members.cend( );
-			}
+			// 			object_value::iterator object_value::insert( object_value::iterator where, object_value_item item ) {
+			// 				return members.insert( where, std::move( item ) );
+			// 			}
 
-			object_value::iterator object_value::begin( ) {
-				return members.begin( );
-			}
-
-			object_value::const_iterator object_value::begin( ) const {
-				return members.cbegin( );
-			}
-
-			object_value::iterator object_value::insert( object_value::iterator where, object_value_item item ) {
-				return members.insert( where, std::move( item ) );
-			}
-
-			void object_value::push_back( object_value_item item ) {
-				members.push_back( std::move( item ) );
-			}
-
+			// 			void object_value::push_back( object_value_item item ) {
+			// 				members.push_back( std::move( item ) );
+			// 			}
+			//
 			object_value::mapped_type & object_value::operator[]( boost::string_ref key ) {
 				auto pos = find( key );
 				if( end( ) == pos ) {
@@ -365,7 +365,7 @@ namespace daw {
 				}
 				return pos->second;
 			}
-
+			//
 			namespace {
 				template<typename Iterator>
 				bool contains( Iterator first, Iterator last, typename std::iterator_traits<Iterator>::value_type const & key ) {

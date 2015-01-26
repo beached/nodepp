@@ -110,7 +110,26 @@ namespace daw {
 					void set_links( );
 				};	// struct HttpClientRequestBody
 
-				struct HttpClientRequestHeaders: public daw::json::JsonLink < HttpClientRequestHeaders > {
+				struct HttpClientRequestHeaders: public daw::json::JsonLink < HttpClientRequestHeaders >, public daw::mixins::MapLike < HttpClientRequestHeaders, std::unordered_map< std::string, std::string> > {
+					container_type headers;
+					using key_type = std::string;
+					using mapped_type = std::string;
+				protected:
+					inline container_type & container( ) {
+						return headers;
+					}
+
+					inline container_type const & container( ) const {
+						return headers;
+					}
+				public:
+					iterator find( boost::string_ref key ) {
+						return headers.find( key.to_string( ) );
+					}
+
+					const_iterator find( boost::string_ref key ) const {
+						return headers.find( key.to_string( ) );
+					}
 				};
 
 				namespace impl {
