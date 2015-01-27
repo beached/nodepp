@@ -110,7 +110,7 @@ namespace daw {
 					void set_links( );
 				};	// struct HttpClientRequestBody
 
-				struct HttpClientRequestHeaders: public daw::json::JsonLink < HttpClientRequestHeaders >, public daw::mixins::MapLike < HttpClientRequestHeaders, std::unordered_map< std::string, std::string> > {
+				struct HttpClientRequestHeaders: public daw::json::JsonLink < HttpClientRequestHeaders >, public daw::mixins::MapLikeProxy < HttpClientRequestHeaders, std::unordered_map< std::string, std::string> > {
 					container_type headers;
 					using key_type = std::string;
 					using mapped_type = std::string;

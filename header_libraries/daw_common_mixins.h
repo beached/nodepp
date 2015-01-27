@@ -24,14 +24,9 @@
 
 namespace daw {
 	namespace mixins {
-		//////////////////////////////////////////////////////////////////////////
-		/// Summary:	Provides a minimal interface for a vector like container
-		///				with a member that is a container.
-		///				Requires a member in Derived called container( ) that
-		///				returns the container
-		template<typename Derived, typename container_type>
-		class VectorLike {
-		private:
+		template<typename Derived, typename ContainerType>
+		class ContainerProxy {
+		protected:
 			Derived & derived( ) {
 				return *static_cast<Derived*>(this);
 			}
@@ -40,7 +35,7 @@ namespace daw {
 				return *static_cast<Derived const*>(this);
 			}
 		public:
-			using conainter_type = container_type;
+			using container_type = ContainerType;
 			using iterator = typename container_type::iterator;
 			using const_iterator = typename container_type::const_iterator;
 			using value_type = typename container_type::value_type;
@@ -72,21 +67,39 @@ namespace daw {
 				return derived( ).container( ).cend( );
 			}
 
+			iterator insert( iterator where, value_type item ) {
+				return derived( ).container( ).insert( where, std::move( item ) );
+			}
+
+			template<typename... Args>
+			void emplace( iterator where, Args&&... args ) {
+				return derived( ).container( ).emplace( where, std::forward<Args>( args )... );
+			}
+
+			size_type size( ) const {
+				return std::distance( cbegin( ), cend( ) );
+			}
+		};
+
+		//////////////////////////////////////////////////////////////////////////
+		/// Summary:	Provides a minimal interface for a vector like container
+		///				with a member that is a container.
+		///				Requires a member in Derived called container( ) that
+		///				returns the container
+		template<typename Derived, typename container_type>
+		class VectorLikeProxy: public ContainerProxy < Derived, container_type > {
+		public:
 			void push_back( value_type && value ) {
-				derived( ).container( ).insert( end( ), value );
+				insert( end( ), value );
 			}
 
 			void push_back( const_reference value ) {
-				derived( ).container( ).insert( end( ), value );
+				insert( end( ), value );
 			}
 
 			template<typename... Args>
 			void emplace_back( Args&&... args ) {
-				derived( ).container( ).emplace( end( ), std::forward<Args>( args )... );
-			}
-
-			iterator insert( iterator where, value_type item ) {
-				return derived( ).container( ).insert( where, std::move( item ) );
+				emplace( end( ), std::forward<Args>( args )... );
 			}
 
 			reference operator[]( size_type pos ) {
@@ -95,10 +108,6 @@ namespace daw {
 
 			const_reference operator[]( size_type pos ) const {
 				return *(cbegin( ) + pos);
-			}
-
-			size_type size( ) const {
-				return std::distance( cbegin( ), cend( ) );
 			}
 		};
 
@@ -109,75 +118,15 @@ namespace daw {
 		///				returns the container, find( ) that searches
 		///				for a key and key_type and mapped_type
 		template<typename Derived, typename MapType>
-		class MapLike {
-		private:
-			Derived & derived( ) {
-				return *static_cast<Derived*>(this);
-			}
-
-			Derived const & derived( ) const {
-				return *static_cast<Derived const*>(this);
-			}
-		public:
-			using container_type = MapType;
-			using iterator = typename container_type::iterator;
-			using const_iterator = typename container_type::const_iterator;
-			using value_type = typename container_type::value_type;
-			using reference = typename container_type::reference;
-			using const_reference = typename container_type::const_reference;
-			using size_type = typename container_type::size_type;
-
-			iterator begin( ) {
-				return derived( ).container( ).begin( );
-			}
-
-			iterator end( ) {
-				return derived( ).container( ).end( );
-			}
-
-			const_iterator begin( ) const {
-				return derived( ).container( ).begin( );
-			}
-
-			const_iterator end( ) const {
-				return derived( ).container( ).end( );
-			}
-
-			const_iterator cbegin( ) {
-				return derived( ).container( ).cbegin( );
-			}
-
-			const_iterator cend( ) {
-				return derived( ).container( ).cend( );
-			}
-
-			void push_back( value_type && value ) {
-				derived( ).container( ).insert( end( ), value );
-			}
-
-			void push_back( const_reference value ) {
-				derived( ).container( ).insert( end( ), value );
-			}
-
-			template<typename... Args>
-			void emplace_back( Args&&... args ) {
-				derived( ).container( ).emplace( end( ), std::forward<Args>( args )... );
-			}
-
-			iterator insert( iterator where, value_type item ) {
-				return derived( ).container( ).insert( where, std::move( item ) );
-			}
-
-			reference operator[]( typename container_type::key_type key ) {
+		class MapLikeProxy: public ContainerProxy < Derived, MapType > {
+			using key_type = typename MapType::key_type;
+			using mapped_type = typename MapType::mapped_type;
+			reference operator[]( typename key_type key ) {
 				return derived( ).find( key );
 			}
 
-			const_reference operator[]( typename container_type::key_type key ) const {
+			const_reference operator[]( typename key_type key ) const {
 				return derived( ).find( key );
-			}
-
-			size_type size( ) const {
-				return std::distance( cbegin( ), cend( ) );
 			}
 		};
 	}	// namespace mixins
