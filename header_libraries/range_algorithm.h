@@ -80,6 +80,23 @@ namespace daw {
 			return std::stable_partition( std::begin( container ), std::end( container ), pred );
 		}
 
+		template<typename Container, typename T>
+		auto accumulate( Container const & container, T init ) -> decltype(std::accumulate( std::begin( container ), std::end( container ), std::move( init ) )) {
+			return std::accumulate( std::begin( container ), std::end( container ), std::move( init ) );
+		}
+
+		template<typename Container, typename T, typename BinaryOperator>
+		auto accumulate( Container const & container, T init, BinaryOperator oper ) -> decltype(std::accumulate( std::begin( container ), std::end( container ), std::move( init ), oper )) {
+			return std::accumulate( std::begin( container ), std::end( container ), std::move( init ), oper );
+		}
+
+		template<typename ContainerIn, typename UnaryOperator>
+		auto map( ContainerIn const & in, UnaryOperator oper ) -> std::vector < decltype(oper( std::declval<typename std::iterator_traits<decltype(std::begin( in ))>::value_type>( ) )) > {
+			using result_t = std::vector < decltype(oper( std::declval<typename std::iterator_traits<decltype(std::begin( in ))>::value_type>( ) )) > ;
+			result_t result;
+			return std::transform( std::begin( in ), std::end( in ), std::back_inserter( result ), oper );
+		}
+
 		template<typename Container, typename Value>
 		bool contains( Container const & container, Value const & value ) {
 			return std::find( std::begin( container ), std::end( container ), value ) != std::end( container );
@@ -97,7 +114,8 @@ namespace daw {
 		auto where( ContainerType& container, Predicate pred ) -> std::vector < std::reference_wrapper<typename ContainerType::value_type> > {
 			using ValueType = typename ContainerType::value_type;
 			std::vector<std::reference_wrapper<ValueType>> result;
-			auto res_it = std::back_inserter( result );
+			std::transform( )
+				auto res_it = std::back_inserter( result );
 			for( auto& value : container ) {
 				*res_it++ = value;
 			}

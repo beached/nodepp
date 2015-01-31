@@ -20,8 +20,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <boost/iterator/counting_iterator.hpp>
 #include <boost/test/unit_test.hpp>
 
+#include <algorithm>
 #include <cstdint>
 #include <string>
 #include <unordered_map>
@@ -33,3 +35,29 @@ BOOST_AUTO_TEST_CASE( range_algorithm_none_yet ) {
 	BOOST_WARN_MESSAGE( true, "range_algorithm_test unimplemented" );
 }
 
+BOOST_AUTO_TEST_CASE( range_algorithm_accumulate ) {
+	std::vector<int> test( 100, 1 );
+	auto sum = daw::algorithm::accumulate( test, 0 );
+	BOOST_REQUIRE_MESSAGE( test.size( ) == sum, "A vector of 1's size should equal it's sum" );
+
+	auto product = daw::algorithm::accumulate( test, 0, []( int const & lhs, int const & rhs ) {
+		return lhs * rhs;
+	} );
+
+	BOOST_REQUIRE_MESSAGE( 1 == product, "The product of a vector of 1's should be 1" );
+}
+
+BOOST_AUTO_TEST_CASE( range_algorithm_map ) {
+	std::vector<int> test_vec( boost::counting_iterator<int>( 1 ), boost::counting_iterator<int>( 100 ) );
+
+	auto result = daw::algorithm::map( test_vec, []( int const & val ) {
+		return 2 * val;
+	} );
+
+	BOOST_REQUIRE_MESSAGE( test_vac.size( ) == result.size( ), "Result of map should be of equal size to the input" );
+
+	auto sum1 = daw::algorithm::accumulate( test_vec, 0 );
+	auto sum2 = daw::algorithm::accumulate( result, 0 );
+
+	BOOST_REQUIRE_MESSAGE( sum2 == 2 * sum1, "The result should have double the sum of the test_vec" );
+}
