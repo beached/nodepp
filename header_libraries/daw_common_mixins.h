@@ -88,26 +88,27 @@ namespace daw {
 		///				returns the container
 		template<typename Derived, typename container_type>
 		class VectorLikeProxy: public ContainerProxy < Derived, container_type > {
+			using base_t = ContainerProxy < Derived, container_type >;
 		public:
-			void push_back( value_type && value ) {
-				insert( end( ), value );
+			void push_back( typename base_t::value_type && value ) {
+				insert( base_t::end( ), value );
 			}
 
-			void push_back( const_reference value ) {
-				insert( end( ), value );
+			void push_back( typename base_t::const_reference value ) {
+				insert( base_t::end( ), value );
 			}
 
 			template<typename... Args>
 			void emplace_back( Args&&... args ) {
-				emplace( end( ), std::forward<Args>( args )... );
+				emplace( base_t::end( ), std::forward<Args>( args )... );
 			}
 
-			reference operator[]( size_type pos ) {
-				return *(begin( ) + pos);
+			typename base_t::reference operator[]( typename base_t::csize_type pos ) {
+				return *(base_t::begin( ) + pos);
 			}
 
-			const_reference operator[]( size_type pos ) const {
-				return *(cbegin( ) + pos);
+			typename base_t::const_reference operator[]( typename base_t::csize_type pos ) const {
+				return *(base_t::cbegin( ) + pos);
 			}
 		};
 
@@ -119,14 +120,17 @@ namespace daw {
 		///				for a key and key_type and mapped_type
 		template<typename Derived, typename MapType>
 		class MapLikeProxy: public ContainerProxy < Derived, MapType > {
+			using base_t = ContainerProxy < Derived, MapType >;
+		public:
 			using key_type = typename MapType::key_type;
 			using mapped_type = typename MapType::mapped_type;
-			reference operator[]( typename key_type key ) {
-				return derived( ).find( key );
+
+			typename base_t::creference operator[]( key_type key ) {
+				return base_t::derived( ).find( key );
 			}
 
-			const_reference operator[]( typename key_type key ) const {
-				return derived( ).find( key );
+			typename base_t::cconst_reference operator[]( key_type key ) const {
+				return base_t::derived( ).find( key );
 			}
 		};
 	}	// namespace mixins

@@ -94,7 +94,8 @@ namespace daw {
 		auto map( ContainerIn const & in, UnaryOperator oper ) -> std::vector < decltype(oper( std::declval<typename std::iterator_traits<decltype(std::begin( in ))>::value_type>( ) )) > {
 			using result_t = std::vector < decltype(oper( std::declval<typename std::iterator_traits<decltype(std::begin( in ))>::value_type>( ) )) > ;
 			result_t result;
-			return std::transform( std::begin( in ), std::end( in ), std::back_inserter( result ), oper );
+			std::transform( std::begin( in ), std::end( in ), std::back_inserter( result ), oper );
+			return result;
 		}
 
 		template<typename Container, typename Value>
@@ -114,11 +115,9 @@ namespace daw {
 		auto where( ContainerType& container, Predicate pred ) -> std::vector < std::reference_wrapper<typename ContainerType::value_type> > {
 			using ValueType = typename ContainerType::value_type;
 			std::vector<std::reference_wrapper<ValueType>> result;
-			std::transform( )
-				auto res_it = std::back_inserter( result );
-			for( auto& value : container ) {
-				*res_it++ = value;
-			}
+
+			std::copy_if( std::begin( container ), std::end( container ), std::back_inserter( result ), pred );
+
 			return result;
 		}
 	}	// namespace algorithm

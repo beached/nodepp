@@ -38,9 +38,9 @@ BOOST_AUTO_TEST_CASE( range_algorithm_none_yet ) {
 BOOST_AUTO_TEST_CASE( range_algorithm_accumulate ) {
 	std::vector<int> test( 100, 1 );
 	auto sum = daw::algorithm::accumulate( test, 0 );
-	BOOST_REQUIRE_MESSAGE( test.size( ) == sum, "A vector of 1's size should equal it's sum" );
+	BOOST_REQUIRE_MESSAGE( static_cast<int>( test.size( ) ) == sum, "A vector of 1's size should equal it's sum" );
 
-	auto product = daw::algorithm::accumulate( test, 0, []( int const & lhs, int const & rhs ) {
+	auto product = daw::algorithm::accumulate( test, 1, []( int const & lhs, int const & rhs ) {
 		return lhs * rhs;
 	} );
 
@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE( range_algorithm_map ) {
 		return 2 * val;
 	} );
 
-	BOOST_REQUIRE_MESSAGE( test_vac.size( ) == result.size( ), "Result of map should be of equal size to the input" );
+	BOOST_REQUIRE_MESSAGE( test_vec.size( ) == result.size( ), "Result of map should be of equal size to the input" );
 
 	auto sum1 = daw::algorithm::accumulate( test_vec, 0 );
 	auto sum2 = daw::algorithm::accumulate( result, 0 );
