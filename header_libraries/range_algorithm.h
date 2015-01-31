@@ -23,6 +23,7 @@
 #pragma once
 
 #include <algorithm>
+#include <numeric>
 
 namespace daw {
 	namespace algorithm {
@@ -81,12 +82,12 @@ namespace daw {
 		}
 
 		template<typename Container, typename T>
-		auto accumulate( Container const & container, T init ) -> decltype(std::accumulate( std::begin( container ), std::end( container ), std::move( init ) )) {
+		T accumulate( Container const & container, T init ) {
 			return std::accumulate( std::begin( container ), std::end( container ), std::move( init ) );
 		}
 
 		template<typename Container, typename T, typename BinaryOperator>
-		auto accumulate( Container const & container, T init, BinaryOperator oper ) -> decltype(std::accumulate( std::begin( container ), std::end( container ), std::move( init ), oper )) {
+		T accumulate( Container const & container, T init, BinaryOperator oper ) {
 			return std::accumulate( std::begin( container ), std::end( container ), std::move( init ), oper );
 		}
 

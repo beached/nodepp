@@ -88,7 +88,7 @@ namespace daw {
 		///				returns the container
 		template<typename Derived, typename container_type>
 		class VectorLikeProxy: public ContainerProxy < Derived, container_type > {
-			using base_t = ContainerProxy < Derived, container_type >;
+			using base_t = ContainerProxy < Derived, container_type > ;
 		public:
 			void push_back( typename base_t::value_type && value ) {
 				insert( base_t::end( ), value );
@@ -103,11 +103,11 @@ namespace daw {
 				emplace( base_t::end( ), std::forward<Args>( args )... );
 			}
 
-			typename base_t::reference operator[]( typename base_t::csize_type pos ) {
+			typename base_t::reference operator[]( typename base_t::size_type pos ) {
 				return *(base_t::begin( ) + pos);
 			}
 
-			typename base_t::const_reference operator[]( typename base_t::csize_type pos ) const {
+			typename base_t::const_reference operator[]( typename base_t::size_type pos ) const {
 				return *(base_t::cbegin( ) + pos);
 			}
 		};
@@ -120,16 +120,16 @@ namespace daw {
 		///				for a key and key_type and mapped_type
 		template<typename Derived, typename MapType>
 		class MapLikeProxy: public ContainerProxy < Derived, MapType > {
-			using base_t = ContainerProxy < Derived, MapType >;
+			using base_t = ContainerProxy < Derived, MapType > ;
 		public:
 			using key_type = typename MapType::key_type;
 			using mapped_type = typename MapType::mapped_type;
 
-			typename base_t::creference operator[]( key_type key ) {
+			typename base_t::reference operator[]( key_type key ) {
 				return base_t::derived( ).find( key );
 			}
 
-			typename base_t::cconst_reference operator[]( key_type key ) const {
+			typename base_t::const_reference operator[]( key_type key ) const {
 				return base_t::derived( ).find( key );
 			}
 		};
