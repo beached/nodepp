@@ -91,16 +91,16 @@ namespace daw {
 			using base_t = ContainerProxy < Derived, container_type > ;
 		public:
 			void push_back( typename base_t::value_type && value ) {
-				insert( this->end( ), value );
+				this->insert( this->end( ), value );
 			}
 
 			void push_back( typename base_t::const_reference value ) {
-				insert( this->end( ), value );
+				this->insert( this->end( ), value );
 			}
 
 			template<typename... Args>
 			void emplace_back( Args&&... args ) {
-				emplace( this->end( ), std::forward<Args>( args )... );
+				this->emplace( this->end( ), std::forward<Args>( args )... );
 			}
 
 			typename base_t::reference operator[]( typename base_t::size_type pos ) {
