@@ -292,11 +292,11 @@ BOOST_AUTO_TEST_CASE( daw_traits_is_streamable ) {
 	BOOST_REQUIRE_MESSAGE( true == daw::traits::is_streamable<TestYesOS>::value, "3. TestYesOS should have an ostream overload" );
 }
 
-	namespace daw_traits_is_mixed_from_ns {
-		template<typename Derived> struct Base { Base( ) = default; };
-		struct Derived: public Base < Derived > { Derived( ) = default; };
-		struct NonDerived { NonDerived( ) = default; };
-	}
+namespace daw_traits_is_mixed_from_ns {
+	template<typename Derived> struct Base { Base( ) = default; };
+	struct Derived: public Base < Derived > { Derived( ) = default; };
+	struct NonDerived { NonDerived( ) = default; };
+}
 BOOST_AUTO_TEST_CASE( daw_traits_is_mixed_from ) {
 	auto test1 = daw::traits::is_mixed_from< daw_traits_is_mixed_from_ns::Base, daw_traits_is_mixed_from_ns::Derived>::value;
 	BOOST_REQUIRE_MESSAGE( true == test1, "1. Base<Child> should be a base for Child" );
@@ -307,9 +307,9 @@ BOOST_AUTO_TEST_CASE( daw_traits_is_mixed_from ) {
 namespace daw_traits_function_exists_ns {
 	void test( int, int );
 	CREATE_FUNCTION_EXISTS( test, test );
+
 	BOOST_AUTO_TEST_CASE( daw_traits_function_exists ) {
 		auto test1 = test_exists<void, int, int>::value;
 		BOOST_REQUIRE_MESSAGE( true == test1, "1. void test(int, int) should report as exists" );
 	}
 }
-

@@ -145,6 +145,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\concurrent_queue_test.cpp" />
+    <ClCompile Include="..\daw_common_mixins_test.cpp" />
     <ClCompile Include="..\daw_range_test.cpp" />
     <ClCompile Include="..\daw_string_test.cpp" />
     <ClCompile Include="..\daw_traits_test.cpp">

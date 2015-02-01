@@ -29,7 +29,6 @@
 
 #include "daw_common_mixins.h"
 
-BOOST_AUTO_TEST_CASE( daw_string_none_yet ) {
+BOOST_AUTO_TEST_CASE( daw_common_mixins_none_yet ) {
 	BOOST_WARN_MESSAGE( true, "daw_common_mixins_test unimplemented" );
 }
-
