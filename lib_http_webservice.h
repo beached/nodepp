@@ -55,7 +55,11 @@ namespace daw {
 						std::function < ResultType( Argument const & )> m_handler;
 						bool m_synchronous;
 					public:
-						HttpWebServiceImpl( daw::nodepp::lib::http::HttpClientRequestMethod method, boost::string_ref base_path, std::function < ResultType( Argument const & )> handler, bool synchronous = false ) { }
+						HttpWebServiceImpl( daw::nodepp::lib::http::HttpClientRequestMethod method, boost::string_ref base_path, std::function < ResultType( Argument const & )> handler, bool synchronous = false ) :
+							m_method( std::move( method ) ),
+							m_base_path( base_path.to_string( ) ),
+							m_handler( std::move( handler ) ),
+							m_synchronous( std::move( synchronous ) ) { }
 
 						template<typename T>
 						T decode( boost::string_ref json_text );
@@ -73,7 +77,7 @@ namespace daw {
 										for( auto const & query_item : *query ) {
 										}
 									}
-										break;
+									break;
 								}
 								case daw::nodepp::lib::http::HttpClientRequestMethod::Post:
 

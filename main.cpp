@@ -52,6 +52,10 @@ int main( int, char const ** ) {
 	auto test = create_web_service( HttpClientRequestMethod::Get, "/people", ws_handler );
 
 	auto site = create_http_site( );
+
+	test->connect( site );
+
+
 	site->on_listening( []( boost::asio::ip::tcp::endpoint endpoint ) {
 		std::cout << "Listening on " << endpoint << "\n";
 	} ).on_requests_for( HttpClientRequestMethod::Get, "/", [&]( HttpClientRequest request, HttpServerResponse response ) {

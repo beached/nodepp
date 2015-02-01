@@ -305,7 +305,7 @@ BOOST_AUTO_TEST_CASE( daw_traits_is_mixed_from ) {
 }
 
 namespace daw_traits_function_exists_ns {
-	void test( int, int );
+	void test( int, int ) { }
 	CREATE_FUNCTION_EXISTS( test, test );
 
 	BOOST_AUTO_TEST_CASE( daw_traits_function_exists ) {

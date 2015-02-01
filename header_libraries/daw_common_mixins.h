@@ -87,28 +87,26 @@ namespace daw {
 		///				Requires a member in Derived called container( ) that
 		///				returns the container
 		template<typename Derived, typename container_type>
-		class VectorLikeProxy: public ContainerProxy < Derived, container_type > {
-			using base_t = ContainerProxy < Derived, container_type > ;
-		public:
-			void push_back( typename base_t::value_type && value ) {
-				insert( base_t::end( ), value );
+		struct VectorLikeProxy: public ContainerProxy < Derived, container_type > {
+			void push_back( typename this->value_type && value ) {
+				insert( this->end( ), value );
 			}
 
-			void push_back( typename base_t::const_reference value ) {
-				insert( base_t::end( ), value );
+			void push_back( typename this->const_reference value ) {
+				insert( this->end( ), value );
 			}
 
 			template<typename... Args>
 			void emplace_back( Args&&... args ) {
-				emplace( base_t::end( ), std::forward<Args>( args )... );
+				emplace( this->end( ), std::forward<Args>( args )... );
 			}
 
-			typename base_t::reference operator[]( typename base_t::size_type pos ) {
-				return *(base_t::begin( ) + pos);
+			typename this->reference operator[]( typename this->size_type pos ) {
+				return *(this->begin( ) + pos);
 			}
 
-			typename base_t::const_reference operator[]( typename base_t::size_type pos ) const {
-				return *(base_t::cbegin( ) + pos);
+			typename this->const_reference operator[]( typename this->size_type pos ) const {
+				return *(this->cbegin( ) + pos);
 			}
 		};
 
@@ -119,18 +117,16 @@ namespace daw {
 		///				returns the container, find( ) that searches
 		///				for a key and key_type and mapped_type
 		template<typename Derived, typename MapType>
-		class MapLikeProxy: public ContainerProxy < Derived, MapType > {
-			using base_t = ContainerProxy < Derived, MapType > ;
-		public:
+		struct MapLikeProxy: public ContainerProxy < Derived, MapType > {
 			using key_type = typename MapType::key_type;
 			using mapped_type = typename MapType::mapped_type;
 
-			typename base_t::reference operator[]( key_type key ) {
-				return base_t::derived( ).find( key );
+			typename this->reference operator[]( key_type key ) {
+				return this->derived( ).find( key );
 			}
 
-			typename base_t::const_reference operator[]( key_type key ) const {
-				return base_t::derived( ).find( key );
+			typename this->const_reference operator[]( key_type key ) const {
+				return this->derived( ).find( key );
 			}
 		};
 	}	// namespace mixins

@@ -43,7 +43,7 @@ namespace daw {
 		}
 		namespace lib {
 			namespace http {
-				enum class HttpClientRequestMethod { Options, Get, Head, Post, Put, Delete, Trace, Connect, Any };
+				enum class HttpClientRequestMethod { Options = 1, Get, Head, Post, Put, Delete, Trace, Connect, Any };
 
 				std::ostream& operator<<(std::ostream& os, HttpClientRequestMethod const method);
 				std::istream& operator>>(std::istream& is, HttpClientRequestMethod & method);

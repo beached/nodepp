@@ -164,6 +164,7 @@ namespace daw {
 
 				void HttpUrl::set_links( ) {
 					reset_jsonlink( );
+
 					link_string( "path", path );
 					link_array( "query", query );
 					link_string( "fragment", fragment );
