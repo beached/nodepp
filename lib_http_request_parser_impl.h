@@ -99,7 +99,7 @@ namespace daw {
 
 								name( "method_parse_symbol" );
 							}
-						} method_parse_symbol;
+						};
 					}	// namespace anonymous
 
 					template <typename Iterator>
@@ -199,7 +199,7 @@ namespace daw {
 
 							//debug( message );
 						}
-
+						method_parse_symbol_ method_parse_symbol;
 						qi::rule< Iterator > crlf;
 						qi::rule< Iterator, daw::nodepp::lib::http::impl::HttpClientRequestImpl( ) > message;
 
