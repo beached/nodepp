@@ -87,12 +87,14 @@ namespace daw {
 		///				Requires a member in Derived called container( ) that
 		///				returns the container
 		template<typename Derived, typename container_type>
-		struct VectorLikeProxy: public ContainerProxy < Derived, container_type > {
-			void push_back( typename this->value_type && value ) {
+		class VectorLikeProxy: public ContainerProxy < Derived, container_type > {
+			using base_t = ContainerProxy < Derived, container_type > ;
+		public:
+			void push_back( typename base_t::value_type && value ) {
 				insert( this->end( ), value );
 			}
 
-			void push_back( typename this->const_reference value ) {
+			void push_back( typename base_t::const_reference value ) {
 				insert( this->end( ), value );
 			}
 
@@ -101,11 +103,11 @@ namespace daw {
 				emplace( this->end( ), std::forward<Args>( args )... );
 			}
 
-			typename this->reference operator[]( typename this->size_type pos ) {
+			typename base_t::reference operator[]( typename base_t::size_type pos ) {
 				return *(this->begin( ) + pos);
 			}
 
-			typename this->const_reference operator[]( typename this->size_type pos ) const {
+			typename base_t::const_reference operator[]( typename base_t::size_type pos ) const {
 				return *(this->cbegin( ) + pos);
 			}
 		};
@@ -117,15 +119,17 @@ namespace daw {
 		///				returns the container, find( ) that searches
 		///				for a key and key_type and mapped_type
 		template<typename Derived, typename MapType>
-		struct MapLikeProxy: public ContainerProxy < Derived, MapType > {
+		class MapLikeProxy: public ContainerProxy < Derived, MapType > {
+			using base_t = ContainerProxy < Derived, MapType > ;
+		public:
 			using key_type = typename MapType::key_type;
 			using mapped_type = typename MapType::mapped_type;
 
-			typename this->reference operator[]( key_type key ) {
+			typename base_t::reference operator[]( key_type key ) {
 				return this->derived( ).find( key );
 			}
 
-			typename this->const_reference operator[]( key_type key ) const {
+			typename base_t::const_reference operator[]( key_type key ) const {
 				return this->derived( ).find( key );
 			}
 		};
