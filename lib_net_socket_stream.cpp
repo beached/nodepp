@@ -236,7 +236,7 @@ namespace daw {
 						}
 						m_bytes_written += buff.size( );
 
-						auto obj = get_weak_ptr( );
+						auto obj = this->get_weak_ptr( );
 						auto outstanding_writes = m_pending_writes->get_weak_ptr( );
 
 						m_pending_writes->inc_counter( );
@@ -254,7 +254,7 @@ namespace daw {
 								read_buffer = std::make_shared<boost::asio::streambuf>( m_read_options.max_read_size );
 							}
 
-							auto obj = get_weak_ptr( );
+							auto obj = this->get_weak_ptr( );
 							auto handler = [obj, read_buffer]( boost::system::error_code const & err, std::size_t bytes_transfered ) mutable {
 								handle_read( obj, read_buffer, err, bytes_transfered );
 							};
@@ -304,7 +304,7 @@ namespace daw {
 					NetSocketStreamImpl&  NetSocketStreamImpl::connect( boost::string_ref host, uint16_t port ) {
 						tcp::resolver resolver( base::ServiceHandle::get( ) );
 
-						auto obj = get_weak_ptr( );
+						auto obj = this->get_weak_ptr( );
 						boost::asio::async_connect( *m_socket, resolver.resolve( { host.to_string( ), std::to_string( port ) } ), [obj]( boost::system::error_code const & err, tcp::resolver::iterator it ) {
 							handle_connect( obj, err, it );
 						} );

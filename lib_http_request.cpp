@@ -131,9 +131,9 @@ namespace daw {
 				}
 
 				void HttpUrlQueryPair::set_links( ) {
-					reset_jsonlink( );
-					link_string( "name", name );
-					link_string( "value", value );
+					this->reset_jsonlink( );
+					this->link_string( "name", name );
+					this->link_string( "value", value );
 				}
 
 				HttpUrl::HttpUrl( ) :
@@ -163,11 +163,11 @@ namespace daw {
 				}
 
 				void HttpUrl::set_links( ) {
-					reset_jsonlink( );
+					this->reset_jsonlink( );
 
-					link_string( "path", path );
-					link_array( "query", query );
-					link_string( "fragment", fragment );
+					this->link_string( "path", path );
+					this->link_array( "query", query );
+					this->link_string( "fragment", fragment );
 				}
 
 				HttpRequestLine::HttpRequestLine( ) :
@@ -197,10 +197,10 @@ namespace daw {
 				}
 
 				void HttpRequestLine::set_links( ) {
-					reset_jsonlink( );
-					link_streamable( "method", method );
-					link_object( "url", url );
-					link_string( "version", version );
+					this->reset_jsonlink( );
+					this->link_streamable( "method", method );
+					this->link_object( "url", url );
+					this->link_string( "version", version );
 				}
 
 				HttpClientRequestBody::HttpClientRequestBody( ) : mime_type( ), content( ) {
@@ -211,7 +211,6 @@ namespace daw {
 					JsonLink<HttpClientRequestBody>( std::move( other ) ),
 					mime_type( std::move( other.mime_type ) ),
 					content( std::move( other.content ) ) {
-					reset_jsonlink( );
 					set_links( );
 				}
 
@@ -225,9 +224,9 @@ namespace daw {
 				}
 
 				void HttpClientRequestBody::set_links( ) {
-					reset_jsonlink( );
-					link_string( "mime_type", mime_type );
-					link_string( "content", content );
+					this->reset_jsonlink( );
+					this->link_string( "mime_type", mime_type );
+					this->link_string( "content", content );
 				}
 
 				namespace impl {
@@ -258,10 +257,10 @@ namespace daw {
 					}
 
 					void HttpClientRequestImpl::set_links( ) {
-						reset_jsonlink( );
-						link_object( "request", request_line );
-						link_map( "headers", headers );
-						link_object( "body", body );
+						this->reset_jsonlink( );
+						this->link_object( "request", request_line );
+						this->link_map( "headers", headers );
+						this->link_object( "body", body );
 					}
 				}	// namespace impl
 			} // namespace http

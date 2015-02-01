@@ -50,7 +50,7 @@ namespace daw {
 						m_emitter( std::move( emitter ) ) { }
 
 					void HttpConnectionImpl::start( ) {
-						auto obj = get_weak_ptr( );
+						auto obj = this->get_weak_ptr( );
 						m_socket->on_next_data_received( [obj]( std::shared_ptr<base::data_t> data_buffer, bool ) mutable {
 							if( data_buffer ) {
 								run_if_valid( obj, "Exception in processing received data", "HttpConnectionImpl::start#on_next_data_received", [&]( HttpConnection self ) {

@@ -142,7 +142,7 @@ namespace daw {
 						auto& boost_socket = socket_sp->socket( );
 						auto socket = as_move_capture( std::move( socket_sp ) );
 
-						std::weak_ptr<NetServerImpl> obj = get_ptr( );
+						std::weak_ptr<NetServerImpl> obj = this->get_ptr( );
 						auto handler = [obj, socket]( boost::system::error_code const & err ) mutable {
 							handle_accept( obj, socket.move_out( ), err );
 						};

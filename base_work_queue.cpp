@@ -109,7 +109,7 @@ namespace daw {
 				void WorkQueueImpl::run( ) {
 					m_continue = true;
 					m_work_queue.reset( );
-					auto self = get_ptr( );
+					auto self = this->get_ptr( );
 					for( auto n = 0; n < m_max_workers && m_worker_count.count( ) < m_max_workers; ++n ) {
 						std::async( [self]( ) {
 							while( self->m_continue ) {

@@ -61,7 +61,7 @@ namespace daw {
 					}
 
 					void NetDnsImpl::resolve( boost::asio::ip::tcp::resolver::query & query ) {
-						std::weak_ptr<NetDnsImpl> obj( get_ptr( ) );
+						std::weak_ptr<NetDnsImpl> obj( this->get_ptr( ) );
 
 						m_resolver->async_resolve( query, [obj]( boost::system::error_code const & err, boost::asio::ip::tcp::resolver::iterator it ) {
 							handle_resolve( obj, err, std::move( it ) );

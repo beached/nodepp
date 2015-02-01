@@ -104,7 +104,7 @@ namespace daw {
 					}
 
 					void HttpServerImpl::listen_on( uint16_t port ) {
-						std::weak_ptr<HttpServerImpl> obj = get_ptr( );
+						std::weak_ptr<HttpServerImpl> obj = this->get_ptr( );
 						m_netserver->on_connection( [obj]( lib::net::NetSocketStream socket ) { handle_connection( obj, std::move( socket ) ); } )
 							.on_error( obj, "HttpServerImpl::listen_on" )
 							.delegate_to<boost::asio::ip::tcp::endpoint>( "listening", obj, "listening" )

@@ -50,7 +50,7 @@ namespace daw {
 						m_body_sent( false ) { }
 
 					void HttpServerResponseImpl::start( ) {
-						auto obj = get_weak_ptr( );
+						auto obj = this->get_weak_ptr( );
 						on_socket_if_valid( [obj]( lib::net::NetSocketStream socket ) {
 							socket->on_write_completion( [obj]( ) {
 								if( !obj.expired( ) ) {

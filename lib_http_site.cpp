@@ -68,12 +68,12 @@ namespace daw {
 						m_error_listeners( ) { }
 
 					void HttpSiteImpl::start( ) {
-						m_server->on_error( get_weak_ptr( ), "Child" )
-							.delegate_to<boost::asio::ip::tcp::endpoint>( "listening", get_weak_ptr( ), "listening" )
+						m_server->on_error( this->get_weak_ptr( ), "Child" )
+							.delegate_to<boost::asio::ip::tcp::endpoint>( "listening", this->get_weak_ptr( ), "listening" )
 							.on_client_connected( [&]( HttpConnection connection ) {
-							auto obj = get_weak_ptr( );
+							auto obj = this->get_weak_ptr( );
 							connection->
-								on_error( get_weak_ptr( ), "child connection" )
+								on_error( this->get_weak_ptr( ), "child connection" )
 								.on_request_made( [obj]( HttpClientRequest request, HttpServerResponse response ) {
 								run_if_valid( obj, "Processing request", "HttpSiteImpl::start( )#on_request_made", [&request, &response]( HttpSite self ) {
 									auto host = [&]( ) {

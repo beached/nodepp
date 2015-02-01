@@ -38,10 +38,10 @@
 namespace daw {
 	namespace nodepp {
 		namespace base {
-			template<typename T>
-			struct enable_shared: public std::enable_shared_from_this < T > {
-				std::shared_ptr<T> get_ptr( ) { return static_cast<T*>(this)->shared_from_this( ); }
-				std::weak_ptr<T> get_weak_ptr( ) { return get_ptr( ); }
+			template<typename Derived>
+			struct enable_shared: public std::enable_shared_from_this < Derived > {
+				std::shared_ptr<Derived> get_ptr( ) { return static_cast<Derived*>(this)->shared_from_this( ); }
+				std::weak_ptr<Derived> get_weak_ptr( ) { return this->get_ptr( ); }
 			};	// struct enable_shared
 
 			namespace impl {
@@ -165,10 +165,10 @@ namespace daw {
 
 			//////////////////////////////////////////////////////////////////////////
 			// Allows one to have the Events defined in event emitter
-			template<typename Child>
+			template<typename Derived>
 			class StandardEvents {
-				Child& child( ) {
-					return *static_cast<Child*>(this);
+				Derived& child( ) {
+					return *static_cast<Derived*>(this);
 				}
 
 				void emit_error( base::Error error ) {
@@ -176,19 +176,19 @@ namespace daw {
 				}
 			public:
 				EventEmitter& emitter( ) {
-					return child( ).emitter( );	// If you get a warning about a recursive call here, you forgot to create a emitter() in Child
+					return child( ).emitter( );	// If you get a warning about a recursive call here, you forgot to create a emitter() in Derived
 				}
 
 				//////////////////////////////////////////////////////////////////////////
 				/// Summary: Callback is for when error's occur
-				Child& on_error( std::function<void( base::Error )> listener ) {
+				Derived& on_error( std::function<void( base::Error )> listener ) {
 					emitter( )->add_listener( "error", listener );
 					return child( );
 				}
 
 				//////////////////////////////////////////////////////////////////////////
 				/// Summary: Callback is for the next error
-				Child& on_next_error( std::function<void( base::Error )> listener ) {
+				Derived& on_next_error( std::function<void( base::Error )> listener ) {
 					emitter( )->add_listener( "error", listener, true );
 					return child( );
 				}
@@ -196,7 +196,7 @@ namespace daw {
 				//////////////////////////////////////////////////////////////////////////
 				/// Summary:	Callback is called whenever a new listener is added for
 				///				any callback
-				Child& on_listener_added( std::function<void( std::string, Callback )> listener ) {
+				Derived& on_listener_added( std::function<void( std::string, Callback )> listener ) {
 					emitter( )->add_listener( "listener_added", listener );
 					return child( );
 				}
@@ -204,7 +204,7 @@ namespace daw {
 				//////////////////////////////////////////////////////////////////////////
 				/// Summary:	Callback is called when the next new listener is added
 				///				for any callback
-				Child& on_next_listener_added( std::function<void( std::string, Callback )> listener ) {
+				Derived& on_next_listener_added( std::function<void( std::string, Callback )> listener ) {
 					emitter( )->add_listener( "listener_added", listener, true );
 					return child( );
 				}
@@ -212,7 +212,7 @@ namespace daw {
 				//////////////////////////////////////////////////////////////////////////
 				/// Summary: Callback is called whenever a listener is removed for
 				/// any callback
-				Child& on_listener_removed( std::function<void( std::string, Callback )> listener ) {
+				Derived& on_listener_removed( std::function<void( std::string, Callback )> listener ) {
 					emitter( )->add_listener( "listener_removed", listener );
 					return child( );
 				}
@@ -220,7 +220,7 @@ namespace daw {
 				//////////////////////////////////////////////////////////////////////////
 				/// Summary: Callback is called the next time a listener is removed for
 				/// any callback
-				Child& on_next_listener_removed( std::function<void( std::string, Callback )> listener ) {
+				Derived& on_next_listener_removed( std::function<void( std::string, Callback )> listener ) {
 					emitter( )->add_listener( "listener_removed", listener, true );
 					return child( );
 				}
@@ -230,7 +230,7 @@ namespace daw {
 				///				This does not necessarily, but can be, from it's
 				///				destructor.  Make sure to wrap in try/catch if in
 				///				destructor
-				Child& on_exit( std::function<void( OptionalError error )> listener ) {
+				Derived& on_exit( std::function<void( OptionalError error )> listener ) {
 					emitter( )->add_listener( "exit", listener );
 					return child( );
 				}
@@ -240,7 +240,7 @@ namespace daw {
 				///				This does not necessarily, but can be, from it's
 				///				destructor.  Make sure to wrap in try/catch if in
 				///				destructor
-				Child& on_next_exit( std::function<void( OptionalError error )> listener ) {
+				Derived& on_next_exit( std::function<void( OptionalError error )> listener ) {
 					emitter( )->add_listener( "exit", listener, true );
 					return child( );
 				}
@@ -248,7 +248,7 @@ namespace daw {
 				//////////////////////////////////////////////////////////////////////////
 				/// Summary: Delegate error callbacks to another error handler
 				template<typename StandardEventsChild>
-				Child& on_error( std::weak_ptr<StandardEventsChild> error_destination, std::string where ) {
+				Derived& on_error( std::weak_ptr<StandardEventsChild> error_destination, std::string where ) {
 					on_error( [error_destination, where]( base::Error error ) mutable {
 						if( !error_destination.expired( ) ) {
 							error_destination.lock( )->emit_error( std::move( error ), where );
@@ -260,7 +260,7 @@ namespace daw {
 				//////////////////////////////////////////////////////////////////////////
 				/// Summary: Delegate error callbacks to another error handler
 				template<typename StandardEventsChild>
-				Child& on_error( std::shared_ptr<StandardEventsChild> error_destination, std::string where ) {
+				Derived& on_error( std::shared_ptr<StandardEventsChild> error_destination, std::string where ) {
 					return on_error( std::weak_ptr<StandardEventsChild>( error_destination ), std::move( where ) );
 				}
 
@@ -276,7 +276,7 @@ namespace daw {
 				//////////////////////////////////////////////////////////////////////////
 				/// Summary: Emit an error event
 				void emit_error( base::Error child, boost::string_ref where ) {
-					base::Error err( "Child Error" );
+					base::Error err( "Derived Error" );
 					err.add( "where", where.to_string( ) );
 					err.child( std::move( child ) );
 
@@ -359,7 +359,7 @@ namespace daw {
 				///				e.g.
 				///				obj_emitter.delegate_to<boost::asio::ip::tcp::endpoint>( "listening", dest_obj.get_weak_ptr( ), "listening" );
 				template<typename... Args, typename DestinationType>
-				Child& delegate_to( boost::string_ref source_event, std::weak_ptr<DestinationType> destination_obj, std::string destination_event ) {
+				Derived& delegate_to( boost::string_ref source_event, std::weak_ptr<DestinationType> destination_obj, std::string destination_event ) {
 					auto handler = [destination_obj, destination_event]( Args... args ) {
 						if( !destination_obj.expired( ) ) {
 							destination_obj.lock( )->emitter( )->emit( destination_event, std::move( args )... );
