@@ -64,6 +64,10 @@ namespace daw {
 						template<typename T>
 						T decode( boost::string_ref json_text );
 
+						daw::nodepp::base::EventEmitter& emitter( ) {
+							return m_emitter;
+						}
+
 						HttpWebServiceImpl& connect( HttpSite & site ) {
 							auto self = this->get_weak_ptr( );
 							site->delegate_to( "exit", self, "exit" ).
