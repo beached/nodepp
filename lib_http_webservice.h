@@ -46,8 +46,9 @@ namespace daw {
 				using HttpWebService = std::shared_ptr < impl::HttpWebServiceImpl < ResultType, Argument > > ;
 
 				namespace impl {
-					template<typename ResultType, typename Argument>
+					template<typename ResultType, typename... Argument>
 					class HttpWebServiceImpl: public daw::nodepp::base::enable_shared<HttpWebServiceImpl<ResultType, Argument>>, public daw::nodepp::base::StandardEvents < HttpWebServiceImpl<ResultType, Argument> > {
+						static_assert(sizeof...(argument) <= 1, "Either 1 or 0 arguments are accepted");
 						// 						static_assert < std::is_base_of<JsonLink<ResultType>, ResultType>::value, "ResultType must derive from JsonLink<ResultType>" );
 						// 						static_assert < std::is_base_of<JsonLink<Argument...>, ResultType>::value, "Argument must derive from JsonLink<Argument>" );
 						daw::nodepp::base::EventEmitter m_emitter;
@@ -78,10 +79,13 @@ namespace daw {
 								switch( request->request_line.method ) {
 								case daw::nodepp::lib::http::HttpClientRequestMethod::Get: {
 									daw::json::impl::object_value obj;
-									auto const & query = request->request_line.url.query;
-									if( query ) {
-										for( auto const & query_item : *query ) {
+									//auto const & query = request->request_line.url.query;
+									if( sizeof( Argument ) > 0 ) {
+										if( auto const & query = request->request_line.url.query ) {
+										} else if( request->body ) {
 										}
+									} else {
+										auto result = m_handler( );
 									}
 									break;
 								}

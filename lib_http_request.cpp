@@ -203,20 +203,20 @@ namespace daw {
 					this->link_string( "version", version );
 				}
 
-				HttpClientRequestBody::HttpClientRequestBody( ) : mime_type( ), content( ) {
+				HttpClientRequestBody::HttpClientRequestBody( ) : content_type( ), content( ) {
 					set_links( );
 				}
 
 				HttpClientRequestBody::HttpClientRequestBody( HttpClientRequestBody && other ):
 					JsonLink<HttpClientRequestBody>( std::move( other ) ),
-					mime_type( std::move( other.mime_type ) ),
+					content_type( std::move( other.content_type ) ),
 					content( std::move( other.content ) ) {
 					set_links( );
 				}
 
 				HttpClientRequestBody& HttpClientRequestBody::operator=(HttpClientRequestBody && rhs) {
 					if( this != &rhs ) {
-						mime_type = std::move( rhs.mime_type );
+						content_type = std::move( rhs.content_type );
 						content = std::move( rhs.content );
 						set_links( );
 					}
@@ -225,7 +225,7 @@ namespace daw {
 
 				void HttpClientRequestBody::set_links( ) {
 					this->reset_jsonlink( );
-					this->link_string( "mime_type", mime_type );
+					this->link_string( "content_type", content_type );
 					this->link_string( "content", content );
 				}
 

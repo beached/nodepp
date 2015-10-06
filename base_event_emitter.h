@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include <boost/utility/string_ref.hpp>
 #include <boost/asio/error.hpp>
 #include <memory>
 #include <stdexcept>

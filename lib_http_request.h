@@ -97,7 +97,7 @@ namespace daw {
 				};	// struct HttpRequestLine
 
 				struct HttpClientRequestBody: public daw::json::JsonLink < HttpClientRequestBody > {
-					std::string mime_type;
+					std::string content_type;
 					std::string content;
 
 					~HttpClientRequestBody( ) = default;
