@@ -41,10 +41,6 @@ namespace daw {
 					template<typename ResultType, typename Argument> class HttpWebServiceImpl;
 				}
 
-				// TODO: build trait that allows for types that are jsonlink like or have a value_to_json/json_to_value overload
-				template<typename ResultType, typename Argument> //, typename std::enable_if<daw::traits::is_mixed_from<daw::json::JsonLink, ResultType>::value && daw::traits::is_mixed_from<daw::json::JsonLink, Argument>::value, long>::type = 0>
-				using HttpWebService = std::shared_ptr < impl::HttpWebServiceImpl < ResultType, Argument > > ;
-
 				namespace impl {
 					template<typename ResultType, typename... Argument>
 					class HttpWebServiceImpl: public daw::nodepp::base::enable_shared<HttpWebServiceImpl<ResultType, Argument>>, public daw::nodepp::base::StandardEvents < HttpWebServiceImpl<ResultType, Argument> > {
@@ -57,7 +53,7 @@ namespace daw {
 						std::function < ResultType( Argument const & )> m_handler;
 						bool m_synchronous;
 					public:
-						HttpWebServiceImpl( daw::nodepp::lib::http::HttpClientRequestMethod method, boost::string_ref base_path, std::function < ResultType( Argument const & )> handler, bool synchronous = false, daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) ) :
+						HttpWebServiceImpl( daw::nodepp::lib::http::HttpClientRequestMethod method, boost::string_ref base_path, std::function < ResultType( Argument const & )> handler, bool synchronous = false, daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) ):
 							m_emitter( std::move( emitter ) ),
 							m_method( std::move( method ) ),
 							m_base_path( base_path.to_string( ) ),
@@ -77,7 +73,8 @@ namespace daw {
 								delegate_to( "error", self, "error" ).
 								on_requests_for( m_method, m_base_path, [self]( daw::nodepp::lib::http::HttpClientRequest request, daw::nodepp::lib::http::HttpServerResponse response ) {
 								switch( request->request_line.method ) {
-								case daw::nodepp::lib::http::HttpClientRequestMethod::Get: {
+								case daw::nodepp::lib::http::HttpClientRequestMethod::Get:
+								{
 									daw::json::impl::object_value obj;
 									//auto const & query = request->request_line.url.query;
 									if( sizeof( Argument ) > 0 ) {
@@ -102,6 +99,10 @@ namespace daw {
 						//
 					};	// class HttpWebService
 				}
+
+				// TODO: build trait that allows for types that are jsonlink like or have a value_to_json/json_to_value overload
+				template<typename ResultType, typename Argument> //, typename std::enable_if<daw::traits::is_mixed_from<daw::json::JsonLink, ResultType>::value && daw::traits::is_mixed_from<daw::json::JsonLink, Argument>::value, long>::type = 0>
+				using HttpWebService = std::shared_ptr < impl::HttpWebServiceImpl < ResultType, Argument > >;
 
 				template < typename ResultType, typename Argument> //, typename std::enable_if<daw::traits::is_mixed_from<daw::json::JsonLink, ResultType>::value && daw::traits::is_mixed_from<daw::json::JsonLink, Argument>::value, long>::type = 0>
 				HttpWebService<ResultType, Argument> create_web_service( daw::nodepp::lib::http::HttpClientRequestMethod method, boost::string_ref base_path, std::function < ResultType( Argument const & )> handler, bool synchronous = false ) {

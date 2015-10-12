@@ -91,9 +91,7 @@ int main( int, char const ** ) {
 	// 	} )*/;
 
 	auto srv = create_net_server( );
-	srv->
 
-		base::ServiceHandle::run( );
-
+	base::ServiceHandle::run( );
 	return EXIT_SUCCESS;
 }

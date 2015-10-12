@@ -45,7 +45,7 @@ namespace daw {
 						}
 					}	// namespace anonymous
 
-					HttpConnectionImpl::HttpConnectionImpl( lib::net::NetSocketStream&& socket, base::EventEmitter emitter ) :
+					HttpConnectionImpl::HttpConnectionImpl( lib::net::NetSocketStream&& socket, base::EventEmitter emitter ):
 						m_socket( std::move( socket ) ),
 						m_emitter( std::move( emitter ) ) { }
 
@@ -64,7 +64,7 @@ namespace daw {
 										} else {
 											err400( self->m_socket );
 										}
-									} catch( std::exception const &ex ) {
+									} catch( std::exception const & ) {
 										err400( self->m_socket );
 									}
 								} );
