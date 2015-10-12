@@ -117,4 +117,5 @@ namespace daw {
 template<typename T, typename EnableIf = decltype(std::declval<T>( ).serialize_to_json( ))>
 std::ostream& operator<<(std::ostream& os, T const & data) {
 	os << data.serialize_to_json( );
+	return os;
 }

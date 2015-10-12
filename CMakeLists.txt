@@ -2,14 +2,19 @@ cmake_minimum_required(VERSION 2.8.4)
 
 project(NodePP)
 
-IF( CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" )
-ELSEIF( CMAKE_CXX_COMPILER_ID STREQUAL "Clang" )
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g -O3 -Weverything -Wno-c++98-compat  -Wfatal-errors -Wno-covered-switch-default -Wno-padded -Wno-exit-time-destructors -Wno-c++98-compat-pedantic -Wno-unused-parameter -Wno-missing-noreturn -Wno-missing-prototypes")
-ELSEIF( CMAKE_CXX_COMPILER_ID STREQUAL "GNU" )	
+MESSAGE( WARNING "Current Compiler:" ${CMAKE_CXX_COMPILER_ID} )
+IF( ${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC" )
+	MESSAGE( WARNING "Using Visual Studio" )
+ELSEIF( ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang" )
+	MESSAGE( WARNING "Using Clang" )
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -stdlib=libc++ -g -O3 -Weverything -Wno-c++98-compat  -Wfatal-errors -Wno-covered-switch-default -Wno-padded -Wno-exit-time-destructors -Wno-c++98-compat-pedantic -Wno-unused-parameter -Wno-missing-noreturn -Wno-missing-prototypes")
+ELSEIF( ${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" )
+	MESSAGE( WARNING "Using G++" )
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g -O3 -Wall")
 ENDIF( )
 
-find_package(Boost 1.59.0 COMPONENTS system filesystem regex REQUIRED)
+
+find_package(Boost 1.57.0 COMPONENTS system filesystem regex REQUIRED)
 #find_package(Threads REQUIRED)
 
 enable_testing( )
