@@ -14,7 +14,7 @@ ELSEIF( ${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" )
 ENDIF( )
 
 
-find_package(Boost 1.57.0 COMPONENTS system filesystem regex REQUIRED)
+find_package(Boost 1.55.0 COMPONENTS system filesystem regex REQUIRED)
 #find_package(Threads REQUIRED)
 
 enable_testing( )
