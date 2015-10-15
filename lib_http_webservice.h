@@ -73,16 +73,18 @@ namespace daw {
 								delegate_to( "error", self, "error" ).
 								on_requests_for( m_method, m_base_path, [self]( daw::nodepp::lib::http::HttpClientRequest request, daw::nodepp::lib::http::HttpServerResponse response ) {
 								switch( request->request_line.method ) {
-								case daw::nodepp::lib::http::HttpClientRequestMethod::Get:
-								{
+								case daw::nodepp::lib::http::HttpClientRequestMethod::Get: {
 									daw::json::impl::object_value obj;
 									//auto const & query = request->request_line.url.query;
-									if( sizeof( Argument ) > 0 ) {
+									if( sizeof...( Argument ) > 0 ) {
 										if( auto const & query = request->request_line.url.query ) {
 										} else if( request->body ) {
 										}
 									} else {
-										auto result = m_handler( );
+										if( !self.expired( ) ) {
+											auto myself = self.lock( );
+											auto result = myself->m_handler( );
+										}
 									}
 									break;
 								}
