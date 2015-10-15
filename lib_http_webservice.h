@@ -50,10 +50,10 @@ namespace daw {
 						daw::nodepp::base::EventEmitter m_emitter;
 						daw::nodepp::lib::http::HttpClientRequestMethod m_method;
 						std::string m_base_path;
-						std::function < ResultType( Argument const & )> m_handler;
+						std::function < ResultType( Argument const & ... )> m_handler;
 						bool m_synchronous;
 					public:
-						HttpWebServiceImpl( daw::nodepp::lib::http::HttpClientRequestMethod method, boost::string_ref base_path, std::function < ResultType( Argument const & )> handler, bool synchronous = false, daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) ):
+						HttpWebServiceImpl( daw::nodepp::lib::http::HttpClientRequestMethod method, boost::string_ref base_path, std::function < ResultType( Argument const & ... )> handler, bool synchronous = false, daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) ):
 							m_emitter( std::move( emitter ) ),
 							m_method( std::move( method ) ),
 							m_base_path( base_path.to_string( ) ),
