@@ -49,7 +49,7 @@ namespace daw {
 				struct EventEmitterImpl;
 			}	// namespace impl
 
-			using EventEmitter = ::std::shared_ptr < impl::EventEmitterImpl > ;
+			using EventEmitter = ::std::shared_ptr < impl::EventEmitterImpl >;
 			EventEmitter create_event_emitter( );
 
 			namespace impl {
@@ -60,8 +60,8 @@ namespace daw {
 				///	Requires:	base::Callback
 				///
 				struct EventEmitterImpl {
-					using listener_list_t = std::vector < std::pair<bool, Callback> > ;
-					using listeners_t = std::unordered_map < std::string, listener_list_t > ;
+					using listener_list_t = std::vector < std::pair<bool, Callback> >;
+					using listeners_t = std::unordered_map < std::string, listener_list_t >;
 					using callback_id_t = Callback::id_t;
 				private:
 					const int_least8_t c_max_emit_depth = 100;	// TODO Magic Number
@@ -77,9 +77,9 @@ namespace daw {
 
 					~EventEmitterImpl( ) = default;
 					EventEmitterImpl( EventEmitterImpl const & ) = delete;
-					EventEmitterImpl& operator=(EventEmitterImpl const &) = delete;
+					EventEmitterImpl& operator=( EventEmitterImpl const & ) = delete;
 					EventEmitterImpl( EventEmitterImpl && other ) = delete;
-					EventEmitterImpl& operator=(EventEmitterImpl && rhs) = delete;
+					EventEmitterImpl& operator=( EventEmitterImpl && rhs ) = delete;
 
 					void remove_listener( boost::string_ref event, callback_id_t id );
 
@@ -155,6 +155,7 @@ namespace daw {
 							return item.first;
 						} );
 						--(*m_emit_depth);
+						emit( event + "_selfdestruct", args... );	// Called by self destruct code and must be last so lifetime is controlled
 					}
 
 					void emit_listener_added( boost::string_ref event, Callback listener );

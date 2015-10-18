@@ -40,6 +40,7 @@
 #include "make_unique.h"
 
 #include "lib_net_socket_stream.h"
+#include "base_selfdestruct.h"
 
 namespace daw {
 	namespace nodepp {
@@ -62,7 +63,8 @@ namespace daw {
 						}
 					}	// namespace anonymous
 
-					NetSocketStreamImpl::NetSocketStreamImpl( base::EventEmitter emitter ) :
+					NetSocketStreamImpl::NetSocketStreamImpl( base::EventEmitter emitter ):
+						daw::nodepp::base::SelfDestructing<NetSocketStreamImpl>( "close" ),
 						m_socket( std::make_shared<boost::asio::ip::tcp::socket>( base::ServiceHandle::get( ) ) ),
 						m_emitter( std::move( emitter ) ),
 						m_state( ),
@@ -72,7 +74,8 @@ namespace daw {
 						m_bytes_read( 0 ),
 						m_bytes_written( 0 ) { }
 
-					NetSocketStreamImpl::NetSocketStreamImpl( boost::asio::io_service& io_service, std::size_t max_read_size, base::EventEmitter emitter ) :
+					NetSocketStreamImpl::NetSocketStreamImpl( boost::asio::io_service& io_service, std::size_t max_read_size, base::EventEmitter emitter ):
+						daw::nodepp::base::SelfDestructing<NetSocketStreamImpl>( "close" ),
 						m_socket( std::make_shared<boost::asio::ip::tcp::socket>( io_service ) ),
 						m_emitter( std::move( emitter ) ),
 						m_state( ),
@@ -82,7 +85,8 @@ namespace daw {
 						m_bytes_read( 0 ),
 						m_bytes_written( 0 ) { }
 
-					NetSocketStreamImpl::NetSocketStreamImpl( NetSocketStreamImpl && other ) :
+					NetSocketStreamImpl::NetSocketStreamImpl( NetSocketStreamImpl && other ):
+						daw::nodepp::base::SelfDestructing<NetSocketStreamImpl>( "close" ),
 						m_socket( std::move( other.m_socket ) ),
 						m_emitter( std::move( other.m_emitter ) ),
 						m_state( std::move( other.m_state ) ),
@@ -92,7 +96,7 @@ namespace daw {
 						m_bytes_read( std::move( other.m_bytes_read ) ),
 						m_bytes_written( std::move( other.m_bytes_written ) ) { }
 
-					NetSocketStreamImpl& NetSocketStreamImpl::operator=(NetSocketStreamImpl && rhs) {
+					NetSocketStreamImpl& NetSocketStreamImpl::operator=( NetSocketStreamImpl && rhs ) {
 						if( this != &rhs ) {
 							m_socket = std::move( rhs.m_socket );
 							m_emitter = std::move( rhs.m_emitter );

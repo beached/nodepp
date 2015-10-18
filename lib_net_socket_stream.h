@@ -35,6 +35,7 @@
 #include "base_write_buffer.h"
 #include "lib_net_socket_stream.h"
 #include "daw_semaphore.h"
+#include "base_selfdestruct.h"
 
 namespace daw {
 	namespace nodepp {
@@ -44,16 +45,16 @@ namespace daw {
 					struct NetSocketStreamImpl;
 				}
 
-				using NetSocketStream = std::shared_ptr < impl::NetSocketStreamImpl > ;
+				using NetSocketStream = std::shared_ptr < impl::NetSocketStreamImpl >;
 
 				NetSocketStream create_net_socket_stream( daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
 				NetSocketStream create_net_socket_stream( boost::asio::io_service& io_service, std::size_t max_read_size, daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
 
 				namespace impl {
-					struct NetSocketStreamImpl: public daw::nodepp::base::enable_shared<NetSocketStreamImpl>, public daw::nodepp::base::StandardEvents<NetSocketStreamImpl>, public daw::nodepp::base::stream::StreamReadableEvents<NetSocketStreamImpl>, public daw::nodepp::base::stream::StreamWritableEvents < NetSocketStreamImpl > {
+					struct NetSocketStreamImpl: public daw::nodepp::base::SelfDestructing<NetSocketStreamImpl>, public daw::nodepp::base::stream::StreamReadableEvents<NetSocketStreamImpl>, public daw::nodepp::base::stream::StreamWritableEvents < NetSocketStreamImpl > {
 						enum class ReadUntil { newline, buffer_full, predicate, next_byte, regex, values, double_newline };
-						using match_iterator_t = boost::asio::buffers_iterator < boost::asio::streambuf::const_buffers_type > ;
-						using match_function_t = std::function < std::pair<match_iterator_t, bool>( match_iterator_t begin, match_iterator_t end ) > ;
+						using match_iterator_t = boost::asio::buffers_iterator < boost::asio::streambuf::const_buffers_type >;
+						using match_function_t = std::function < std::pair<match_iterator_t, bool>( match_iterator_t begin, match_iterator_t end ) >;
 					private:
 						std::shared_ptr<boost::asio::ip::tcp::socket> m_socket;
 						daw::nodepp::base::EventEmitter m_emitter;
@@ -61,9 +62,9 @@ namespace daw {
 						struct netsockstream_state_t {
 							bool closed;
 							bool end;
-							netsockstream_state_t( ) : closed( false ), end( false ) { }
+							netsockstream_state_t( ): closed( false ), end( false ) { }
 							netsockstream_state_t( netsockstream_state_t const & ) = default;
-							netsockstream_state_t& operator=(netsockstream_state_t const &) = default;
+							netsockstream_state_t& operator=( netsockstream_state_t const & ) = default;
 							~netsockstream_state_t( ) = default;
 						} m_state;
 
@@ -73,25 +74,25 @@ namespace daw {
 							std::unique_ptr<NetSocketStreamImpl::match_function_t> read_predicate;
 							std::string read_until_values;
 
-							netsockstream_readoptions_t( ) :
+							netsockstream_readoptions_t( ):
 								read_mode( ReadUntil::newline ),
 								max_read_size( 8192 ),
 								read_predicate( ) { }
 
-							netsockstream_readoptions_t( size_t max_read_size_ ) :
+							netsockstream_readoptions_t( size_t max_read_size_ ):
 								read_mode( ReadUntil::newline ),
 								max_read_size( max_read_size_ ),
 								read_predicate( ) { }
 
 							netsockstream_readoptions_t( netsockstream_readoptions_t const & ) = delete;
-							netsockstream_readoptions_t& operator=(netsockstream_readoptions_t const &) = delete;
+							netsockstream_readoptions_t& operator=( netsockstream_readoptions_t const & ) = delete;
 
-							inline netsockstream_readoptions_t( netsockstream_readoptions_t && other ) :
+							inline netsockstream_readoptions_t( netsockstream_readoptions_t && other ):
 								read_mode( std::move( other.read_mode ) ),
 								max_read_size( std::move( other.max_read_size ) ),
 								read_predicate( std::move( other.read_predicate ) ) { }
 
-							inline netsockstream_readoptions_t& operator=(netsockstream_readoptions_t && rhs) {
+							inline netsockstream_readoptions_t& operator=( netsockstream_readoptions_t && rhs ) {
 								if( this != &rhs ) {
 									read_mode = std::move( rhs.read_mode );
 									max_read_size = std::move( rhs.max_read_size );
@@ -115,11 +116,11 @@ namespace daw {
 						friend NetSocketStream daw::nodepp::lib::net::create_net_socket_stream( boost::asio::io_service& io_service, std::size_t max_read_size, daw::nodepp::base::EventEmitter emitter );
 
 						NetSocketStreamImpl( NetSocketStreamImpl&& other );
-						NetSocketStreamImpl& operator=(NetSocketStreamImpl&& rhs);
+						NetSocketStreamImpl& operator=( NetSocketStreamImpl&& rhs );
 						~NetSocketStreamImpl( );
 
 						NetSocketStreamImpl( NetSocketStreamImpl const & ) = delete;
-						NetSocketStreamImpl& operator=(NetSocketStreamImpl const &) = delete;
+						NetSocketStreamImpl& operator=( NetSocketStreamImpl const & ) = delete;
 
 						daw::nodepp::base::EventEmitter& emitter( );
 

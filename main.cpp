@@ -31,6 +31,14 @@
 #include "lib_net_server.h"
 #include "parse_json/daw_json_link.h"
 
+template<typename Container, typename T>
+void if_exists_do( Container & container, T const & key, std::function<void( typename Container::iterator it )> action ) {
+	auto it = std::find( std::begin( container ), std::end( container ), key );
+	if( std::end( container ) != it ) {
+		action( it );
+	}
+}
+
 int main( int, char const ** ) {
 	using namespace daw::nodepp;
 	using namespace daw::nodepp::lib::net;
@@ -91,6 +99,12 @@ int main( int, char const ** ) {
 	// 	} )*/;
 
 	auto srv = create_net_server( );
+	srv->on_connection( []( NetSocketStream socket ) {
+		socket->write_async( "Good-bye\r\n" );
+		socket->close( );
+	} );
+
+	srv->listen( 2020 );
 
 	base::ServiceHandle::run( );
 	return EXIT_SUCCESS;
