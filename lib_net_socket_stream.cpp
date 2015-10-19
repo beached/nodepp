@@ -64,7 +64,6 @@ namespace daw {
 					}	// namespace anonymous
 
 					NetSocketStreamImpl::NetSocketStreamImpl( base::EventEmitter emitter ):
-						daw::nodepp::base::SelfDestructing<NetSocketStreamImpl>( "close" ),
 						m_socket( std::make_shared<boost::asio::ip::tcp::socket>( base::ServiceHandle::get( ) ) ),
 						m_emitter( std::move( emitter ) ),
 						m_state( ),
@@ -75,7 +74,6 @@ namespace daw {
 						m_bytes_written( 0 ) { }
 
 					NetSocketStreamImpl::NetSocketStreamImpl( boost::asio::io_service& io_service, std::size_t max_read_size, base::EventEmitter emitter ):
-						daw::nodepp::base::SelfDestructing<NetSocketStreamImpl>( "close" ),
 						m_socket( std::make_shared<boost::asio::ip::tcp::socket>( io_service ) ),
 						m_emitter( std::move( emitter ) ),
 						m_state( ),
@@ -86,7 +84,6 @@ namespace daw {
 						m_bytes_written( 0 ) { }
 
 					NetSocketStreamImpl::NetSocketStreamImpl( NetSocketStreamImpl && other ):
-						daw::nodepp::base::SelfDestructing<NetSocketStreamImpl>( "close" ),
 						m_socket( std::move( other.m_socket ) ),
 						m_emitter( std::move( other.m_emitter ) ),
 						m_state( std::move( other.m_state ) ),
@@ -435,11 +432,15 @@ namespace daw {
 				}	// namespace impl
 
 				NetSocketStream create_net_socket_stream( base::EventEmitter emitter ) {
-					return NetSocketStream( new impl::NetSocketStreamImpl( emitter ) );
+					auto result = NetSocketStream( new impl::NetSocketStreamImpl( emitter ) );
+					result->arm( "close" );
+					return result;
 				}
 
 				NetSocketStream create_net_socket_stream( boost::asio::io_service& io_service, std::size_t max_read_size, base::EventEmitter emitter ) {
-					return NetSocketStream( new impl::NetSocketStreamImpl( io_service, max_read_size, emitter ) );
+					auto result = NetSocketStream( new impl::NetSocketStreamImpl( io_service, max_read_size, emitter ) );
+					result->arm( "close" );
+					return result;
 				}
 			}	// namespace net
 		}	// namespace lib

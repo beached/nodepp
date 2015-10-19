@@ -16,16 +16,24 @@ namespace daw {
 				static std::mutex s_mutex;
 
 			public:
-				SelfDestructing( boost::string_ref event ) {
+				SelfDestructing( ) = default;
+
+				void arm( boost::string_ref event ) {
 					std::unique_lock<std::mutex> lock1( s_mutex );
-					auto pos = s_selfs.insert( std::end( s_selfs ), this->get_ptr( ) );
+					auto obj = this->get_ptr( );
+					auto pos = s_selfs.insert( std::end( s_selfs ), std::move( obj ) );
 					this->emitter( )->add_listener( event.to_string( ) + "_selfdestruct", [pos]( ) {
 						std::unique_lock<std::mutex> lock2( s_mutex );
-						auto self = *pos;
 						s_selfs.erase( pos );
 					}, true );
 				}
 			};	// class SelfDestructing
+
+			template<typename Derived>
+			std::list<std::shared_ptr<Derived>> SelfDestructing<Derived>::s_selfs;
+
+			template<typename Derived>
+			std::mutex SelfDestructing<Derived>::s_mutex;
 		}	// namespace base
 	}	// namespace nodepp
 }	// namespace daw

@@ -122,16 +122,9 @@ namespace daw {
 						add_listener( event, listener, true );
 					}
 
+				private:
 					template<typename... Args>
-					void emit( std::string event, Args&&... args ) {
-						if( event.empty( ) ) {
-							throw std::runtime_error( "Empty event name passed to emit" );
-						}
-
-						if( ++(*m_emit_depth) > c_max_emit_depth ) {
-							throw std::runtime_error( "Max callback depth reached.  Possible loop" );
-						}
-
+					void emit_impl( std::string event, Args&&... args ) {
 						auto& callbacks = listeners( )[event];
 						for( auto& callback : callbacks ) {
 							if( !callback.second.empty( ) ) {
@@ -150,12 +143,26 @@ namespace daw {
 								}
 							}
 						}
-
 						daw::algorithm::erase_remove_if( callbacks, []( std::pair<bool, Callback> const & item ) {
 							return item.first;
 						} );
 						--(*m_emit_depth);
-						emit( event + "_selfdestruct", args... );	// Called by self destruct code and must be last so lifetime is controlled
+					}
+
+				public:
+					template<typename... Args>
+					void emit( std::string event, Args&&... args ) {
+						if( event.empty( ) ) {
+							throw std::runtime_error( "Empty event name passed to emit" );
+						}
+
+						if( ++(*m_emit_depth) > c_max_emit_depth ) {
+							throw std::runtime_error( "Max callback depth reached.  Possible loop" );
+						}
+						emit_impl( event, args... );
+						if( listeners( ).find( event + "_selfdestruct" ) != std::end( listeners( ) ) ) {
+							emit_impl( event + "_selfdestruct" );	// Called by self destruct code and must be last so lifetime is controlled
+						}
 					}
 
 					void emit_listener_added( boost::string_ref event, Callback listener );
