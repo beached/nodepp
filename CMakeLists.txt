@@ -5,17 +5,23 @@ project(NodePP)
 MESSAGE( WARNING "Current Compiler:" ${CMAKE_CXX_COMPILER_ID} )
 IF( ${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC" )
 	MESSAGE( WARNING "Using Visual Studio" )
+	set(COMPILER_SPECIFIC_LIBS, "" )
 ELSEIF( ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang" )
 	MESSAGE( WARNING "Using Clang" )
+	find_package(Threads REQUIRED)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -stdlib=libc++ -g -O3 -Weverything -Wno-c++98-compat  -Wfatal-errors -Wno-covered-switch-default -Wno-padded -Wno-exit-time-destructors -Wno-c++98-compat-pedantic -Wno-unused-parameter -Wno-missing-noreturn -Wno-missing-prototypes")
 ELSEIF( ${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" )
 	MESSAGE( WARNING "Using G++" )
+	find_package(Threads REQUIRED)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g -O3 -Wall")
 ENDIF( )
 
 
 find_package(Boost 1.55.0 COMPONENTS system filesystem regex REQUIRED)
-#find_package(Threads REQUIRED)
+
+if(THREADS_HAVE_PTHREAD_ARG)
+	set(COMPILER_SPECIFIC_LIBS, "-lpthread" )
+endif( )
 
 enable_testing( )
 
@@ -79,6 +85,6 @@ include_directories( ./parse_json )
 
 add_executable(NodePP ${SOURCE_FILES})
 
-target_link_libraries(NodePP parse_json  ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(NodePP parse_json  ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
 
 
