@@ -86,5 +86,6 @@ add_executable(NodePP main.cpp ${SOURCE_FILES})
 add_executable(example_web example_web.cpp ${SOURCE_FILES})
 
 target_link_libraries(NodePP parse_json  ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
+target_link_libraries(example_web parse_json  ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
 
 
