@@ -77,13 +77,13 @@ set(SOURCE_FILES
 		lib_net_server.h
 		lib_net_socket_stream.cpp
 		lib_net_socket_stream.h
-		main.cpp
 )
 
 include_directories( ./header_libraries )
 include_directories( ./parse_json )
 
-add_executable(NodePP ${SOURCE_FILES})
+add_executable(NodePP main.cpp ${SOURCE_FILES})
+add_executable(example_web example_web.cpp ${SOURCE_FILES})
 
 target_link_libraries(NodePP parse_json  ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
 
