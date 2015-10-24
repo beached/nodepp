@@ -160,7 +160,7 @@ namespace daw {
 							throw std::runtime_error( "Max callback depth reached.  Possible loop" );
 						}
 						emit_impl( event, args... );
-						if( listeners( ).find( event + "_selfdestruct" ) != std::end( listeners( ) ) ) {
+						if( listeners( ).count( event + "_selfdestruct" ) ) {
 							emit_impl( event + "_selfdestruct" );	// Called by self destruct code and must be last so lifetime is controlled
 						}
 					}

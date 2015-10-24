@@ -100,8 +100,9 @@ int main( int, char const ** ) {
 
 	auto srv = create_net_server( );
 	srv->on_connection( []( NetSocketStream socket ) {
-		socket->write_async( "Good-bye\r\n" );
-		socket->close( );
+		socket->on_all_writes_completed( [socket]( ) {
+			socket->close( );
+		} ).write_async( "Good-bye\r\n" );
 	} );
 
 	srv->listen( 2020 );

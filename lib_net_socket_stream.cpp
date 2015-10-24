@@ -439,7 +439,7 @@ namespace daw {
 
 				NetSocketStream create_net_socket_stream( boost::asio::io_service& io_service, std::size_t max_read_size, base::EventEmitter emitter ) {
 					auto result = NetSocketStream( new impl::NetSocketStreamImpl( io_service, max_read_size, emitter ) );
-					result->arm( "close" );
+					result->arm( "closed" );
 					return result;
 				}
 			}	// namespace net

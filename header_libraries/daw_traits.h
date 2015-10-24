@@ -56,7 +56,7 @@ namespace daw {
 		using is_regular = std::integral_constant < bool, std::is_default_constructible<T>::value &&
 			std::is_copy_constructible<T>::value && std::is_move_constructible<T>::value &&
 			std::is_copy_assignable<T>::value && std::is_move_assignable<T>::value &&
-			is_equality_comparable<T>::value > ;
+			is_equality_comparable<T>::value >;
 
 		template <typename... Args>
 		struct max_sizeof;
@@ -109,12 +109,11 @@ namespace daw {
 		struct are_same_types: std::false_type { };
 
 		template<typename T, typename First>
-		struct are_same_types<T, First> : std::is_same < T, First > { };
+		struct are_same_types<T, First>: std::is_same < T, First > { };
 
 		template<typename T, typename First, typename... Rest>
 		struct are_same_types<T, First, Rest...>
-			: std::integral_constant < bool, std::is_same<T, First>::value || are_same_types<T, Rest...>::value >
-		{ };
+			: std::integral_constant < bool, std::is_same<T, First>::value || are_same_types<T, Rest...>::value > { };
 
 		//////////////////////////////////////////////////////////////////////////
 		/// Summary:	A sequence of bool values
@@ -126,27 +125,27 @@ namespace daw {
 		///
 		template<bool... Bools>
 		using bool_and = std::is_same < bool_sequence< Bools...>,
-			bool_sequence< (Bools || true)...> > ;
+			bool_sequence< (Bools || true)...> >;
 
 		//////////////////////////////////////////////////////////////////////////
 		/// Summary:	Integral constant with result of or'ing all bool's supplied
 		///
 		template<bool... Bools>
-		using bool_or = std::integral_constant < bool, (!bool_and< !Bools... >::value) > ;
+		using bool_or = std::integral_constant < bool, (!bool_and< !Bools... >::value) >;
 
 		//////////////////////////////////////////////////////////////////////////
 		/// Summary:	Similar to enable_if but enabled when any of the
 		///				parameters is true
 		///
 		template< typename R, bool... Bs >
-		using enable_if_any = std::enable_if < bool_or< Bs... >::value, R > ;
+		using enable_if_any = std::enable_if < bool_or< Bs... >::value, R >;
 
 		//////////////////////////////////////////////////////////////////////////
 		/// Summary:	Similar to enable_if but enabled when all of the
 		///				parameters is true
 		///
 		template< typename R, bool... Bs >
-		using enable_if_all = std::enable_if < bool_and< Bs... >::value, R > ;
+		using enable_if_all = std::enable_if < bool_and< Bs... >::value, R >;
 
 		//////////////////////////////////////////////////////////////////////////
 		/// Summary:	Is type T on of the other types
@@ -155,10 +154,10 @@ namespace daw {
 		struct is_one_of: std::false_type { };
 
 		template<typename T, typename Type>
-		struct is_one_of<T, Type> : std::is_same < T, Type > { };
+		struct is_one_of<T, Type>: std::is_same < T, Type > { };
 
 		template<typename T, typename Type, typename... Types>
-		struct is_one_of<T, Type, Types...> : std::integral_constant < bool, std::is_same<T, Type>::value || is_one_of<T, Types...>::value > { };
+		struct is_one_of<T, Type, Types...>: std::integral_constant < bool, std::is_same<T, Type>::value || is_one_of<T, Types...>::value > { };
 
 		namespace details {
 			template<typename> struct type_sink { typedef void type; }; // consumes a type, and makes it `void`
@@ -205,28 +204,28 @@ namespace daw {
 		GENERATE_HAS_MEMBER_TYPE_TRAIT( mapped_type );
 		GENERATE_HAS_MEMBER_TYPE_TRAIT( iterator );
 
-		template<typename T> using is_string = std::is_convertible < T, std::string > ;
+		template<typename T> using is_string = std::is_convertible < T, std::string >;
 		template<typename T> using is_string_t = typename is_string<T>::type;
 
-		template<typename T> using isnt_string = std::integral_constant < bool, !is_string<T>::value > ;
+		template<typename T> using isnt_string = std::integral_constant < bool, !is_string<T>::value >;
 		template<typename T> using isnt_string_t = typename isnt_string<T>::type;
 
-		template<typename T> using is_container_like = std::integral_constant < bool, has_begin_member<T>::value && has_end_member<T>::value > ;
+		template<typename T> using is_container_like = std::integral_constant < bool, has_begin_member<T>::value && has_end_member<T>::value >;
 		template<typename T> using is_container_like_t = typename is_container_like<T>::type;
 
-		template<typename T> using is_container_not_string = std::integral_constant < bool, isnt_string<T>::value && is_container_like<T>::value > ;
+		template<typename T> using is_container_not_string = std::integral_constant < bool, isnt_string<T>::value && is_container_like<T>::value >;
 		template<typename T> using is_container_not_string_t = typename is_container_not_string<T>::type;
 
-		template<typename T> using is_map_like = std::integral_constant < bool, is_container_like<T>::value && has_mapped_type_member<T>::value > ;
+		template<typename T> using is_map_like = std::integral_constant < bool, is_container_like<T>::value && has_mapped_type_member<T>::value >;
 		template<typename T> using is_map_like_t = typename is_map_like<T>::type;
 
-		template<typename T> using isnt_map_like = std::integral_constant < bool, !is_map_like<T>::value > ;
+		template<typename T> using isnt_map_like = std::integral_constant < bool, !is_map_like<T>::value >;
 		template<typename T> using isnt_map_like_t = typename isnt_map_like<T>::type;
 
-		template<typename T> using is_vector_like_not_string = std::integral_constant < bool, is_container_not_string<T>::value && isnt_map_like<T>::value > ;
+		template<typename T> using is_vector_like_not_string = std::integral_constant < bool, is_container_not_string<T>::value && isnt_map_like<T>::value >;
 		template<typename T> using is_vector_like_not_string_t = typename is_vector_like_not_string<T>::type;
 
-		template <typename T> using static_not = std::conditional < T::value, std::false_type, std::true_type > ;
+		template <typename T> using static_not = std::conditional < T::value, std::false_type, std::true_type >;
 
 #define GENERATE_IS_STD_CONTAINER1( ContainerName ) \
 		template<typename T> using is_##ContainerName = std::integral_constant<bool, std::is_same<T, std::ContainerName<typename T::value_type> >::value>; \
@@ -250,33 +249,33 @@ namespace daw {
 #undef GENERATE_IS_STD_CONTAINER2
 
 		template<typename T> using is_single_item_container = std::integral_constant < bool, is_vector<T>::value ||
-			is_list<T>::value || is_set<T>::value || is_deque<T>::value || is_unordered_set<T>::value > ;
+			is_list<T>::value || is_set<T>::value || is_deque<T>::value || is_unordered_set<T>::value >;
 
 		template<typename T> using is_single_item_container_t = typename is_single_item_container<T>::type;
 
 		template<typename T> using is_container = std::integral_constant < bool, is_vector<T>::value || is_list<T>::value ||
-			is_set<T>::value || is_deque<T>::value || is_unordered_set<T>::value || is_map<T>::value || is_unordered_map<T>::value > ;
+			is_set<T>::value || is_deque<T>::value || is_unordered_set<T>::value || is_map<T>::value || is_unordered_map<T>::value >;
 
 		template<typename T> using is_container_t = typename is_container<T>::type;
 
-		template<typename T> using is_map_type = std::integral_constant < bool, is_map<T>::value || is_unordered_map<T>::value > ;
+		template<typename T> using is_map_type = std::integral_constant < bool, is_map<T>::value || is_unordered_map<T>::value >;
 		template<typename T> using is_map_type_t = typename is_map_type<T>::type;
 
-		template<typename T> using is_numeric = std::integral_constant < bool, std::is_floating_point<T>::value || std::is_integral<T>::value > ;
+		template<typename T> using is_numeric = std::integral_constant < bool, std::is_floating_point<T>::value || std::is_integral<T>::value >;
 		template<typename T> using is_numeric_t = typename is_numeric<T>::type;
 
-		template<typename T> using is_container_or_array = std::integral_constant < bool, is_container<T>::value || std::is_array<T>::value > ;
+		template<typename T> using is_container_or_array = std::integral_constant < bool, is_container<T>::value || std::is_array<T>::value >;
 
 		template<typename T> using is_container_or_array_t = typename is_container_or_array<T>::type;
 
 		template<typename T>
-		using is_streamable = std::integral_constant < bool, boost::has_left_shift<std::ostream&, T const &, std::ostream&>::value > ;
+		using is_streamable = std::integral_constant < bool, boost::has_left_shift<std::ostream&, T const &, std::ostream&>::value >;
 
 		template<typename T>
 		using is_streamable_t = typename is_streamable<T>::type;
 
 		template<template<class> class Base, typename Derived>
-		using is_mixed_from = std::integral_constant < bool, std::is_base_of<Base<Derived>, Derived>::value > ;
+		using is_mixed_from = std::integral_constant < bool, std::is_base_of<Base<Derived>, Derived>::value >;
 
 		template<template<class> class Base, typename Derived>
 		using is_mixed_from_t = typename is_mixed_from<Base, Derived>::type;
