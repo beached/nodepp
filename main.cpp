@@ -82,7 +82,7 @@ std::string get_directory_listing( boost::string_ref folder ) {
 }
 
 struct locked_buffer {
-	using buffers_t = std::list<daw::nodepp::base::data_t>;
+	using buffers_t = std::list<std::shared_ptr<boost::asio::streambuf>>;
 	buffers_t data;
 	std::mutex data_mutex;
 };
@@ -96,11 +96,11 @@ int main( int, char const ** ) {
 	auto srv = create_net_server( );
 
 	srv->on_connection( [&]( NetSocketStream socket ) {
+		std::cout << "Connection from: " << socket->remote_address( ) << ":" << socket->remote_port( ) << std::endl;
 		locked_buffer::buffers_t::iterator it;
 		{
 			std::unique_lock<std::mutex> lock( buffers.data_mutex );
-			it = buffers.data.emplace( buffers.data.end( ) );
-			it->reserve( 10 );
+			it = buffers.data.emplace( buffers.data.end( ), std::make_shared<boost::asio::streambuf>( 6 ) );
 		}
 
 		socket->on_data_received( [&, socket, it]( std::shared_ptr<base::data_t> data_buffer, bool ) mutable {
