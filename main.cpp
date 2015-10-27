@@ -103,13 +103,13 @@ int main( int, char const ** ) {
 			it->reserve( 10 );
 		}
 
-		socket->on_data_received( [socket, it, &]( std::shared_ptr<base::data_t> data_buffer, bool ) mutable {
+		socket->on_data_received( [&, socket, it]( std::shared_ptr<base::data_t> data_buffer, bool ) mutable {
 			if( data_buffer ) {
 				std::string const msg { data_buffer->begin( ), data_buffer->end( ) };
 				if( begins_with( "quit", msg ) ) {
-					socket->on_all_writes_completed( [socket, &]( ) {
+					socket->on_all_writes_completed( [&, socket]( ) {
 						socket->close( );
-						socket->on_closed( [it, &]( ) mutable {
+						socket->on_closed( [&, it]( ) mutable {
 							std::unique_lock<std::mutex> lock( buffers.data_mutex );
 							buffers.data.erase( it );
 						} );
@@ -123,7 +123,7 @@ int main( int, char const ** ) {
 			}
 		} )
 			.set_read_mode( impl::NetSocketStreamImpl::ReadUntil::newline )
-			.read_async( it->data( ) )
+			.read_async( *it )
 			.write_async( "READY\r\n" );
 	} );
 
