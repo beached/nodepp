@@ -24,6 +24,7 @@
 #include <string>
 #include <vector>
 #include "base_enoding.h"
+#include <boost/utility/string_ref.hpp>
 
 namespace daw {
 	namespace nodepp {
@@ -33,11 +34,11 @@ namespace daw {
 				return result;
 			}
 
-			Encoding::Encoding( ) : m_encoding( "utf8" ) { }
+			Encoding::Encoding( ): m_encoding( "utf8" ) { }
 
 			Encoding::Encoding( std::string encoding ) : m_encoding( encoding ) { }
 
-			Encoding& Encoding::operator = (boost::string_ref rhs) {
+			Encoding& Encoding::operator = ( boost::string_ref rhs ) {
 				if( !is_valid_encoding( rhs ) ) {
 					throw std::runtime_error( "Encoding is not valid" );
 				}
@@ -45,8 +46,8 @@ namespace daw {
 				return *this;
 			}
 
-			Encoding::Encoding( Encoding && other ) : m_encoding( std::move( other.m_encoding ) ) { }
-			Encoding& Encoding::operator = (Encoding && rhs) {
+			Encoding::Encoding( Encoding && other ): m_encoding( std::move( other.m_encoding ) ) { }
+			Encoding& Encoding::operator = ( Encoding && rhs ) {
 				if( this != &rhs ) {
 					m_encoding = std::move( rhs.m_encoding );
 				}

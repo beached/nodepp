@@ -33,7 +33,7 @@ namespace daw {
 	namespace nodepp {
 		namespace base {
 			namespace impl {
-				EventEmitterImpl::EventEmitterImpl( ) :
+				EventEmitterImpl::EventEmitterImpl( ):
 					m_listeners( std::make_shared<listeners_t>( ) ),
 					m_max_listeners( 10 ),
 					m_emit_depth( std::make_shared<std::atomic_int_least8_t>( 0 ) ),
@@ -52,7 +52,7 @@ namespace daw {
 				void EventEmitterImpl::remove_listener( boost::string_ref event, callback_id_t id ) {
 					daw::algorithm::erase_remove_if( listeners( )[event.to_string( )], [&]( std::pair<bool, Callback> const & item ) {
 						if( item.second.id( ) == id ) {
-							// TODO verify if this needs to be outside loop
+							// TODO: verify if this needs to be outside loop
 							emit_listener_removed( event, item.second );
 							return true;
 						}

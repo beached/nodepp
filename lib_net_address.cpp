@@ -48,7 +48,7 @@ namespace daw {
 				}
 
 				bool NetAddress::is_valid( std::string address ) {
-					return true;	// TODO complete
+					return true;	// TODO: complete
 				}
 			}	// namespace lib
 		}	// namespace net

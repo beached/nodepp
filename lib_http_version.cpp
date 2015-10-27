@@ -26,6 +26,7 @@
 #include <utility>
 
 #include "lib_http_version.h"
+#include <boost/utility/string_ref.hpp>
 
 namespace daw {
 	namespace nodepp {
@@ -36,7 +37,7 @@ namespace daw {
 					std::pair<uint8_t, uint8_t> parse_string( boost::string_ref version ) {
 						int major, minor;
 						std::istringstream iss( version.to_string( ) );
-						iss >> major >> minor;	// TODO fix, doesn't account for . but assumes whitespace
+						iss >> major >> minor;	// TODO: fix, doesn't account for . but assumes whitespace
 						if( major < 0 && major > std::numeric_limits<uint8_t>::max( ) ) {
 							throw std::invalid_argument( "Major version is out of range: " + version.to_string( ) );
 						} else if( minor < 0 && minor > std::numeric_limits<uint8_t>::max( ) ) {
@@ -62,7 +63,7 @@ namespace daw {
 					return m_version.second;
 				}
 
-				HttpVersion::HttpVersion( ) : m_version( 0, 0 ), m_is_valid( false ) { }
+				HttpVersion::HttpVersion( ): m_version( 0, 0 ), m_is_valid( false ) { }
 
 				HttpVersion::HttpVersion( uint_fast8_t Major, uint_fast8_t Minor ) : m_version( Major, Minor ), m_is_valid( true ) { }
 
@@ -74,12 +75,12 @@ namespace daw {
 					}
 				}
 
-				HttpVersion& HttpVersion::operator=(boost::string_ref version) {
+				HttpVersion& HttpVersion::operator=( boost::string_ref version ) {
 					m_version = parse_string( version );
 					return *this;
 				}
 
-				HttpVersion& HttpVersion::operator=(HttpVersion && rhs) {
+				HttpVersion& HttpVersion::operator=( HttpVersion && rhs ) {
 					if( this != &rhs ) {
 						m_is_valid = std::move( rhs.m_is_valid );
 						m_version = std::move( rhs.m_version );

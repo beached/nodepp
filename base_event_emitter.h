@@ -64,7 +64,7 @@ namespace daw {
 					using listeners_t = std::unordered_map < std::string, listener_list_t >;
 					using callback_id_t = Callback::id_t;
 				private:
-					const int_least8_t c_max_emit_depth = 100;	// TODO Magic Number
+					const int_least8_t c_max_emit_depth = 100;	// TODO: Magic Number
 					std::shared_ptr<std::unordered_map<std::string, listener_list_t>> m_listeners;
 					size_t m_max_listeners;
 					std::shared_ptr<std::atomic_int_least8_t> m_emit_depth;

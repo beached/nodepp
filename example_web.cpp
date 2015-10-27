@@ -84,26 +84,8 @@ int main( int, char const ** ) {
 	} ).on_error( []( base::Error error ) {
 		std::cerr << error << std::endl;
 	} ).listen_on( 8080 )/*.on_page_error( 404, []( lib::http::HttpClientRequest request, lib::http::HttpServerResponse response, uint16_t ) {
-	std::cout << "404 Request for " << request->request_line.url.path << " with query";
-	{
-	auto const & p = request->request_line.url.query;
-	if( p ) {
-	for( auto const & item : p.get( ) ) {
-	std::cout << item.serialize_to_json( ) << ",\n";
-	}
-	}
-	}
 	std::cout << "\n";
 	} )*/;
-
-// 	auto srv = create_net_server( );
-// 	srv->on_connection( []( NetSocketStream socket ) {
-// 		socket->on_all_writes_completed( [socket]( ) {
-// 			socket->close( );
-// 		} ).write_async( "Good-bye\r\n" );
-// 	} );
-//
-// 	srv->listen( 2020 );
 
 	base::ServiceHandle::run( );
 	return EXIT_SUCCESS;

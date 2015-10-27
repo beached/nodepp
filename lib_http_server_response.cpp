@@ -39,7 +39,7 @@ namespace daw {
 			namespace http {
 				using namespace daw::nodepp;
 				namespace impl {
-					HttpServerResponseImpl::HttpServerResponseImpl( std::weak_ptr<lib::net::impl::NetSocketStreamImpl> socket, base::EventEmitter emitter ) :
+					HttpServerResponseImpl::HttpServerResponseImpl( std::weak_ptr<lib::net::impl::NetSocketStreamImpl> socket, base::EventEmitter emitter ):
 						m_emitter( emitter ),
 						m_socket( socket ),
 						m_version( 1, 1 ),
@@ -104,7 +104,7 @@ namespace daw {
 						std::string msg = "HTTP/" + m_version.to_string( ) + " " + std::to_string( status.first ) + " " + status.second + "\r\n";
 
 						m_status_sent = on_socket_if_valid( [&msg]( lib::net::NetSocketStream socket ) {
-							socket->write_async( msg ); // TODO make faster
+							socket->write_async( msg ); // TODO: make faster
 						} );
 						return *this;
 					}
@@ -113,7 +113,7 @@ namespace daw {
 						std::string msg = "HTTP/" + m_version.to_string( ) + " " + std::to_string( status_code ) + " " + status_msg.to_string( ) + "\r\n";
 
 						m_status_sent = on_socket_if_valid( [&msg]( lib::net::NetSocketStream socket ) {
-							socket->write_async( msg ); // TODO make faster
+							socket->write_async( msg ); // TODO: make faster
 						} );
 						return *this;
 					}
