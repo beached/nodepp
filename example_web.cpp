@@ -83,9 +83,9 @@ int main( int, char const ** ) {
 			.end( schema_json );
 	} ).on_error( []( base::Error error ) {
 		std::cerr << error << std::endl;
-	} ).listen_on( 8080 )/*.on_page_error( 404, []( lib::http::HttpClientRequest request, lib::http::HttpServerResponse response, uint16_t ) {
-	std::cout << "\n";
-	} )*/;
+	} ).on_page_error( 404, []( lib::http::HttpClientRequest request, lib::http::HttpServerResponse response, uint16_t ) {
+		response->end( "Johnny Five is alive\r\n" );
+	} ).listen_on( 8080 );
 
 	base::ServiceHandle::run( );
 	return EXIT_SUCCESS;

@@ -30,6 +30,8 @@
 #include "lib_http_webservice.h"
 #include "lib_net_server.h"
 #include "parse_json/daw_json_link.h"
+#include <boost/utility/string_ref.hpp>
+#include <boost/filesystem.hpp>
 
 template<typename Container, typename T>
 void if_exists_do( Container & container, T const & key, std::function<void( typename Container::iterator it )> action ) {
@@ -39,70 +41,90 @@ void if_exists_do( Container & container, T const & key, std::function<void( typ
 	}
 }
 
+bool begins_with( boost::string_ref a, boost::string_ref b ) {
+	if( a.size( ) > b.size( ) ) {
+		return false;
+	}
+	for( size_t n = 0; n < a.size( ); ++n ) {
+		char const u_a = a[n] & ' ';
+		char const u_b = b[n] & ' ';
+		if( u_a != u_b ) {
+			return false;
+		}
+	}
+	return true;
+}
+
+std::string get_directory_listing( boost::string_ref folder ) {
+	namespace fs = boost::filesystem;
+	fs::path p { folder.to_string( ) };
+	std::ostringstream ss;
+	try {
+		if( exists( p ) ) {
+			if( fs::is_regular_file( p ) ) {
+				ss << p << " size is " << fs::file_size( p ) << "\r\n";
+			} else if( fs::is_directory( p ) ) {
+				ss << p << " is a directory containing:\n";
+				std::copy( fs::directory_iterator( p ), fs::directory_iterator( ), std::ostream_iterator<fs::directory_entry>( ss, "\r\n" ) );
+			} else {
+				ss << p << " exists, but is neither a regular file nor a directory\n";
+			}
+		} else {
+			ss << p << " does not exist\n";
+		}
+	}
+
+	catch( const fs::filesystem_error& ex ) {
+		ss << ex.what( ) << '\n';
+	}
+
+	return ss.str( );
+}
+
+struct locked_buffer {
+	using buffers_t = std::list<daw::nodepp::base::data_t>;
+	buffers_t data;
+	std::mutex data_mutex;
+};
+
 int main( int, char const ** ) {
 	using namespace daw::nodepp;
 	using namespace daw::nodepp::lib::net;
-	//	using namespace daw::nodepp::lib::http;
-	//
-	// 	struct X: public daw::json::JsonLink < X > {
-	// 		int value;
-	// 		X( int val = 0 ) : value( std::move( val ) ) {
-	// 			set_links( );
-	// 		}
-	//
-	// 		void set_links( ) {
-	// 			link_integral( "value", value );
-	// 		}
-	// 	};
-	//
-	// 	std::function<X( X const & )> ws_handler = []( X const & id ) {
-	// 		return X( 2 * id.value );
-	// 	};
-	//
-	//
-	// 	auto test = create_web_service( HttpClientRequestMethod::Get, "/people", ws_handler );
-	//
-	// 	auto site = create_http_site( );
-	//
-	// 	test->connect( site );
-	//
-	//
-	// 	site->on_listening( []( boost::asio::ip::tcp::endpoint endpoint ) {
-	// 		std::cout << "Listening on " << endpoint << "\n";
-	// 	} ).on_requests_for( HttpClientRequestMethod::Get, "/", [&]( HttpClientRequest request, HttpServerResponse response ) {
-	// 		auto req = request->encode( );
-	// 		request->decode( req );
-	//
-	// 		auto schema = request->get_schema_obj( );
-	//
-	// 		auto schema_json = daw::json::generate::value_to_json( "", schema );
-	//
-	// 		response->on_all_writes_completed( [response]( ) mutable {
-	// 			response->close( );
-	// 		} ).send_status( 200 )
-	// 			.add_header( "Content-Type", "application/json" )
-	// 			.add_header( "Connection", "close" )
-	// 			.end( schema_json );
-	// 	} ).on_error( []( base::Error error ) {
-	// 		std::cerr << error << std::endl;
-	// 	} ).listen_on( 8080 )/*.on_page_error( 404, []( lib::http::HttpClientRequest request, lib::http::HttpServerResponse response, uint16_t ) {
-	// 	std::cout << "404 Request for " << request->request_line.url.path << " with query";
-	// 	{
-	// 	auto const & p = request->request_line.url.query;
-	// 	if( p ) {
-	// 	for( auto const & item : p.get( ) ) {
-	// 	std::cout << item.serialize_to_json( ) << ",\n";
-	// 	}
-	// 	}
-	// 	}
-	// 	std::cout << "\n";
-	// 	} )*/;
+
+	locked_buffer buffers;
 
 	auto srv = create_net_server( );
-	srv->on_connection( []( NetSocketStream socket ) {
-		socket->on_all_writes_completed( [socket]( ) {
-			socket->close( );
-		} ).write_async( "Good-bye\r\n" );
+
+	srv->on_connection( [&]( NetSocketStream socket ) {
+		locked_buffer::buffers_t::iterator it;
+		{
+			std::unique_lock<std::mutex> lock( buffers.data_mutex );
+			it = buffers.data.emplace( buffers.data.end( ) );
+			it->reserve( 10 );
+		}
+
+		socket->on_data_received( [socket, it, &]( std::shared_ptr<base::data_t> data_buffer, bool ) mutable {
+			if( data_buffer ) {
+				std::string const msg { data_buffer->begin( ), data_buffer->end( ) };
+				if( begins_with( "quit", msg ) ) {
+					socket->on_all_writes_completed( [socket, &]( ) {
+						socket->close( );
+						socket->on_closed( [it, &]( ) mutable {
+							std::unique_lock<std::mutex> lock( buffers.data_mutex );
+							buffers.data.erase( it );
+						} );
+					} ).write_async( "GOOD-BYTE" );
+				} else if( begins_with( "dir", msg ) ) {
+					socket->write_async( get_directory_listing( "." ) + "\r\nREADY\r\n" );
+				} else if( begins_with( "help", msg ) ) {
+				} else {
+					socket->write_async( "SYNTAX ERROR\r\n" );
+				}
+			}
+		} )
+			.set_read_mode( impl::NetSocketStreamImpl::ReadUntil::newline )
+			.read_async( it->data( ) )
+			.write_async( "READY\r\n" );
 	} );
 
 	srv->listen( 2020 );
