@@ -41,13 +41,13 @@ void if_exists_do( Container & container, T const & key, std::function<void( typ
 	}
 }
 
-bool begins_with( boost::string_ref a, boost::string_ref b ) {
+bool begins_with_nc( boost::string_ref a, boost::string_ref b ) {
 	if( a.size( ) > b.size( ) ) {
 		return false;
 	}
 	for( size_t n = 0; n < a.size( ); ++n ) {
-		char const u_a = a[n] & ' ';
-		char const u_b = b[n] & ' ';
+		auto const u_a = (a[n] | 0x20);
+		auto const u_b = (b[n] | 0x20);
 		if( u_a != u_b ) {
 			return false;
 		}
@@ -106,25 +106,27 @@ int main( int, char const ** ) {
 		socket->on_data_received( [&, socket, it]( std::shared_ptr<base::data_t> data_buffer, bool ) mutable {
 			if( data_buffer ) {
 				std::string const msg { data_buffer->begin( ), data_buffer->end( ) };
-				if( begins_with( "quit", msg ) ) {
+				if( begins_with_nc( "quit", msg ) ) {
 					socket->on_all_writes_completed( [&, socket]( ) {
 						socket->close( );
-						socket->on_closed( [&, it]( ) mutable {
-							std::unique_lock<std::mutex> lock( buffers.data_mutex );
-							buffers.data.erase( it );
-						} );
 					} ).write_async( "GOOD-BYTE" );
-				} else if( begins_with( "dir", msg ) ) {
+				} else if( begins_with_nc( "dir", msg ) ) {
 					socket->write_async( get_directory_listing( "." ) + "\r\nREADY\r\n" );
-				} else if( begins_with( "help", msg ) ) {
+				} else if( begins_with_nc( "help", msg ) ) {
 				} else {
 					socket->write_async( "SYNTAX ERROR\r\n" );
 				}
 			}
 		} )
-			.set_read_mode( impl::NetSocketStreamImpl::ReadUntil::newline )
-			.read_async( *it )
-			.write_async( "READY\r\n" );
+			.set_read_mode( daw::nodepp::lib::net::impl::NetSocketStreamImpl::ReadUntil::newline )
+			.on_closed( [&, it]( ) mutable {
+			std::unique_lock<std::mutex> lock( buffers.data_mutex );
+			buffers.data.erase( it );
+		} ).on_all_writes_completed( [&, socket]( ) {
+			socket->read_async( );
+		} ).write_async( "READY\r\n" );
+
+		socket->read_async( );
 	} );
 
 	srv->listen( 2020 );
