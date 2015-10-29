@@ -41,7 +41,7 @@ namespace daw {
 					class NetServerImpl;
 				}
 
-				using NetServer = std::shared_ptr < impl::NetServerImpl > ;
+				using NetServer = std::shared_ptr < impl::NetServerImpl >;
 
 				NetServer create_net_server( daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
 
@@ -59,8 +59,8 @@ namespace daw {
 
 						NetServerImpl( NetServerImpl const & ) = default;
 						NetServerImpl( NetServerImpl&& other );
-						NetServerImpl& operator=(NetServerImpl && rhs);
-						NetServerImpl& operator=(NetServerImpl const &) = default;
+						NetServerImpl& operator=( NetServerImpl && rhs );
+						NetServerImpl& operator=( NetServerImpl const & ) = default;
 						~NetServerImpl( ) = default;
 
 						daw::nodepp::base::EventEmitter& emitter( );

@@ -32,27 +32,43 @@
 #include "parse_json/daw_json_link.h"
 #include <boost/utility/string_ref.hpp>
 #include <boost/filesystem.hpp>
+#include "daw_string.h"
 
-template<typename Container, typename T>
-void if_exists_do( Container & container, T const & key, std::function<void( typename Container::iterator it )> action ) {
-	auto it = std::find( std::begin( container ), std::end( container ), key );
-	if( std::end( container ) != it ) {
-		action( it );
-	}
-}
+std::string get_directory_listing( boost::string_ref folder );
 
-bool begins_with_nc( boost::string_ref a, boost::string_ref b ) {
-	if( a.size( ) > b.size( ) ) {
-		return false;
-	}
-	for( size_t n = 0; n < a.size( ); ++n ) {
-		auto const u_a = (a[n] | 0x20);
-		auto const u_b = (b[n] | 0x20);
-		if( u_a != u_b ) {
-			return false;
-		}
-	}
-	return true;
+int main( int, char const ** ) {
+	using namespace daw::nodepp;
+	using namespace daw::nodepp::lib::net;
+
+	auto srv = create_net_server( );
+
+	srv->on_connection( [&]( NetSocketStream socket ) {
+		std::cout << "Connection from: " << socket->remote_address( ) << ":" << socket->remote_port( ) << std::endl;
+
+		socket->on_data_received( [socket]( std::shared_ptr<base::data_t> data_buffer, bool ) mutable {
+			if( data_buffer ) {
+				auto const msg = daw::AsciiLower( daw::string::trim_copy( std::string { data_buffer->begin( ), data_buffer->end( ) } ) );
+				if( msg == "quit" ) {
+					socket->end( "GOOD-BYTE" );
+				} else if( msg == "dir" ) {
+					socket->write_async( get_directory_listing( "." ) + "\r\nREADY\r\n" );
+				} else if( msg == "help" ) {
+					socket->write_async( "quit - close connection\r\ndir - show directory listing\r\nhelp - this message\r\nREADY\r\n" );
+				} else {
+					socket->write_async( "SYNTAX ERROR\r\nREADY\r\n" );
+				}
+			}
+		} )
+			.set_read_mode( daw::nodepp::lib::net::impl::NetSocketStreamImpl::ReadUntil::newline )	// Every time a newline is received, on_data_received callback is called
+			.write_async( "READY\r\n" );
+
+		socket->read_async( );
+	} );
+
+	srv->listen( 2020 );
+
+	base::ServiceHandle::run( );
+	return EXIT_SUCCESS;
 }
 
 std::string get_directory_listing( boost::string_ref folder ) {
@@ -79,38 +95,4 @@ std::string get_directory_listing( boost::string_ref folder ) {
 	}
 
 	return ss.str( );
-}
-
-int main( int, char const ** ) {
-	using namespace daw::nodepp;
-	using namespace daw::nodepp::lib::net;
-
-	auto srv = create_net_server( );
-
-	srv->on_connection( [&]( NetSocketStream socket ) {
-		std::cout << "Connection from: " << socket->remote_address( ) << ":" << socket->remote_port( ) << std::endl;
-
-		socket->on_data_received( [&, socket]( std::shared_ptr<base::data_t> data_buffer, bool ) mutable {
-			if( data_buffer ) {
-				std::string const msg { data_buffer->begin( ), data_buffer->end( ) };
-				if( begins_with_nc( "quit", msg ) ) {
-					socket->end( "GOOD-BYTE" );
-				} else if( begins_with_nc( "dir", msg ) ) {
-					socket->write_async( get_directory_listing( "." ) + "\r\nREADY\r\n" );
-				} else if( begins_with_nc( "help", msg ) ) {
-					socket->write_async( "quit - close connection\r\ndir - show directory listing\r\nhelp - this message\r\nREADY\r\n" );
-				} else {
-					socket->write_async( "SYNTAX ERROR\r\nREADY\r\n" );
-				}
-			}
-		} ).set_read_mode( daw::nodepp::lib::net::impl::NetSocketStreamImpl::ReadUntil::newline )	// Every time a newline is received, on_data_received callback is called
-			.write_async( "READY\r\n" );
-
-		socket->read_async( );
-	} );
-
-	srv->listen( 2020 );
-
-	base::ServiceHandle::run( );
-	return EXIT_SUCCESS;
 }
