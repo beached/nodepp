@@ -61,9 +61,9 @@ int main( int, char const ** ) {
 					socket << "SYNTAX ERROR\r\n\nREADY\r\n";
 				}
 			}
-		} )
-			.set_read_mode( NetSocketStreamReadMode::newline )	// Every time a newline is received, on_data_received callback is called
-			.write_async( "READY\r\n" );
+		} ).set_read_mode( NetSocketStreamReadMode::newline );	// Every time a newline is received, on_data_received callback is called
+
+		socket << "READY\r\n";
 
 		socket->read_async( );
 	} );
