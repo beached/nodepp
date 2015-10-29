@@ -83,7 +83,10 @@ include_directories( ./header_libraries )
 include_directories( ./parse_json )
 
 add_executable(example_server example_server.cpp ${SOURCE_FILES})
-target_link_libraries(example_server parse_json  ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
+target_link_libraries(example_server parse_json ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
+
+add_executable(example_client example_client.cpp ${SOURCE_FILES})
+target_link_libraries(example_client parse_json ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
 
 add_executable(example_web example_web.cpp ${SOURCE_FILES})
 target_link_libraries(example_web parse_json  ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
