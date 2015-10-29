@@ -49,7 +49,7 @@ int main( int, char const ** ) {
 			if( data_buffer ) {
 				auto const msg = daw::AsciiLower( daw::string::trim_copy( std::string { data_buffer->begin( ), data_buffer->end( ) } ) );
 				if( msg == "quit" ) {
-					socket->end( "GOOD-BYTE" );
+					socket->end( "GOOD-BYTE\r\n" );
 				} else if( msg == "dir" ) {
 					socket << get_directory_listing( "." ) << "\r\nREADY\r\n";
 				} else if( msg == "help" ) {
