@@ -34,6 +34,8 @@ namespace daw {
 			struct ServiceHandle {
 				static boost::asio::io_service& get( );
 				static void run( );
+				static void stop( );
+				static void reset( );
 				static void work( );
 			};	// struct ServiceHandle
 

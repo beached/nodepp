@@ -25,11 +25,9 @@
 //#include "base_work_queue.h"
 #include "lib_net_socket_stream.h"
 
-
 int main( int, char const ** ) {
 	using namespace daw::nodepp;
 	using namespace daw::nodepp::lib::net;
-
 
 	auto socket = create_net_socket_stream( );
 	bool has_directory = false;
@@ -37,26 +35,24 @@ int main( int, char const ** ) {
 	socket->on_connected( [socket]( ) mutable {
 		std::cout << "Connection from: " << socket->remote_address( ) << ":" << socket->remote_port( ) << std::endl;
 		socket->read_async( );
-	} ).on_data_received( [has_directory, socket]( std::shared_ptr<base::data_t> data_buffer, bool ) mutable {
+	} ).on_data_received( [&has_directory, socket]( std::shared_ptr<base::data_t> data_buffer, bool ) mutable {
 		if( data_buffer ) {
 			auto const msg = std::string { data_buffer->begin( ), data_buffer->end( ) };
 			std::cout << msg;
 			if( has_directory ) {
-				if( msg == "READY\r\n" ) {	
-					socket->end( "quit\r\n" );
-					return;
-				}
+				socket->end( "quit\r\n" );
+
+				socket.reset( );
+				base::ServiceHandle::stop( );
 			} else {
-				has_directory = true;		
+				has_directory = true;
 				socket << "dir\r\n";
 			}
 		}
-	} ).set_read_mode( NetSocketStreamReadMode::newline ); 
-
+	} ).set_read_until_values( "READY\r\n", false );
 
 	socket->connect( "localhost", 2020 );
 
 	base::ServiceHandle::run( );
 	return EXIT_SUCCESS;
 }
-

@@ -37,6 +37,14 @@ namespace daw {
 				get( ).run( );
 			}
 
+			void ServiceHandle::stop( ) {
+				get( ).stop( );
+			}
+
+			void ServiceHandle::reset( ) {
+				get( ).reset( );
+			}
+
 			void ServiceHandle::work( ) {
 				boost::asio::io_service::work work( get( ) );
 			}
