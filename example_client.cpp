@@ -30,7 +30,7 @@ int main( int, char const ** ) {
 	using namespace daw::nodepp::lib::net;
 
 	auto socket = create_net_socket_stream( );
-	bool has_directory = false;
+	auto has_directory = false;
 
 	socket->on_connected( [socket]( ) mutable {
 		std::cout << "Connection from: " << socket->remote_address( ) << ":" << socket->remote_port( ) << std::endl;
@@ -42,8 +42,7 @@ int main( int, char const ** ) {
 			if( has_directory ) {
 				socket->end( "quit\r\n" );
 
-				socket.reset( );
-				base::ServiceHandle::stop( );
+				socket->close( );
 			} else {
 				has_directory = true;
 				socket << "dir\r\n";
