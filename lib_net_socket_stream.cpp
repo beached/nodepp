@@ -175,7 +175,7 @@ namespace daw {
 							read_buffer->commit( bytes_transfered );
 							if( 0 < bytes_transfered ) {
 								std::istream resp( read_buffer.get( ) );
-								auto new_data = std::make_shared<base::data_t>( bytes_transfered );
+								auto new_data = std::make_shared<base::data_t>( bytes_transfered, 0 );
 								resp.read( new_data->data( ), static_cast<std::streamsize>(bytes_transfered) );
 								read_buffer->consume( bytes_transfered );
 								if( 0 < self->emitter( )->listener_count( "data_received" ) ) {

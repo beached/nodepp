@@ -21,6 +21,7 @@
 // SOFTWARE.
 
 #include "lib_http_request_parser_impl.h"
+#include <boost/spirit/home/qi/parse.hpp>
 
 namespace daw {
 	namespace nodepp {

@@ -100,7 +100,7 @@ int main( int, char const ** ) {
 		locked_buffer::buffers_t::iterator it;
 		{
 			std::unique_lock<std::mutex> lock( buffers.data_mutex );
-			it = buffers.data.emplace( buffers.data.end( ), std::make_shared<boost::asio::streambuf>( 6 ) );
+			it = buffers.data.emplace( buffers.data.end( ), std::make_shared<boost::asio::streambuf>( 4096 ) );
 		}
 
 		socket->on_data_received( [&, socket, it]( std::shared_ptr<base::data_t> data_buffer, bool ) mutable {
@@ -117,15 +117,14 @@ int main( int, char const ** ) {
 					socket->write_async( "SYNTAX ERROR\r\n" );
 				}
 			}
-		} )
-			.set_read_mode( daw::nodepp::lib::net::impl::NetSocketStreamImpl::ReadUntil::newline )
-			.on_closed( [&, it]( ) mutable {
-			std::unique_lock<std::mutex> lock( buffers.data_mutex );
-			buffers.data.erase( it );
-		} ).on_all_writes_completed( [&, socket]( ) {
 			socket->read_async( );
-		} ).write_async( "READY\r\n" );
-
+		} ).set_read_mode( daw::nodepp::lib::net::impl::NetSocketStreamImpl::ReadUntil::newline )
+//			.on_closed( [&, it]( ) mutable {
+// 			std::unique_lock<std::mutex> lock( buffers.data_mutex );
+// 			if( buffers.data.end( ) != it ) {
+// 				buffers.data.erase( it );
+// 			}
+/*} )*/.write_async( "READY\r\n" );
 		socket->read_async( );
 	} );
 
