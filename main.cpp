@@ -75,56 +75,37 @@ std::string get_directory_listing( boost::string_ref folder ) {
 	}
 
 	catch( const fs::filesystem_error& ex ) {
-		ss << ex.what( ) << '\n';
+		ss << "ERROR: " << ex.what( ) << '\n';
 	}
 
 	return ss.str( );
 }
 
-struct locked_buffer {
-	using buffers_t = std::list<std::shared_ptr<boost::asio::streambuf>>;
-	buffers_t data;
-	std::mutex data_mutex;
-};
-
 int main( int, char const ** ) {
 	using namespace daw::nodepp;
 	using namespace daw::nodepp::lib::net;
-
-	locked_buffer buffers;
 
 	auto srv = create_net_server( );
 
 	srv->on_connection( [&]( NetSocketStream socket ) {
 		std::cout << "Connection from: " << socket->remote_address( ) << ":" << socket->remote_port( ) << std::endl;
-		locked_buffer::buffers_t::iterator it;
-		{
-			std::unique_lock<std::mutex> lock( buffers.data_mutex );
-			it = buffers.data.emplace( buffers.data.end( ), std::make_shared<boost::asio::streambuf>( 4096 ) );
-		}
 
-		socket->on_data_received( [&, socket, it]( std::shared_ptr<base::data_t> data_buffer, bool ) mutable {
+		socket->on_data_received( [&, socket]( std::shared_ptr<base::data_t> data_buffer, bool ) mutable {
 			if( data_buffer ) {
 				std::string const msg { data_buffer->begin( ), data_buffer->end( ) };
 				if( begins_with_nc( "quit", msg ) ) {
-					socket->on_all_writes_completed( [&, socket]( ) {
-						socket->close( );
-					} ).write_async( "GOOD-BYTE" );
+					socket->end( "GOOD-BYTE" );
 				} else if( begins_with_nc( "dir", msg ) ) {
 					socket->write_async( get_directory_listing( "." ) + "\r\nREADY\r\n" );
 				} else if( begins_with_nc( "help", msg ) ) {
+					socket->write_async( "quit - close connection\r\ndir - show directory listing\r\nhelp - this message\r\nREADY\r\n" );
 				} else {
-					socket->write_async( "SYNTAX ERROR\r\n" );
+					socket->write_async( "SYNTAX ERROR\r\nREADY\r\n" );
 				}
 			}
-			socket->read_async( );
-		} ).set_read_mode( daw::nodepp::lib::net::impl::NetSocketStreamImpl::ReadUntil::newline )
-//			.on_closed( [&, it]( ) mutable {
-// 			std::unique_lock<std::mutex> lock( buffers.data_mutex );
-// 			if( buffers.data.end( ) != it ) {
-// 				buffers.data.erase( it );
-// 			}
-/*} )*/.write_async( "READY\r\n" );
+		} ).set_read_mode( daw::nodepp::lib::net::impl::NetSocketStreamImpl::ReadUntil::newline )	// Every time a newline is received, on_data_received callback is called
+			.write_async( "READY\r\n" );
+
 		socket->read_async( );
 	} );
 
