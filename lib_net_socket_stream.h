@@ -50,9 +50,10 @@ namespace daw {
 				NetSocketStream create_net_socket_stream( daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
 				NetSocketStream create_net_socket_stream( boost::asio::io_service& io_service, std::size_t max_read_size, daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
 
+				enum class NetSocketStreamReadMode { newline, buffer_full, predicate, next_byte, regex, values, double_newline };
+
 				namespace impl {
 					struct NetSocketStreamImpl: public daw::nodepp::base::SelfDestructing<NetSocketStreamImpl>, public daw::nodepp::base::stream::StreamReadableEvents<NetSocketStreamImpl>, public daw::nodepp::base::stream::StreamWritableEvents < NetSocketStreamImpl > {
-						enum class ReadUntil { newline, buffer_full, predicate, next_byte, regex, values, double_newline };
 						using match_iterator_t = boost::asio::buffers_iterator < boost::asio::streambuf::const_buffers_type >;
 						using match_function_t = std::function < std::pair<match_iterator_t, bool>( match_iterator_t begin, match_iterator_t end ) >;
 					private:
@@ -69,18 +70,18 @@ namespace daw {
 						} m_state;
 
 						struct netsockstream_readoptions_t {
-							ReadUntil read_mode;
+							NetSocketStreamReadMode read_mode;
 							size_t max_read_size;
 							std::unique_ptr<NetSocketStreamImpl::match_function_t> read_predicate;
 							std::string read_until_values;
 
 							netsockstream_readoptions_t( ):
-								read_mode( ReadUntil::newline ),
+								read_mode( NetSocketStreamReadMode::newline ),
 								max_read_size( 8192 ),
 								read_predicate( ) { }
 
 							netsockstream_readoptions_t( size_t max_read_size_ ):
-								read_mode( ReadUntil::newline ),
+								read_mode( NetSocketStreamReadMode::newline ),
 								max_read_size( max_read_size_ ),
 								read_predicate( ) { }
 
@@ -144,8 +145,8 @@ namespace daw {
 						bool is_closed( ) const;
 						bool can_write( ) const;
 
-						NetSocketStreamImpl& set_read_mode( NetSocketStreamImpl::ReadUntil mode );
-						ReadUntil const& current_read_mode( ) const;
+						NetSocketStreamImpl& set_read_mode( NetSocketStreamReadMode mode );
+						NetSocketStreamReadMode const& current_read_mode( ) const;
 						NetSocketStreamImpl& set_read_predicate( std::function < std::pair<NetSocketStreamImpl::match_iterator_t, bool>( NetSocketStreamImpl::match_iterator_t begin, NetSocketStreamImpl::match_iterator_t end ) > match_function );
 						NetSocketStreamImpl& clear_read_predicate( );
 						NetSocketStreamImpl& set_read_until_values( std::string values, bool is_regex );

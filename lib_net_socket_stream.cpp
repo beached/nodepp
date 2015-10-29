@@ -123,24 +123,24 @@ namespace daw {
 						return m_emitter;
 					}
 
-					NetSocketStreamImpl& NetSocketStreamImpl::set_read_mode( NetSocketStreamImpl::ReadUntil mode ) {
+					NetSocketStreamImpl& NetSocketStreamImpl::set_read_mode( NetSocketStreamReadMode mode ) {
 						m_read_options.read_mode = mode;
 						return *this;
 					}
 
-					NetSocketStreamImpl::ReadUntil const& NetSocketStreamImpl::current_read_mode( ) const {
+					NetSocketStreamReadMode const& NetSocketStreamImpl::current_read_mode( ) const {
 						return m_read_options.read_mode;
 					}
 
 					NetSocketStreamImpl& NetSocketStreamImpl::set_read_predicate( NetSocketStreamImpl::match_function_t read_predicate ) {
 						m_read_options.read_predicate = daw::make_unique<NetSocketStreamImpl::match_function_t>( std::move( read_predicate ) );
-						m_read_options.read_mode = NetSocketStreamImpl::ReadUntil::predicate;
+						m_read_options.read_mode = NetSocketStreamReadMode::predicate;
 						return *this;
 					}
 
 					NetSocketStreamImpl& NetSocketStreamImpl::clear_read_predicate( ) {
-						if( ReadUntil::predicate == m_read_options.read_mode ) {
-							m_read_options.read_mode = ReadUntil::newline;
+						if( NetSocketStreamReadMode::predicate == m_read_options.read_mode ) {
+							m_read_options.read_mode = NetSocketStreamReadMode::newline;
 						}
 						m_read_options.read_until_values.clear( );
 						m_read_options.read_predicate.reset( );
@@ -148,7 +148,7 @@ namespace daw {
 					}
 
 					NetSocketStreamImpl& NetSocketStreamImpl::set_read_until_values( std::string values, bool is_regex ) {
-						m_read_options.read_mode = is_regex ? NetSocketStreamImpl::ReadUntil::regex : NetSocketStreamImpl::ReadUntil::values;
+						m_read_options.read_mode = is_regex ? NetSocketStreamReadMode::regex : NetSocketStreamReadMode::values;
 						m_read_options.read_until_values = std::move( values );
 						m_read_options.read_predicate.reset( );
 						return *this;
@@ -262,24 +262,24 @@ namespace daw {
 							static boost::regex const dbl_newline( R"((?:\r\n|\n){2})" );
 
 							switch( m_read_options.read_mode ) {
-							case ReadUntil::next_byte:
+							case NetSocketStreamReadMode::next_byte:
 								throw std::runtime_error( "Read Until mode not implemented" );
-							case ReadUntil::buffer_full:
+							case NetSocketStreamReadMode::buffer_full:
 								boost::asio::async_read( *m_socket, *read_buffer, handler );
 								break;
-							case ReadUntil::newline:
+							case NetSocketStreamReadMode::newline:
 								boost::asio::async_read_until( *m_socket, *read_buffer, "\n", handler );
 								break;
-							case ReadUntil::double_newline:
+							case NetSocketStreamReadMode::double_newline:
 								boost::asio::async_read_until( *m_socket, *read_buffer, dbl_newline, handler );
 								break;
-							case ReadUntil::predicate:
+							case NetSocketStreamReadMode::predicate:
 								boost::asio::async_read_until( *m_socket, *read_buffer, *m_read_options.read_predicate, handler );
 								break;
-							case ReadUntil::values:
+							case NetSocketStreamReadMode::values:
 								boost::asio::async_read_until( *m_socket, *read_buffer, m_read_options.read_until_values, handler );
 								break;
-							case ReadUntil::regex:
+							case NetSocketStreamReadMode::regex:
 								boost::asio::async_read_until( *m_socket, *read_buffer, boost::regex( m_read_options.read_until_values ), handler );
 								break;
 

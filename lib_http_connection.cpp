@@ -73,7 +73,7 @@ namespace daw {
 							}
 						} ).delegate_to( "closed", obj, "closed" )
 							.on_error( obj, "HttpConnectionImpl::start" )
-							.set_read_mode( lib::net::impl::NetSocketStreamImpl::ReadUntil::double_newline );
+							.set_read_mode( lib::net::NetSocketStreamReadMode::double_newline );
 
 						m_socket->read_async( );
 					}

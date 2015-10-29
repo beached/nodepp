@@ -62,7 +62,7 @@ int main( int, char const ** ) {
 				}
 			}
 		} )
-			.set_read_mode( daw::nodepp::lib::net::impl::NetSocketStreamImpl::ReadUntil::newline )	// Every time a newline is received, on_data_received callback is called
+			.set_read_mode( NetSocketStreamReadMode::newline )	// Every time a newline is received, on_data_received callback is called
 			.write_async( "READY\r\n" );
 
 		socket->read_async( );
