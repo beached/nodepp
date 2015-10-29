@@ -192,6 +192,8 @@ namespace daw {
 						void write_async( daw::nodepp::base::write_buffer buff );
 					};	// struct NetSocketStreamImpl
 				}	// namespace impl
+
+				NetSocketStream& operator<<( NetSocketStream &socket, boost::string_ref message );
 			}	// namespace net
 		}	// namespace lib
 	}	// namespace nodepp

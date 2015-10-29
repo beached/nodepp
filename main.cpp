@@ -51,11 +51,14 @@ int main( int, char const ** ) {
 				if( msg == "quit" ) {
 					socket->end( "GOOD-BYTE" );
 				} else if( msg == "dir" ) {
-					socket->write_async( get_directory_listing( "." ) + "\r\nREADY\r\n" );
+					socket << get_directory_listing( "." ) << "\r\nREADY\r\n";
 				} else if( msg == "help" ) {
-					socket->write_async( "quit - close connection\r\ndir - show directory listing\r\nhelp - this message\r\nREADY\r\n" );
+					socket << "quit - close connection\r\n";
+					socket << "dir - show directory listing\r\n";
+					socket << "help - this message\r\n";
+					socket << "READY\r\n";
 				} else {
-					socket->write_async( "SYNTAX ERROR\r\nREADY\r\n" );
+					socket << "SYNTAX ERROR\r\n\nREADY\r\n";
 				}
 			}
 		} )

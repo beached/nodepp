@@ -442,6 +442,15 @@ namespace daw {
 					result->arm( "closed" );
 					return result;
 				}
+
+				NetSocketStream& operator<<( NetSocketStream &socket, boost::string_ref message ) {
+					if( socket ) {
+						socket->write_async( message );
+					} else {
+						throw std::runtime_error( "Attempt to use a null NetSocketStream" );
+					}
+					return socket;
+				}
 			}	// namespace net
 		}	// namespace lib
 	}	// namespace nodepp
