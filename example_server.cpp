@@ -65,7 +65,8 @@ int main( int, char const ** ) {
 
 	srv->listen( 2020 );
 
-	base::ServiceHandle::run( );
+	base::start_service( base::StartServiceMode::Single );
+
 	return EXIT_SUCCESS;
 }
 

@@ -52,6 +52,6 @@ int main( int, char const ** ) {
 
 	socket->connect( "localhost", 2020 );
 
-	base::ServiceHandle::run( );
+	base::start_service( base::StartServiceMode::Single );
 	return EXIT_SUCCESS;
 }

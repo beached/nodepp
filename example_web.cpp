@@ -87,6 +87,6 @@ int main( int, char const ** ) {
 		response->end( "Johnny Five is alive\r\n" );
 	} ).listen_on( 8080 );
 
-	base::ServiceHandle::run( );
+	base::start_service( base::StartServiceMode::Single );
 	return EXIT_SUCCESS;
 }
