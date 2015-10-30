@@ -39,29 +39,29 @@ namespace daw {
 				namespace impl {
 					using namespace daw::nodepp;
 
-					bool site_registration::operator==(site_registration const & rhs) const {
+					bool site_registration::operator==( site_registration const & rhs ) const {
 						return rhs.host == host && rhs.path == path && rhs.method == method;
 					}
 
-					site_registration::site_registration( boost::string_ref Host, boost::string_ref Path, HttpClientRequestMethod Method, std::function < void( HttpClientRequest, HttpServerResponse ) > Listener ) :
+					site_registration::site_registration( boost::string_ref Host, boost::string_ref Path, HttpClientRequestMethod Method, std::function < void( HttpClientRequest, HttpServerResponse ) > Listener ):
 						host( Host.to_string( ) ),
 						path( Path.to_string( ) ),
 						method( std::move( Method ) ),
 						listener( std::move( Listener ) ) { }
 
-					site_registration::site_registration( boost::string_ref Host, boost::string_ref Path, HttpClientRequestMethod Method ) :
+					site_registration::site_registration( boost::string_ref Host, boost::string_ref Path, HttpClientRequestMethod Method ):
 						host( Host.to_string( ) ),
 						path( Path.to_string( ) ),
 						method( std::move( Method ) ),
 						listener( nullptr ) { }
 
-					HttpSiteImpl::HttpSiteImpl( base::EventEmitter emitter ) :
+					HttpSiteImpl::HttpSiteImpl( base::EventEmitter emitter ):
 						m_emitter( std::move( emitter ) ),
 						m_server( create_http_server( ) ),
 						m_registered_sites( ),
 						m_error_listeners( ) { }
 
-					HttpSiteImpl::HttpSiteImpl( HttpServer server, base::EventEmitter emitter ) :
+					HttpSiteImpl::HttpSiteImpl( HttpServer server, base::EventEmitter emitter ):
 						m_emitter( std::move( emitter ) ),
 						m_server( std::move( server ) ),
 						m_registered_sites( ),
@@ -163,7 +163,7 @@ namespace daw {
 						return *this;
 					}
 
-					HttpSiteImpl& HttpSiteImpl::on_page_error( uint16_t error_no, std::function < void( HttpClientRequest, HttpServerResponse, uint16_t error_no ) > listener ) {
+					HttpSiteImpl& HttpSiteImpl::on_page_error( uint16_t error_no, std::function < void( HttpClientRequest, HttpServerResponse, uint16_t ) > listener ) {
 						m_error_listeners[error_no] = std::move( listener );
 						return *this;
 					}

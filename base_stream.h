@@ -149,6 +149,7 @@ namespace daw {
 								stream_writable_obj.lock( )->write( buff );
 							}
 						} );
+						return derived( );
 					}
 				};	// class StreamReadableEvents
 			}	//namespace stream

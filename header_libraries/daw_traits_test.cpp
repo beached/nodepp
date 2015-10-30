@@ -35,7 +35,6 @@ BOOST_AUTO_TEST_CASE( daw_traits_is_equality_comparable ) {
 	{
 		struct NotEqual {
 			int x;
-		private:
 		};
 		BOOST_REQUIRE_MESSAGE( false == daw::traits::is_equality_comparable<NotEqual>::value, "3. NotEqual struct should not report as being equality comparable" );
 	}
@@ -45,7 +44,7 @@ BOOST_AUTO_TEST_CASE( daw_traits_is_equality_comparable ) {
 			int x;
 			std::vector<int> y;
 		public:
-			NotEqual2( int, std::vector<int> ) { }
+			NotEqual2( int, std::vector<int> ):x( 0 ), y( ) { }
 		};
 		BOOST_REQUIRE_MESSAGE( false == daw::traits::is_equality_comparable<NotEqual2>::value, "4. NotEqual2 struct should not report as being equality comparable" );
 	}
@@ -199,7 +198,7 @@ BOOST_AUTO_TEST_CASE( daw_traits_has_begin_member ) {
 	BOOST_REQUIRE_MESSAGE( true == daw::traits::has_begin_member<std::string>::value, "1. std::string should have a begin( ) method" );
 	BOOST_REQUIRE_MESSAGE( true == daw::traits::has_begin_member<std::vector<int>>::value, "2. std::vector should have a begin( ) method" );
 	{
-		using test_t = std::unordered_map < std::string, int > ;// Macro's and comma parameters
+		using test_t = std::unordered_map < std::string, int >;// Macro's and comma parameters
 		BOOST_REQUIRE_MESSAGE( true == daw::traits::has_begin_member<test_t>::value, "3. std::unordered should have a begin( ) method" );
 	}
 	{
@@ -214,7 +213,7 @@ BOOST_AUTO_TEST_CASE( daw_traits_has_substr_member ) {
 	BOOST_REQUIRE_MESSAGE( true == daw::traits::has_substr_member<std::string>::value, "1. std::string should have a substr method" );
 	BOOST_REQUIRE_MESSAGE( false == daw::traits::has_substr_member<std::vector<int>>::value, "2. std::vector should not have a substr method" );
 	{
-		using test_t = std::unordered_map < std::string, int > ;// Macro's and comma parameters
+		using test_t = std::unordered_map < std::string, int >;// Macro's and comma parameters
 		BOOST_REQUIRE_MESSAGE( false == daw::traits::has_substr_member<test_t>::value, "3. std::unordered should not have a substr method" );
 	}
 	{
@@ -238,7 +237,7 @@ BOOST_AUTO_TEST_CASE( daw_traits_has_value_type_member ) {
 BOOST_AUTO_TEST_CASE( daw_traits_is_container_like ) {
 	BOOST_REQUIRE_MESSAGE( true == daw::traits::is_container_like<std::string>::value, "1. std::string should be container like" );
 	BOOST_REQUIRE_MESSAGE( true == daw::traits::is_container_like<std::vector<std::string>>::value, "2. std::vector<std::string> should be container like" );
-	using map_t = std::unordered_map < std::string, int > ;
+	using map_t = std::unordered_map < std::string, int >;
 	BOOST_REQUIRE_MESSAGE( true == daw::traits::is_container_like<map_t>::value, "3. std::unordered_map<std::string, int> should be container like" );
 	struct T {
 		int x;
@@ -271,15 +270,15 @@ BOOST_AUTO_TEST_CASE( daw_traits_isnt_string ) {
 
 struct TestNoOS {
 	int x;
-	TestNoOS( ) : x( 1 ) { }
+	TestNoOS( ): x( 1 ) { }
 };
 
 struct TestYesOS {
 	int x;
-	TestYesOS( ) : x( 1 ) { }
+	TestYesOS( ): x( 1 ) { }
 };
 
-std::ostream& operator<<(std::ostream &os, TestYesOS const & t) {
+std::ostream& operator<<( std::ostream &os, TestYesOS const & t ) {
 	os << t.x;
 	return os;
 }
