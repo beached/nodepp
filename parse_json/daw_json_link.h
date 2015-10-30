@@ -41,7 +41,7 @@ namespace daw {
 	namespace json {
 		template<typename Derived> class JsonLink;
 
-		template<typename Derived> std::ostream& operator<<(std::ostream& os, JsonLink<Derived> const & data);
+		template<typename Derived> std::ostream& operator<<( std::ostream& os, JsonLink<Derived> const & data );
 		template<typename Derived> void json_to_value( JsonLink<Derived> & to, impl::value_t const & from );
 		template<typename Derived> std::string value_to_json( boost::string_ref name, JsonLink<Derived> const & obj );
 		template<typename Derived> ::daw::json::impl::value_t get_schema( boost::string_ref name, JsonLink<Derived> const & obj );
@@ -128,19 +128,19 @@ namespace daw {
 		template<typename Derived>
 		class JsonLink {
 			std::string m_name;
-			using encode_function_t = std::function < void( std::string & json_text ) > ;
-			using decode_function_t = std::function < void( json_obj json_values ) > ;
+			using encode_function_t = std::function < void( std::string & json_text ) >;
+			using decode_function_t = std::function < void( json_obj json_values ) >;
 
 			struct bind_functions_t {
 				encode_function_t encode;
 				decode_function_t decode;
-				bind_functions_t( ) : encode( nullptr ), decode( nullptr ) { }
+				bind_functions_t( ): encode( nullptr ), decode( nullptr ) { }
 			};
 
 			struct data_description_t {
 				::daw::json::impl::value_t json_type;
 				bind_functions_t bind_functions;
-				data_description_t( ) : json_type( nullptr ), bind_functions( ) { }
+				data_description_t( ): json_type( nullptr ), bind_functions( ) { }
 			};	// struct data_description
 
 			std::unordered_map<std::string, data_description_t> m_data_map;
@@ -157,7 +157,7 @@ namespace daw {
 			}
 
 		public:
-			JsonLink( std::string name = "" ) :
+			JsonLink( std::string name = "" ):
 				m_name( std::move( name ) ),
 				m_data_map( ) { }
 
@@ -165,13 +165,13 @@ namespace daw {
 
 			JsonLink( JsonLink const & ) = default;
 
-			JsonLink& operator=(JsonLink const &) = default;
+			JsonLink& operator=( JsonLink const & ) = default;
 
-			JsonLink( JsonLink && other ) :
+			JsonLink( JsonLink && other ):
 				m_name( std::move( other.m_name ) ),
 				m_data_map( std::move( other.m_data_map ) ) { }
 
-			JsonLink& operator=(JsonLink && rhs) {
+			JsonLink& operator=( JsonLink && rhs ) {
 				if( this != &rhs ) {
 					m_name = std::move( rhs.m_name );
 					m_data_map = std::move( rhs.m_data_map );
@@ -189,7 +189,7 @@ namespace daw {
 
 			::daw::json::impl::value_t get_schema_obj( ) const {
 				::daw::json::impl::object_value result;
-				using mapped_value_t = typename decltype(m_data_map)::value_type;
+				using mapped_value_t = decltype(m_data_map)::value_type;
 				std::transform( std::begin( m_data_map ), std::end( m_data_map ), std::back_inserter( result ), []( mapped_value_t const & value ) {
 					return ::daw::json::impl::make_object_value_item( value.first, value.second.json_type );
 				} );

@@ -41,7 +41,7 @@ namespace daw {
 					class HttpSiteImpl;
 				}	// namespace impl
 
-				using HttpSite = std::shared_ptr < impl::HttpSiteImpl > ;
+				using HttpSite = std::shared_ptr < impl::HttpSiteImpl >;
 
 				HttpSite create_http_site( daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
 				HttpSite create_http_site( HttpServer server, daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
@@ -55,10 +55,10 @@ namespace daw {
 
 						site_registration( ) = default;
 						site_registration( site_registration const & ) = default;
-						site_registration& operator=(site_registration const &) = default;
+						site_registration& operator=( site_registration const & ) = default;
 						~site_registration( ) = default;
 
-						bool operator==(site_registration const & rhs) const;
+						bool operator==( site_registration const & rhs ) const;
 
 						site_registration( boost::string_ref Host, boost::string_ref Path, daw::nodepp::lib::http::HttpClientRequestMethod Method );
 						site_registration( boost::string_ref Host, boost::string_ref Path, daw::nodepp::lib::http::HttpClientRequestMethod Method, std::function < void( daw::nodepp::lib::http::HttpClientRequest, daw::nodepp::lib::http::HttpServerResponse ) > Listener );
@@ -66,7 +66,7 @@ namespace daw {
 
 					class HttpSiteImpl: public daw::nodepp::base::enable_shared<HttpSiteImpl>, public daw::nodepp::base::StandardEvents < HttpSiteImpl > {
 					public:
-						using registered_pages_t = std::vector < site_registration > ;
+						using registered_pages_t = std::vector < site_registration >;
 						using iterator = registered_pages_t::iterator;
 
 					private:
@@ -85,9 +85,9 @@ namespace daw {
 						friend HttpSite daw::nodepp::lib::http::create_http_site( daw::nodepp::lib::http::HttpServer, daw::nodepp::base::EventEmitter );
 
 						HttpSiteImpl( HttpSiteImpl const & ) = delete;
-						HttpSiteImpl& operator=(HttpSiteImpl const &) = delete;
+						HttpSiteImpl& operator=( HttpSiteImpl const & ) = delete;
 						HttpSiteImpl( HttpSiteImpl&& ) = delete;
-						HttpSiteImpl& operator=(HttpSiteImpl&&) = delete;
+						HttpSiteImpl& operator=( HttpSiteImpl&& ) = delete;
 						~HttpSiteImpl( ) = default;
 						//////////////////////////////////////////////////////////////////////////
 						/// Summary:	Register a listener for a HTTP method and path on any
@@ -123,7 +123,7 @@ namespace daw {
 
 						//////////////////////////////////////////////////////////////////////////
 						// Summary:	Specify a callback to handle a specific page error
-						HttpSiteImpl& on_page_error( uint16_t error_no, std::function < void( daw::nodepp::lib::http::HttpClientRequest, daw::nodepp::lib::http::HttpServerResponse, uint16_t error_no ) > listener );
+						HttpSiteImpl& on_page_error( uint16_t error_no, std::function < void( daw::nodepp::lib::http::HttpClientRequest, daw::nodepp::lib::http::HttpServerResponse, uint16_t error_number ) > listener );
 
 						void emit_page_error( daw::nodepp::lib::http::HttpClientRequest request, daw::nodepp::lib::http::HttpServerResponse response, uint16_t error_no );
 						void emit_listening( boost::asio::ip::tcp::endpoint endpoint );
