@@ -21,6 +21,10 @@
 // SOFTWARE.
 
 #pragma once
+#ifdef max
+#undef max
+#endif	//max
+
 #include <boost/utility/string_ref.hpp>
 #include <cassert>
 #include <functional>
@@ -81,15 +85,15 @@ namespace daw {
 			EqualToImpl( ) = delete;
 			~EqualToImpl( ) = default;
 			EqualToImpl( EqualToImpl const & ) = default;
-			EqualToImpl& operator=(EqualToImpl const &) = default;
-			EqualToImpl( EqualToImpl && other ) : m_value( std::move( other.m_value ) ) { }
-			EqualToImpl& operator=(EqualToImpl && rhs) {
+			EqualToImpl& operator=( EqualToImpl const & ) = default;
+			EqualToImpl( EqualToImpl && other ): m_value( std::move( other.m_value ) ) { }
+			EqualToImpl& operator=( EqualToImpl && rhs ) {
 				if( this != &rhs ) {
 					m_value = std::move( rhs.m_value );
 				}
 				return *this;
 			}
-			EqualToImpl( T value ) :m_value( value ) { }
+			EqualToImpl( T value ):m_value( value ) { }
 			bool operator()( T const & value ) {
 				return m_value == value;
 			}
@@ -104,11 +108,11 @@ namespace daw {
 	class equal_to_last {
 		T* m_value;
 	public:
-		equal_to_last( ) : m_value( nullptr ) { }
+		equal_to_last( ): m_value( nullptr ) { }
 		~equal_to_last( ) = default;
-		equal_to_last& operator=(equal_to_last const &) = default;
-		equal_to_last( equal_to_last && other ) : m_value( std::move( other.m_value ) ) { }
-		equal_to_last& operator=(equal_to_last && rhs) {
+		equal_to_last& operator=( equal_to_last const & ) = default;
+		equal_to_last( equal_to_last && other ): m_value( std::move( other.m_value ) ) { }
+		equal_to_last& operator=( equal_to_last && rhs ) {
 			if( this != &rhs ) {
 				m_value = std::move( rhs.m_value );
 			}
@@ -129,11 +133,11 @@ namespace daw {
 		class NotImpl {
 			Function m_function;
 		public:
-			NotImpl( Function func ) : m_function( func ) { }
+			NotImpl( Function func ): m_function( func ) { }
 			~NotImpl( ) = default;
-			NotImpl& operator=(NotImpl const &) = default;
-			NotImpl( NotImpl && other ) : m_function( std::move( other.m_function ) ) { }
-			NotImpl& operator=(NotImpl && rhs) {
+			NotImpl& operator=( NotImpl const & ) = default;
+			NotImpl( NotImpl && other ): m_function( std::move( other.m_function ) ) { }
+			NotImpl& operator=( NotImpl && rhs ) {
 				if( this != &rhs ) {
 					m_function = std::move( rhs.m_function );
 				}
@@ -160,7 +164,7 @@ namespace daw {
 	template <typename ClassType, typename ReturnType, typename... Args>
 	struct function_traits < ReturnType( ClassType::* )(Args...) const > {
 		enum { arity = sizeof...(Args) };
-		using type = std::function < ReturnType( Args... ) > ;
+		using type = std::function < ReturnType( Args... ) >;
 		using result_type = ReturnType;
 	};
 
@@ -168,7 +172,7 @@ namespace daw {
 	template <typename ClassType, typename ReturnType, typename... Args>
 	struct function_traits < ReturnType( ClassType::* )(Args...) > {
 		enum { arity = sizeof...(Args) };
-		using type = std::function < ReturnType( Args... ) > ;
+		using type = std::function < ReturnType( Args... ) >;
 		using result_type = ReturnType;
 	};
 
@@ -176,7 +180,7 @@ namespace daw {
 	template <typename ReturnType, typename... Args>
 	struct function_traits < ReturnType( *)(Args...) > {
 		enum { arity = sizeof...(Args) };
-		using type = std::function < ReturnType( Args... ) > ;
+		using type = std::function < ReturnType( Args... ) >;
 		using result_type = ReturnType;
 	};
 
@@ -221,7 +225,7 @@ namespace daw {
 	template<typename T>
 	void copy_vect_and_set( std::vector<T> & source, std::vector<T> & destination, size_t num_items, T const & replacement_value ) {
 		using item_size_t = typename std::vector<T>::difference_type;
-		assert( num_items < static_cast<size_t>(std::numeric_limits<item_size_t>::max( )) );
+		assert( num_items < std::numeric_limits<item_size_t>::max( ) );
 		auto first = std::begin( source );
 		auto last = std::end( source );
 		auto max_dist = std::distance( first, last );
@@ -268,7 +272,7 @@ namespace daw {
 	template<typename T>
 	void copy_vect_and_set( std::shared_ptr<std::vector<T>> & source, std::shared_ptr<std::vector<T>> & destination, size_t num_items, T const & replacement_value ) {
 		using item_size_t = typename std::vector<T>::difference_type;
-		assert( num_items < static_cast<size_t>(std::numeric_limits<item_size_t>::max( )) );
+		assert( num_items < std::numeric_limits<item_size_t>::max( ) );
 		auto first = std::begin( *source );
 		auto last = std::end( *source );
 		auto max_dist = std::distance( first, last );
@@ -374,11 +378,11 @@ namespace daw {
 		mutable T m_value;
 	public:
 		MoveCapture( ) = delete;
-		MoveCapture( T && val ) : m_value( std::move( val ) ) { }
+		MoveCapture( T && val ): m_value( std::move( val ) ) { }
 
-		MoveCapture( MoveCapture const & other ) : m_value( std::move( other.m_value ) ) { }
+		MoveCapture( MoveCapture const & other ): m_value( std::move( other.m_value ) ) { }
 
-		MoveCapture& operator=(MoveCapture const & rhs) {
+		MoveCapture& operator=( MoveCapture const & rhs ) {
 			if( this != &rhs ) {
 				m_value = std::move( rhs.m_value );
 			}
@@ -393,16 +397,16 @@ namespace daw {
 			return m_value;
 		}
 
-		T& operator*() {
-			return m_value.operator*();
+		T& operator*( ) {
+			return m_value.operator*( );
 		}
 
-		T const & operator*() const {
-			return m_value.operator*();
+		T const & operator*( ) const {
+			return m_value.operator*( );
 		}
 
-		T const * operator->() const {
-			return m_value.operator->();
+		T const * operator->( ) const {
+			return m_value.operator->( );
 		}
 
 		~MoveCapture( ) = default;
