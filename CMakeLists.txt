@@ -27,6 +27,7 @@ enable_testing( )
 
 add_subdirectory( parse_json )
 add_subdirectory( header_libraries )
+add_subdirectory( load_library )
 
 set(SOURCE_FILES
 		base_callback.cpp
