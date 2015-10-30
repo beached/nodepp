@@ -20,6 +20,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#ifdef WIN32
+
 #include <codecvt>
 #include <locale>
 #include <sstream>
@@ -86,3 +88,5 @@ namespace daw {
 		} // namespace impl
 	}	// namespace system
 }	// namespace daw
+#endif	//WIN32
+
