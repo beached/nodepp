@@ -247,6 +247,11 @@ namespace daw {
 						m_value_type = value_types::null;
 					}
 					break;
+				case value_types::integral:	// Do nothing for rest
+				case value_types::real:
+				case value_types::boolean:
+				case value_types::null:
+					break;
 				}
 			}
 

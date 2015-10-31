@@ -29,7 +29,7 @@ add_subdirectory( parse_json )
 add_subdirectory( header_libraries )
 add_subdirectory( load_library )
 
-set(SOURCE_FILES
+set(SOURCE_BASE
 		base_callback.cpp
 		base_callback.h
 		base_encoding.cpp
@@ -48,8 +48,14 @@ set(SOURCE_FILES
 		base_write_buffer.cpp
 		base_write_buffer.h
 		daw_semaphore.h
+)
+
+set(SOURCE_LIB_FILE
 		lib_file.cpp
 		lib_file.h
+)
+
+set(SOURCE_LIB_HTTP
 		lib_http_connection.cpp
 		lib_http_connection.h
 		lib_http.h
@@ -69,6 +75,9 @@ set(SOURCE_FILES
 		lib_http_version.cpp
 		lib_http_version.h
 		lib_http_webservice.h
+)
+
+set(SOURCE_LIB_NET
 		lib_net_address.cpp
 		lib_net_address.h
 		lib_net_dns.cpp
@@ -83,15 +92,15 @@ set(SOURCE_FILES
 include_directories( ./header_libraries )
 include_directories( ./parse_json )
 
-add_executable(example_server example_server.cpp ${SOURCE_FILES})
-target_link_libraries(example_server parse_json ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
+add_executable(example_server example_server.cpp ${SOURCE_BASE} ${SOURCE_LIB_NET})
+target_link_libraries(example_server ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
 
-add_executable(example_client example_client.cpp ${SOURCE_FILES})
-target_link_libraries(example_client parse_json ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
+add_executable(example_client example_client.cpp ${SOURCE_BASE} ${SOURCE_LIB_NET})
+target_link_libraries(example_client ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
 
-add_executable(example_web example_web.cpp ${SOURCE_FILES})
+add_executable(example_web example_web.cpp ${SOURCE_BASE} ${SOURCE_LIB_NET} ${SOURCE_LIB_HTTP} )
 target_link_libraries(example_web parse_json  ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
 
-add_executable(example_eventemitter example_eventemitter.cpp ${SOURCE_FILES})
-target_link_libraries(example_eventemitter parse_json  ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
+add_executable(example_eventemitter example_eventemitter.cpp ${SOURCE_BASE})
+target_link_libraries(example_eventemitter ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
 
