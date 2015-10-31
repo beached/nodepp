@@ -65,13 +65,13 @@ namespace daw {
 					using callback_id_t = Callback::id_t;
 				private:
 					const int_least8_t c_max_emit_depth = 100;	// TODO: Magic Number
-					std::shared_ptr<std::unordered_map<std::string, listener_list_t>> m_listeners;
+					std::shared_ptr<listeners_t> m_listeners;
 					size_t m_max_listeners;
 					std::shared_ptr<std::atomic_int_least8_t> m_emit_depth;
 				protected:
 					bool m_allow_cb_without_params;
 				private:
-					EventEmitterImpl( );
+					EventEmitterImpl( size_t max_listeners = 10 );
 				public:
 					friend base::EventEmitter base::create_event_emitter( );
 
@@ -90,6 +90,7 @@ namespace daw {
 					void remove_all_listeners( boost::string_ref event );
 
 					void set_max_listeners( size_t max_listeners );
+
 					listeners_t & listeners( );
 					listener_list_t listeners( boost::string_ref event );
 					size_t listener_count( boost::string_ref event );
@@ -124,8 +125,8 @@ namespace daw {
 
 				private:
 					template<typename... Args>
-					void emit_impl( std::string event, Args&&... args ) {
-						auto& callbacks = listeners( )[event];
+					void emit_impl( boost::string_ref event, Args&&... args ) {
+						auto& callbacks = listeners( )[event.to_string( )];
 						for( auto& callback : callbacks ) {
 							if( !callback.second.empty( ) ) {
 								try {
@@ -151,7 +152,7 @@ namespace daw {
 
 				public:
 					template<typename... Args>
-					void emit( std::string event, Args&&... args ) {
+					void emit( boost::string_ref event, Args&&... args ) {
 						if( event.empty( ) ) {
 							throw std::runtime_error( "Empty event name passed to emit" );
 						}
@@ -160,8 +161,9 @@ namespace daw {
 							throw std::runtime_error( "Max callback depth reached.  Possible loop" );
 						}
 						emit_impl( event, args... );
-						if( listeners( ).count( event + "_selfdestruct" ) ) {
-							emit_impl( event + "_selfdestruct" );	// Called by self destruct code and must be last so lifetime is controlled
+						auto const event_selfdestruct = event.to_string( ) + "_selfdestruct";
+						if( listeners( ).count( event_selfdestruct ) ) {
+							emit_impl( event_selfdestruct );	// Called by self destruct code and must be last so lifetime is controlled
 						}
 					}
 

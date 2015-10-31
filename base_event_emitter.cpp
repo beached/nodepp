@@ -33,13 +33,13 @@ namespace daw {
 	namespace nodepp {
 		namespace base {
 			namespace impl {
-				EventEmitterImpl::EventEmitterImpl( ):
+				EventEmitterImpl::EventEmitterImpl( size_t max_listeners ):
 					m_listeners( std::make_shared<listeners_t>( ) ),
-					m_max_listeners( 10 ),
+					m_max_listeners( std::move( max_listeners ) ),
 					m_emit_depth( std::make_shared<std::atomic_int_least8_t>( 0 ) ),
 					m_allow_cb_without_params( true ) { }
 
-				std::unordered_map<std::string, EventEmitterImpl::listener_list_t> & EventEmitterImpl::listeners( ) {
+				EventEmitterImpl::listeners_t & EventEmitterImpl::listeners( ) {
 					return *m_listeners;
 				}
 
@@ -73,7 +73,7 @@ namespace daw {
 				}
 
 				void EventEmitterImpl::set_max_listeners( size_t max_listeners ) {
-					m_max_listeners = max_listeners;
+					m_max_listeners = std::move( max_listeners );
 				}
 
 				EventEmitterImpl::listener_list_t EventEmitterImpl::listeners( boost::string_ref event ) {
