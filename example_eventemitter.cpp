@@ -22,8 +22,8 @@
 
 #include <cstdlib>
 #include <iostream>
-#include "base_event_emitter.h"
 #include <future>
+#include "base_event_emitter.h"
 
 template<typename ValueType, typename Function>
 void sequence( ValueType const & low, ValueType const & high, ValueType inc, Function op ) {
