@@ -92,3 +92,6 @@ target_link_libraries(example_client parse_json ${CMAKE_DL_LIBS} ${Boost_LIBRARI
 add_executable(example_web example_web.cpp ${SOURCE_FILES})
 target_link_libraries(example_web parse_json  ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
 
+add_executable(example_eventemitter example_eventemitter.cpp ${SOURCE_FILES})
+target_link_libraries(example_eventemitter parse_json  ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
+
