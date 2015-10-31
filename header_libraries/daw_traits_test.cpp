@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE( daw_traits_is_regular ) {
 	BOOST_REQUIRE_MESSAGE( true == daw::traits::is_regular<std::string>::value, "1. std::string should report as being regular" );
 	struct NotRegular {
 		int x;
-		NotRegular( int );
+		NotRegular( int ):x( ) { }
 		NotRegular( ) = delete;
 		NotRegular( NotRegular const & ) = delete;
 	};
