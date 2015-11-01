@@ -22,7 +22,6 @@
 
 #include <boost/asio/error.hpp>
 #include <memory>
-#include <string>
 #include <utility>
 #include <vector>
 
@@ -94,7 +93,12 @@ namespace daw {
 			}	// namespace impl
 
 			EventEmitter create_event_emitter( ) {
-				return EventEmitter( new impl::EventEmitterImpl( ) );
+				try {
+					auto result = new impl::EventEmitterImpl;
+					return std::shared_ptr<impl::EventEmitterImpl>( std::move( result ) );
+				} catch( ... ) {
+					return std::shared_ptr<impl::EventEmitterImpl>( nullptr );
+				}
 			}
 		}	// namespace base
 	}	// namespace nodepp

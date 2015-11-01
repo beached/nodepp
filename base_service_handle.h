@@ -37,6 +37,8 @@ namespace daw {
 				static void stop( );
 				static void reset( );
 				static void work( );
+			protected:
+				~ServiceHandle( ) = default;
 			};	// struct ServiceHandle
 
 			enum class StartServiceMode { Single, OnePerCore };

@@ -41,6 +41,8 @@ namespace daw {
 					daw::nodepp::base::EventEmitter& emitter( ) {
 						return child( ).emitter( );
 					}
+				protected:
+					~StreamWritableEvents( ) = default;
 				public:
 
 					//////////////////////////////////////////////////////////////////////////
@@ -87,6 +89,8 @@ namespace daw {
 					daw::nodepp::base::EventEmitter& emitter( ) {
 						return derived( ).emitter( );
 					}
+				protected:
+					~StreamReadableEvents( ) = default;
 				public:
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Event emitted when data is received

@@ -43,6 +43,8 @@ namespace daw {
 			struct enable_shared: public std::enable_shared_from_this < Derived > {
 				std::shared_ptr<Derived> get_ptr( ) { return static_cast<Derived*>(this)->shared_from_this( ); }
 				std::weak_ptr<Derived> get_weak_ptr( ) { return this->get_ptr( ); }
+			protected:
+				~enable_shared( ) = default;
 			};	// struct enable_shared
 
 			namespace impl {
@@ -59,7 +61,7 @@ namespace daw {
 				///				std::function with the correct signature.
 				///	Requires:	base::Callback
 				///
-				struct EventEmitterImpl {
+				struct EventEmitterImpl final {
 					using listener_list_t = std::vector < std::pair<bool, Callback> >;
 					using listeners_t = std::unordered_map < std::string, listener_list_t >;
 					using callback_id_t = Callback::id_t;
@@ -68,15 +70,14 @@ namespace daw {
 					std::shared_ptr<listeners_t> m_listeners;
 					size_t m_max_listeners;
 					std::shared_ptr<std::atomic_int_least8_t> m_emit_depth;
-				protected:
 					bool m_allow_cb_without_params;
-				private:
+
 					EventEmitterImpl( size_t max_listeners = 10 );
 				public:
 					friend base::EventEmitter base::create_event_emitter( );
 
-					~EventEmitterImpl( ) = default;
 					EventEmitterImpl( EventEmitterImpl const & ) = delete;
+					~EventEmitterImpl( ) = default;
 					EventEmitterImpl& operator=( EventEmitterImpl const & ) = delete;
 					EventEmitterImpl( EventEmitterImpl && other ) = delete;
 					EventEmitterImpl& operator=( EventEmitterImpl && rhs ) = delete;
