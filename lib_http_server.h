@@ -26,6 +26,7 @@
 #include <memory>
 #include <vector>
 
+#include "base_event_emitter.h"
 #include "lib_http_connection.h"
 #include "lib_http_server_response.h"
 #include "lib_net_server.h"
@@ -37,7 +38,7 @@ namespace daw {
 				namespace impl {
 					class HttpServerImpl;
 				}
-				using HttpServer = std::shared_ptr < impl::HttpServerImpl > ;
+				using HttpServer = std::shared_ptr < impl::HttpServerImpl >;
 
 				HttpServer create_http_server( daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
 
@@ -57,8 +58,8 @@ namespace daw {
 						friend daw::nodepp::lib::http::HttpServer daw::nodepp::lib::http::create_http_server( daw::nodepp::base::EventEmitter );
 
 						HttpServerImpl( HttpServerImpl&& other );
-						HttpServerImpl& operator=(HttpServerImpl const &) = default;
-						HttpServerImpl& operator=(HttpServerImpl && rhs);
+						HttpServerImpl& operator=( HttpServerImpl const & ) = default;
+						HttpServerImpl& operator=( HttpServerImpl && rhs );
 						HttpServerImpl( HttpServerImpl const & ) = default;
 						~HttpServerImpl( ) = default;
 
