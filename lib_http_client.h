@@ -35,6 +35,7 @@
 #include "base_event_emitter.h"
 #include "parse_json/daw_json_link.h"
 #include "lib_http_request.h"
+#include "lib_http_server_response.h"
 
 namespace daw {
 	namespace nodepp {
@@ -47,9 +48,14 @@ namespace daw {
 			namespace http {
 				namespace impl {
 					class HttpClientImpl;
+					class HttpClientConnectionImpl;
 				}
+
 				using HttpClient = std::shared_ptr<impl::HttpClientImpl>;
 				HttpClient create_http_client( daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
+
+				using HttpClientConnection = std::shared_ptr<impl::HttpClientConnectionImpl>;
+				HttpClientConnection create_http_client_connection( daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
 
 				namespace impl {
 					//////////////////////////////////////////////////////////////////////////
@@ -68,7 +74,24 @@ namespace daw {
 						~HttpClientImpl( ) = default;
 
 						daw::nodepp::base::EventEmitter& emitter( );
+
+						void request( daw::nodepp::lib::http::HttpClientRequest request );
+
+						HttpClientImpl & on_connection( std::function<void( HttpClientConnection )> listener );
 					};	// class HttpClientImpl
+
+					class HttpClientConnectionImpl: public daw::nodepp::base::enable_shared<HttpClientImpl>, public daw::nodepp::base::StandardEvents<HttpClientImpl> {
+						daw::nodepp::lib::net::NetSocketStream m_socket;
+						daw::nodepp::base::EventEmitter m_emitter;
+
+					public:
+						friend daw::nodepp::lib::http::HttpClientConnection daw::nodepp::lib::http::create_http_client_connection( daw::nodepp::base::EventEmitter );
+
+						HttpClientConnectionImpl& on_response_returned( std::function<void( daw::nodepp::lib::http::HttpClientRequest, daw::nodepp::lib::http::HttpServerResponse )> listener );
+						HttpClientConnectionImpl& on_next_response_returned( std::function<void( daw::nodepp::lib::http::HttpClientRequest, daw::nodepp::lib::http::HttpServerResponse )> listener );
+
+						HttpClientConnectionImpl & on_closed( std::function<void( )> listener );	// Only once as it is called on the way out
+					};	// HttpClientConnectionImpl
 				}	//namespace impl
 			}	// namespace http
 		} // namespace lib

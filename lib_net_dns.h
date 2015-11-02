@@ -39,7 +39,7 @@ namespace daw {
 					class NetDnsImpl;
 				}
 
-				using NetDns = std::shared_ptr < impl::NetDnsImpl > ;
+				using NetDns = std::shared_ptr < impl::NetDnsImpl >;
 
 				NetDns create_net_dns( daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
 
@@ -53,11 +53,11 @@ namespace daw {
 						using handler_argument_t = boost::asio::ip::tcp::resolver::iterator;
 
 						NetDnsImpl( NetDnsImpl&& other );
-						NetDnsImpl& operator=(NetDnsImpl && rhs);
+						NetDnsImpl& operator=( NetDnsImpl && rhs );
 
 						~NetDnsImpl( ) = default;
 						NetDnsImpl( NetDnsImpl const & ) = delete;
-						NetDnsImpl& operator=(NetDnsImpl const & rhs) = delete;
+						NetDnsImpl& operator=( NetDnsImpl const & rhs ) = delete;
 
 						daw::nodepp::base::EventEmitter& emitter( );
 						//////////////////////////////////////////////////////////////////////////

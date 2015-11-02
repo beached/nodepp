@@ -20,31 +20,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#pragma once
-#include <boost/utility/string_ref.hpp>
-#include <string>
+#include <cstdlib>
+#include <memory>
+#include <iostream>
 
-namespace daw {
-	namespace nodepp {
-		namespace lib {
-			namespace net {
-				class NetAddress {
-					std::string m_address;
-				public:
-					NetAddress( );
-					~NetAddress( ) = default;
-					NetAddress( NetAddress const & ) = default;
-					NetAddress( NetAddress && other );
-					explicit NetAddress( std::string address );
+#include "daw_json.h"
+#include "parse_json/daw_json_link.h"
+#include "lib_http_client.h"
 
-					NetAddress& operator=( NetAddress const & ) = default;
-					NetAddress& operator=( NetAddress && rhs );
+int main( int, char ** ) {
+	using namespace daw::nodepp::lib::http;
+	auto client = create_http_client( );
 
-					boost::string_ref operator()( ) const;
+	client->on_connection( []( HttpClientConnection connection ) {
+		connection->on_response_returned( []( HttpClientRequest response, HttpServerResponse request ) {
+			if( response ) {
+				std::cout << "Content-Type: " << response->body->content_type << "\n" << response->body->content << std::endl;
+			}
+		} );
+	} );
 
-					static bool is_valid( std::string address );
-				};	// class NetAddress;
-			}	// namespace net
-		}	// namespace lib
-	}	// namespace nodepp
-}	// namespace daw
+	start_service( base::StartServiceMode::Single );
+
+	return EXIT_SUCCESS;
+}

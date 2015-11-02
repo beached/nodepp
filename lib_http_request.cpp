@@ -88,40 +88,40 @@ namespace daw {
 					throw std::runtime_error( "unknown http request method" );
 				}
 
-				std::ostream& operator<<(std::ostream& os, HttpClientRequestMethod const method) {
+				std::ostream& operator<<( std::ostream& os, HttpClientRequestMethod const method ) {
 					os << to_string( method );
 					return os;
 				}
 
-				std::istream& operator>>(std::istream& is, HttpClientRequestMethod & method) {
+				std::istream& operator>>( std::istream& is, HttpClientRequestMethod & method ) {
 					std::string method_string;
 					is >> method_string;
 					method = http_request_method_from_string( method_string );
 					return is;
 				}
 
-				HttpUrlQueryPair::HttpUrlQueryPair( ) :
+				HttpUrlQueryPair::HttpUrlQueryPair( ):
 					JsonLink( ),
 					name( ),
 					value( ) {
 					set_links( );
 				}
 
-				HttpUrlQueryPair::HttpUrlQueryPair( std::pair<std::string, boost::optional<std::string>> const & vals ) :
+				HttpUrlQueryPair::HttpUrlQueryPair( std::pair<std::string, boost::optional<std::string>> const & vals ):
 					JsonLink( ),
 					name( vals.first ),
 					value( vals.second ) {
 					set_links( );
 				}
 
-				HttpUrlQueryPair::HttpUrlQueryPair( HttpUrlQueryPair && other ) :
+				HttpUrlQueryPair::HttpUrlQueryPair( HttpUrlQueryPair && other ):
 					JsonLink( std::move( other ) ),
 					name( std::move( other.name ) ),
 					value( std::move( other.value ) ) {
 					set_links( );
 				}
 
-				HttpUrlQueryPair& HttpUrlQueryPair::operator=(HttpUrlQueryPair && rhs) {
+				HttpUrlQueryPair& HttpUrlQueryPair::operator=( HttpUrlQueryPair && rhs ) {
 					if( this != &rhs ) {
 						name = std::move( rhs.name );
 						value = std::move( rhs.value );
@@ -136,7 +136,7 @@ namespace daw {
 					this->link_string( "value", value );
 				}
 
-				HttpUrl::HttpUrl( ) :
+				HttpUrl::HttpUrl( ):
 					JsonLink( ),
 					path( ),
 					query( ),
@@ -144,7 +144,7 @@ namespace daw {
 					set_links( );
 				}
 
-				HttpUrl::HttpUrl( HttpUrl && other ) :
+				HttpUrl::HttpUrl( HttpUrl && other ):
 					JsonLink( std::move( other ) ),
 					path( std::move( other.path ) ),
 					query( std::move( other.query ) ),
@@ -152,7 +152,7 @@ namespace daw {
 					set_links( );
 				}
 
-				HttpUrl& HttpUrl::operator=(HttpUrl && rhs) {
+				HttpUrl& HttpUrl::operator=( HttpUrl && rhs ) {
 					if( this != &rhs ) {
 						path = std::move( rhs.path );
 						query = std::move( rhs.query );
@@ -170,7 +170,7 @@ namespace daw {
 					this->link_string( "fragment", fragment );
 				}
 
-				HttpRequestLine::HttpRequestLine( ) :
+				HttpRequestLine::HttpRequestLine( ):
 					JsonLink( ),
 					method( ),
 					url( ),
@@ -178,7 +178,7 @@ namespace daw {
 					set_links( );
 				}
 
-				HttpRequestLine::HttpRequestLine( HttpRequestLine && other ) :
+				HttpRequestLine::HttpRequestLine( HttpRequestLine && other ):
 					JsonLink( std::move( other ) ),
 					method( std::move( other.method ) ),
 					url( std::move( other.url ) ),
@@ -186,7 +186,7 @@ namespace daw {
 					set_links( );
 				}
 
-				HttpRequestLine& HttpRequestLine::operator=(HttpRequestLine && rhs) {
+				HttpRequestLine& HttpRequestLine::operator=( HttpRequestLine && rhs ) {
 					if( this != &rhs ) {
 						method = std::move( rhs.method );
 						url = std::move( rhs.url );
@@ -203,7 +203,7 @@ namespace daw {
 					this->link_string( "version", version );
 				}
 
-				HttpClientRequestBody::HttpClientRequestBody( ) : content_type( ), content( ) {
+				HttpClientRequestBody::HttpClientRequestBody( ): content_type( ), content( ) {
 					set_links( );
 				}
 
@@ -214,7 +214,7 @@ namespace daw {
 					set_links( );
 				}
 
-				HttpClientRequestBody& HttpClientRequestBody::operator=(HttpClientRequestBody && rhs) {
+				HttpClientRequestBody& HttpClientRequestBody::operator=( HttpClientRequestBody && rhs ) {
 					if( this != &rhs ) {
 						content_type = std::move( rhs.content_type );
 						content = std::move( rhs.content );
@@ -230,7 +230,7 @@ namespace daw {
 				}
 
 				namespace impl {
-					HttpClientRequestImpl::HttpClientRequestImpl( ) :
+					HttpClientRequestImpl::HttpClientRequestImpl( ):
 						JsonLink( ),
 						request_line( ),
 						headers( ),
@@ -238,7 +238,7 @@ namespace daw {
 						set_links( );
 					}
 
-					HttpClientRequestImpl::HttpClientRequestImpl( HttpClientRequestImpl && other ) :
+					HttpClientRequestImpl::HttpClientRequestImpl( HttpClientRequestImpl && other ):
 						JsonLink( std::move( other ) ),
 						request_line( std::move( other.request_line ) ),
 						headers( std::move( other.headers ) ),
@@ -246,7 +246,7 @@ namespace daw {
 						set_links( );
 					}
 
-					HttpClientRequestImpl& HttpClientRequestImpl::operator=(HttpClientRequestImpl && rhs) {
+					HttpClientRequestImpl& HttpClientRequestImpl::operator=( HttpClientRequestImpl && rhs ) {
 						if( this != &rhs ) {
 							request_line = std::move( rhs.request_line );
 							headers = std::move( rhs.headers );
@@ -263,6 +263,12 @@ namespace daw {
 						this->link_object( "body", body );
 					}
 				}	// namespace impl
+
+				HttpClientRequest create_http_client_request( boost::string_ref scheme, boost::string_ref host, boost::string_ref path ) {
+					auto request = std::make_shared<impl::HttpClientRequestImpl>( );
+
+					return request;
+				}
 			} // namespace http
 		}	// namespace lib
 	}	// namespace nodepp
