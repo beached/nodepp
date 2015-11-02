@@ -1,7 +1,7 @@
 Node++
 ======
 
-A modern c++ Event I/O library with a high level of abstraction.
+A modern C++ Event I/O library with a high level of abstraction.
 
 Requires: CMake, Boost
 
