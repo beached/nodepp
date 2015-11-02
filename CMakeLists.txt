@@ -106,6 +106,6 @@ target_link_libraries(example_web_service parse_json  ${CMAKE_DL_LIBS} ${Boost_L
 add_executable(example_web_client example_web_client.cpp ${SOURCE_BASE} ${SOURCE_LIB_NET} ${SOURCE_LIB_HTTP} )
 target_link_libraries(example_web_client parse_json  ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
 
-add_executable(example_eventemitter example_eventemitter.cpp ${SOURCE_BASE})
-target_link_libraries(example_eventemitter ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
+add_executable(example_event_emitter example_event_emitter.cpp ${SOURCE_BASE})
+target_link_libraries(example_event_emitter ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
 
