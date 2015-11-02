@@ -87,8 +87,8 @@ namespace daw {
 					public:
 						friend daw::nodepp::lib::http::HttpClientConnection daw::nodepp::lib::http::create_http_client_connection( daw::nodepp::base::EventEmitter );
 
-						HttpClientConnectionImpl& on_response_returned( std::function<void( daw::nodepp::lib::http::HttpClientRequest, daw::nodepp::lib::http::HttpServerResponse )> listener );
-						HttpClientConnectionImpl& on_next_response_returned( std::function<void( daw::nodepp::lib::http::HttpClientRequest, daw::nodepp::lib::http::HttpServerResponse )> listener );
+						HttpClientConnectionImpl& on_response_returned( std::function<void( daw::nodepp::lib::http::HttpServerResponse )> listener );
+						HttpClientConnectionImpl& on_next_response_returned( std::function<void( daw::nodepp::lib::http::HttpServerResponse )> listener );
 
 						HttpClientConnectionImpl & on_closed( std::function<void( )> listener );	// Only once as it is called on the way out
 					};	// HttpClientConnectionImpl

@@ -24,25 +24,38 @@
 #include <memory>
 #include <iostream>
 
-#include "daw_json.h"
-#include "parse_json/daw_json_link.h"
 #include "lib_http_client.h"
 
-int main( int, char ** ) {
-	using namespace daw::nodepp::lib::http;
-	auto client = create_http_client( );
+namespace daw {
+	namespace nodepp {
+		namespace lib {
+			namespace http {
+				HttpClient create_http_client( daw::nodepp::base::EventEmitter emitter ) {
+					return HttpClient { nullptr };
+				}
 
-	client->on_connection( []( HttpClientConnection connection ) {
-		connection->on_response_returned( []( HttpServerResponse response ) {
-			if( response ) {
-				std::cout << (boost::string_ref( response->body( ).data( ), response->body( ).size( ) )).to_string( ) << std::endl;
-			}
-		} );
-	} );
+				HttpClientConnection create_http_client_connection( daw::nodepp::base::EventEmitter emitter ) {
+					return HttpClientConnection { nullptr };
+				}
 
-	//client->request( )
+				namespace impl {
+					HttpClientImpl & HttpClientImpl::on_connection( std::function<void( HttpClientConnection )> listener ) {
+						return *this;
+					}
 
-	start_service( base::StartServiceMode::Single );
+					HttpClientConnectionImpl& HttpClientConnectionImpl::on_response_returned( std::function<void( daw::nodepp::lib::http::HttpServerResponse )> listener ) {
+						return *this;
+					}
 
-	return EXIT_SUCCESS;
-}
+					HttpClientConnectionImpl& HttpClientConnectionImpl::on_next_response_returned( std::function<void( daw::nodepp::lib::http::HttpServerResponse )> listener ) {
+						return *this;
+					}
+
+					HttpClientConnectionImpl & HttpClientConnectionImpl::on_closed( std::function<void( )> listener ) {
+						return *this;
+					}
+				}	//namespace impl
+			}	// namespace http
+		} // namespace lib
+	}	// namespace nodepp
+}	// namespace daw

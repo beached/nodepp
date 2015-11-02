@@ -99,6 +99,10 @@ namespace daw {
 						return m_headers;
 					}
 
+					daw::nodepp::base::data_t const & HttpServerResponseImpl::body( ) const {
+						return m_body;
+					}
+
 					HttpServerResponseImpl& HttpServerResponseImpl::send_status( uint16_t status_code ) {
 						auto status = HttpStatusCodes( status_code );
 						std::string msg = "HTTP/" + m_version.to_string( ) + " " + std::to_string( status.first ) + " " + status.second + "\r\n";

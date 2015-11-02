@@ -43,7 +43,7 @@ namespace daw {
 				namespace impl {
 					class HttpServerResponseImpl;
 				}
-				using HttpServerResponse = std::shared_ptr < impl::HttpServerResponseImpl > ;
+				using HttpServerResponse = std::shared_ptr < impl::HttpServerResponseImpl >;
 				HttpServerResponse create_http_server_response( std::weak_ptr<daw::nodepp::lib::net::impl::NetSocketStreamImpl> socket, daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
 
 				namespace impl {
@@ -66,10 +66,10 @@ namespace daw {
 
 						HttpServerResponseImpl( HttpServerResponseImpl const & ) = delete;
 						~HttpServerResponseImpl( ) = default;
-						HttpServerResponseImpl& operator=(HttpServerResponseImpl const &) = delete;
+						HttpServerResponseImpl& operator=( HttpServerResponseImpl const & ) = delete;
 
 						HttpServerResponseImpl( HttpServerResponseImpl&& other ) = delete;
-						HttpServerResponseImpl& operator=(HttpServerResponseImpl && rhs) = delete;
+						HttpServerResponseImpl& operator=( HttpServerResponseImpl && rhs ) = delete;
 
 						daw::nodepp::base::EventEmitter& emitter( );
 
@@ -84,6 +84,8 @@ namespace daw {
 
 						HttpHeaders& headers( );
 						HttpHeaders const & headers( ) const;
+
+						daw::nodepp::base::data_t const & body( ) const;
 
 						HttpServerResponseImpl& send_status( uint16_t status_code = 200 );
 						HttpServerResponseImpl& send_status( uint16_t status_code, boost::string_ref status_msg );

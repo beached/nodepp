@@ -57,6 +57,7 @@ set(SOURCE_LIB_FILE
 
 set(SOURCE_LIB_HTTP
 		lib_http_client.h
+		lib_http_client.cpp
 		lib_http_connection.cpp
 		lib_http_connection.h
 		lib_http.h
@@ -93,10 +94,10 @@ set(SOURCE_LIB_NET
 include_directories( ./header_libraries )
 include_directories( ./parse_json )
 
-add_executable(example_net_server example_server.cpp ${SOURCE_BASE} ${SOURCE_LIB_NET})
+add_executable(example_net_server example_net_server.cpp ${SOURCE_BASE} ${SOURCE_LIB_NET})
 target_link_libraries(example_net_server ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
 
-add_executable(example_net_client example_client.cpp ${SOURCE_BASE} ${SOURCE_LIB_NET})
+add_executable(example_net_client example_net_client.cpp ${SOURCE_BASE} ${SOURCE_LIB_NET})
 target_link_libraries(example_net_client ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
 
 add_executable(example_web_service example_web_service.cpp ${SOURCE_BASE} ${SOURCE_LIB_NET} ${SOURCE_LIB_HTTP} )
