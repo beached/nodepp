@@ -40,7 +40,9 @@ int main( int, char ** ) {
 		} );
 	} );
 
-	start_service( base::StartServiceMode::Single );
+	client->request( )
+
+		start_service( base::StartServiceMode::Single );
 
 	return EXIT_SUCCESS;
 }

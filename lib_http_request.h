@@ -45,8 +45,8 @@ namespace daw {
 			namespace http {
 				enum class HttpClientRequestMethod { Options = 1, Get, Head, Post, Put, Delete, Trace, Connect, Any };
 
-				std::ostream& operator<<(std::ostream& os, HttpClientRequestMethod const method);
-				std::istream& operator>>(std::istream& is, HttpClientRequestMethod & method);
+				std::ostream& operator<<( std::ostream& os, HttpClientRequestMethod const method );
+				std::istream& operator>>( std::istream& is, HttpClientRequestMethod & method );
 				std::string to_string( HttpClientRequestMethod method );
 
 				std::string value_to_json( std::string const & name, HttpClientRequestMethod method );
@@ -57,12 +57,12 @@ namespace daw {
 
 					~HttpUrlQueryPair( ) = default;
 					HttpUrlQueryPair( HttpUrlQueryPair const & ) = default;
-					HttpUrlQueryPair& operator=(HttpUrlQueryPair const &) = default;
+					HttpUrlQueryPair& operator=( HttpUrlQueryPair const & ) = default;
 
 					HttpUrlQueryPair( );
 					HttpUrlQueryPair( std::pair<std::string, boost::optional<std::string>> const & vals );
 					HttpUrlQueryPair( HttpUrlQueryPair && other );
-					HttpUrlQueryPair& operator=(HttpUrlQueryPair && rhs);
+					HttpUrlQueryPair& operator=( HttpUrlQueryPair && rhs );
 					void set_links( );
 				};	// struct HttpUrlQueryPair
 
@@ -73,11 +73,11 @@ namespace daw {
 
 					~HttpUrl( ) = default;
 					HttpUrl( HttpUrl const & ) = default;
-					HttpUrl& operator=(HttpUrl const &) = default;
+					HttpUrl& operator=( HttpUrl const & ) = default;
 
 					HttpUrl( );
 					HttpUrl( HttpUrl && other );
-					HttpUrl& operator=(HttpUrl && rhs);
+					HttpUrl& operator=( HttpUrl && rhs );
 					void set_links( );
 				};	// struct HttpUrl
 
@@ -88,11 +88,11 @@ namespace daw {
 
 					~HttpRequestLine( ) = default;
 					HttpRequestLine( HttpRequestLine const & ) = default;
-					HttpRequestLine& operator=(HttpRequestLine const &) = default;
+					HttpRequestLine& operator=( HttpRequestLine const & ) = default;
 
 					HttpRequestLine( );
 					HttpRequestLine( HttpRequestLine && other );
-					HttpRequestLine& operator=(HttpRequestLine && rhs);
+					HttpRequestLine& operator=( HttpRequestLine && rhs );
 					void set_links( );
 				};	// struct HttpRequestLine
 
@@ -102,11 +102,11 @@ namespace daw {
 
 					~HttpClientRequestBody( ) = default;
 					HttpClientRequestBody( HttpClientRequestBody const & ) = default;
-					HttpClientRequestBody& operator=(HttpClientRequestBody const &) = default;
+					HttpClientRequestBody& operator=( HttpClientRequestBody const & ) = default;
 
 					HttpClientRequestBody( );
 					HttpClientRequestBody( HttpClientRequestBody && other );
-					HttpClientRequestBody& operator=(HttpClientRequestBody && rhs);
+					HttpClientRequestBody& operator=( HttpClientRequestBody && rhs );
 					void set_links( );
 				};	// struct HttpClientRequestBody
 
@@ -134,18 +134,18 @@ namespace daw {
 
 				namespace impl {
 					struct HttpClientRequestImpl: public daw::json::JsonLink < HttpClientRequestImpl > {
-						using headers_t = std::unordered_map < std::string, std::string > ;
+						using headers_t = std::unordered_map < std::string, std::string >;
 						daw::nodepp::lib::http::HttpRequestLine request_line;
 						headers_t headers;
 						boost::optional<daw::nodepp::lib::http::HttpClientRequestBody> body;
 
 						~HttpClientRequestImpl( ) = default;
 						HttpClientRequestImpl( HttpClientRequestImpl const & ) = default;
-						HttpClientRequestImpl& operator=(HttpClientRequestImpl const &) = default;
+						HttpClientRequestImpl& operator=( HttpClientRequestImpl const & ) = default;
 
 						HttpClientRequestImpl( );
 						HttpClientRequestImpl( HttpClientRequestImpl && other );
-						HttpClientRequestImpl& operator=(HttpClientRequestImpl && rhs);
+						HttpClientRequestImpl& operator=( HttpClientRequestImpl && rhs );
 						void set_links( );
 					};	// struct HttpClientRequestImpl
 				}	// namespace impl
@@ -158,7 +158,7 @@ namespace daw {
 				// 					boost::optional<std::vector<impl::HttpUrlQueryPairImpl>> query;
 				// 				};	// struct HttpClientRequest
 
-				using HttpClientRequest = std::shared_ptr < impl::HttpClientRequestImpl > ;
+				using HttpClientRequest = std::shared_ptr < impl::HttpClientRequestImpl >;
 
 				HttpClientRequest parse_http_request( daw::nodepp::base::data_t::iterator first, daw::nodepp::base::data_t::iterator last );
 			} // namespace http

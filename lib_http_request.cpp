@@ -263,12 +263,6 @@ namespace daw {
 						this->link_object( "body", body );
 					}
 				}	// namespace impl
-
-				HttpClientRequest create_http_client_request( boost::string_ref scheme, boost::string_ref host, boost::string_ref path ) {
-					auto request = std::make_shared<impl::HttpClientRequestImpl>( );
-
-					return request;
-				}
 			} // namespace http
 		}	// namespace lib
 	}	// namespace nodepp
