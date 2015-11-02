@@ -1,4 +1,4 @@
-nodepp
+Node++
 ======
 
 A modern c++ Event I/O library with a high level of abstraction.
