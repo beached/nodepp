@@ -264,9 +264,11 @@ namespace daw {
 					}
 				}	// namespace impl
 
-				HttpClientRequest create_http_client_request( boost::string_ref path, HttpClientRequestMethod method ) {
-					// TODO
-					return HttpClientRequest { nullptr };
+				HttpClientRequest create_http_client_request( boost::string_ref path, HttpClientRequestMethod & const method ) {
+					auto result = impl::HttpClientRequestImpl { };
+					result->request_line.method = method;
+					result->request_line.url
+						return result;
 				}
 			} // namespace http
 		}	// namespace lib
