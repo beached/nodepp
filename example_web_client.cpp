@@ -35,14 +35,16 @@ int main( int, char ** ) {
 	client->on_connection( []( HttpClientConnection connection ) {
 		connection->on_response_returned( []( HttpServerResponse response ) {
 			if( response ) {
-				std::cout << (boost::string_ref( response->body( ).data( ), response->body( ).size( ) )).to_string( ) << std::endl;
+				std::cout << boost::string_ref( response->body( ).data( ), response->body( ).size( ) ).to_string( ) << std::endl;
 			}
 		} );
 	} );
 
-	client->request( { } )
+	auto request = create_http_client_request( "/", HttpClientRequestMethod::Get );
 
-		start_service( base::StartServiceMode::Single );
+	client->request( "http", "dawdevel.ca", 80, request );
+
+	start_service( base::StartServiceMode::Single );
 
 	return EXIT_SUCCESS;
 }

@@ -161,6 +161,7 @@ namespace daw {
 				using HttpClientRequest = std::shared_ptr < impl::HttpClientRequestImpl >;
 
 				HttpClientRequest parse_http_request( daw::nodepp::base::data_t::iterator first, daw::nodepp::base::data_t::iterator last );
+				HttpClientRequest create_http_client_request( boost::string_ref path, HttpClientRequestMethod method );
 			} // namespace http
 		}	// namespace lib
 	}	// namespace nodepp

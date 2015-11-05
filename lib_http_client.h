@@ -36,6 +36,7 @@
 #include "parse_json/daw_json_link.h"
 #include "lib_http_request.h"
 #include "lib_http_server_response.h"
+#include "lib_http_headers.h"
 
 namespace daw {
 	namespace nodepp {
@@ -75,7 +76,7 @@ namespace daw {
 
 						daw::nodepp::base::EventEmitter& emitter( );
 
-						void request( daw::nodepp::lib::http::HttpClientRequest request );
+						void request( boost::string_ref scheme, boost::string_ref host, uint16_t port, daw::nodepp::lib::http::HttpClientRequest request );
 
 						HttpClientImpl & on_connection( std::function<void( HttpClientConnection )> listener );
 					};	// class HttpClientImpl

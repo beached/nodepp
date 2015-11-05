@@ -43,6 +43,9 @@ namespace daw {
 						return *this;
 					}
 
+					void HttpClientImpl::request( boost::string_ref scheme, boost::string_ref host, uint16_t port, daw::nodepp::lib::http::HttpClientRequest request ) {
+					}
+
 					HttpClientConnectionImpl& HttpClientConnectionImpl::on_response_returned( std::function<void( daw::nodepp::lib::http::HttpServerResponse )> listener ) {
 						return *this;
 					}

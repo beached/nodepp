@@ -263,6 +263,11 @@ namespace daw {
 						this->link_object( "body", body );
 					}
 				}	// namespace impl
+
+				HttpClientRequest create_http_client_request( boost::string_ref path, HttpClientRequestMethod method ) {
+					// TODO
+					return HttpClientRequest { nullptr };
+				}
 			} // namespace http
 		}	// namespace lib
 	}	// namespace nodepp
