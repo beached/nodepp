@@ -27,6 +27,7 @@
 #include "lib_http_request.h"
 #include "parse_json/daw_json.h"
 #include "daw_utility.h"
+#include "lib_http_request_parser_impl.h"
 
 namespace daw {
 	namespace nodepp {
@@ -264,11 +265,14 @@ namespace daw {
 					}
 				}	// namespace impl
 
-				HttpClientRequest create_http_client_request( boost::string_ref path, HttpClientRequestMethod & const method ) {
-					auto result = impl::HttpClientRequestImpl { };
+				HttpClientRequest create_http_client_request( boost::string_ref path, HttpClientRequestMethod const & method ) {
+					auto result = std::make_shared<impl::HttpClientRequestImpl>( );
 					result->request_line.method = method;
-					result->request_line.url
-						return result;
+					auto url = parse_url_path( path.begin( ), path.end( ) );
+					if( url ) {
+						result->request_line.url = *url;
+					}
+					return result;
 				}
 			} // namespace http
 		}	// namespace lib

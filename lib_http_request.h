@@ -161,7 +161,17 @@ namespace daw {
 				using HttpClientRequest = std::shared_ptr < impl::HttpClientRequestImpl >;
 
 				HttpClientRequest parse_http_request( daw::nodepp::base::data_t::iterator first, daw::nodepp::base::data_t::iterator last );
-				HttpClientRequest create_http_client_request( boost::string_ref path, HttpClientRequestMethod method );
+
+				template<typename Iterator>
+				std::shared_ptr<daw::nodepp::lib::http::HttpUrl> parse_url_path( Iterator first, Iterator last ) {
+					auto result = std::make_shared < daw::nodepp::lib::http::HttpUrl>( );
+					if( !boost::spirit::qi::parse( first, last, daw::nodepp::lib::http::request_parser::abs_url_parse_grammar<Iterator>( ), *result ) ) {
+						result = nullptr;
+					}
+					return result;
+				}
+
+				HttpClientRequest create_http_client_request( boost::string_ref path, HttpClientRequestMethod const & method );
 			} // namespace http
 		}	// namespace lib
 	}	// namespace nodepp
