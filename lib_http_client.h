@@ -64,7 +64,7 @@ namespace daw {
 					// Requires:
 					class HttpClientImpl: public daw::nodepp::base::enable_shared<HttpClientImpl>, public daw::nodepp::base::StandardEvents<HttpClientImpl> {
 						daw::nodepp::base::EventEmitter m_emitter;
-
+						daw::nodepp::lib::net::NetSocketStream m_client;
 					public:
 						friend daw::nodepp::lib::http::HttpClient daw::nodepp::lib::http::create_http_client( daw::nodepp::base::EventEmitter );
 
