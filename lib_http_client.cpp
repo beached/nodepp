@@ -44,6 +44,7 @@ namespace daw {
 					}
 
 					void HttpClientImpl::request( boost::string_ref scheme, boost::string_ref host, uint16_t port, daw::nodepp::lib::http::HttpClientRequest request ) {
+						m_client->delegate_to( "on_connection", this->get_weak_ptr( ), "on_connection" );
 						m_client->connect( host, port );
 					}
 

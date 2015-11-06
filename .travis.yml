@@ -1,31 +1,39 @@
 sudo: false
 language: cpp
 compiler:
-  - gcc
-  - clang
-script: make
+	- gcc
+	- clang
+script:
+	- test -d build || mkdir build
+	- cd build
+	- cmake ..
+	- make
+git:
+	depth: 1
+
+branches:
+	only:
+		- master
 install:
-  - if [ "$CXX" = "g++" ]; then  export CXX="g++-5" CC="gcc-5"; fi
-  - if [ "$CXX" = "clang++" ]; then  export CXX="clang++-3.7" CC="clang-3.7"; fi
+	- if [ "$CXX" = "g++" ]; then	export CXX="g++-5" CC="gcc-5"; fi
+	- if [ "$CXX" = "clang++" ]; then	export CXX="clang++-3.7" CC="clang-3.7"; fi
 cache:
-  apt: true
+	apt: true
 addons:
-  apt:
-    sources:
-    - boost-latest
-    - llvm-toolchain-precise
-    - ubuntu-toolchain-r-test
-    packages:
-    - libyajl-dev
-    - libxml2-dev
-    - gcc-5
-    - g++-5
-    - clang-3.7
-    - cmake
-    - libboost1.55-all-dev 
-before_script:
-  - mkdir build
-  - cd build
-  - cmake ..
+	apt:
+		sources:
+		- boost-latest
+		- llvm-toolchain-precise
+		- ubuntu-toolchain-r-test
+		packages:
+		- libyajl-dev
+		- libxml2-dev
+		- gcc-5
+		- g++-5
+		- clang-3.7
+		- cmake
+		- libboost1.55-all-dev 
 notification:
-    email: false
+	email: false
+	on_success: never
+	on_failure: never
