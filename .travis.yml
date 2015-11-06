@@ -11,7 +11,7 @@ addons:
     sources:
     - boost-latest
     packages:
-    - libboost1.55.-all-dev 
+    - libboost1.55-all-dev 
 before_script:
   - mkdir build
   - cd build
