@@ -1,4 +1,4 @@
-Node++
+Node++ [![Build Status](https://travis-ci.org/beached/nodepp.svg?branch=master)](https://travis-ci.org/beached/nodepp)
 ======
 
 A modern C++ Event I/O library with a high level of abstraction.

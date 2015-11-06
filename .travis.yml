@@ -4,15 +4,26 @@ compiler:
   - gcc
   - clang
 script: make
+install:
+- if [ "$CXX" = "g++" ]; then  export CXX="g++-4.8" CC="gcc-4.8"; fi
 cache:
   apt: true
 addons:
   apt:
     sources:
     - boost-latest
+    - ubuntu-toolchain-r-test
     packages:
+    - libyajl-dev
+    - libxml2-dev
+    - gcc-4.8
+    - g++-4.8
+    - clang
+    - cmake
     - libboost1.55-all-dev 
 before_script:
   - mkdir build
   - cd build
   - cmake ..
+notification:
+    email: false
