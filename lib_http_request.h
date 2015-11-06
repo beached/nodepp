@@ -23,7 +23,11 @@
 #pragma once
 
 #include <boost/optional.hpp>
-#include <boost/spirit.hpp>
+#include <boost/spirit/include/phoenix.hpp>
+#include <boost/spirit/include/qi.hpp>
+#include <boost/spirit/include/qi_grammar.hpp>
+#include <boost/spirit/include/phoenix_operator.hpp>
+#include <boost/spirit/include/phoenix_object.hpp>
 #include <cstdint>
 #include <iostream>
 #include <ostream>
