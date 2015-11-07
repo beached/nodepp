@@ -48,6 +48,10 @@ namespace daw {
 						m_client->connect( host, port );
 					}
 
+					daw::nodepp::base::EventEmitter& HttpClientImpl::emitter( ) {
+						return m_emitter;
+					}
+
 					HttpClientConnectionImpl& HttpClientConnectionImpl::on_response_returned( std::function<void( daw::nodepp::lib::http::HttpServerResponse )> listener ) {
 						return *this;
 					}

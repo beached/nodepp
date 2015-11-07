@@ -265,10 +265,18 @@ namespace daw {
 					}
 				}	// namespace impl
 
+				std::shared_ptr<daw::nodepp::lib::http::HttpUrl> parse_url_path( boost::string_ref path ) {
+					auto result = std::make_shared < daw::nodepp::lib::http::HttpUrl>( );
+					if( !boost::spirit::qi::parse( path.begin( ), path.end( ), daw::nodepp::lib::http::request_parser::abs_url_parse_grammar<decltype(path.begin( ))>( ), *result ) ) {
+						result = nullptr;
+					}
+					return result;
+				}
+
 				HttpClientRequest create_http_client_request( boost::string_ref path, HttpClientRequestMethod const & method ) {
 					auto result = std::make_shared<impl::HttpClientRequestImpl>( );
 					result->request_line.method = method;
-					auto url = parse_url_path( path.begin( ), path.end( ) );
+					auto url = parse_url_path( path );
 					if( url ) {
 						result->request_line.url = *url;
 					}

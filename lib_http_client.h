@@ -74,7 +74,7 @@ namespace daw {
 						HttpClientImpl( HttpClientImpl const & ) = default;
 						~HttpClientImpl( ) = default;
 
-						//daw::nodepp::base::EventEmitter& emitter( );
+						daw::nodepp::base::EventEmitter& emitter( );
 
 						void request( boost::string_ref scheme, boost::string_ref host, uint16_t port, daw::nodepp::lib::http::HttpClientRequest request );
 

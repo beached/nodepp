@@ -39,7 +39,6 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-
 #include "lib_http_request.h"
 
 BOOST_FUSION_ADAPT_STRUCT(
@@ -104,7 +103,7 @@ namespace daw {
 
 					template <typename Iterator>
 					struct abs_url_parse_grammar: qi::grammar < Iterator, daw::nodepp::lib::http::HttpUrl( ) > {
-						abs_url_parse_grammar( ) : abs_url_parse_grammar::base_type( url ) {
+						abs_url_parse_grammar( ): abs_url_parse_grammar::base_type( url ) {
 							key = qi::char_( "a-zA-Z_" ) >> *qi::char_( "a-zA-Z_0-9" );
 							value = +qi::char_( "a-zA-Z_0-9" );
 							path = char_( '/' ) >> *(~char_( " ?#" ));
@@ -127,16 +126,16 @@ namespace daw {
 							using qi::debug;
 
 							qi::on_error < fail >( url,
-								boost::phoenix::ref( std::cout )
-								<< val( "Error! Expecting " )
-								<< qi::_4
-								<< val( " here: \"" )
-								<< construct<std::string>( qi::_3, qi::_2 )
-								<< val( "\"" )
-								<< std::endl
-								);
+												   boost::phoenix::ref( std::cout )
+												   << val( "Error! Expecting " )
+												   << qi::_4
+												   << val( " here: \"" )
+												   << construct<std::string>( qi::_3, qi::_2 )
+												   << val( "\"" )
+												   << std::endl
+												   );
 
-							//debug( url );
+											   //debug( url );
 						}
 						qi::rule< Iterator, daw::nodepp::lib::http::HttpUrl( ) > url;
 						qi::rule< Iterator, std::string( )> path;
@@ -149,7 +148,7 @@ namespace daw {
 
 					template <typename Iterator>
 					struct http_request_parse_grammar: qi::grammar < Iterator, daw::nodepp::lib::http::impl::HttpClientRequestImpl( ) > {
-						http_request_parse_grammar( ) : http_request_parse_grammar::base_type( message ) {
+						http_request_parse_grammar( ): http_request_parse_grammar::base_type( message ) {
 							http_version = lexeme["HTTP/" >> raw[int_ >> '.' >> int_]];
 							crlf = lexeme[lit( '\x0d' ) >> lit( '\x0a' )];	// cr followed by newline
 							//crlf = lexeme[-(lit( "\\r" )) >> lit( "\\n" )];
@@ -188,16 +187,16 @@ namespace daw {
 							crlf.name( "newline" );
 
 							qi::on_error < fail >( message,
-								boost::phoenix::ref( std::cout )
-								<< val( "Error! Expecting " )
-								<< qi::_4
-								<< val( " here: \"" )
-								<< construct<std::string>( qi::_3, qi::_2 )
-								<< val( "\"" )
-								<< std::endl
-								);
+												   boost::phoenix::ref( std::cout )
+												   << val( "Error! Expecting " )
+												   << qi::_4
+												   << val( " here: \"" )
+												   << construct<std::string>( qi::_3, qi::_2 )
+												   << val( "\"" )
+												   << std::endl
+												   );
 
-							//debug( message );
+											   //debug( message );
 						}
 						method_parse_symbol_ method_parse_symbol;
 						qi::rule< Iterator > crlf;

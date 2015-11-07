@@ -23,11 +23,6 @@
 #pragma once
 
 #include <boost/optional.hpp>
-#include <boost/spirit/include/phoenix.hpp>
-#include <boost/spirit/include/qi.hpp>
-#include <boost/spirit/include/qi_grammar.hpp>
-#include <boost/spirit/include/phoenix_operator.hpp>
-#include <boost/spirit/include/phoenix_object.hpp>
 #include <cstdint>
 #include <iostream>
 #include <ostream>
@@ -167,14 +162,7 @@ namespace daw {
 
 				HttpClientRequest parse_http_request( daw::nodepp::base::data_t::iterator first, daw::nodepp::base::data_t::iterator last );
 
-				template<typename Iterator>
-				std::shared_ptr<daw::nodepp::lib::http::HttpUrl> parse_url_path( Iterator first, Iterator last ) {
-					auto result = std::make_shared < daw::nodepp::lib::http::HttpUrl>( );
-					if( !boost::spirit::qi::parse( first, last, daw::nodepp::lib::http::request_parser::abs_url_parse_grammar<Iterator>( ), *result ) ) {
-						result = nullptr;
-					}
-					return result;
-				}
+				std::shared_ptr<daw::nodepp::lib::http::HttpUrl> parse_url_path( boost::string_ref path );
 
 				HttpClientRequest create_http_client_request( boost::string_ref path, HttpClientRequestMethod const & method );
 			} // namespace http
