@@ -3,27 +3,29 @@ language: cpp
 compiler:
   - gcc
   - clang
-script:
-  - test -d build || mkdir build
-  - cd build
-  - cmake ..
-  - make
 install:
-  - if [ "$CXX" = "g++" ]; then  export CXX="g++-5" CC="gcc-5"; fi
-  - if [ "$CXX" = "clang++" ]; then  export CXX="clang++-3.7" CC="clang-3.7"; fi
+  - if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; fi
+  - if [ "$CXX" = "clang++" ]; then export CXX="clang++-3.8" CC="clang-3.8"; fi
 cache:
   apt: true
 addons:
   apt:
     sources:
-    - boost-latest
-    - llvm-toolchain-precise
-    - ubuntu-toolchain-r-test
+      - boost-latest
+      - llvm-toolchain-precise
+      - ubuntu-toolchain-r-test
     packages:
-    - libyajl-dev
-    - libxml2-dev
-    - gcc-5
-    - g++-5
-    - clang-3.7
-    - cmake
-    - libboost1.55-all-dev 
+      - clang-3.8
+      - cmake
+      - g++-5
+      - gcc-5
+      - libboost1.55-all-dev
+      - llvm-3.8-dev
+      - llvm-3.8-runtime
+      - llvm-3.8-tools"
+script:
+  - test -d build || mkdir build
+  - cd build
+  - cmake ..
+  - make
+  - make test
