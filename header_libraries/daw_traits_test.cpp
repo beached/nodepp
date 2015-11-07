@@ -302,13 +302,3 @@ BOOST_AUTO_TEST_CASE( daw_traits_is_mixed_from ) {
 	auto test2 = daw::traits::is_mixed_from<daw_traits_is_mixed_from_ns::Base, daw_traits_is_mixed_from_ns::NonDerived>::value;
 	BOOST_REQUIRE_MESSAGE( false == test2, "2. Base<NonDerived> should not be a base for NonDerived" );
 }
-
-// namespace daw_traits_function_exists_ns {
-// 	void test( int, int ) { }
-// 	CREATE_FUNCTION_EXISTS( test, test );
-//
-// 	BOOST_AUTO_TEST_CASE( daw_traits_function_exists ) {
-// 		auto test1 = test_exists<void, int, int>::value;
-// 		BOOST_REQUIRE_MESSAGE( true == test1, "1. void test(int, int) should report as exists" );
-// 	}
-// }

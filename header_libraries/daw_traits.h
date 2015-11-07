@@ -279,23 +279,5 @@ namespace daw {
 
 		template<template<class> class Base, typename Derived>
 		using is_mixed_from_t = typename is_mixed_from<Base, Derived>::type;
-
-// #define CREATE_FUNCTION_EXISTS( function_title, function_name ) \
-// 		namespace impl { \
-// 			template<typename Result, typename... Arguments> \
-// 			class function_title##_exists_impl { \
-// 			private: \
-// 				typedef char One; \
-// 				typedef struct { char a[2]; } Two; \
-// 				template<typename Res, typename... Arg> static One _test( Res function_name( Arg... ) ); \
-// 				template<typename = void, typename...> static Two _test( ... ); \
-// 			public: \
-// 				enum { value = sizeof( function_title##_exists_impl<Result, Arguments...>::_test<Result, Arguments...>( 0 ) ) == 1 }; \
-// 				}; \
-// 			} \
-// 		template<typename Result, typename... Arguments> \
-// 		using function_name##_exists = std::integral_constant<bool, impl::function_title##_exists_impl<Result, Arguments...>::value >; \
-// 		template<typename Result, typename... Arguments> \
-// 		using function_name##_exists_t = typename function_name##_exists<Result, Arguments...>::type;
 	}	// namespace traits
 }	// namespace daw
