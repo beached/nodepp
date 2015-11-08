@@ -85,8 +85,8 @@ namespace daw {
 						daw::nodepp::lib::net::NetSocketStream m_socket;
 						daw::nodepp::base::EventEmitter m_emitter;
 
-						HttpClientConnectionImpl( daw::nodepp::lib::net::NetSocketStream socket, daw::nodepp::base::EventEmitter emitter );
 					public:
+						HttpClientConnectionImpl( daw::nodepp::lib::net::NetSocketStream socket, daw::nodepp::base::EventEmitter emitter );
 						friend daw::nodepp::lib::http::HttpClientConnection daw::nodepp::lib::http::create_http_client_connection( daw::nodepp::lib::net::NetSocketStream, daw::nodepp::base::EventEmitter );
 
 						HttpClientConnectionImpl& on_response_returned( std::function<void( daw::nodepp::lib::http::HttpServerResponse )> listener );
