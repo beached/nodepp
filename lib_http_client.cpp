@@ -44,18 +44,23 @@ namespace daw {
 						return *this;
 					}
 
-					void HttpClientImpl::request( boost::string_ref scheme, boost::string_ref host, uint16_t port, daw::nodepp::lib::http::HttpClientRequest request ) {
-						auto obj = m_client->get_weak_ptr( );
-						m_client->on_connected( [obj]( ) mutable {
-							run_if_valid( obj, "Exception opening connection", "HttpClientImpl::request on_connected", []( net::NetSocketStream socket ) {
-							} );
-						} ).on_data_received( [obj]( std::shared_ptr<base::data_t> data_buffer, bool ) {
-							run_if_valid( obj, "Exception receiving data", "HttpClientImpl::request on_data_received", []( net::NetSocketStream socket ) {
-							} );
+					void HttpClientImpl::request( std::string scheme, std::string host, uint16_t port, daw::nodepp::lib::http::HttpClientRequest request ) {
+						auto socket = m_client;
+						socket->on_connected( [socket, scheme, request, host, port]( ) {
+							auto const & request_line = request->request_line;
+							socket->write_async( to_string( request_line.method ) + " " + to_string( request_line.url ) + " HTTP/1.1\r\n" );
+							socket->write_async( "Host: " + host + ":" + std::to_string( port ) + "\r\n\r\n" );
+							socket->set_read_mode( net::NetSocketStreamReadMode::newline );
+							socket->read_async( );
+						} ).on_data_received( [socket]( std::shared_ptr<base::data_t> data_buffer, bool ) {
+							std::string buf { data_buffer->begin( ), data_buffer->end( ) };
+							std::cout << buf << std::endl;
 						} );
+
+						socket->connect( host, port );
 					}
 
-					HttpClientConnectionImpl::HttpClientConnectionImpl( daw::nodepp::lib::net::NetSocketStream socket, daw::nodepp::base::EventEmitter emitter ): m_socket( std::move( socket ) ), m_emitter( std::move( emitter ) ) { }
+					HttpClientConnectionImpl::HttpClientConnectionImpl( daw::nodepp::lib::net::NetSocketStream socket, daw::nodepp::base::EventEmitter emitter ): m_socket( socket ), m_emitter( emitter ) { }
 
 					HttpClientConnectionImpl& HttpClientConnectionImpl::on_response_returned( std::function<void( daw::nodepp::lib::http::HttpServerResponse )> listener ) {
 						return *this;

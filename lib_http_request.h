@@ -81,6 +81,8 @@ namespace daw {
 					void set_links( );
 				};	// struct HttpUrl
 
+				std::string to_string( HttpUrl const & url );
+
 				struct HttpRequestLine: public daw::json::JsonLink < HttpRequestLine > {
 					HttpClientRequestMethod method;
 					HttpUrl url;

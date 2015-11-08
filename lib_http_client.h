@@ -76,7 +76,7 @@ namespace daw {
 
 						daw::nodepp::base::EventEmitter& emitter( );
 
-						void request( boost::string_ref scheme, boost::string_ref host, uint16_t port, daw::nodepp::lib::http::HttpClientRequest request );
+						void request( std::string scheme, std::string host, uint16_t port, daw::nodepp::lib::http::HttpClientRequest request );
 
 						HttpClientImpl & on_connection( std::function<void( HttpClientConnection )> listener );
 					};	// class HttpClientImpl
@@ -87,7 +87,7 @@ namespace daw {
 						HttpClientConnectionImpl( daw::nodepp::lib::net::NetSocketStream socket, daw::nodepp::base::EventEmitter emitter );
 					public:
 						HttpClientConnectionImpl( ) = delete;
-						friend daw::nodepp::lib::http::HttpClientConnection daw::nodepp::lib::http::create_http_client_connection( daw::nodepp::lib::net::NetSocketStream socket, daw::nodepp::base::EventEmitter );
+						friend daw::nodepp::lib::http::HttpClientConnection daw::nodepp::lib::http::create_http_client_connection( daw::nodepp::lib::net::NetSocketStream, daw::nodepp::base::EventEmitter );
 
 						HttpClientConnectionImpl& on_response_returned( std::function<void( daw::nodepp::lib::http::HttpServerResponse )> listener );
 						HttpClientConnectionImpl& on_next_response_returned( std::function<void( daw::nodepp::lib::http::HttpServerResponse )> listener );

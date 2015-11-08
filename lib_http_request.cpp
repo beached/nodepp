@@ -101,6 +101,23 @@ namespace daw {
 					return is;
 				}
 
+				std::string to_string( HttpUrl const & url ) {
+					std::stringstream ss;
+					ss << url.path;
+					if( url.query ) {
+						for( auto const & qp : url.query.get( ) ) {
+							ss << "?" << qp.name;
+							if( qp.value ) {
+								ss << "=" << qp.value.get( );
+							}
+						}
+					}
+					if( url.fragment ) {
+						ss << "#" << url.fragment.get( );
+					}
+					return ss.str( );
+				}
+
 				HttpUrlQueryPair::HttpUrlQueryPair( ):
 					JsonLink( ),
 					name( ),
