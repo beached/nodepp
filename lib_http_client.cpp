@@ -31,11 +31,12 @@ namespace daw {
 		namespace lib {
 			namespace http {
 				HttpClient create_http_client( daw::nodepp::base::EventEmitter emitter ) {
+					// TODO
 					return HttpClient { nullptr };
 				}
 
-				HttpClientConnection create_http_client_connection( daw::nodepp::base::EventEmitter emitter ) {
-					return HttpClientConnection { nullptr };
+				HttpClientConnection create_http_client_connection( daw::nodepp::lib::net::NetSocketStream socket, daw::nodepp::base::EventEmitter emitter ) {
+					return std::make_shared<impl::HttpClientConnectionImpl>( std::move( socket ), std::move( emitter ) );
 				}
 
 				namespace impl {
@@ -44,13 +45,17 @@ namespace daw {
 					}
 
 					void HttpClientImpl::request( boost::string_ref scheme, boost::string_ref host, uint16_t port, daw::nodepp::lib::http::HttpClientRequest request ) {
-						m_client->delegate_to( "on_connection", this->get_weak_ptr( ), "on_connection" );
-						m_client->connect( host, port );
+						auto obj = m_client->get_weak_ptr( );
+						m_client->on_connected( [obj]( ) mutable {
+							run_if_valid( obj, "Exception opening connection", "HttpClientImpl::request on_connected", []( net::NetSocketStream socket ) {
+							} );
+						} ).on_data_received( [obj]( std::shared_ptr<base::data_t> data_buffer, bool ) {
+							run_if_valid( obj, "Exception receiving data", "HttpClientImpl::request on_data_received", []( net::NetSocketStream socket ) {
+							} );
+						} );
 					}
 
-					daw::nodepp::base::EventEmitter& HttpClientImpl::emitter( ) {
-						return m_emitter;
-					}
+					HttpClientConnectionImpl::HttpClientConnectionImpl( daw::nodepp::lib::net::NetSocketStream socket, daw::nodepp::base::EventEmitter emitter ): m_socket( std::move( socket ) ), m_emitter( std::move( emitter ) ) { }
 
 					HttpClientConnectionImpl& HttpClientConnectionImpl::on_response_returned( std::function<void( daw::nodepp::lib::http::HttpServerResponse )> listener ) {
 						return *this;
