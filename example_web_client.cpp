@@ -35,8 +35,6 @@ int main( int, char ** ) {
 		connection->on_response_returned( []( HttpServerResponse response ) {
 			if( response ) {
 				std::cout << boost::string_ref( response->body( ).data( ), response->body( ).size( ) ).to_string( ) << std::endl;
-			} else {
-				std::cerr << "Error connecting" << std::endl;
 			}
 		} );
 	} );

@@ -5,28 +5,21 @@ compiler:
   - clang
 install:
   - if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; fi
-  - if [ "$CXX" = "clang++" ]; then export CXX="clang++-3.7" CC="clang-3.7"; fi
 
 addons:
   apt:
     sources:
       - boost-latest
-      - llvm-toolchain-precise-3.7
       - ubuntu-toolchain-r-test
     packages:
-      - clang-3.7
+      - clang
       - cmake
       - g++-5
       - gcc-5
-      - libyajl-dev
-
-      - libxml2-dev
       - libboost1.55-all-dev
       - libc++-dev
-      - libstdc++-4.9-dev
-      - llvm-3.7-dev
-      - llvm-3.7-runtime
-      - llvm-3.7-tools
+      - libstdc++-dev
+
 script:
   - test -d build || mkdir build
   - cd build
