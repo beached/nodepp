@@ -33,18 +33,12 @@
 
 #include "base_types.h"
 #include "base_event_emitter.h"
-#include "parse_json/daw_json_link.h"
 #include "lib_http_request.h"
 #include "lib_http_server_response.h"
 #include "lib_http_headers.h"
 
 namespace daw {
 	namespace nodepp {
-		namespace base {
-			namespace json {
-				struct JsonLink;
-			}
-		}
 		namespace lib {
 			namespace http {
 				namespace impl {
