@@ -2,7 +2,6 @@ sudo: false
 language: cpp
 compiler:
   - gcc
-  - clang
 install:
   - if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; fi
 
@@ -12,12 +11,10 @@ addons:
       - boost-latest
       - ubuntu-toolchain-r-test
     packages:
-      - clang
       - cmake
       - g++-5
       - gcc-5
       - libboost1.55-all-dev
-      - libc++-dev
 
 script:
   - test -d build || mkdir build
