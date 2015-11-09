@@ -89,9 +89,8 @@ namespace daw {
 					public:
 						HttpClientConnectionImpl( daw::nodepp::lib::net::NetSocketStream socket, daw::nodepp::base::EventEmitter emitter );
 
-						HttpClientConnectionImpl& on_response_returned( std::function<void( daw::nodepp::lib::http::HttpServerResponse )> listener );
-						HttpClientConnectionImpl& on_next_response_returned( std::function<void( daw::nodepp::lib::http::HttpServerResponse )> listener );
-
+						HttpClientConnectionImpl & on_response_returned( std::function<void( daw::nodepp::lib::http::HttpServerResponse )> listener );
+						HttpClientConnectionImpl & on_next_response_returned( std::function<void( daw::nodepp::lib::http::HttpServerResponse )> listener );
 						HttpClientConnectionImpl & on_closed( std::function<void( )> listener );	// Only once as it is called on the way out
 					};	// HttpClientConnectionImpl
 				}	//namespace impl
