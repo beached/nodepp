@@ -81,7 +81,7 @@ namespace daw {
 						HttpClientImpl & on_connection( std::function<void( HttpClientConnection )> listener );
 					};	// class HttpClientImpl
 
-					class HttpClientConnectionImpl: public daw::nodepp::base::enable_shared<HttpClientImpl>, public daw::nodepp::base::StandardEvents<HttpClientImpl> {
+					class HttpClientConnectionImpl: public daw::nodepp::base::enable_shared<HttpClientConnectionImpl>, public daw::nodepp::base::StandardEvents<HttpClientConnectionImpl> {
 						daw::nodepp::lib::net::NetSocketStream m_socket;
 						daw::nodepp::base::EventEmitter m_emitter;
 
