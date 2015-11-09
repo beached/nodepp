@@ -18,7 +18,6 @@ addons:
       - gcc-5
       - libboost1.55-all-dev
       - libc++-dev
-      - libstdc++-dev
 
 script:
   - test -d build || mkdir build
