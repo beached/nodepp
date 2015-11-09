@@ -68,7 +68,7 @@ namespace daw {
 
 					public:
 						HttpClientImpl( daw::nodepp::base::EventEmitter emitter );
-
+						HttpClientImpl( ) = delete;
 						HttpClientImpl( HttpClientImpl&& other ) = default;
 						HttpClientImpl& operator=( HttpClientImpl const & ) = default;
 						HttpClientImpl& operator=( HttpClientImpl && rhs ) = default;
