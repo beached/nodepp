@@ -65,12 +65,13 @@ namespace daw {
 					class HttpClientImpl: public daw::nodepp::base::enable_shared<HttpClientImpl>, public daw::nodepp::base::StandardEvents<HttpClientImpl> {
 						daw::nodepp::base::EventEmitter m_emitter;
 						daw::nodepp::lib::net::NetSocketStream m_client;
-					public:
-						friend daw::nodepp::lib::http::HttpClient daw::nodepp::lib::http::create_http_client( daw::nodepp::base::EventEmitter );
 
-						HttpClientImpl( HttpClientImpl&& other );
+					public:
+						HttpClientImpl( daw::nodepp::base::EventEmitter emitter );
+
+						HttpClientImpl( HttpClientImpl&& other ) = default;
 						HttpClientImpl& operator=( HttpClientImpl const & ) = default;
-						HttpClientImpl& operator=( HttpClientImpl && rhs );
+						HttpClientImpl& operator=( HttpClientImpl && rhs ) = default;
 						HttpClientImpl( HttpClientImpl const & ) = default;
 						~HttpClientImpl( ) = default;
 

@@ -31,8 +31,7 @@ namespace daw {
 		namespace lib {
 			namespace http {
 				HttpClient create_http_client( daw::nodepp::base::EventEmitter emitter ) {
-					// TODO
-					return HttpClient { nullptr };
+					return std::make_shared<impl::HttpClientImpl>( std::move( emitter ) );
 				}
 
 				HttpClientConnection create_http_client_connection( daw::nodepp::lib::net::NetSocketStream socket, daw::nodepp::base::EventEmitter emitter ) {
@@ -40,8 +39,16 @@ namespace daw {
 				}
 
 				namespace impl {
+					HttpClientImpl::HttpClientImpl( daw::nodepp::base::EventEmitter emitter ):
+						m_emitter( std::move( emitter ) ),
+						m_client( net::create_net_socket_stream( ) ) { }
+
 					HttpClientImpl & HttpClientImpl::on_connection( std::function<void( HttpClientConnection )> listener ) {
 						return *this;
+					}
+
+					daw::nodepp::base::EventEmitter& HttpClientImpl::emitter( ) {
+						return this->m_emitter;
 					}
 
 					void HttpClientImpl::request( std::string scheme, std::string host, uint16_t port, daw::nodepp::lib::http::HttpClientRequest request ) {
