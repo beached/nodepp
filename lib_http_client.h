@@ -78,7 +78,6 @@ namespace daw {
 						daw::nodepp::base::EventEmitter& emitter( );
 
 						void request( std::string scheme, std::string host, uint16_t port, daw::nodepp::lib::http::HttpClientRequest request );
-
 						HttpClientImpl & on_connection( std::function<void( HttpClientConnection )> listener );
 					};	// class HttpClientImpl
 
