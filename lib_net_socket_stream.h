@@ -41,18 +41,18 @@ namespace daw {
 		namespace lib {
 			namespace net {
 				namespace impl {
-					struct NetSslSocketStreamImpl;
+					struct NetSocketStreamImpl;
 				}
 
-				using NetSslSocketStream = std::shared_ptr < impl::NetSslSocketStreamImpl >;
+				using NetSocketStream = std::shared_ptr < impl::NetSocketStreamImpl >;
 
-				NetSslSocketStream create_net_socket_stream( daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
-				NetSslSocketStream create_net_socket_stream( boost::asio::io_service& io_service, std::size_t max_read_size, daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
+				NetSocketStream create_net_socket_stream( daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
+				NetSocketStream create_net_socket_stream( boost::asio::io_service& io_service, std::size_t max_read_size, daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
 
-				enum class NetSslSocketStreamReadMode { newline, buffer_full, predicate, next_byte, regex, values, double_newline };
+				enum class NetSocketStreamReadMode { newline, buffer_full, predicate, next_byte, regex, values, double_newline };
 
 				namespace impl {
-					struct NetSslSocketStreamImpl: public daw::nodepp::base::SelfDestructing<NetSslSocketStreamImpl>, public daw::nodepp::base::stream::StreamReadableEvents<NetSslSocketStreamImpl>, public daw::nodepp::base::stream::StreamWritableEvents < NetSslSocketStreamImpl > {
+					struct NetSocketStreamImpl: public daw::nodepp::base::SelfDestructing<NetSocketStreamImpl>, public daw::nodepp::base::stream::StreamReadableEvents<NetSocketStreamImpl>, public daw::nodepp::base::stream::StreamWritableEvents < NetSocketStreamImpl > {
 						using match_iterator_t = boost::asio::buffers_iterator < boost::asio::streambuf::const_buffers_type >;
 						using match_function_t = std::function < std::pair<match_iterator_t, bool>( match_iterator_t begin, match_iterator_t end ) >;
 					private:
@@ -69,18 +69,18 @@ namespace daw {
 						} m_state;
 
 						struct netsockstream_readoptions_t {
-							NetSslSocketStreamReadMode read_mode;
+							NetSocketStreamReadMode read_mode;
 							size_t max_read_size;
-							std::unique_ptr<NetSslSocketStreamImpl::match_function_t> read_predicate;
+							std::unique_ptr<NetSocketStreamImpl::match_function_t> read_predicate;
 							std::string read_until_values;
 
 							netsockstream_readoptions_t( ):
-								read_mode( NetSslSocketStreamReadMode::newline ),
+								read_mode( NetSocketStreamReadMode::newline ),
 								max_read_size( 8192 ),
 								read_predicate( ) { }
 
 							netsockstream_readoptions_t( size_t max_read_size_ ):
-								read_mode( NetSslSocketStreamReadMode::newline ),
+								read_mode( NetSocketStreamReadMode::newline ),
 								max_read_size( max_read_size_ ),
 								read_predicate( ) { }
 
@@ -108,34 +108,34 @@ namespace daw {
 						std::size_t m_bytes_read;
 						std::size_t m_bytes_written;
 
-						NetSslSocketStreamImpl( daw::nodepp::base::EventEmitter emitter );
-						NetSslSocketStreamImpl( boost::asio::io_service& io_service, std::size_t max_read_size, daw::nodepp::base::EventEmitter emitter );
+						NetSocketStreamImpl( daw::nodepp::base::EventEmitter emitter );
+						NetSocketStreamImpl( boost::asio::io_service& io_service, std::size_t max_read_size, daw::nodepp::base::EventEmitter emitter );
 
 					public:
-						friend NetSslSocketStream daw::nodepp::lib::net::create_net_socket_stream( daw::nodepp::base::EventEmitter emitter );
-						friend NetSslSocketStream daw::nodepp::lib::net::create_net_socket_stream( boost::asio::io_service& io_service, std::size_t max_read_size, daw::nodepp::base::EventEmitter emitter );
+						friend NetSocketStream daw::nodepp::lib::net::create_net_socket_stream( daw::nodepp::base::EventEmitter emitter );
+						friend NetSocketStream daw::nodepp::lib::net::create_net_socket_stream( boost::asio::io_service& io_service, std::size_t max_read_size, daw::nodepp::base::EventEmitter emitter );
 
-						NetSslSocketStreamImpl( NetSslSocketStreamImpl&& other );
-						NetSslSocketStreamImpl& operator=( NetSslSocketStreamImpl&& rhs );
-						~NetSslSocketStreamImpl( );
+						NetSocketStreamImpl( NetSocketStreamImpl&& other );
+						NetSocketStreamImpl& operator=( NetSocketStreamImpl&& rhs );
+						~NetSocketStreamImpl( );
 
-						NetSslSocketStreamImpl( NetSslSocketStreamImpl const & ) = delete;
-						NetSslSocketStreamImpl& operator=( NetSslSocketStreamImpl const & ) = delete;
+						NetSocketStreamImpl( NetSocketStreamImpl const & ) = delete;
+						NetSocketStreamImpl& operator=( NetSocketStreamImpl const & ) = delete;
 
 						daw::nodepp::base::EventEmitter& emitter( );
 
-						NetSslSocketStreamImpl&  read_async( std::shared_ptr<boost::asio::streambuf> read_buffer = nullptr );
+						NetSocketStreamImpl&  read_async( std::shared_ptr<boost::asio::streambuf> read_buffer = nullptr );
 						daw::nodepp::base::data_t read( );
 						daw::nodepp::base::data_t read( std::size_t bytes );
 
-						NetSslSocketStreamImpl& write_async( daw::nodepp::base::data_t const & chunk );
-						NetSslSocketStreamImpl& write_async( boost::string_ref chunk, daw::nodepp::base::Encoding const & encoding = daw::nodepp::base::Encoding( ) );
+						NetSocketStreamImpl& write_async( daw::nodepp::base::data_t const & chunk );
+						NetSocketStreamImpl& write_async( boost::string_ref chunk, daw::nodepp::base::Encoding const & encoding = daw::nodepp::base::Encoding( ) );
 
-						NetSslSocketStreamImpl& end( );
-						NetSslSocketStreamImpl& end( daw::nodepp::base::data_t const & chunk );
-						NetSslSocketStreamImpl& end( boost::string_ref chunk, daw::nodepp::base::Encoding const & encoding = daw::nodepp::base::Encoding( ) );
+						NetSocketStreamImpl& end( );
+						NetSocketStreamImpl& end( daw::nodepp::base::data_t const & chunk );
+						NetSocketStreamImpl& end( boost::string_ref chunk, daw::nodepp::base::Encoding const & encoding = daw::nodepp::base::Encoding( ) );
 
-						NetSslSocketStreamImpl& connect( boost::string_ref host, uint16_t port );
+						NetSocketStreamImpl& connect( boost::string_ref host, uint16_t port );
 
 						void close( bool emit_cb = true );
 						void cancel( );
@@ -144,19 +144,19 @@ namespace daw {
 						bool is_closed( ) const;
 						bool can_write( ) const;
 
-						NetSslSocketStreamImpl& set_read_mode( NetSslSocketStreamReadMode mode );
-						NetSslSocketStreamReadMode const& current_read_mode( ) const;
-						NetSslSocketStreamImpl& set_read_predicate( std::function < std::pair<NetSslSocketStreamImpl::match_iterator_t, bool>( NetSslSocketStreamImpl::match_iterator_t begin, NetSslSocketStreamImpl::match_iterator_t end ) > match_function );
-						NetSslSocketStreamImpl& clear_read_predicate( );
-						NetSslSocketStreamImpl& set_read_until_values( std::string values, bool is_regex );
+						NetSocketStreamImpl& set_read_mode( NetSocketStreamReadMode mode );
+						NetSocketStreamReadMode const& current_read_mode( ) const;
+						NetSocketStreamImpl& set_read_predicate( std::function < std::pair<NetSocketStreamImpl::match_iterator_t, bool>( NetSocketStreamImpl::match_iterator_t begin, NetSocketStreamImpl::match_iterator_t end ) > match_function );
+						NetSocketStreamImpl& clear_read_predicate( );
+						NetSocketStreamImpl& set_read_until_values( std::string values, bool is_regex );
 						boost::asio::ip::tcp::socket & socket( );
 
 						std::size_t& buffer_size( );
 
-						NetSslSocketStreamImpl& set_timeout( int32_t value );
+						NetSocketStreamImpl& set_timeout( int32_t value );
 
-						NetSslSocketStreamImpl& set_no_delay( bool noDelay );
-						NetSslSocketStreamImpl& set_keep_alive( bool keep_alive, int32_t initial_delay );
+						NetSocketStreamImpl& set_no_delay( bool noDelay );
+						NetSocketStreamImpl& set_keep_alive( bool keep_alive, int32_t initial_delay );
 
 						std::string remote_address( ) const;
 						std::string local_address( ) const;
@@ -171,11 +171,11 @@ namespace daw {
 
 						//////////////////////////////////////////////////////////////////////////
 						/// Summary: Event emitted when a connection is established
-						NetSslSocketStreamImpl& on_connected( std::function<void( )> listener );
+						NetSocketStreamImpl& on_connected( std::function<void( )> listener );
 
 						//////////////////////////////////////////////////////////////////////////
 						/// Summary: Event emitted when a connection is established
-						NetSslSocketStreamImpl& on_next_connected( std::function<void( )> listener );
+						NetSocketStreamImpl& on_next_connected( std::function<void( )> listener );
 
 						//////////////////////////////////////////////////////////////////////////
 						/// StreamReadable
@@ -185,15 +185,15 @@ namespace daw {
 
 					private:
 
-						static void handle_connect( std::weak_ptr<NetSslSocketStreamImpl> obj, boost::system::error_code const & err, boost::asio::ip::tcp::resolver::iterator it );
-						static void handle_read( std::weak_ptr<NetSslSocketStreamImpl> obj, std::shared_ptr<boost::asio::streambuf> read_buffer, boost::system::error_code const & err, std::size_t const & bytes_transfered );
-						static void handle_write( std::weak_ptr<daw::thread::Semaphore<int>> outstanding_writes, std::weak_ptr<NetSslSocketStreamImpl> obj, daw::nodepp::base::write_buffer buff, boost::system::error_code const & err, size_t const & bytes_transfered );
+						static void handle_connect( std::weak_ptr<NetSocketStreamImpl> obj, boost::system::error_code const & err, boost::asio::ip::tcp::resolver::iterator it );
+						static void handle_read( std::weak_ptr<NetSocketStreamImpl> obj, std::shared_ptr<boost::asio::streambuf> read_buffer, boost::system::error_code const & err, std::size_t const & bytes_transfered );
+						static void handle_write( std::weak_ptr<daw::thread::Semaphore<int>> outstanding_writes, std::weak_ptr<NetSocketStreamImpl> obj, daw::nodepp::base::write_buffer buff, boost::system::error_code const & err, size_t const & bytes_transfered );
 
 						void write_async( daw::nodepp::base::write_buffer buff );
-					};	// struct NetSslSocketStreamImpl
+					};	// struct NetSocketStreamImpl
 				}	// namespace impl
 
-				NetSslSocketStream& operator<<( NetSslSocketStream &socket, boost::string_ref message );
+				NetSocketStream& operator<<( NetSocketStream &socket, boost::string_ref message );
 			}	// namespace net
 		}	// namespace lib
 	}	// namespace nodepp
