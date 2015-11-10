@@ -53,15 +53,22 @@ namespace daw {
 
 					void HttpClientImpl::request( std::string scheme, std::string host, uint16_t port, daw::nodepp::lib::http::HttpClientRequest request ) {
 						auto socket = m_client;
-						socket->on_connected( [socket, scheme, request, host, port]( ) {
+						socket->on_connected( [socket, scheme, request, host, port]( ) mutable {
 							auto const & request_line = request->request_line;
-							socket->write_async( to_string( request_line.method ) + " " + to_string( request_line.url ) + " HTTP/1.1\r\n" );
-							socket->write_async( "Host: " + host + ":" + std::to_string( port ) + "\r\n\r\n" );
-							socket->set_read_mode( net::NetSocketStreamReadMode::newline );
+							std::stringstream ss;
+							ss << to_string( request_line.method ) << " " << to_string( request_line.url ) << " HTTP/1.1\r\n";
+							ss << "Host: " << host << ":" << std::to_string( port ) << "\r\n\r\n";
+							auto msg = ss.str( );
+							socket->end( msg );
+							socket->set_read_mode( net::NetSocketStreamReadMode::double_newline );
 							socket->read_async( );
 						} ).on_data_received( [socket]( std::shared_ptr<base::data_t> data_buffer, bool ) {
-							std::string buf { data_buffer->begin( ), data_buffer->end( ) };
-							std::cout << buf << std::endl;
+							if( data_buffer ) {
+								for( auto const & ch : *data_buffer ) {
+									std::cout << ch;
+								}
+								std::cout << std::endl;
+							}
 						} );
 
 						socket->connect( host, port );

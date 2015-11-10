@@ -39,23 +39,23 @@ namespace daw {
 				std::string to_string( HttpClientRequestMethod method ) {
 					switch( method ) {
 					case HttpClientRequestMethod::Get:
-						return "Get";
+						return "GET";
 					case HttpClientRequestMethod::Post:
-						return "Post";
+						return "POST";
 					case HttpClientRequestMethod::Connect:
-						return "Connect";
+						return "CONNECT";
 					case HttpClientRequestMethod::Delete:
-						return "Delete";
+						return "DELETE";
 					case HttpClientRequestMethod::Head:
-						return "Head";
+						return "HEAD";
 					case HttpClientRequestMethod::Options:
-						return "Options";
+						return "OPTIONS";
 					case HttpClientRequestMethod::Put:
-						return "Put";
+						return "PUT";
 					case HttpClientRequestMethod::Trace:
-						return "Trace";
+						return "TRACE";
 					case HttpClientRequestMethod::Any:
-						return "Any";
+						return "ANY";
 					}
 
 					throw std::runtime_error( "Unrecognized HttpRequestMethod" );
