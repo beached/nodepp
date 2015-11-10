@@ -18,6 +18,7 @@ ENDIF( )
 
 
 find_package(Boost 1.55.0 COMPONENTS system filesystem regex REQUIRED)
+find_package(OpenSSL REQUIRED)
 
 if(THREADS_HAVE_PTHREAD_ARG)
 	set(COMPILER_SPECIFIC_LIBS, "-lpthread" )
