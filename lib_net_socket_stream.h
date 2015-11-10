@@ -23,6 +23,7 @@
 #pragma once
 
 #include <boost/asio.hpp>
+#include <boost/asio/ssl.hpp>
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -48,6 +49,7 @@ namespace daw {
 
 				NetSocketStream create_net_socket_stream( daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
 				NetSocketStream create_net_socket_stream( boost::asio::io_service& io_service, std::size_t max_read_size, daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
+				NetSocketStream create_net_ssl_socket_stream( daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
 
 				enum class NetSocketStreamReadMode { newline, buffer_full, predicate, next_byte, regex, values, double_newline };
 
@@ -57,6 +59,7 @@ namespace daw {
 						using match_function_t = std::function < std::pair<match_iterator_t, bool>( match_iterator_t begin, match_iterator_t end ) >;
 					private:
 						std::shared_ptr<boost::asio::ip::tcp::socket> m_socket;
+						namespace ssl = boost::asio::ssl;
 						daw::nodepp::base::EventEmitter m_emitter;
 
 						struct netsockstream_state_t {
