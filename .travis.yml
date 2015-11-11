@@ -3,7 +3,7 @@ language: cpp
 compiler:
   - gcc
 install:
-  - if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; ln -sf /usr/bin/gcc-5 /usr/bin/gcc; ln -sf /usr/bin/g++-5 /usr/bin/g++; fi
+  - if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; sudo ln -sf /usr/bin/gcc-5 /usr/bin/gcc; sudo ln -sf /usr/bin/g++-5 /usr/bin/g++; fi
   - g++ --version
   - wget -O boost_1_59_0.tar.bz2 http://sourceforge.net/projects/boost/files/boost/1.59.0/boost_1_59_0.tar.bz2/download
   - tar -xjf boost_1_59_0.tar.bz2
