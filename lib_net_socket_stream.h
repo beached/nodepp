@@ -118,8 +118,8 @@ namespace daw {
 						friend NetSocketStream daw::nodepp::lib::net::create_net_socket_stream( daw::nodepp::base::EventEmitter emitter );
 						friend NetSocketStream daw::nodepp::lib::net::create_net_socket_stream( boost::asio::io_service& io_service, std::size_t max_read_size, daw::nodepp::base::EventEmitter emitter );
 
-						NetSocketStreamImpl( NetSocketStreamImpl&& other );
-						NetSocketStreamImpl& operator=( NetSocketStreamImpl&& rhs );
+						NetSocketStreamImpl( NetSocketStreamImpl&& other ) = default;
+						NetSocketStreamImpl& operator=( NetSocketStreamImpl&& rhs ) = default;
 						~NetSocketStreamImpl( );
 
 						NetSocketStreamImpl( NetSocketStreamImpl const & ) = delete;

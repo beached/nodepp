@@ -85,32 +85,6 @@ namespace daw {
 						m_bytes_read( 0 ),
 						m_bytes_written( 0 ) { }
 
-					NetSocketStreamImpl::NetSocketStreamImpl( NetSocketStreamImpl && other ):
-						m_socket( std::move( other.m_socket ) ),
-						m_context( std::move( other.m_context ) ),
-						m_emitter( std::move( other.m_emitter ) ),
-						m_state( std::move( other.m_state ) ),
-						m_read_options( std::move( other.m_read_options ) ),
-						m_pending_writes( std::move( other.m_pending_writes ) ),
-						m_response_buffers( std::move( other.m_response_buffers ) ),
-						m_bytes_read( std::move( other.m_bytes_read ) ),
-						m_bytes_written( std::move( other.m_bytes_written ) ) { }
-
-					NetSocketStreamImpl& NetSocketStreamImpl::operator=( NetSocketStreamImpl && rhs ) {
-						if( this != &rhs ) {
-							m_socket = std::move( rhs.m_socket );
-							m_context = std::move( rhs.m_context );
-							m_emitter = std::move( rhs.m_emitter );
-							m_state = std::move( rhs.m_state );
-							m_read_options = std::move( rhs.m_read_options );
-							m_pending_writes = std::move( rhs.m_pending_writes );
-							m_response_buffers = std::move( rhs.m_response_buffers );
-							m_bytes_read = std::move( rhs.m_bytes_read );
-							m_bytes_written = std::move( rhs.m_bytes_written );
-						}
-						return *this;
-					}
-
 					NetSocketStreamImpl::~NetSocketStreamImpl( ) {
 						try {
 							if( m_socket && m_socket->is_open( ) ) {
