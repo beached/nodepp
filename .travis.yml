@@ -1,13 +1,11 @@
-sudo: required
+sudo: false
 language: cpp
 compiler:
   - gcc
 install:
-  - if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; sudo ln -sf /usr/bin/gcc-5 /usr/bin/gcc; sudo ln -sf /usr/bin/g++-5 /usr/bin/g++; fi
-  - g++ --version
-  - wget -O boost_1_59_0.tar.bz2 http://sourceforge.net/projects/boost/files/boost/1.59.0/boost_1_59_0.tar.bz2/download
-  - tar -xjf boost_1_59_0.tar.bz2
-  - cd boost_1_59_0 && ./bootstrap.sh --prefix=~/libboost_1_59_0 && ./b2 -d0 -q install && export BOOST_ROOT=~/libboost_1_59_0
+  - if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; fi
+  - export BOOST_ROOT=~/libboost_1_59_0
+  - bash travis_install_boost.sh
 cache:
   directories:
     - ~/libboost_1_59_0
