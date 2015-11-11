@@ -5,7 +5,7 @@ compiler:
 install:
   - if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; fi
   - export BOOST_ROOT=~/libboost_1_59_0/usr
-  - /bin/bash/bash travis_install_boost.sh || { rm -rf "$BOOST_ROOT" ; exit 1; }
+  - /bin/bash travis_install_boost.sh || { rm -rf "$BOOST_ROOT" ; exit 1; }
 cache:
   directories:
     - ~/libboost_1_59_0
