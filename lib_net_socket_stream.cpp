@@ -76,6 +76,7 @@ namespace daw {
 
 					NetSocketStreamImpl::NetSocketStreamImpl( boost::asio::io_service& io_service, std::size_t max_read_size, base::EventEmitter emitter ):
 						m_socket( std::make_shared<boost::asio::ip::tcp::socket>( io_service ) ),
+						m_context( boost::asio::ssl::context::tlsv12 ),	// TODO: better
 						m_emitter( std::move( emitter ) ),
 						m_state( ),
 						m_read_options( max_read_size ),
@@ -86,6 +87,7 @@ namespace daw {
 
 					NetSocketStreamImpl::NetSocketStreamImpl( NetSocketStreamImpl && other ):
 						m_socket( std::move( other.m_socket ) ),
+						m_context( std::move( other.m_context ) ),
 						m_emitter( std::move( other.m_emitter ) ),
 						m_state( std::move( other.m_state ) ),
 						m_read_options( std::move( other.m_read_options ) ),
@@ -97,6 +99,7 @@ namespace daw {
 					NetSocketStreamImpl& NetSocketStreamImpl::operator=( NetSocketStreamImpl && rhs ) {
 						if( this != &rhs ) {
 							m_socket = std::move( rhs.m_socket );
+							m_context = std::move( rhs.m_context );
 							m_emitter = std::move( rhs.m_emitter );
 							m_state = std::move( rhs.m_state );
 							m_read_options = std::move( rhs.m_read_options );
