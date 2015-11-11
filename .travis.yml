@@ -3,7 +3,7 @@ language: cpp
 compiler:
   - gcc
 install:
-  - if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; fi
+  - if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5" BOOST_CXX="g++-5"; else export BOOST_CXX="g++"; fi
   - export BOOST_ROOT=~/libboost_1_59_0/usr
   - /bin/bash travis_install_boost.sh || { rm -rf "$BOOST_ROOT" ; exit 1; }
 cache:
