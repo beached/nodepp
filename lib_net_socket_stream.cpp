@@ -65,6 +65,7 @@ namespace daw {
 
 					NetSocketStreamImpl::NetSocketStreamImpl( base::EventEmitter emitter ):
 						m_socket( std::make_shared<boost::asio::ip::tcp::socket>( base::ServiceHandle::get( ) ) ),
+						m_context( boost::asio::ssl::context::tlsv12 ),	// TODO: better
 						m_emitter( std::move( emitter ) ),
 						m_state( ),
 						m_read_options( ),

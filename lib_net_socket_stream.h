@@ -59,7 +59,7 @@ namespace daw {
 						using match_function_t = std::function < std::pair<match_iterator_t, bool>( match_iterator_t begin, match_iterator_t end ) >;
 					private:
 						std::shared_ptr<boost::asio::ip::tcp::socket> m_socket;
-						std::shared_ptr<boost::asio::ssl::context> m_context;
+						boost::asio::ssl::context m_context;
 						daw::nodepp::base::EventEmitter m_emitter;
 
 						struct netsockstream_state_t {
