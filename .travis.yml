@@ -4,17 +4,20 @@ compiler:
   - gcc
 install:
   - if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; fi
-
+  - wget -O boost_1_59_0.tar.bz2 http://sourceforge.net/projects/boost/files/boost/1.59.0/boost_1_59_0.tar.bz2/download
+  - tar -xjf boost_1_59_0.tar.bz2
+  - cd boost_1_59_0 && ./bootstrap.sh --prefix=~/libboost_1_59_0 && ./b2 install && export BOOST_ROOT=~/libboost_1_59_0
+cache:
+  directories:
+    - ~/libboost_1_59_0
 addons:
   apt:
     sources:
-      - boost-latest
       - ubuntu-toolchain-r-test
     packages:
       - cmake
       - g++-5
       - gcc-5
-      - libboost1.55-all-dev
 
 script:
   - test -d build || mkdir build
