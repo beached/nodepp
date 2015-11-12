@@ -2,13 +2,12 @@
 set -e
 
 # check to see if protobuf folder is empty
-if [ ! -d "$BOOST_ROOT" ]; then
-	echo "building boost"
-	wget -O boost_1_59_0.tar.bz2 http://sourceforge.net/projects/boost/files/boost/1.59.0/boost_1_59_0.tar.bz2/download;
-	tar -xjf boost_1_59_0.tar.bz2;
-	cd boost_1_59_0;
-	echo "using gcc : : $BOOST_CXX ;" > ~/user-config.jam
-	./bootstrap.sh --prefix="$BOOST_ROOT" && ./b2 install; 
-else
-	echo 'Using cached boost directory.';
+if [ ! -d ~/boost.git ]; then
+	git clone --recursive git@github.com:boostorg/boost.git ~/boost.git;
 fi
+
+echo "building boost";
+cd ~/boost.git;
+
+echo "using gcc : : $BOOST_CXX ;" > ~/user-config.jam;
+./bootstrap.sh --prefix="$BOOST_ROOT" && ./b2 --prefix="$BOOST_ROOT" && ./b2 --prefix="$BOOST_ROOT" headers && ./b2 --prefix="$BOOST_ROOT" install; 
