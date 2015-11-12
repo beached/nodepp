@@ -17,8 +17,8 @@ addons:
       - cmake
       - g++-5
       - gcc-5
-	  - libbz2-dev
-	  - libssl-dev
+      - libbz2-dev
+      - libssl-dev
       - git
 
 script:
