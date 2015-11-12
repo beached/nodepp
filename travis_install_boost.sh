@@ -4,6 +4,7 @@ set -e
 # check to see if protobuf folder is empty
 if [ ! -d ~/boost.git ]; then
 	git clone --recursive https://github.com/boostorg/boost.git ~/boost.git;
+	cd ~/boost.git
 	git checkout boost-1.59.0
 fi
 
