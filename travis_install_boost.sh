@@ -3,7 +3,7 @@ set -e
 
 # check to see if protobuf folder is empty
 if [ ! -d ~/boost.git ]; then
-	git clone --recursive git@github.com:boostorg/boost.git ~/boost.git;
+	git clone --recursive https://github.com/boostorg/boost.git ~/boost.git;
 fi
 
 echo "building boost";
