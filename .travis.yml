@@ -17,8 +17,12 @@ addons:
       - cmake
       - g++-5
       - gcc-5
+<<<<<<< HEAD
 	  - libbz2-dev
 	  - libssl-dev
+=======
+      - git
+>>>>>>> 425ee9751cd145f1bc506fd10f4766de744a66fb
 
 script:
   - test -d build || mkdir build
