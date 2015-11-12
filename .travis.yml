@@ -17,6 +17,7 @@ addons:
       - cmake
       - g++-5
       - gcc-5
+      - git
 
 script:
   - test -d build || mkdir build
