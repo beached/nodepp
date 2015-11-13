@@ -13,7 +13,9 @@ if [ ! -d $BOOST_ROOT ]; then
 	cd ~/boost.git;
 
 	echo "using gcc : : $BOOST_CXX ;" > ~/user-config.jam;
-	./bootstrap.sh --prefix="$BOOST_ROOT" && ./b2 --prefix="$BOOST_ROOT" headers && ./b2 --prefix="$BOOST_ROOT" install; 
+	./bootstrap.sh
+	
+	./b2 --prefix="$BOOST_ROOT" headers install; 
 else
 	echo "using cached boost folder"
 fi
