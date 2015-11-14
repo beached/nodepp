@@ -398,19 +398,19 @@ namespace daw {
 					}
 				}	// namespace impl
 
-				NetSocketStream daw::nodepp::lib::net::create_net_socket_stream( daw::nodepp::base::EventEmitter emitter ) {
+				NetSocketStream create_net_socket_stream( daw::nodepp::base::EventEmitter emitter ) {
 					auto result = NetSocketStream( new impl::NetSocketStreamImpl( emitter ) );
 					result->arm( "close" );
 					return result;
 				}
 
-				NetSocketStream daw::nodepp::lib::net::create_net_ssl_socket_stream( daw::nodepp::base::EventEmitter emitter ) {
+				NetSocketStream create_net_ssl_socket_stream( daw::nodepp::base::EventEmitter emitter ) {
 					auto result = NetSocketStream( new impl::NetSocketStreamImpl( emitter, true ) );
 					result->arm( "close" );
 					return result;
 				}
 
-				NetSocketStream & daw::nodepp::lib::net::operator<<( NetSocketStream & socket, boost::string_ref message ) {
+				NetSocketStream & operator<<( NetSocketStream & socket, boost::string_ref message ) {
 					if( socket ) {
 						socket->write_async( message );
 					} else {
