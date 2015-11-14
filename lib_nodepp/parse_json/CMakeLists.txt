@@ -27,7 +27,7 @@ set(SOURCE_FILES
 	daw_json_parser.h
 )
 
-include_directories( ../header_libraries )
+include_directories( ../../header_libraries )
 include_directories( ${Boost_INCLUDE_DIRS} )
 link_directories( ${Boost_LIBRARY_DIRS} )
 
