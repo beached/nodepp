@@ -63,23 +63,12 @@ namespace daw {
 						}
 					}	// namespace anonymous
 
-					NetSocketStreamImpl::NetSocketStreamImpl( base::EventEmitter emitter ):
+					NetSocketStreamImpl::NetSocketStreamImpl( base::EventEmitter emitter, bool use_ssl ):
 						m_socket( std::make_shared<boost::asio::ip::tcp::socket>( base::ServiceHandle::get( ) ) ),
 						m_context( boost::asio::ssl::context::tlsv12 ),	// TODO: better
 						m_emitter( std::move( emitter ) ),
 						m_state( ),
 						m_read_options( ),
-						m_pending_writes( new daw::thread::Semaphore<int>( ) ),
-						m_response_buffers( ),
-						m_bytes_read( 0 ),
-						m_bytes_written( 0 ) { }
-
-					NetSocketStreamImpl::NetSocketStreamImpl( boost::asio::io_service& io_service, std::size_t max_read_size, base::EventEmitter emitter ):
-						m_socket( std::make_shared<boost::asio::ip::tcp::socket>( io_service ) ),
-						m_context( boost::asio::ssl::context::tlsv12 ),	// TODO: better
-						m_emitter( std::move( emitter ) ),
-						m_state( ),
-						m_read_options( max_read_size ),
 						m_pending_writes( new daw::thread::Semaphore<int>( ) ),
 						m_response_buffers( ),
 						m_bytes_read( 0 ),
@@ -415,9 +404,9 @@ namespace daw {
 					return result;
 				}
 
-				NetSocketStream create_net_socket_stream( boost::asio::io_service& io_service, std::size_t max_read_size, base::EventEmitter emitter ) {
-					auto result = NetSocketStream( new impl::NetSocketStreamImpl( io_service, max_read_size, emitter ) );
-					result->arm( "closed" );
+				NetSocketStream create_net_ssl_socket_stream( daw::nodepp::base::EventEmitter emitter ) {
+					auto result = NetSocketStream( new impl::NetSocketStreamImpl( emitter, true ) );
+					result->arm( "close" );
 					return result;
 				}
 

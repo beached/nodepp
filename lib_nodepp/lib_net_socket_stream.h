@@ -48,7 +48,6 @@ namespace daw {
 				using NetSocketStream = std::shared_ptr < impl::NetSocketStreamImpl >;
 
 				NetSocketStream create_net_socket_stream( daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
-				NetSocketStream create_net_socket_stream( boost::asio::io_service& io_service, std::size_t max_read_size, daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
 				NetSocketStream create_net_ssl_socket_stream( daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
 
 				enum class NetSocketStreamReadMode { newline, buffer_full, predicate, next_byte, regex, values, double_newline };
@@ -111,12 +110,11 @@ namespace daw {
 						std::size_t m_bytes_read;
 						std::size_t m_bytes_written;
 
-						NetSocketStreamImpl( daw::nodepp::base::EventEmitter emitter );
-						NetSocketStreamImpl( boost::asio::io_service& io_service, std::size_t max_read_size, daw::nodepp::base::EventEmitter emitter );
+						NetSocketStreamImpl( daw::nodepp::base::EventEmitter emitter, bool use_ssl = false );
 
 					public:
 						friend NetSocketStream daw::nodepp::lib::net::create_net_socket_stream( daw::nodepp::base::EventEmitter emitter );
-						friend NetSocketStream daw::nodepp::lib::net::create_net_socket_stream( boost::asio::io_service& io_service, std::size_t max_read_size, daw::nodepp::base::EventEmitter emitter );
+						friend NetSocketStream daw::nodepp::lib::net::create_net_ssl_socket_stream( daw::nodepp::base::EventEmitter emitter );
 
 						NetSocketStreamImpl( NetSocketStreamImpl&& other ) = default;
 						NetSocketStreamImpl& operator=( NetSocketStreamImpl&& rhs ) = default;
