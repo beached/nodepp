@@ -40,15 +40,15 @@ namespace daw {
 					using namespace boost::asio::ip;
 					using namespace daw::nodepp;
 
-					NetDnsImpl::NetDnsImpl( base::EventEmitter emitter ) :
-						m_resolver( daw::make_unique<boost::asio::ip::tcp::resolver>( base::ServiceHandle::get( ) ) ),
+					NetDnsImpl::NetDnsImpl( base::EventEmitter emitter ):
+						m_resolver( daw::make_unique<Resolver>( base::ServiceHandle::get( ) ) ),
 						m_emitter( emitter ) { }
 
 					NetDnsImpl::NetDnsImpl( NetDnsImpl&& other ):
 						m_resolver( std::move( other.m_resolver ) ),
 						m_emitter( std::move( other.m_emitter ) ) { }
 
-					NetDnsImpl& NetDnsImpl::operator=(NetDnsImpl && rhs) {
+					NetDnsImpl& NetDnsImpl::operator=( NetDnsImpl && rhs ) {
 						if( this != &rhs ) {
 							m_resolver = std::move( rhs.m_resolver );
 							m_emitter = std::move( rhs.m_emitter );
@@ -60,10 +60,10 @@ namespace daw {
 						return m_emitter;
 					}
 
-					void NetDnsImpl::resolve( boost::asio::ip::tcp::resolver::query & query ) {
+					void NetDnsImpl::resolve( Resolver::query & query ) {
 						std::weak_ptr<NetDnsImpl> obj( this->get_ptr( ) );
 
-						m_resolver->async_resolve( query, [obj]( boost::system::error_code const & err, boost::asio::ip::tcp::resolver::iterator it ) {
+						m_resolver->async_resolve( query, [obj]( base::ErrorCode const & err, Resolver::iterator it ) {
 							handle_resolve( obj, err, std::move( it ) );
 						} );
 					}
@@ -78,17 +78,17 @@ namespace daw {
 						resolve( query );
 					}
 
-					NetDnsImpl& NetDnsImpl::on_resolved( std::function<void( boost::asio::ip::tcp::resolver::iterator )> listener ) {
+					NetDnsImpl& NetDnsImpl::on_resolved( std::function<void( Resolver::iterator )> listener ) {
 						emitter( )->add_listener( "resolved", listener );
 						return *this;
 					}
 
-					NetDnsImpl& NetDnsImpl::on_next_resolved( std::function<void( boost::asio::ip::tcp::resolver::iterator )> listener ) {
+					NetDnsImpl& NetDnsImpl::on_next_resolved( std::function<void( Resolver::iterator )> listener ) {
 						emitter( )->add_listener( "resolved", listener, true );
 						return *this;
 					}
 
-					void NetDnsImpl::handle_resolve( std::weak_ptr<NetDnsImpl> obj, boost::system::error_code const & err, boost::asio::ip::tcp::resolver::iterator it ) {
+					void NetDnsImpl::handle_resolve( std::weak_ptr<NetDnsImpl> obj, base::ErrorCode const & err, Resolver::iterator it ) {
 						run_if_valid( obj, "Exception while resolving dns query", "NetDnsImpl::handle_resolve", [&]( NetDns self ) {
 							if( !err ) {
 								self->emit_resolved( std::move( it ) );
@@ -98,7 +98,7 @@ namespace daw {
 						} );
 					}
 
-					void NetDnsImpl::emit_resolved( boost::asio::ip::tcp::resolver::iterator it ) {
+					void NetDnsImpl::emit_resolved( Resolver::iterator it ) {
 						emitter( )->emit( "resolved", std::move( it ) );
 					}
 				}	// namespace impl

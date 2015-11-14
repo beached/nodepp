@@ -41,7 +41,7 @@ namespace daw {
 					using namespace daw::nodepp;
 					using namespace boost::asio::ip;
 
-					NetServerImpl::NetServerImpl( base::EventEmitter emitter ) :
+					NetServerImpl::NetServerImpl( base::EventEmitter emitter ):
 						m_acceptor( std::make_shared<boost::asio::ip::tcp::acceptor>( base::ServiceHandle::get( ) ) ),
 						m_emitter( emitter ) { }
 
@@ -49,7 +49,7 @@ namespace daw {
 						m_acceptor( std::move( other.m_acceptor ) ),
 						m_emitter( std::move( other.m_emitter ) ) { }
 
-					NetServerImpl& NetServerImpl::operator=(NetServerImpl && rhs) {
+					NetServerImpl& NetServerImpl::operator=( NetServerImpl && rhs ) {
 						if( this != &rhs ) {
 							m_acceptor = std::move( rhs.m_acceptor );
 							m_emitter = std::move( rhs.m_emitter );
@@ -62,7 +62,7 @@ namespace daw {
 					}
 
 					void NetServerImpl::listen( uint16_t port ) {
-						auto endpoint = boost::asio::ip::tcp::endpoint( boost::asio::ip::tcp::v4( ), port );
+						auto endpoint = EndPoint( boost::asio::ip::tcp::v4( ), port );
 						m_acceptor->open( endpoint.protocol( ) );
 						m_acceptor->set_option( boost::asio::ip::tcp::acceptor::reuse_address( true ) );
 						m_acceptor->bind( endpoint );
@@ -106,7 +106,7 @@ namespace daw {
 						return *this;
 					}
 
-					NetServerImpl& NetServerImpl::on_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener ) {
+					NetServerImpl& NetServerImpl::on_listening( std::function<void( EndPoint )> listener ) {
 						emitter( )->add_listener( "listening", listener );
 						return *this;
 					}
@@ -121,7 +121,7 @@ namespace daw {
 						return *this;
 					}
 
-					void NetServerImpl::handle_accept( std::weak_ptr<NetServerImpl> obj, NetSocketStream&& socket, boost::system::error_code const & err ) {
+					void NetServerImpl::handle_accept( std::weak_ptr<NetServerImpl> obj, NetSocketStream&& socket, base::ErrorCode const & err ) {
 						auto msocket = daw::as_move_capture( std::move( socket ) );
 						run_if_valid( obj, "Exception while accepting connections", "NetServerImpl::handle_accept", [msocket, &err]( NetServer self ) mutable {
 							if( !err ) {
@@ -143,7 +143,7 @@ namespace daw {
 						auto socket = as_move_capture( std::move( socket_sp ) );
 
 						std::weak_ptr<NetServerImpl> obj = this->get_ptr( );
-						auto handler = [obj, socket]( boost::system::error_code const & err ) mutable {
+						auto handler = [obj, socket]( base::ErrorCode const & err ) mutable {
 							handle_accept( obj, socket.move_out( ), err );
 						};
 						m_acceptor->async_accept( boost_socket, handler );
@@ -153,7 +153,7 @@ namespace daw {
 						emitter( )->emit( "connection", std::move( socket ) );
 					}
 
-					void NetServerImpl::emit_listening( boost::asio::ip::tcp::endpoint endpoint ) {
+					void NetServerImpl::emit_listening( EndPoint endpoint ) {
 						emitter( )->emit( "listening", std::move( endpoint ) );
 					}
 

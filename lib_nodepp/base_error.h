@@ -32,6 +32,8 @@
 namespace daw {
 	namespace nodepp {
 		namespace base {
+			using ErrorCode = boost::system::error_code;
+
 			//////////////////////////////////////////////////////////////////////////
 			// Summary:		Contains key/value pairs describing an error condition.
 			//				Description is mandatory.
@@ -45,12 +47,12 @@ namespace daw {
 				Error( ) = delete;
 				virtual ~Error( );
 				explicit Error( boost::string_ref description );
-				explicit Error( boost::system::error_code const & err );
+				explicit Error( ErrorCode const & err );
 				Error( Error && );
 				Error( Error const & ) = default;
 				explicit Error( boost::string_ref description, std::exception_ptr ex_ptr );
-				Error& operator=(Error const &) = default;
-				Error& operator=(Error && rhs);
+				Error& operator=( Error const & ) = default;
+				Error& operator=( Error && rhs );
 
 				Error& add( boost::string_ref name, boost::string_ref value );
 				boost::string_ref get( boost::string_ref name ) const;
@@ -65,9 +67,9 @@ namespace daw {
 				std::string to_string( boost::string_ref prefix = "" ) const;
 			};	// class Error
 
-			std::ostream& operator<<(std::ostream& os, Error const & error);
+			std::ostream& operator<<( std::ostream& os, Error const & error );
 
-			using OptionalError = std::shared_ptr < Error > ;
+			using OptionalError = std::shared_ptr < Error >;
 
 			//////////////////////////////////////////////////////////////////////////
 			/// Summary:	Create a null error (e.g. no error)

@@ -52,6 +52,7 @@ namespace daw {
 			}	// namespace impl
 
 			using EventEmitter = ::std::shared_ptr < impl::EventEmitterImpl >;
+
 			EventEmitter create_event_emitter( );
 
 			namespace impl {
@@ -297,7 +298,7 @@ namespace daw {
 
 				//////////////////////////////////////////////////////////////////////////
 				/// Summary: Emit an error event
-				void emit_error( boost::system::error_code const & error, boost::string_ref where ) {
+				void emit_error( ErrorCode const & error, boost::string_ref where ) {
 					base::Error err( error );
 					err.add( "where", where.to_string( ) );
 
@@ -369,7 +370,7 @@ namespace daw {
 				///				callbacks are of the form std::function<void( )> the
 				///				callback parameters must be template parameters here.
 				///				e.g.
-				///				obj_emitter.delegate_to<boost::asio::ip::tcp::endpoint>( "listening", dest_obj.get_weak_ptr( ), "listening" );
+				///				obj_emitter.delegate_to<daw::nodepp::lib::net::EndPoint>( "listening", dest_obj.get_weak_ptr( ), "listening" );
 				template<typename... Args, typename DestinationType>
 				Derived& delegate_to( boost::string_ref source_event, std::weak_ptr<DestinationType> destination_obj, std::string destination_event ) {
 					auto handler = [destination_obj, destination_event]( Args... args ) {

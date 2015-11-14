@@ -42,6 +42,7 @@ namespace daw {
 				using NetDns = std::shared_ptr < impl::NetDnsImpl >;
 
 				NetDns create_net_dns( daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
+				using Resolver = boost::asio::ip::tcp::resolver;
 
 				namespace impl {
 					class NetDnsImpl: public daw::nodepp::base::enable_shared<NetDnsImpl>, public daw::nodepp::base::StandardEvents < NetDnsImpl > {
@@ -50,7 +51,7 @@ namespace daw {
 					public:
 						friend daw::nodepp::lib::net::NetDns daw::nodepp::lib::net::create_net_dns( daw::nodepp::base::EventEmitter );
 
-						using handler_argument_t = boost::asio::ip::tcp::resolver::iterator;
+						using handler_argument_t = Resolver::iterator;
 
 						NetDnsImpl( NetDnsImpl&& other );
 						NetDnsImpl& operator=( NetDnsImpl && rhs );
@@ -62,29 +63,29 @@ namespace daw {
 						daw::nodepp::base::EventEmitter& emitter( );
 						//////////////////////////////////////////////////////////////////////////
 						// Summary: resolve name or ip address and call callback of form
-						// void(boost::system::error_code, boost::asio::ip::tcp::resolver::iterator)
+						// void(base::ErrorCode, Resolver::iterator)
 						void resolve( boost::string_ref address );
 						void resolve( boost::string_ref address, uint16_t port );
-						void resolve( boost::asio::ip::tcp::resolver::query & query );
+						void resolve( Resolver::query & query );
 						// Event callbacks
 
 						//////////////////////////////////////////////////////////////////////////
 						/// Summary: Event emitted when name resolution is complete
-						NetDnsImpl& on_resolved( std::function<void( boost::asio::ip::tcp::resolver::iterator )> listener );
+						NetDnsImpl& on_resolved( std::function<void( Resolver::iterator )> listener );
 
 						//////////////////////////////////////////////////////////////////////////
 						/// Summary: Event emitted when name resolution is complete
-						NetDnsImpl& on_next_resolved( std::function<void( boost::asio::ip::tcp::resolver::iterator )> listener );
+						NetDnsImpl& on_next_resolved( std::function<void( Resolver::iterator )> listener );
 
 					private:
-						std::unique_ptr<boost::asio::ip::tcp::resolver> m_resolver;
+						std::unique_ptr<Resolver> m_resolver;
 						daw::nodepp::base::EventEmitter m_emitter;
 
-						static void handle_resolve( std::weak_ptr<NetDnsImpl> obj, boost::system::error_code const & err, boost::asio::ip::tcp::resolver::iterator it );
+						static void handle_resolve( std::weak_ptr<NetDnsImpl> obj, base::ErrorCode const & err, Resolver::iterator it );
 
 						//////////////////////////////////////////////////////////////////////////
 						/// Summary: Event emitted when async resolve is complete
-						void emit_resolved( boost::asio::ip::tcp::resolver::iterator it );
+						void emit_resolved( Resolver::iterator it );
 					};	// class NetDnsImpl
 				}	// namespace impl
 			}	// namespace net

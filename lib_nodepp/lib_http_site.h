@@ -126,9 +126,9 @@ namespace daw {
 						HttpSiteImpl& on_page_error( uint16_t error_no, std::function < void( daw::nodepp::lib::http::HttpClientRequest, daw::nodepp::lib::http::HttpServerResponse, uint16_t error_number ) > listener );
 
 						void emit_page_error( daw::nodepp::lib::http::HttpClientRequest request, daw::nodepp::lib::http::HttpServerResponse response, uint16_t error_no );
-						void emit_listening( boost::asio::ip::tcp::endpoint endpoint );
+						void emit_listening( daw::nodepp::lib::net::EndPoint endpoint );
 
-						HttpSiteImpl& on_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener );
+						HttpSiteImpl& on_listening( std::function<void( daw::nodepp::lib::net::EndPoint )> listener );
 						HttpSiteImpl& listen_on( uint16_t port );
 					};	// class HttpSiteImpl
 				}	// namespace impl

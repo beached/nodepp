@@ -64,7 +64,7 @@ namespace daw {
 					}	// namespace anonymous
 
 					NetSocketStreamImpl::NetSocketStreamImpl( base::EventEmitter emitter, bool use_ssl ):
-						m_socket( std::make_shared<boost::asio::ip::tcp::socket>( base::ServiceHandle::get( ) ) ),
+						m_socket( std::make_shared<daw::nodepp::lib::net::RawSocket>( base::ServiceHandle::get( ) ) ),
 						m_context( boost::asio::ssl::context::tlsv12 ),	// TODO: better
 						m_emitter( std::move( emitter ) ),
 						m_state( ),
@@ -77,7 +77,7 @@ namespace daw {
 					NetSocketStreamImpl::~NetSocketStreamImpl( ) {
 						try {
 							if( m_socket && m_socket->is_open( ) ) {
-								boost::system::error_code ec;
+								base::ErrorCode ec;
 								m_socket->shutdown( boost::asio::socket_base::shutdown_both, ec );
 								m_socket->close( ec );
 							}
@@ -121,7 +121,7 @@ namespace daw {
 						return *this;
 					}
 
-					void NetSocketStreamImpl::handle_connect( std::weak_ptr<NetSocketStreamImpl> obj, boost::system::error_code const & err, tcp::resolver::iterator ) {
+					void NetSocketStreamImpl::handle_connect( std::weak_ptr<NetSocketStreamImpl> obj, base::ErrorCode const & err, tcp::resolver::iterator ) {
 						run_if_valid( obj, "Exception while connecting", "NetSocketStreamImpl::handle_connect", [&err]( NetSocketStream self ) {
 							if( !err ) {
 								try {
@@ -135,7 +135,7 @@ namespace daw {
 						} );
 					}
 
-					void NetSocketStreamImpl::handle_read( std::weak_ptr<NetSocketStreamImpl> obj, std::shared_ptr<boost::asio::streambuf> read_buffer, boost::system::error_code const & err, std::size_t const & bytes_transfered ) {
+					void NetSocketStreamImpl::handle_read( std::weak_ptr<NetSocketStreamImpl> obj, std::shared_ptr<daw::nodepp::base::stream::StreamBuf> read_buffer, base::ErrorCode const & err, std::size_t const & bytes_transfered ) {
 						run_if_valid( obj, "Exception while handling read", "NetSocketStreamImpl::handle_read", [&]( NetSocketStream self ) {
 							auto& response_buffers = self->m_response_buffers;
 
@@ -171,7 +171,7 @@ namespace daw {
 						} );
 					}
 
-					void NetSocketStreamImpl::handle_write( std::weak_ptr<daw::thread::Semaphore<int>> outstanding_writes, std::weak_ptr<NetSocketStreamImpl> obj, base::write_buffer buff, boost::system::error_code const & err, size_t const & bytes_transfered ) { // TODO: see if we need buff, maybe lifetime issue
+					void NetSocketStreamImpl::handle_write( std::weak_ptr<daw::thread::Semaphore<int>> outstanding_writes, std::weak_ptr<NetSocketStreamImpl> obj, base::write_buffer buff, base::ErrorCode const & err, size_t const & bytes_transfered ) { // TODO: see if we need buff, maybe lifetime issue
 						run_if_valid( obj, "Exception while handling write", "NetSocketStreamImpl::handle_write", [&]( NetSocketStream self ) {
 							self->m_bytes_written += bytes_transfered;
 							if( !err ) {
@@ -208,22 +208,22 @@ namespace daw {
 						auto outstanding_writes = m_pending_writes->get_weak_ptr( );
 
 						m_pending_writes->inc_counter( );
-						boost::asio::async_write( *m_socket, buff.asio_buff( ), [outstanding_writes, obj, buff]( boost::system::error_code const & err, size_t bytes_transfered ) mutable {
+						boost::asio::async_write( *m_socket, buff.asio_buff( ), [outstanding_writes, obj, buff]( base::ErrorCode const & err, size_t bytes_transfered ) mutable {
 							handle_write( outstanding_writes, obj, buff, err, bytes_transfered );
 						} );
 					}
 
-					NetSocketStreamImpl&  NetSocketStreamImpl::read_async( std::shared_ptr<boost::asio::streambuf> read_buffer ) {
+					NetSocketStreamImpl&  NetSocketStreamImpl::read_async( std::shared_ptr<daw::nodepp::base::stream::StreamBuf> read_buffer ) {
 						try {
 							if( m_state.closed ) {
 								return *this;
 							}
 							if( !read_buffer ) {
-								read_buffer = std::make_shared<boost::asio::streambuf>( m_read_options.max_read_size );
+								read_buffer = std::make_shared<daw::nodepp::base::stream::StreamBuf>( m_read_options.max_read_size );
 							}
 
 							auto obj = this->get_weak_ptr( );
-							auto handler = [obj, read_buffer]( boost::system::error_code const & err, std::size_t bytes_transfered ) mutable {
+							auto handler = [obj, read_buffer]( base::ErrorCode const & err, std::size_t bytes_transfered ) mutable {
 								handle_read( obj, read_buffer, err, bytes_transfered );
 							};
 							static boost::regex const dbl_newline( R"((?:\r\n|\n){2})" );
@@ -273,7 +273,7 @@ namespace daw {
 						tcp::resolver resolver( base::ServiceHandle::get( ) );
 
 						auto obj = this->get_weak_ptr( );
-						boost::asio::async_connect( *m_socket, resolver.resolve( { host.to_string( ), std::to_string( port ) } ), [obj]( boost::system::error_code const & err, tcp::resolver::iterator it ) {
+						boost::asio::async_connect( *m_socket, resolver.resolve( { host.to_string( ), std::to_string( port ) } ), [obj]( base::ErrorCode const & err, tcp::resolver::iterator it ) {
 							handle_connect( obj, err, it );
 						} );
 						return *this;
@@ -285,7 +285,7 @@ namespace daw {
 						return m_socket->is_open( );
 					}
 
-					boost::asio::ip::tcp::socket & NetSocketStreamImpl::socket( ) {
+					daw::nodepp::lib::net::RawSocket & NetSocketStreamImpl::socket( ) {
 						return *m_socket;
 					}
 
@@ -302,7 +302,7 @@ namespace daw {
 					NetSocketStreamImpl&  NetSocketStreamImpl::end( ) {
 						m_state.end = true;
 						try {
-							m_socket->shutdown( boost::asio::ip::tcp::socket::shutdown_send );
+							m_socket->shutdown( daw::nodepp::lib::net::RawSocket::shutdown_send );
 						} catch( ... ) {
 							emit_error( std::current_exception( ), "Error calling shutdown on socket", "NetSocketStreamImplImpl::end( )" );
 						}
@@ -326,13 +326,13 @@ namespace daw {
 						m_state.end = true;
 						try {
 							if( m_socket && m_socket->is_open( ) ) {
-								boost::system::error_code err;
-								m_socket->shutdown( boost::asio::ip::tcp::socket::shutdown_both, err );
+								base::ErrorCode err;
+								m_socket->shutdown( daw::nodepp::lib::net::RawSocket::shutdown_both, err );
 								if( emit_cb && err && err.value( ) != 107 ) {	// Already shutdown is ignored
 									emit_error( err, "NetSocketStreamImpl::close#shutdown" );
 								}
 								if( !m_state.closed ) {
-									err = boost::system::error_code( );
+									err = base::ErrorCode( );
 									m_socket->close( err );
 									if( emit_cb && err ) {
 										emit_error( err, "NetSocketStreamImpl::close#close" );
@@ -398,19 +398,19 @@ namespace daw {
 					}
 				}	// namespace impl
 
-				NetSocketStream create_net_socket_stream( base::EventEmitter emitter ) {
+				NetSocketStream daw::nodepp::lib::net::create_net_socket_stream( daw::nodepp::base::EventEmitter emitter ) {
 					auto result = NetSocketStream( new impl::NetSocketStreamImpl( emitter ) );
 					result->arm( "close" );
 					return result;
 				}
 
-				NetSocketStream create_net_ssl_socket_stream( daw::nodepp::base::EventEmitter emitter ) {
+				NetSocketStream daw::nodepp::lib::net::create_net_ssl_socket_stream( daw::nodepp::base::EventEmitter emitter ) {
 					auto result = NetSocketStream( new impl::NetSocketStreamImpl( emitter, true ) );
 					result->arm( "close" );
 					return result;
 				}
 
-				NetSocketStream& operator<<( NetSocketStream &socket, boost::string_ref message ) {
+				NetSocketStream & daw::nodepp::lib::net::operator<<( NetSocketStream & socket, boost::string_ref message ) {
 					if( socket ) {
 						socket->write_async( message );
 					} else {

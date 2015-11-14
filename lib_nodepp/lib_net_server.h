@@ -42,6 +42,7 @@ namespace daw {
 				}
 
 				using NetServer = std::shared_ptr < impl::NetServerImpl >;
+				using EndPoint = boost::asio::ip::tcp::endpoint;
 
 				NetServer create_net_server( daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
 
@@ -89,7 +90,7 @@ namespace daw {
 						//////////////////////////////////////////////////////////////////////////
 						/// Summary:	Event emitted when the server is bound after calling
 						/// listen( ... )
-						NetServerImpl& on_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener );
+						NetServerImpl& on_listening( std::function<void( EndPoint )> listener );
 
 						//////////////////////////////////////////////////////////////////////////
 						/// Summary:	Event emitted when the server is bound after calling
@@ -108,7 +109,7 @@ namespace daw {
 						//////////////////////////////////////////////////////////////////////////
 						/// Summary:	Event emitted when the server is bound after calling
 						///				listen( ... )
-						void emit_listening( boost::asio::ip::tcp::endpoint endpoint );
+						void emit_listening( EndPoint endpoint );
 
 						//////////////////////////////////////////////////////////////////////////
 						/// Summary:	Event emitted when the server is bound after calling
@@ -117,7 +118,7 @@ namespace daw {
 
 					private:
 
-						static void handle_accept( std::weak_ptr<NetServerImpl> obj, NetSocketStream&& socket, boost::system::error_code const & err );
+						static void handle_accept( std::weak_ptr<NetServerImpl> obj, NetSocketStream&& socket, base::ErrorCode const & err );
 
 						void start_accept( );
 					};	// class NetServerImpl

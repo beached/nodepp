@@ -28,8 +28,8 @@
 namespace daw {
 	namespace nodepp {
 		namespace base {
-			boost::asio::io_service& ServiceHandle::get( ) {
-				static boost::asio::io_service result;
+			IoService& ServiceHandle::get( ) {
+				static IoService result;
 				return result;
 			}
 
@@ -46,7 +46,7 @@ namespace daw {
 			}
 
 			void ServiceHandle::work( ) {
-				boost::asio::io_service::work work( get( ) );
+				IoService::work work( get( ) );
 			}
 
 			void start_service( StartServiceMode mode ) {

@@ -31,8 +31,10 @@
 namespace daw {
 	namespace nodepp {
 		namespace base {
+			using IoService = boost::asio::io_service;
+
 			struct ServiceHandle {
-				static boost::asio::io_service& get( );
+				static IoService& get( );
 				static void run( );
 				static void stop( );
 				static void reset( );

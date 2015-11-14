@@ -102,8 +102,8 @@ namespace daw {
 							throw std::runtime_error( "Method not implemented" );
 						}
 
-						HttpServerImpl& on_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener );
-						HttpServerImpl& on_next_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener );
+						HttpServerImpl& on_listening( std::function<void( daw::nodepp::lib::net::EndPoint )> listener );
+						HttpServerImpl& on_next_listening( std::function<void( daw::nodepp::lib::net::EndPoint )> listener );
 
 						HttpServerImpl& on_client_connected( std::function<void( HttpConnection )> listener );
 						HttpServerImpl& on_next_client_connected( std::function<void( HttpConnection )> listener );
@@ -115,7 +115,7 @@ namespace daw {
 
 						void emit_client_connected( HttpConnection connection );
 						void emit_closed( );
-						void emit_listening( boost::asio::ip::tcp::endpoint endpoint );
+						void emit_listening( daw::nodepp::lib::net::EndPoint endpoint );
 					};	// class Server
 				}	// namespace impl
 			}	// namespace http

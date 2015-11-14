@@ -69,7 +69,7 @@ namespace daw {
 
 					void HttpSiteImpl::start( ) {
 						m_server->on_error( this->get_weak_ptr( ), "Child" )
-							.delegate_to<boost::asio::ip::tcp::endpoint>( "listening", this->get_weak_ptr( ), "listening" )
+							.delegate_to<daw::nodepp::lib::net::EndPoint>( "listening", this->get_weak_ptr( ), "listening" )
 							.on_client_connected( [&]( HttpConnection connection ) {
 							auto obj = this->get_weak_ptr( );
 							connection->
@@ -190,11 +190,11 @@ namespace daw {
 						handler( request, response, error_no );
 					}
 
-					void HttpSiteImpl::emit_listening( boost::asio::ip::tcp::endpoint endpoint ) {
+					void HttpSiteImpl::emit_listening( daw::nodepp::lib::net::EndPoint endpoint ) {
 						emitter( )->emit( "listening", std::move( endpoint ) );
 					}
 
-					HttpSiteImpl& HttpSiteImpl::on_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener ) {
+					HttpSiteImpl& HttpSiteImpl::on_listening( std::function<void( daw::nodepp::lib::net::EndPoint )> listener ) {
 						emitter( )->add_listener( "listening", listener );
 						return *this;
 					}

@@ -32,6 +32,8 @@ namespace daw {
 	namespace nodepp {
 		namespace base {
 			namespace stream {
+				using StreamBuf = boost::asio::streambuf;
+
 				template<typename Derived>
 				class StreamWritableEvents {
 					Derived& child( ) {

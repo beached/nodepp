@@ -42,7 +42,7 @@ namespace daw {
 				namespace impl {
 					using namespace daw::nodepp;
 
-					HttpServerImpl::HttpServerImpl( base::EventEmitter emitter ) :
+					HttpServerImpl::HttpServerImpl( base::EventEmitter emitter ):
 						m_netserver( lib::net::create_net_server( ) ),
 						m_emitter( std::move( emitter ) ),
 						m_connections( ) { }
@@ -52,7 +52,7 @@ namespace daw {
 						m_emitter( std::move( other.m_emitter ) ),
 						m_connections( std::move( other.m_connections ) ) { }
 
-					HttpServerImpl& HttpServerImpl::operator=(HttpServerImpl && rhs) {
+					HttpServerImpl& HttpServerImpl::operator=( HttpServerImpl && rhs ) {
 						if( this != &rhs ) {
 							m_netserver = std::move( rhs.m_netserver );
 							m_emitter = std::move( rhs.m_emitter );
@@ -73,7 +73,7 @@ namespace daw {
 						emitter( )->emit( "closed" );
 					}
 
-					void HttpServerImpl::emit_listening( boost::asio::ip::tcp::endpoint endpoint ) {
+					void HttpServerImpl::emit_listening( daw::nodepp::lib::net::EndPoint endpoint ) {
 						emitter( )->emit( "listening", std::move( endpoint ) );
 					}
 
@@ -107,7 +107,7 @@ namespace daw {
 						std::weak_ptr<HttpServerImpl> obj = this->get_ptr( );
 						m_netserver->on_connection( [obj]( lib::net::NetSocketStream socket ) { handle_connection( obj, std::move( socket ) ); } )
 							.on_error( obj, "HttpServerImpl::listen_on" )
-							.delegate_to<boost::asio::ip::tcp::endpoint>( "listening", obj, "listening" )
+							.delegate_to<daw::nodepp::lib::net::EndPoint>( "listening", obj, "listening" )
 							.listen( port );
 					}
 
@@ -122,12 +122,12 @@ namespace daw {
 
 					size_t HttpServerImpl::timeout( ) const { throw std::runtime_error( "Method not implemented" ); }
 
-					HttpServerImpl& HttpServerImpl::on_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener ) {
+					HttpServerImpl& HttpServerImpl::on_listening( std::function<void( daw::nodepp::lib::net::EndPoint )> listener ) {
 						emitter( )->add_listener( "listening", listener );
 						return *this;
 					}
 
-					HttpServerImpl& HttpServerImpl::on_next_listening( std::function<void( boost::asio::ip::tcp::endpoint )> listener ) {
+					HttpServerImpl& HttpServerImpl::on_next_listening( std::function<void( daw::nodepp::lib::net::EndPoint )> listener ) {
 						emitter( )->add_listener( "listening", listener, true );
 						return *this;
 					}

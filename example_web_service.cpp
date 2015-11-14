@@ -65,7 +65,7 @@ int main( int, char const ** ) {
 
 	test->connect( site );
 
-	site->on_listening( []( boost::asio::ip::tcp::endpoint endpoint ) {
+	site->on_listening( []( daw::nodepp::lib::net::EndPoint endpoint ) {
 		std::cout << "Listening on " << endpoint << "\n";
 	} ).on_requests_for( HttpClientRequestMethod::Get, "/", [&]( HttpClientRequest request, HttpServerResponse response ) {
 		auto req = request->encode( );
