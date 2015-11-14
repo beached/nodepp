@@ -11,7 +11,7 @@ ELSEIF( ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang" )
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -stdlib=libc++ -g -O3 -Weverything -Wno-c++98-compat  -Wfatal-errors -Wno-covered-switch-default -Wno-padded -Wno-exit-time-destructors -Wno-c++98-compat-pedantic -Wno-unused-parameter -Wno-missing-noreturn -Wno-missing-prototypes")
 ELSEIF( ${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" )
 	MESSAGE( WARNING "Using G++" )
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g -O3 -Wall")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g -O3 -Wall -Wdeprecated-declarations")
 ENDIF( )
 
 
@@ -33,6 +33,8 @@ enable_testing( )
 
 #add_definitions( -DBOOST_TEST_MAIN )
 ADD_DEFINITIONS(-DBOOST_TEST_DYN_LINK) 
+INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
+LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 
 foreach( CUR_PREFIX ${HEADER_PREFIXES} )
 	add_executable( ${CUR_PREFIX}_test_bin ${CUR_PREFIX}.h ${CUR_PREFIX}_test.cpp header_libraries_test/test_main.cpp )

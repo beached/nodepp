@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.4)
 
 project(NodePP)
 
-find_package(Boost 1.55.0 COMPONENTS system filesystem regex REQUIRED)
+find_package(Boost 1.55.0 COMPONENTS system filesystem regex unit_test_framework REQUIRED)
 find_package(OpenSSL REQUIRED)
 
 MESSAGE( WARNING "Current Compiler:" ${CMAKE_CXX_COMPILER_ID} )
@@ -16,7 +16,7 @@ ELSEIF( ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang" )
 ELSEIF( ${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" )
 	MESSAGE( WARNING "Using G++" )
 	find_package(Threads REQUIRED)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g -O3 -Wall")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g -O3 -Wall -Wdeprecated-declarations")
 ENDIF( )
 
 if(THREADS_HAVE_PTHREAD_ARG)
