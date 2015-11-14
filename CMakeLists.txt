@@ -16,7 +16,7 @@ ELSEIF( ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang" )
 ELSEIF( ${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" )
 	MESSAGE( WARNING "Using G++" )
 	find_package(Threads REQUIRED)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g -O3 -Wall -Wdeprecated-declarations")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g -O3 -Wall -Wno-deprecated-declarations")
 ENDIF( )
 
 if(THREADS_HAVE_PTHREAD_ARG)
