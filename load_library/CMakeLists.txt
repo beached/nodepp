@@ -14,7 +14,7 @@ ELSEIF( ${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" )
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g -O3 -Wall -Wno-deprecated-declarations")
 ENDIF( )
 
-find_package(Boost 1.55.0 COMPONENTS system filesystem unit_test_framework REQUIRED)
+find_package(Boost 1.59.0 COMPONENTS system filesystem unit_test_framework REQUIRED)
 
 set(SOURCE_FILES
 	load_library.cpp
