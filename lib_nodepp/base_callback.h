@@ -24,7 +24,6 @@
 
 #include <atomic>
 #include <boost/any.hpp>
-#include <cstdint>
 #include <functional>
 #include <stdexcept>
 
@@ -51,27 +50,27 @@ namespace daw {
 				~Callback( ) = default;
 
 				template<typename Listener, typename = typename std::enable_if<!std::is_same<Listener, Callback>::value>::type>
-				Callback( Listener listener ) : m_id( s_last_id++ ), m_callback( daw::make_function( listener ) ) { }
+				Callback( Listener listener ): m_id( s_last_id++ ), m_callback( daw::make_function( listener ) ) { }
 
 				Callback( Callback const & ) = default;
 
-				Callback& operator=(Callback const &) = default;
+				Callback& operator=( Callback const & ) = default;
 
 				Callback( Callback && other );
 
-				Callback& operator=(Callback && rhs);
+				Callback& operator=( Callback && rhs );
 
 				const id_t& id( ) const;
 
 				void swap( Callback& rhs );
 
-				bool operator==(Callback const & rhs) const;
+				bool operator==( Callback const & rhs ) const;
 
 				bool empty( ) const;
 
 				template<typename... Args>
 				void exec( Args&&... args ) {
-					using cb_type = std::function < void( typename std::remove_reference<Args>::type... ) > ;
+					using cb_type = std::function < void( typename std::remove_reference<Args>::type... ) >;
 					try {
 						auto callback = boost::any_cast<cb_type>(m_callback);
 						callback( std::forward<Args>( args )... );

@@ -21,7 +21,6 @@
 // SOFTWARE.
 
 #include <boost/asio.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/regex.hpp>
 #include <condition_variable>
 #include <cstdint>
@@ -36,7 +35,6 @@
 #include "base_types.h"
 #include "base_write_buffer.h"
 #include "lib_net_dns.h"
-#include "range_algorithm.h"
 #include "make_unique.h"
 
 #include "lib_net_socket_stream.h"
@@ -191,11 +189,11 @@ namespace daw {
 					}
 
 					void NetSocketStreamImpl::emit_connect( ) {
-						emitter( )->emit( "connect" );
+						this->emitter( )->emit( "connect" );
 					}
 
 					void NetSocketStreamImpl::emit_timeout( ) {
-						emitter( )->emit( "timeout" );
+						this->emitter( )->emit( "timeout" );
 					}
 
 					void NetSocketStreamImpl::write_async( base::write_buffer buff ) {
@@ -254,18 +252,18 @@ namespace daw {
 								throw std::runtime_error( "read until method not implemented" );
 							}
 						} catch( ... ) {
-							emit_error( std::current_exception( ), "Exception starting async read", "NetSocketStreamImpl::read_async" );
+							this->emit_error( std::current_exception( ), "Exception starting async read", "NetSocketStreamImpl::read_async" );
 						}
 						return *this;
 					}
 
 					NetSocketStreamImpl& NetSocketStreamImpl::on_connected( std::function<void( )> listener ) {
-						emitter( )->add_listener( "connect", listener );
+						this->emitter( )->add_listener( "connect", listener );
 						return *this;
 					}
 
 					NetSocketStreamImpl& NetSocketStreamImpl::on_next_connected( std::function<void( )> listener ) {
-						emitter( )->add_listener( "connect", listener, true );
+						this->emitter( )->add_listener( "connect", listener, true );
 						return *this;
 					}
 
@@ -290,12 +288,12 @@ namespace daw {
 					}
 
 					NetSocketStreamImpl&  NetSocketStreamImpl::write_async( base::data_t const & chunk ) {
-						write_async( base::write_buffer( chunk ) );
+						this->write_async( base::write_buffer( chunk ) );
 						return *this;
 					}
 
 					NetSocketStreamImpl&  NetSocketStreamImpl::write_async( boost::string_ref chunk, base::Encoding const & ) {
-						write_async( base::write_buffer( chunk ) );
+						this->write_async( base::write_buffer( chunk ) );
 						return *this;
 					}
 
@@ -304,20 +302,20 @@ namespace daw {
 						try {
 							m_socket->shutdown( daw::nodepp::lib::net::RawSocket::shutdown_send );
 						} catch( ... ) {
-							emit_error( std::current_exception( ), "Error calling shutdown on socket", "NetSocketStreamImplImpl::end( )" );
+							this->emit_error( std::current_exception( ), "Error calling shutdown on socket", "NetSocketStreamImplImpl::end( )" );
 						}
 						return *this;
 					}
 
 					NetSocketStreamImpl&  NetSocketStreamImpl::end( base::data_t const & chunk ) {
-						write_async( chunk );
-						end( );
+						this->write_async( chunk );
+						this->end( );
 						return *this;
 					}
 
 					NetSocketStreamImpl&  NetSocketStreamImpl::end( boost::string_ref chunk, base::Encoding const & encoding ) {
-						write_async( chunk, encoding );
-						end( );
+						this->write_async( chunk, encoding );
+						this->end( );
 						return *this;
 					}
 
@@ -387,7 +385,7 @@ namespace daw {
 						return get_clear_buffer( m_response_buffers, m_response_buffers.size( ), 0 );
 					}
 
-					base::data_t  NetSocketStreamImpl::read( std::size_t ) { throw std::runtime_error( "Method not implemented" ); }
+					base::data_t NetSocketStreamImpl::read( std::size_t ) { throw std::runtime_error( "Method not implemented" ); }
 
 					bool NetSocketStreamImpl::is_closed( ) const {
 						return m_state.closed;

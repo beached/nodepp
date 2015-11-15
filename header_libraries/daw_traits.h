@@ -24,7 +24,6 @@
 
 #include <boost/type_traits.hpp>
 #include <type_traits>
-#include <utility>
 #include <vector>
 #include <list>
 #include <map>
@@ -32,7 +31,6 @@
 #include <ostream>
 #include <unordered_map>
 #include <unordered_set>
-#include <utility>
 #include <deque>
 
 namespace daw {

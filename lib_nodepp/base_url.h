@@ -24,7 +24,6 @@
 
 #include <boost/optional.hpp>
 #include <map>
-#include <string>
 
 #include "base_types.h"
 

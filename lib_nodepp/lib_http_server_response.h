@@ -22,19 +22,14 @@
 
 #pragma once
 #include <boost/utility/string_ref.hpp>
-#include <cstdint>
-#include <string>
 
 #include "base_enoding.h"
 #include "base_event_emitter.h"
 #include "base_stream.h"
 #include "base_types.h"
-#include "base_enoding.h"
-#include "lib_http.h"
 #include "lib_http_headers.h"
 #include "lib_http_version.h"
 #include "lib_net_socket_stream.h"
-#include "base_stream.h"
 
 namespace daw {
 	namespace nodepp {

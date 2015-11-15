@@ -22,10 +22,11 @@
 
 #include <future>
 #include <thread>
-
+#include <iostream>
 #include "base_error.h"
 #include "base_work_queue.h"
 #include "scope_guard.h"
+#include "base_service_handle.h"
 
 namespace daw {
 	namespace nodepp {
@@ -34,7 +35,7 @@ namespace daw {
 				using namespace daw::nodepp;
 				using namespace daw::nodepp::base;
 
-				work_item_t::work_item_t( ) : work_item( nullptr ), on_completion( nullptr ), task_id( 0 ) { }
+				work_item_t::work_item_t( ): work_item( nullptr ), on_completion( nullptr ), task_id( 0 ) { }
 
 				work_item_t::work_item_t( int64_t TaskId, std::function<void( int64_t )> WorkItem, std::function<void( int64_t, base::OptionalError )> OnCompletion ) :
 					work_item( std::move( WorkItem ) ),
@@ -45,7 +46,7 @@ namespace daw {
 					return task_id > 0 && static_cast<bool>(work_item);
 				}
 
-				WorkQueueImpl::WorkQueueImpl( uint32_t max_workers, EventEmitter emitter ) :
+				WorkQueueImpl::WorkQueueImpl( uint32_t max_workers, EventEmitter emitter ):
 					m_work_queue( ),
 					m_emitter( std::move( emitter ) ),
 					m_continue( false ),

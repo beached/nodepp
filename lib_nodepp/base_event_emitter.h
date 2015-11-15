@@ -26,14 +26,12 @@
 #include <boost/asio/error.hpp>
 #include <memory>
 #include <stdexcept>
-#include <string>
 #include <unordered_map>
 #include <utility>
 #include <vector>
 
 #include "base_callback.h"
 #include "base_error.h"
-#include "base_service_handle.h"
 #include "range_algorithm.h"
 
 namespace daw {

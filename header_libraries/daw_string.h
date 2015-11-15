@@ -24,10 +24,7 @@
 
 #include <boost/lexical_cast.hpp>
 #include <boost/spirit/include/qi_numeric.hpp>
-#include <boost/spirit/include/qi_parse.hpp>
 #include <iomanip>
-#include <iostream>
-#include <locale>
 #include <regex>
 #include <sstream>
 #include <stdexcept>
@@ -124,16 +121,16 @@ namespace daw {
 			ends_with_t( ) noexcept { }
 			~ends_with_t( ) = default;
 			ends_with_t( ends_with_t const & ) noexcept { }
-				ends_with_t( ends_with_t&& ) noexcept { }
-			ends_with_t& operator=(ends_with_t) const noexcept { return *this; }
-			bool operator==(ends_with_t const &) const noexcept { return true; }
-			bool operator<(ends_with_t const &) const noexcept { return false; }
+			ends_with_t( ends_with_t&& ) noexcept { }
+			ends_with_t& operator=( ends_with_t ) const noexcept { return *this; }
+			bool operator==( ends_with_t const & ) const noexcept { return true; }
+			bool operator<( ends_with_t const & ) const noexcept { return false; }
 
-				bool operator()( StringType const & src, const char ending ) const noexcept {
+			bool operator()( StringType const & src, const char ending ) const noexcept {
 				return 0 < src.size( ) && ending == src[src.size( ) - 1];
 			}
 
-				bool operator()( StringType const & src, StringType const & ending ) const noexcept {
+			bool operator()( StringType const & src, StringType const & ending ) const noexcept {
 				auto pos = src.find_last_of( ending );
 				return details::string_t::npos != pos && pos == src.size( ) - 1;
 			}

@@ -23,10 +23,6 @@
 #pragma once
 
 #include <boost/asio.hpp>
-#include <functional>
-#include <memory>
-
-#include "base_error.h"
 
 namespace daw {
 	namespace nodepp {

@@ -24,10 +24,8 @@
 
 #include <boost/utility/string_ref.hpp>
 #include <boost/system/error_code.hpp>
-#include <iostream>
 #include <map>
 #include <memory>
-#include <string>
 
 namespace daw {
 	namespace nodepp {

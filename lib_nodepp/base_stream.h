@@ -21,12 +21,10 @@
 // SOFTWARE.
 
 #pragma once
-#include <boost/utility/string_ref.hpp>
-#include <string>
-
+#include <functional>
+#include <boost/asio/streambuf.hpp>
 #include "base_event_emitter.h"
 #include "base_types.h"
-#include "base_enoding.h"
 
 namespace daw {
 	namespace nodepp {

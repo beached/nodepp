@@ -24,18 +24,12 @@
 
 #include <boost/optional.hpp>
 #include <cstdint>
-#include <iostream>
 #include <ostream>
-#include <string>
-#include <unordered_map>
-#include <utility>
-#include <vector>
 
-#include "base_types.h"
 #include "base_event_emitter.h"
+#include "base_service_handle.h"
 #include "lib_http_request.h"
 #include "lib_http_server_response.h"
-#include "lib_http_headers.h"
 
 namespace daw {
 	namespace nodepp {

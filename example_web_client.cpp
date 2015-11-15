@@ -43,7 +43,7 @@ int main( int, char ** ) {
 
 	client->request( "http", "dawdevel.ca", 80, request );
 
-	start_service( base::StartServiceMode::Single );
+	start_service( daw::nodepp::base::StartServiceMode::Single );
 	system( "pause" );
 	return EXIT_SUCCESS;
 }
