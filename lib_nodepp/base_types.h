@@ -33,13 +33,6 @@
 
 namespace daw {
 	namespace nodepp {
-		namespace lib {
-			namespace net {
-				using RawSocketValue = boost::variant<boost::asio::ip::tcp::socket, boost::asio::ssl::stream<boost::asio::ip::tcp::socket>>;
-				using RawSocket = std::shared_ptr <RawSocketValue>;
-			}	// namespace net
-		}	// namespace lib
-
 		namespace base {
 			using options_t = std::map < std::string, boost::any >;
 			using data_t = std::vector < char >;

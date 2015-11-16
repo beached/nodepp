@@ -38,7 +38,7 @@
 #include "daw_semaphore.h"
 #include "base_selfdestruct.h"
 #include "lib_net_dns.h"
-#include "lib_net_socket_stream_async.h"
+#include "lib_net_socket_boost_socket.h"
 
 namespace daw {
 	namespace nodepp {
@@ -82,12 +82,14 @@ namespace daw {
 							netsockstream_readoptions_t( ):
 								read_mode( NetSocketStreamReadMode::newline ),
 								max_read_size( 8192 ),
-								read_predicate( ) { }
+								read_predicate( ),
+								read_until_values( ) { }
 
 							netsockstream_readoptions_t( size_t max_read_size_ ):
 								read_mode( NetSocketStreamReadMode::newline ),
 								max_read_size( max_read_size_ ),
-								read_predicate( ) { }
+								read_predicate( ),
+								read_until_values( ) { }
 
 							netsockstream_readoptions_t( netsockstream_readoptions_t const & ) = delete;
 							netsockstream_readoptions_t& operator=( netsockstream_readoptions_t const & ) = delete;
@@ -95,7 +97,8 @@ namespace daw {
 							inline netsockstream_readoptions_t( netsockstream_readoptions_t && other ):
 								read_mode( std::move( other.read_mode ) ),
 								max_read_size( std::move( other.max_read_size ) ),
-								read_predicate( std::move( other.read_predicate ) ) { }
+								read_predicate( std::move( other.read_predicate ) ),
+								read_until_values( ) { }
 
 							inline netsockstream_readoptions_t& operator=( netsockstream_readoptions_t && rhs ) {
 								if( this != &rhs ) {

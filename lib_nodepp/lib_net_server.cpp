@@ -137,6 +137,18 @@ namespace daw {
 						} );
 					}
 
+					namespace {
+						template<typename Handler>
+						void async_accept( std::shared_ptr<boost::asio::ip::tcp::acceptor> & acceptor, boost::asio::ip::tcp::socket & socket, Handler handler ) {
+							acceptor->async_accept( socket, handler );
+						}
+
+						template<typename Handler>
+						void async_accept( std::shared_ptr<boost::asio::ip::tcp::acceptor> & acceptor, boost::asio::ssl::stream<boost::asio::ip::tcp::socket> & socket, Handler handler ) {
+							acceptor->async_accept( socket.lowest_layer( ), handler );
+						}
+					}
+
 					void NetServerImpl::start_accept( ) {
 						auto socket_sp = create_net_socket_stream( );
 						RawSocket boost_socket = socket_sp->socket( );
@@ -146,7 +158,7 @@ namespace daw {
 
 						//m_acceptor->async_accept( boost_socket, handler );
 						boost::apply_visitor( daw::make_forwarding_visitor<void>( [&]( auto & s ) {
-							m_acceptor->async_accept( s, [obj, socket]( base::ErrorCode const & err ) mutable {
+							async_accept( m_acceptor, s, [obj, socket]( base::ErrorCode const & err ) mutable {
 								handle_accept( obj, socket.move_out( ), err );
 							} );
 						} ), *boost_socket );
