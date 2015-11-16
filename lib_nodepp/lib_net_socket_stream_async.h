@@ -24,6 +24,7 @@
 
 #include <boost/asio.hpp>
 #include <boost/variant.hpp>
+#include <type_traits>
 #include "base_types.h"
 
 namespace daw {
