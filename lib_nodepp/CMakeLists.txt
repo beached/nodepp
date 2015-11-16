@@ -78,6 +78,7 @@ set(SOURCE_FILES
 		lib_net_server.h
 		lib_net_socket_stream.cpp
 		lib_net_socket_stream.h
+		lib_net_socket_boost_socket.cpp
 		lib_net_socket_boost_socket.h
 )
 
