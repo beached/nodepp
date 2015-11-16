@@ -139,14 +139,17 @@ namespace daw {
 
 					void NetServerImpl::start_accept( ) {
 						auto socket_sp = create_net_socket_stream( );
-						auto& boost_socket = socket_sp->socket( );
+						RawSocket boost_socket = socket_sp->socket( );
 						auto socket = as_move_capture( std::move( socket_sp ) );
 
 						std::weak_ptr<NetServerImpl> obj = this->get_ptr( );
-						auto handler = [obj, socket]( base::ErrorCode const & err ) mutable {
-							handle_accept( obj, socket.move_out( ), err );
-						};
-						m_acceptor->async_accept( boost_socket, handler );
+
+						//m_acceptor->async_accept( boost_socket, handler );
+						boost::apply_visitor( daw::make_forwarding_visitor<void>( [&]( auto & s ) {
+							m_acceptor->async_accept( s, [obj, socket]( base::ErrorCode const & err ) mutable {
+								handle_accept( obj, socket.move_out( ), err );
+							} );
+						} ), *boost_socket );
 					}
 
 					void NetServerImpl::emit_connection( NetSocketStream socket ) {

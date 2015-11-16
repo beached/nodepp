@@ -23,6 +23,7 @@
 #pragma once
 
 #include <boost/asio.hpp>
+#include <boost/variant.hpp>
 #include <boost/asio/ssl.hpp>
 #include <cstdint>
 #include <memory>
@@ -37,6 +38,7 @@
 #include "daw_semaphore.h"
 #include "base_selfdestruct.h"
 #include "lib_net_dns.h"
+#include "lib_net_socket_stream_async.h"
 
 namespace daw {
 	namespace nodepp {
@@ -47,7 +49,6 @@ namespace daw {
 				}
 
 				using NetSocketStream = std::shared_ptr < impl::NetSocketStreamImpl >;
-				using RawSocket = boost::asio::ip::tcp::socket;
 
 				NetSocketStream create_net_socket_stream( daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
 				NetSocketStream create_net_ssl_socket_stream( daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
@@ -59,7 +60,7 @@ namespace daw {
 						using match_iterator_t = boost::asio::buffers_iterator <base::stream::StreamBuf::const_buffers_type >;
 						using match_function_t = std::function < std::pair<match_iterator_t, bool>( match_iterator_t begin, match_iterator_t end ) >;
 					private:
-						std::shared_ptr<daw::nodepp::lib::net::RawSocket> m_socket;
+						RawSocket m_socket;
 						boost::asio::ssl::context m_context;
 						daw::nodepp::base::EventEmitter m_emitter;
 
@@ -152,7 +153,7 @@ namespace daw {
 						NetSocketStreamImpl& set_read_predicate( std::function < std::pair<NetSocketStreamImpl::match_iterator_t, bool>( NetSocketStreamImpl::match_iterator_t begin, NetSocketStreamImpl::match_iterator_t end ) > match_function );
 						NetSocketStreamImpl& clear_read_predicate( );
 						NetSocketStreamImpl& set_read_until_values( std::string values, bool is_regex );
-						daw::nodepp::lib::net::RawSocket & socket( );
+						daw::nodepp::lib::net::RawSocket socket( );
 
 						std::size_t& buffer_size( );
 

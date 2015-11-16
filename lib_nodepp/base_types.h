@@ -27,12 +27,22 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <boost/variant.hpp>
+#include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/ssl/stream.hpp>
 
 namespace daw {
 	namespace nodepp {
-		namespace base {
-			using options_t = std::map < std::string, boost::any > ;
-			using data_t = std::vector < char > ;
+		namespace lib {
+			namespace net {
+				using RawSocketValue = boost::variant<boost::asio::ip::tcp::socket, boost::asio::ssl::stream<boost::asio::ip::tcp::socket>>;
+				using RawSocket = std::shared_ptr <RawSocketValue>;
+			}	// namespace net
 		}	// namespace lib
+
+		namespace base {
+			using options_t = std::map < std::string, boost::any >;
+			using data_t = std::vector < char >;
+		}	// namespace base
 	}	// namespace nodepp
 }	// namespace daw

@@ -26,7 +26,7 @@
 #include <cstdint>
 #include <thread>
 #include <string>
-
+#include <boost/variant/static_visitor.hpp>
 #include "base_enoding.h"
 #include "base_error.h"
 #include "base_event_emitter.h"
@@ -35,6 +35,7 @@
 #include "base_types.h"
 #include "base_write_buffer.h"
 #include "lib_net_dns.h"
+
 #include "make_unique.h"
 
 #include "lib_net_socket_stream.h"
@@ -51,18 +52,16 @@ namespace daw {
 				/// Helpers
 				///
 				namespace impl {
-					namespace {
-						base::data_t get_clear_buffer( base::data_t& original_buffer, size_t num_items, size_t new_size = 1024 ) {
-							base::data_t new_buffer( new_size, 0 );
-							using std::swap;
-							swap( new_buffer, original_buffer );
-							new_buffer.resize( num_items );
-							return new_buffer;
-						}
-					}	// namespace anonymous
+					base::data_t get_clear_buffer( base::data_t& original_buffer, size_t num_items, size_t new_size = 1024 ) {
+						base::data_t new_buffer( new_size, 0 );
+						using std::swap;
+						swap( new_buffer, original_buffer );
+						new_buffer.resize( num_items );
+						return new_buffer;
+					}
 
 					NetSocketStreamImpl::NetSocketStreamImpl( base::EventEmitter emitter, bool use_ssl ):
-						m_socket( std::make_shared<daw::nodepp::lib::net::RawSocket>( base::ServiceHandle::get( ) ) ),
+						m_socket( std::make_shared<daw::nodepp::lib::net::RawSocketValue>( boost::asio::ip::tcp::socket { base::ServiceHandle::get( ) } ) ),
 						m_context( boost::asio::ssl::context::tlsv12 ),	// TODO: better
 						m_emitter( std::move( emitter ) ),
 						m_state( ),
@@ -72,12 +71,128 @@ namespace daw {
 						m_bytes_read( 0 ),
 						m_bytes_written( 0 ) { }
 
+					namespace {
+						bool is_open( boost::asio::ip::tcp::socket const & socket ) {
+							return socket.is_open( );
+						}
+
+						bool is_open( boost::asio::ssl::stream<boost::asio::ip::tcp::socket> const & socket ) {
+							return socket.lowest_layer( ).is_open( );
+						}
+
+						bool is_open( daw::nodepp::lib::net::RawSocket const & socket ) {
+							return boost::apply_visitor( daw::make_forwarding_visitor<bool>( []( auto const & s ) {
+								return is_open( s );
+							} ), *socket );
+						}
+
+						boost::system::error_code shutdown( boost::asio::ip::tcp::socket & socket, boost::asio::ip::tcp::socket::shutdown_type what ) {
+							socket.shutdown( what );
+							return boost::system::errc::make_error_code( boost::system::errc::success );
+						}
+
+						boost::system::error_code shutdown( boost::asio::ip::tcp::socket & socket, boost::asio::ip::tcp::socket::shutdown_type what, boost::system::error_code & ec ) {
+							return socket.shutdown( what, ec );
+						}
+
+						boost::system::error_code shutdown( boost::asio::ssl::stream<boost::asio::ip::tcp::socket> & socket, boost::asio::ip::tcp::socket::shutdown_type ) {
+							socket.shutdown( );
+							return boost::system::errc::make_error_code( boost::system::errc::success );
+						}
+
+						boost::system::error_code shutdown( boost::asio::ssl::stream<boost::asio::ip::tcp::socket> & socket, boost::asio::ip::tcp::socket::shutdown_type, boost::system::error_code & ec ) {
+							return socket.shutdown( ec );
+						}
+
+						boost::system::error_code shutdown( daw::nodepp::lib::net::RawSocket & socket, boost::asio::ip::tcp::socket::shutdown_type what ) {
+							return boost::apply_visitor( daw::make_forwarding_visitor<boost::system::error_code>( [&]( auto & s ) {
+								return daw::nodepp::lib::net::impl::shutdown( s, what );
+							} ), *socket );
+						}
+
+						boost::system::error_code shutdown( daw::nodepp::lib::net::RawSocket & socket, boost::asio::ip::tcp::socket::shutdown_type what, boost::system::error_code & ec ) {
+							return boost::apply_visitor( daw::make_forwarding_visitor<boost::system::error_code>( [&]( auto & s ) {
+								return daw::nodepp::lib::net::impl::shutdown( s, what, ec );
+							} ), *socket );
+						}
+
+						void close( boost::asio::ip::tcp::socket & socket ) {
+							socket.close( );
+						}
+
+						void close( boost::asio::ssl::stream<boost::asio::ip::tcp::socket> & socket ) {
+							socket.shutdown( );
+						}
+
+						boost::system::error_code close( boost::asio::ip::tcp::socket & socket, boost::system::error_code & ec ) {
+							return socket.close( ec );
+						}
+
+						boost::system::error_code close( boost::asio::ssl::stream<boost::asio::ip::tcp::socket> & socket, boost::system::error_code & ec ) {
+							return socket.shutdown( ec );
+						}
+
+						void close( daw::nodepp::lib::net::RawSocket & socket ) {
+							boost::apply_visitor( daw::make_forwarding_visitor<void>( []( auto & s ) {
+								daw::nodepp::lib::net::impl::close( s );
+							} ), *socket );
+						}
+
+						boost::system::error_code close( daw::nodepp::lib::net::RawSocket & socket, boost::system::error_code & ec ) {
+							return boost::apply_visitor( daw::make_forwarding_visitor<boost::system::error_code>( [&ec]( auto & s ) {
+								return daw::nodepp::lib::net::impl::close( s, ec );
+							} ), *socket );
+						}
+
+						void cancel( boost::asio::ip::tcp::socket & socket ) {
+							socket.cancel( );
+						}
+
+						void cancel( boost::asio::ssl::stream<boost::asio::ip::tcp::socket> & socket ) {
+							socket.lowest_layer( ).cancel( );
+						}
+
+						void cancel( daw::nodepp::lib::net::RawSocket & socket ) {
+							boost::apply_visitor( daw::make_forwarding_visitor<void>( [&]( auto & s ) {
+								daw::nodepp::lib::net::impl::cancel( s );
+							} ), *socket );
+						}
+
+						boost::asio::ip::tcp::endpoint remote_endpoint( boost::asio::ip::tcp::socket const & socket ) {
+							return socket.remote_endpoint( );
+						}
+
+						boost::asio::ip::tcp::endpoint remote_endpoint( boost::asio::ssl::stream<boost::asio::ip::tcp::socket> const & socket ) {
+							return socket.lowest_layer( ).remote_endpoint( );
+						}
+
+						boost::asio::ip::tcp::endpoint remote_endpoint( daw::nodepp::lib::net::RawSocket const & socket ) {
+							return boost::apply_visitor( daw::make_forwarding_visitor < boost::asio::ip::tcp::endpoint>( []( auto & s ) {
+								return remote_endpoint( s );
+							} ), *socket );
+						}
+
+						boost::asio::ip::tcp::endpoint local_endpoint( boost::asio::ip::tcp::socket const & socket ) {
+							return socket.local_endpoint( );
+						}
+
+						boost::asio::ip::tcp::endpoint local_endpoint( boost::asio::ssl::stream<boost::asio::ip::tcp::socket> const & socket ) {
+							return socket.lowest_layer( ).local_endpoint( );
+						}
+
+						boost::asio::ip::tcp::endpoint local_endpoint( daw::nodepp::lib::net::RawSocket const & socket ) {
+							return boost::apply_visitor( daw::make_forwarding_visitor < boost::asio::ip::tcp::endpoint>( []( auto & s ) {
+								return local_endpoint( s );
+							} ), *socket );
+						}
+					}
+
 					NetSocketStreamImpl::~NetSocketStreamImpl( ) {
 						try {
-							if( m_socket && m_socket->is_open( ) ) {
+							if( m_socket && daw::nodepp::lib::net::impl::is_open( m_socket ) ) {
 								base::ErrorCode ec;
-								m_socket->shutdown( boost::asio::socket_base::shutdown_both, ec );
-								m_socket->close( ec );
+								daw::nodepp::lib::net::impl::shutdown( m_socket, boost::asio::socket_base::shutdown_both, ec );
+								daw::nodepp::lib::net::impl::close( m_socket, ec );
 							}
 						} catch( ... ) {
 							// Do nothing, we don't usually care.  It's gone, move on
@@ -206,7 +321,7 @@ namespace daw {
 						auto outstanding_writes = m_pending_writes->get_weak_ptr( );
 
 						m_pending_writes->inc_counter( );
-						boost::asio::async_write( *m_socket, buff.asio_buff( ), [outstanding_writes, obj, buff]( base::ErrorCode const & err, size_t bytes_transfered ) mutable {
+						daw::nodepp::lib::net::impl::async_write( m_socket, buff.asio_buff( ), [outstanding_writes, obj, buff]( base::ErrorCode const & err, size_t bytes_transfered ) mutable {
 							handle_write( outstanding_writes, obj, buff, err, bytes_transfered );
 						} );
 					}
@@ -230,22 +345,22 @@ namespace daw {
 							case NetSocketStreamReadMode::next_byte:
 								throw std::runtime_error( "Read Until mode not implemented" );
 							case NetSocketStreamReadMode::buffer_full:
-								boost::asio::async_read( *m_socket, *read_buffer, handler );
+								impl::async_read( m_socket, *read_buffer, handler );
 								break;
 							case NetSocketStreamReadMode::newline:
-								boost::asio::async_read_until( *m_socket, *read_buffer, "\n", handler );
+								impl::async_read_until( m_socket, *read_buffer, "\n", handler );
 								break;
 							case NetSocketStreamReadMode::double_newline:
-								boost::asio::async_read_until( *m_socket, *read_buffer, dbl_newline, handler );
+								impl::async_read_until( m_socket, *read_buffer, dbl_newline, handler );
 								break;
 							case NetSocketStreamReadMode::predicate:
-								boost::asio::async_read_until( *m_socket, *read_buffer, *m_read_options.read_predicate, handler );
+								impl::async_read_until( m_socket, *read_buffer, *m_read_options.read_predicate, handler );
 								break;
 							case NetSocketStreamReadMode::values:
-								boost::asio::async_read_until( *m_socket, *read_buffer, m_read_options.read_until_values, handler );
+								impl::async_read_until( m_socket, *read_buffer, m_read_options.read_until_values, handler );
 								break;
 							case NetSocketStreamReadMode::regex:
-								boost::asio::async_read_until( *m_socket, *read_buffer, boost::regex( m_read_options.read_until_values ), handler );
+								impl::async_read_until( m_socket, *read_buffer, boost::regex( m_read_options.read_until_values ), handler );
 								break;
 
 							default:
@@ -271,7 +386,7 @@ namespace daw {
 						tcp::resolver resolver( base::ServiceHandle::get( ) );
 
 						auto obj = this->get_weak_ptr( );
-						boost::asio::async_connect( *m_socket, resolver.resolve( { host.to_string( ), std::to_string( port ) } ), [obj]( base::ErrorCode const & err, tcp::resolver::iterator it ) {
+						impl::async_connect( m_socket, resolver.resolve( { host.to_string( ), std::to_string( port ) } ), [obj]( base::ErrorCode const & err, tcp::resolver::iterator it ) {
 							handle_connect( obj, err, it );
 						} );
 						return *this;
@@ -280,11 +395,11 @@ namespace daw {
 					std::size_t& NetSocketStreamImpl::buffer_size( ) { throw std::runtime_error( "Method not implemented" ); }
 
 					bool NetSocketStreamImpl::is_open( ) const {
-						return m_socket->is_open( );
+						return daw::nodepp::lib::net::impl::is_open( m_socket );
 					}
 
-					daw::nodepp::lib::net::RawSocket & NetSocketStreamImpl::socket( ) {
-						return *m_socket;
+					daw::nodepp::lib::net::RawSocket NetSocketStreamImpl::socket( ) {
+						return m_socket;
 					}
 
 					NetSocketStreamImpl&  NetSocketStreamImpl::write_async( base::data_t const & chunk ) {
@@ -300,7 +415,7 @@ namespace daw {
 					NetSocketStreamImpl&  NetSocketStreamImpl::end( ) {
 						m_state.end = true;
 						try {
-							m_socket->shutdown( daw::nodepp::lib::net::RawSocket::shutdown_send );
+							daw::nodepp::lib::net::impl::shutdown( m_socket, boost::asio::ip::tcp::socket::shutdown_send );
 						} catch( ... ) {
 							this->emit_error( std::current_exception( ), "Error calling shutdown on socket", "NetSocketStreamImplImpl::end( )" );
 						}
@@ -323,15 +438,16 @@ namespace daw {
 						m_state.closed = true;
 						m_state.end = true;
 						try {
-							if( m_socket && m_socket->is_open( ) ) {
+							if( m_socket && daw::nodepp::lib::net::impl::is_open( m_socket ) ) {
 								base::ErrorCode err;
-								m_socket->shutdown( daw::nodepp::lib::net::RawSocket::shutdown_both, err );
+
+								daw::nodepp::lib::net::impl::shutdown( m_socket, boost::asio::ip::tcp::socket::shutdown_both, err );
 								if( emit_cb && err && err.value( ) != 107 ) {	// Already shutdown is ignored
 									emit_error( err, "NetSocketStreamImpl::close#shutdown" );
 								}
 								if( !m_state.closed ) {
 									err = base::ErrorCode( );
-									m_socket->close( err );
+									daw::nodepp::lib::net::impl::close( m_socket, err );
 									if( emit_cb && err ) {
 										emit_error( err, "NetSocketStreamImpl::close#close" );
 									}
@@ -347,7 +463,7 @@ namespace daw {
 					}
 
 					void NetSocketStreamImpl::cancel( ) {
-						m_socket->cancel( );
+						daw::nodepp::lib::net::impl::cancel( m_socket );
 					}
 
 					NetSocketStreamImpl&  NetSocketStreamImpl::set_timeout( int32_t ) { throw std::runtime_error( "Method not implemented" ); }
@@ -357,19 +473,19 @@ namespace daw {
 					NetSocketStreamImpl&  NetSocketStreamImpl::set_keep_alive( bool, int32_t ) { throw std::runtime_error( "Method not implemented" ); }
 
 					std::string NetSocketStreamImpl::remote_address( ) const {
-						return m_socket->remote_endpoint( ).address( ).to_string( );
+						return daw::nodepp::lib::net::impl::remote_endpoint( m_socket ).address( ).to_string( );
 					}
 
 					std::string NetSocketStreamImpl::local_address( ) const {
-						return m_socket->local_endpoint( ).address( ).to_string( );
+						return daw::nodepp::lib::net::impl::local_endpoint( m_socket ).address( ).to_string( );
 					}
 
 					uint16_t NetSocketStreamImpl::remote_port( ) const {
-						return m_socket->remote_endpoint( ).port( );
+						return daw::nodepp::lib::net::impl::remote_endpoint( m_socket ).port( );
 					}
 
 					uint16_t NetSocketStreamImpl::local_port( ) const {
-						return m_socket->local_endpoint( ).port( );
+						return daw::nodepp::lib::net::impl::local_endpoint( m_socket ).port( );
 					}
 
 					std::size_t NetSocketStreamImpl::bytes_read( ) const {
