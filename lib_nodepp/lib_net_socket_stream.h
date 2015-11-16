@@ -60,7 +60,7 @@ namespace daw {
 						using match_iterator_t = boost::asio::buffers_iterator <base::stream::StreamBuf::const_buffers_type >;
 						using match_function_t = std::function < std::pair<match_iterator_t, bool>( match_iterator_t begin, match_iterator_t end ) >;
 					private:
-						RawSocket m_socket;
+						BootSocket m_socket;
 						boost::asio::ssl::context m_context;
 						daw::nodepp::base::EventEmitter m_emitter;
 
@@ -156,7 +156,7 @@ namespace daw {
 						NetSocketStreamImpl& set_read_predicate( std::function < std::pair<NetSocketStreamImpl::match_iterator_t, bool>( NetSocketStreamImpl::match_iterator_t begin, NetSocketStreamImpl::match_iterator_t end ) > match_function );
 						NetSocketStreamImpl& clear_read_predicate( );
 						NetSocketStreamImpl& set_read_until_values( std::string values, bool is_regex );
-						daw::nodepp::lib::net::RawSocket socket( );
+						daw::nodepp::lib::net::BootSocket socket( );
 
 						std::size_t& buffer_size( );
 

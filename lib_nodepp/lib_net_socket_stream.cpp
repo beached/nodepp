@@ -61,7 +61,7 @@ namespace daw {
 					}
 
 					NetSocketStreamImpl::NetSocketStreamImpl( base::EventEmitter emitter, bool use_ssl ):
-						m_socket( std::make_shared<daw::nodepp::lib::net::RawSocketValue>( boost::asio::ip::tcp::socket { base::ServiceHandle::get( ) } ) ),
+						m_socket( std::make_shared<daw::nodepp::lib::net::BootSocketValue>( boost::asio::ip::tcp::socket { base::ServiceHandle::get( ) } ) ),
 						m_context( boost::asio::ssl::context::tlsv12 ),	// TODO: better
 						m_emitter( std::move( emitter ) ),
 						m_state( ),
@@ -282,7 +282,7 @@ namespace daw {
 						return daw::nodepp::lib::net::impl::is_open( m_socket );
 					}
 
-					daw::nodepp::lib::net::RawSocket NetSocketStreamImpl::socket( ) {
+					daw::nodepp::lib::net::BootSocket NetSocketStreamImpl::socket( ) {
 						return m_socket;
 					}
 
