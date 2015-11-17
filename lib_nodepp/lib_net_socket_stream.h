@@ -111,6 +111,9 @@ namespace daw {
 							~netsockstream_readoptions_t( ) = default;
 						} m_read_options;
 
+						struct ssl_params_t {
+						} ssl_params;
+
 						std::shared_ptr<daw::thread::Semaphore<int>> m_pending_writes;
 						daw::nodepp::base::data_t m_response_buffers;
 						std::size_t m_bytes_read;
