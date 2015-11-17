@@ -1,5 +1,8 @@
 Node++ [![Build Status](https://travis-ci.org/beached/nodepp.svg?branch=master)](https://travis-ci.org/beached/nodepp)
-======
+====== <a href="https://scan.coverity.com/projects/beached-nodepp">
+  <img alt="Coverity Scan Build Status"
+       src="https://scan.coverity.com/projects/7045/badge.svg"/>
+</a>
 
 A modern C++ Event I/O library with a high level of abstraction.
 
