@@ -47,71 +47,56 @@ namespace daw {
 	namespace nodepp {
 		namespace lib {
 			namespace net {
-				using BootSocketValue = boost::variant<boost::asio::ip::tcp::socket, boost::asio::ssl::stream<boost::asio::ip::tcp::socket>>;
-				using BootSocket = std::shared_ptr <BootSocketValue>;
+				using BoostSocket = std::shared_ptr <boost::asio::ssl::stream<boost::asio::ip::tcp::socket>>;
 
 				namespace impl {
-					bool is_open( boost::asio::ip::tcp::socket const & socket );
-					bool is_open( boost::asio::ssl::stream<boost::asio::ip::tcp::socket> const & socket );
-					bool is_open( daw::nodepp::lib::net::BootSocket const & socket );
-					boost::system::error_code shutdown( boost::asio::ip::tcp::socket & socket, boost::asio::ip::tcp::socket::shutdown_type what );
-					boost::system::error_code shutdown( boost::asio::ip::tcp::socket & socket, boost::asio::ip::tcp::socket::shutdown_type what, boost::system::error_code & ec );
-					boost::system::error_code shutdown( boost::asio::ssl::stream<boost::asio::ip::tcp::socket> & socket, boost::asio::ip::tcp::socket::shutdown_type );
-					boost::system::error_code shutdown( boost::asio::ssl::stream<boost::asio::ip::tcp::socket> & socket, boost::asio::ip::tcp::socket::shutdown_type, boost::system::error_code & ec );
-					boost::system::error_code shutdown( daw::nodepp::lib::net::BootSocket & socket, boost::asio::ip::tcp::socket::shutdown_type what );
-					boost::system::error_code shutdown( daw::nodepp::lib::net::BootSocket & socket, boost::asio::ip::tcp::socket::shutdown_type what, boost::system::error_code & ec );
-					void close( boost::asio::ip::tcp::socket & socket );
-					void close( boost::asio::ssl::stream<boost::asio::ip::tcp::socket> & socket );
-					boost::system::error_code close( boost::asio::ip::tcp::socket & socket, boost::system::error_code & ec );
-					boost::system::error_code close( boost::asio::ssl::stream<boost::asio::ip::tcp::socket> & socket, boost::system::error_code & ec );
-					void close( daw::nodepp::lib::net::BootSocket & socket );
-					boost::system::error_code close( daw::nodepp::lib::net::BootSocket & socket, boost::system::error_code & ec );
-					void cancel( boost::asio::ip::tcp::socket & socket );
-					void cancel( boost::asio::ssl::stream<boost::asio::ip::tcp::socket> & socket );
-					void cancel( daw::nodepp::lib::net::BootSocket & socket );
-					boost::asio::ip::tcp::endpoint remote_endpoint( boost::asio::ip::tcp::socket const & socket );
-					boost::asio::ip::tcp::endpoint remote_endpoint( boost::asio::ssl::stream<boost::asio::ip::tcp::socket> const & socket );
-					boost::asio::ip::tcp::endpoint remote_endpoint( daw::nodepp::lib::net::BootSocket const & socket );
-					boost::asio::ip::tcp::endpoint local_endpoint( boost::asio::ip::tcp::socket const & socket );
-					boost::asio::ip::tcp::endpoint local_endpoint( boost::asio::ssl::stream<boost::asio::ip::tcp::socket> const & socket );
-					boost::asio::ip::tcp::endpoint local_endpoint( daw::nodepp::lib::net::BootSocket const & socket );
+					bool is_open( BoostSocket const & socket );
+					boost::system::error_code shutdown( BoostSocket socket, boost::asio::ip::tcp::socket::shutdown_type );
+					boost::system::error_code shutdown( BoostSocket socket, boost::asio::ip::tcp::socket::shutdown_type, boost::system::error_code & ec );
+					void close( BoostSocket socket );
+					boost::system::error_code close( BoostSocket socket, boost::system::error_code & ec );
+					void cancel( BoostSocket socket );
+					boost::asio::ip::tcp::endpoint remote_endpoint( BoostSocket & socket );
+					boost::asio::ip::tcp::endpoint local_endpoint( BoostSocket & socket );
+
+					template<typename HandshakeHandler>
+					void async_handshake( BoostSocket & socket, bool const use_ssl, boost::asio::stream::handshake_type role, HandshakeHandler handler ) {
+						if( !use_ssl ) {
+							return;
+						}
+						socket->async_handshake( *socket, role, handler );
+					}
 
 					template<typename ConstBufferSequence, typename WriteHandler>
-					void async_write( daw::nodepp::lib::net::BootSocket socket, ConstBufferSequence const & buffer, WriteHandler handler ) {
-						boost::apply_visitor( daw::make_forwarding_visitor<void>( [&]( auto & s ) {
-							boost::asio::async_write( s, buffer, handler );
-						} ), *socket );
+					void async_write( BoostSocket & socket, bool const use_ssl, ConstBufferSequence const & buffer, WriteHandler handler ) {
+						if( use_ssl ) {
+							boost::asio::async_write( *socket, buffer, handler );
+						} else {
+							boost::asio::async_write( socket->lowest_layer( ), buffer, handler );
+						}
 					}
 
 					template<typename MutableBufferSequence, typename ReadHandler>
-					void async_read( daw::nodepp::lib::net::BootSocket socket, MutableBufferSequence & buffer, ReadHandler handler ) {
-						boost::apply_visitor( daw::make_forwarding_visitor<void>( [&]( auto & s ) {
-							boost::asio::async_read( s, buffer, handler );
-						} ), *socket );
+					void async_read( BoostSocket & socket, bool const use_ssl, MutableBufferSequence & buffer, ReadHandler handler ) {
+						if( use_ssl ) {
+							boost::asio::async_read( *socket, buffer, handler );
+						} else {
+							boost::asio::async_read( socket->lowest_layer( ), buffer, handler );
+						}
 					}
 
 					template<typename MutableBufferSequence, typename MatchType, typename ReadHandler>
-					void async_read_until( daw::nodepp::lib::net::BootSocket socket, MutableBufferSequence & buffer, MatchType && m, ReadHandler handler ) {
-						boost::apply_visitor( daw::make_forwarding_visitor<void>( [&]( auto & s ) {
-							boost::asio::async_read_until( s, buffer, std::forward<MatchType>( m ), handler );
-						} ), *socket );
+					void async_read_until( BoostSocket & socket, bool const use_ssl, MutableBufferSequence & buffer, MatchType && m, ReadHandler handler ) {
+						if( use_ssl ) {
+							boost::asio::async_read_until( *socket, buffer, std::forward<MatchType>( m ), handler );
+						} else {
+							boost::asio::async_read_until( socket->lowest_layer( ), buffer, std::forward<MatchType>( m ), handler );
+						}
 					}
 
 					template<typename Iterator, typename ComposedConnectHandler>
-					void async_connect( boost::asio::ip::tcp::socket & socket, Iterator it, ComposedConnectHandler handler ) {
-						boost::asio::async_connect( socket, it, handler );
-					}
-
-					template<typename Iterator, typename ComposedConnectHandler>
-					void async_connect( boost::asio::ssl::stream<boost::asio::ip::tcp::socket> & socket, Iterator it, ComposedConnectHandler handler ) {
+					void async_connect( boostSocket & socket, Iterator it, ComposedConnectHandler handler ) {
 						boost::asio::async_connect( socket.lowest_layer( ), it, handler );
-					}
-
-					template<typename Iterator, typename ComposedConnectHandler>
-					void async_connect( daw::nodepp::lib::net::BootSocket socket, Iterator it, ComposedConnectHandler handler ) {
-						boost::apply_visitor( daw::make_forwarding_visitor<void>( [&]( auto & s ) {
-							daw::nodepp::lib::net::impl::async_connect( s, it, handler );
-						} ), *socket );
 					}
 				}	// namespace impl
 			}	// namespace net
