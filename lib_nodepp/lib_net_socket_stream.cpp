@@ -60,9 +60,8 @@ namespace daw {
 						return new_buffer;
 					}
 
-					NetSocketStreamImpl::NetSocketStreamImpl( base::EventEmitter emitter, bool use_ssl ):
-						m_socket( std::make_shared<daw::nodepp::lib::net::BootSocketValue>( boost::asio::ip::tcp::socket { base::ServiceHandle::get( ) } ) ),
-						m_context( boost::asio::ssl::context::tlsv12 ),	// TODO: better
+					NetSocketStreamImpl::NetSocketStreamImpl( base::EventEmitter emitter, boost::asio::ssl::context::method ctx_method, bool use_ssl ):
+						m_socket( std::make_shared<impl::BoostSocket::BoostSocketValueType>( base::ServiceHandle::get( ) ), std::make_shared<boost::asio::ssl::context>( ctx_method ), use_ssl ),
 						m_emitter( std::move( emitter ) ),
 						m_state( ),
 						m_read_options( ),
@@ -73,7 +72,7 @@ namespace daw {
 
 					NetSocketStreamImpl::~NetSocketStreamImpl( ) {
 						try {
-							if( m_socket && daw::nodepp::lib::net::impl::is_open( m_socket ) ) {
+							if( m_socket.m_socket && daw::nodepp::lib::net::impl::is_open( m_socket ) ) {
 								base::ErrorCode ec;
 								daw::nodepp::lib::net::impl::shutdown( m_socket, boost::asio::socket_base::shutdown_both, ec );
 								daw::nodepp::lib::net::impl::close( m_socket, ec );
@@ -210,7 +209,7 @@ namespace daw {
 						} );
 					}
 
-					NetSocketStreamImpl&  NetSocketStreamImpl::read_async( std::shared_ptr<daw::nodepp::base::stream::StreamBuf> read_buffer ) {
+					NetSocketStreamImpl& NetSocketStreamImpl::read_async( std::shared_ptr<daw::nodepp::base::stream::StreamBuf> read_buffer ) {
 						try {
 							if( m_state.closed ) {
 								return *this;
@@ -282,7 +281,7 @@ namespace daw {
 						return daw::nodepp::lib::net::impl::is_open( m_socket );
 					}
 
-					daw::nodepp::lib::net::BootSocket NetSocketStreamImpl::socket( ) {
+					daw::nodepp::lib::net::BoostSocket NetSocketStreamImpl::socket( ) {
 						return m_socket;
 					}
 
@@ -322,7 +321,7 @@ namespace daw {
 						m_state.closed = true;
 						m_state.end = true;
 						try {
-							if( m_socket && daw::nodepp::lib::net::impl::is_open( m_socket ) ) {
+							if( m_socket.m_socket && daw::nodepp::lib::net::impl::is_open( m_socket ) ) {
 								base::ErrorCode err;
 
 								daw::nodepp::lib::net::impl::shutdown( m_socket, boost::asio::ip::tcp::socket::shutdown_both, err );
@@ -336,7 +335,7 @@ namespace daw {
 										emit_error( err, "NetSocketStreamImpl::close#close" );
 									}
 								}
-								m_socket.reset( );
+								m_socket.m_socket.reset( );
 							}
 						} catch( ... ) {
 							//emit_error( std::current_exception( ), "Error calling shutdown on socket", "NetSocketStreamImplImpl::close( )" );
@@ -403,7 +402,7 @@ namespace daw {
 				}
 
 				NetSocketStream create_net_ssl_socket_stream( daw::nodepp::base::EventEmitter emitter ) {
-					auto result = NetSocketStream( new impl::NetSocketStreamImpl( emitter, true ) );
+					auto result = NetSocketStream( std::make_shared<BoostSocket>( ), std::move( emitter ) );
 					result->arm( "close" );
 					return result;
 				}

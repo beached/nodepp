@@ -151,7 +151,7 @@ namespace daw {
 
 					void NetServerImpl::start_accept( ) {
 						auto socket_sp = create_net_socket_stream( );
-						BootSocket boost_socket = socket_sp->socket( );
+						auto boost_socket = socket_sp->socket( );
 						auto socket = as_move_capture( std::move( socket_sp ) );
 
 						std::weak_ptr<NetServerImpl> obj = this->get_ptr( );

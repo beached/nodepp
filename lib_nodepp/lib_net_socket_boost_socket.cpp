@@ -27,118 +27,74 @@ namespace daw {
 		namespace lib {
 			namespace net {
 				namespace impl {
-					bool is_open( boost::asio::ip::tcp::socket const & socket ) {
-						return socket.is_open( );
+					BoostSocket::BoostSocket( std::shared_ptr<BoostSocket::BoostSocketValueType> socket, bool use_ssl ): m_socket( std::move( socket ) ), m_use_ssl( use_ssl ) { }
+
+					BoostSocket create_boost_socket( boost::asio::io_service & io_service, boost::asio::ssl::context::method ctx_method, bool use_ssl ) {
+						return BoostSocket( std::make_shared < boost::asio::ssl::stream<boost::asio::ip::tcp::socket>>( io_service, ctx_method ), use_ssl );
 					}
 
-					bool is_open( boost::asio::ssl::stream<boost::asio::ip::tcp::socket> const & socket ) {
-						return socket.lowest_layer( ).is_open( );
+					bool BoostSocket::use_ssl( ) const {
+						return m_use_ssl;
 					}
 
-					bool is_open( daw::nodepp::lib::net::BootSocket const & socket ) {
-						return boost::apply_visitor( daw::make_forwarding_visitor<bool>( []( auto const & s ) {
-							return is_open( s );
-						} ), *socket );
+					bool & BoostSocket::use_ssl( ) {
+						return m_use_ssl;
 					}
 
-					boost::system::error_code shutdown( boost::asio::ip::tcp::socket & socket, boost::asio::ip::tcp::socket::shutdown_type what ) {
-						socket.shutdown( what );
-						return boost::system::errc::make_error_code( boost::system::errc::success );
+					void BoostSocket::use_ssl( bool && value ) {
+						m_use_ssl = std::forward<bool>( value );
 					}
 
-					boost::system::error_code shutdown( boost::asio::ip::tcp::socket & socket, boost::asio::ip::tcp::socket::shutdown_type what, boost::system::error_code & ec ) {
-						return socket.shutdown( what, ec );
+					BoostSocket::BoostSocketValueType const & BoostSocket::operator*( ) const {
+						assert( static_cast<bool>(m_socket) );
+						return *m_socket;
 					}
 
-					boost::system::error_code shutdown( boost::asio::ssl::stream<boost::asio::ip::tcp::socket> & socket, boost::asio::ip::tcp::socket::shutdown_type ) {
-						socket.shutdown( );
-						return boost::system::errc::make_error_code( boost::system::errc::success );
+					BoostSocket::BoostSocketValueType & BoostSocket::operator*( ) {
+						assert( static_cast<bool>(m_socket) );
+						return *m_socket;
 					}
 
-					boost::system::error_code shutdown( boost::asio::ssl::stream<boost::asio::ip::tcp::socket> & socket, boost::asio::ip::tcp::socket::shutdown_type, boost::system::error_code & ec ) {
-						return socket.shutdown( ec );
+					BoostSocket::BoostSocketValueType * BoostSocket::operator->( ) const {
+						assert( static_cast<bool>(m_socket) );
+						return m_socket.operator->( );
 					}
 
-					boost::system::error_code shutdown( daw::nodepp::lib::net::BootSocket & socket, boost::asio::ip::tcp::socket::shutdown_type what ) {
-						return boost::apply_visitor( daw::make_forwarding_visitor<boost::system::error_code>( [&]( auto & s ) {
-							return daw::nodepp::lib::net::impl::shutdown( s, what );
-						} ), *socket );
+					BoostSocket::BoostSocketValueType * BoostSocket::operator->( ) {
+						assert( static_cast<bool>(m_socket) );
+						return m_socket.operator->( );
 					}
 
-					boost::system::error_code shutdown( daw::nodepp::lib::net::BootSocket & socket, boost::asio::ip::tcp::socket::shutdown_type what, boost::system::error_code & ec ) {
-						return boost::apply_visitor( daw::make_forwarding_visitor<boost::system::error_code>( [&]( auto & s ) {
-							return daw::nodepp::lib::net::impl::shutdown( s, what, ec );
-						} ), *socket );
+					bool is_open( BoostSocket const & socket ) {
+						return socket->lowest_layer( ).is_open( );
 					}
 
-					void close( boost::asio::ip::tcp::socket & socket ) {
-						socket.close( );
+					void shutdown( BoostSocket socket, boost::asio::ip::tcp::socket::shutdown_type ) {
+						socket->shutdown( );
 					}
 
-					void close( boost::asio::ssl::stream<boost::asio::ip::tcp::socket> & socket ) {
-						socket.shutdown( );
+					boost::system::error_code shutdown( BoostSocket socket, boost::asio::ip::tcp::socket::shutdown_type, boost::system::error_code & ec ) {
+						return socket->shutdown( ec );
 					}
 
-					boost::system::error_code close( boost::asio::ip::tcp::socket & socket, boost::system::error_code & ec ) {
-						return socket.close( ec );
+					void close( BoostSocket socket ) {
+						socket->shutdown( );
 					}
 
-					boost::system::error_code close( boost::asio::ssl::stream<boost::asio::ip::tcp::socket> & socket, boost::system::error_code & ec ) {
-						return socket.shutdown( ec );
+					boost::system::error_code close( BoostSocket socket, boost::system::error_code & ec ) {
+						return socket->shutdown( ec );
 					}
 
-					void close( daw::nodepp::lib::net::BootSocket & socket ) {
-						boost::apply_visitor( daw::make_forwarding_visitor<void>( []( auto & s ) {
-							daw::nodepp::lib::net::impl::close( s );
-						} ), *socket );
+					void cancel( BoostSocket socket ) {
+						socket->lowest_layer( ).cancel( );
 					}
 
-					boost::system::error_code close( daw::nodepp::lib::net::BootSocket & socket, boost::system::error_code & ec ) {
-						return boost::apply_visitor( daw::make_forwarding_visitor<boost::system::error_code>( [&ec]( auto & s ) {
-							return daw::nodepp::lib::net::impl::close( s, ec );
-						} ), *socket );
+					boost::asio::ip::tcp::endpoint remote_endpoint( BoostSocket const & socket ) {
+						return socket->lowest_layer( ).remote_endpoint( );
 					}
 
-					void cancel( boost::asio::ip::tcp::socket & socket ) {
-						socket.cancel( );
-					}
-
-					void cancel( boost::asio::ssl::stream<boost::asio::ip::tcp::socket> & socket ) {
-						socket.lowest_layer( ).cancel( );
-					}
-
-					void cancel( daw::nodepp::lib::net::BootSocket & socket ) {
-						boost::apply_visitor( daw::make_forwarding_visitor<void>( [&]( auto & s ) {
-							daw::nodepp::lib::net::impl::cancel( s );
-						} ), *socket );
-					}
-
-					boost::asio::ip::tcp::endpoint remote_endpoint( boost::asio::ip::tcp::socket const & socket ) {
-						return socket.remote_endpoint( );
-					}
-
-					boost::asio::ip::tcp::endpoint remote_endpoint( boost::asio::ssl::stream<boost::asio::ip::tcp::socket> const & socket ) {
-						return socket.lowest_layer( ).remote_endpoint( );
-					}
-
-					boost::asio::ip::tcp::endpoint remote_endpoint( daw::nodepp::lib::net::BootSocket const & socket ) {
-						return boost::apply_visitor( daw::make_forwarding_visitor < boost::asio::ip::tcp::endpoint>( []( auto & s ) {
-							return remote_endpoint( s );
-						} ), *socket );
-					}
-
-					boost::asio::ip::tcp::endpoint local_endpoint( boost::asio::ip::tcp::socket const & socket ) {
-						return socket.local_endpoint( );
-					}
-
-					boost::asio::ip::tcp::endpoint local_endpoint( boost::asio::ssl::stream<boost::asio::ip::tcp::socket> const & socket ) {
-						return socket.lowest_layer( ).local_endpoint( );
-					}
-
-					boost::asio::ip::tcp::endpoint local_endpoint( daw::nodepp::lib::net::BootSocket const & socket ) {
-						return boost::apply_visitor( daw::make_forwarding_visitor < boost::asio::ip::tcp::endpoint>( []( auto & s ) {
-							return local_endpoint( s );
-						} ), *socket );
+					boost::asio::ip::tcp::endpoint local_endpoint( BoostSocket const & socket ) {
+						return socket->lowest_layer( ).local_endpoint( );
 					}
 				}	// namespace impl
 			}	// namespace net
