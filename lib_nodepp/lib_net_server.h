@@ -45,6 +45,7 @@ namespace daw {
 				using EndPoint = boost::asio::ip::tcp::endpoint;
 
 				NetServer create_net_server( daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
+				NetServer create_net_ssl_server( boost::asio::ssl::context::method = boost::asio::ssl::context::tlsv12, daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
 
 				namespace impl {
 					//////////////////////////////////////////////////////////////////////////
