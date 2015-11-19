@@ -61,7 +61,7 @@ namespace daw {
 					}
 
 					NetSocketStreamImpl::NetSocketStreamImpl( base::EventEmitter emitter, boost::asio::ssl::context::method ctx_method, bool use_ssl ):
-						m_socket( std::make_shared<impl::BoostSocket::BoostSocketValueType>( base::ServiceHandle::get( ) ), std::make_shared<boost::asio::ssl::context>( ctx_method ), use_ssl ),
+						m_socket( create_boost_socket( base::ServiceHandle::get( ), ctx_method, use_ssl ) ),
 						m_emitter( std::move( emitter ) ),
 						m_state( ),
 						m_read_options( ),
@@ -281,7 +281,7 @@ namespace daw {
 						return daw::nodepp::lib::net::impl::is_open( m_socket );
 					}
 
-					daw::nodepp::lib::net::BoostSocket NetSocketStreamImpl::socket( ) {
+					daw::nodepp::lib::net::impl::BoostSocket NetSocketStreamImpl::socket( ) {
 						return m_socket;
 					}
 
@@ -396,13 +396,21 @@ namespace daw {
 				}	// namespace impl
 
 				NetSocketStream create_net_socket_stream( daw::nodepp::base::EventEmitter emitter ) {
-					auto result = NetSocketStream( new impl::NetSocketStreamImpl( emitter ) );
+					auto tmp = new impl::NetSocketStreamImpl( std::move( emitter ) );
+					if( nullptr == tmp ) {
+						return NetSocketStream( nullptr );
+					}
+					auto result = NetSocketStream( tmp );
 					result->arm( "close" );
 					return result;
 				}
 
-				NetSocketStream create_net_ssl_socket_stream( daw::nodepp::base::EventEmitter emitter ) {
-					auto result = NetSocketStream( std::make_shared<BoostSocket>( ), std::move( emitter ) );
+				NetSocketStream create_net_ssl_socket_stream( boost::asio::ssl::context::method ctx_method, daw::nodepp::base::EventEmitter emitter ) {
+					auto tmp = new impl::NetSocketStreamImpl( std::move( emitter ), ctx_method, true );
+					if( nullptr == tmp ) {
+						return NetSocketStream( nullptr );
+					}
+					auto result = NetSocketStream( tmp );
 					result->arm( "close" );
 					return result;
 				}

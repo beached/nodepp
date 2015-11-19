@@ -51,7 +51,7 @@ namespace daw {
 				using NetSocketStream = std::shared_ptr < impl::NetSocketStreamImpl >;
 
 				NetSocketStream create_net_socket_stream( daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
-				NetSocketStream create_net_ssl_socket_stream( daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
+				NetSocketStream create_net_ssl_socket_stream( boost::asio::ssl::context::method ctx_method = boost::asio::ssl::context::tlsv12, daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
 
 				enum class NetSocketStreamReadMode { newline, buffer_full, predicate, next_byte, regex, values, double_newline };
 
@@ -120,10 +120,10 @@ namespace daw {
 						std::size_t m_bytes_read;
 						std::size_t m_bytes_written;
 
-						NetSocketStreamImpl::NetSocketStreamImpl( base::EventEmitter emitter, boost::asio::ssl::context::method ctx_method = boost::asio::ssl::context::tlsv12, bool use_ssl = false );
+						NetSocketStreamImpl( base::EventEmitter emitter, boost::asio::ssl::context::method ctx_method = boost::asio::ssl::context::tlsv12, bool use_ssl = false );
 					public:
-						friend NetSocketStream daw::nodepp::lib::net::create_net_socket_stream( daw::nodepp::base::EventEmitter emitter );
-						friend NetSocketStream daw::nodepp::lib::net::create_net_ssl_socket_stream( daw::nodepp::base::EventEmitter emitter );
+						friend NetSocketStream daw::nodepp::lib::net::create_net_socket_stream( daw::nodepp::base::EventEmitter );
+						friend NetSocketStream daw::nodepp::lib::net::create_net_ssl_socket_stream( boost::asio::ssl::context::method, daw::nodepp::base::EventEmitter );
 
 						NetSocketStreamImpl( NetSocketStreamImpl&& other ) = default;
 						NetSocketStreamImpl& operator=( NetSocketStreamImpl&& rhs ) = default;
@@ -159,7 +159,7 @@ namespace daw {
 						NetSocketStreamImpl& set_read_predicate( std::function < std::pair<NetSocketStreamImpl::match_iterator_t, bool>( NetSocketStreamImpl::match_iterator_t begin, NetSocketStreamImpl::match_iterator_t end ) > match_function );
 						NetSocketStreamImpl& clear_read_predicate( );
 						NetSocketStreamImpl& set_read_until_values( std::string values, bool is_regex );
-						daw::nodepp::lib::net::BoostSocket socket( );
+						daw::nodepp::lib::net::impl::BoostSocket socket( );
 
 						std::size_t& buffer_size( );
 

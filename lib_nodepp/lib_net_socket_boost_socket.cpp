@@ -27,10 +27,11 @@ namespace daw {
 		namespace lib {
 			namespace net {
 				namespace impl {
-					BoostSocket::BoostSocket( std::shared_ptr<BoostSocket::BoostSocketValueType> socket, bool use_ssl ): m_socket( std::move( socket ) ), m_use_ssl( use_ssl ) { }
+					BoostSocket::BoostSocket( std::shared_ptr<BoostSocket::BoostSocketValueType> socket, std::shared_ptr<boost::asio::ssl::context> context, bool use_ssl ): m_socket( std::move( socket ) ), m_ssl_context( std::move( context ) ), m_use_ssl( use_ssl ) { }
 
 					BoostSocket create_boost_socket( boost::asio::io_service & io_service, boost::asio::ssl::context::method ctx_method, bool use_ssl ) {
-						return BoostSocket( std::make_shared < boost::asio::ssl::stream<boost::asio::ip::tcp::socket>>( io_service, ctx_method ), use_ssl );
+						auto ctx = std::make_shared<boost::asio::ssl::context>( ctx_method );
+						return BoostSocket( std::make_shared < boost::asio::ssl::stream<boost::asio::ip::tcp::socket>>( io_service, *ctx ), ctx, use_ssl );
 					}
 
 					bool BoostSocket::use_ssl( ) const {

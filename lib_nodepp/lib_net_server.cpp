@@ -156,12 +156,9 @@ namespace daw {
 
 						std::weak_ptr<NetServerImpl> obj = this->get_ptr( );
 
-						//m_acceptor->async_accept( boost_socket, handler );
-						boost::apply_visitor( daw::make_forwarding_visitor<void>( [&]( auto & s ) {
-							async_accept( m_acceptor, s, [obj, socket]( base::ErrorCode const & err ) mutable {
-								handle_accept( obj, socket.move_out( ), err );
-							} );
-						} ), *boost_socket );
+						m_acceptor->async_accept( boost_socket->lowest_layer( ), [obj, socket]( base::ErrorCode const & err ) mutable {
+							handle_accept( obj, socket.move_out( ), err );
+						} );
 					}
 
 					void NetServerImpl::emit_connection( NetSocketStream socket ) {
