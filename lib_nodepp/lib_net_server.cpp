@@ -145,7 +145,7 @@ namespace daw {
 
 						template<typename Handler>
 						void async_accept( std::shared_ptr<boost::asio::ip::tcp::acceptor> & acceptor, boost::asio::ssl::stream<boost::asio::ip::tcp::socket> & socket, Handler handler ) {
-							acceptor->async_accept( socket.lowest_layer( ), handler );
+							acceptor->async_accept( socket.next_layer( ), handler );
 						}
 					}
 
@@ -156,7 +156,7 @@ namespace daw {
 
 						std::weak_ptr<NetServerImpl> obj = this->get_ptr( );
 
-						m_acceptor->async_accept( boost_socket->lowest_layer( ), [obj, socket]( base::ErrorCode const & err ) mutable {
+						m_acceptor->async_accept( boost_socket->next_layer( ), [obj, socket]( base::ErrorCode const & err ) mutable {
 							handle_accept( obj, socket.move_out( ), err );
 						} );
 					}

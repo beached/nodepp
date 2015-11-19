@@ -67,7 +67,7 @@ namespace daw {
 					}
 
 					bool is_open( BoostSocket const & socket ) {
-						return socket->lowest_layer( ).is_open( );
+						return socket->next_layer( ).is_open( );
 					}
 
 					void shutdown( BoostSocket socket, boost::asio::ip::tcp::socket::shutdown_type ) {
@@ -87,15 +87,15 @@ namespace daw {
 					}
 
 					void cancel( BoostSocket socket ) {
-						socket->lowest_layer( ).cancel( );
+						socket->next_layer( ).cancel( );
 					}
 
 					boost::asio::ip::tcp::endpoint remote_endpoint( BoostSocket const & socket ) {
-						return socket->lowest_layer( ).remote_endpoint( );
+						return socket->next_layer( ).remote_endpoint( );
 					}
 
 					boost::asio::ip::tcp::endpoint local_endpoint( BoostSocket const & socket ) {
-						return socket->lowest_layer( ).local_endpoint( );
+						return socket->next_layer( ).local_endpoint( );
 					}
 				}	// namespace impl
 			}	// namespace net

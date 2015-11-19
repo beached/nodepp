@@ -96,7 +96,7 @@ namespace daw {
 						if( socket.use_ssl( ) ) {
 							boost::asio::async_write( *socket, buffer, handler );
 						} else {
-							boost::asio::async_write( socket->lowest_layer( ), buffer, handler );
+							boost::asio::async_write( socket->next_layer( ), buffer, handler );
 						}
 					}
 
@@ -105,7 +105,7 @@ namespace daw {
 						if( socket.use_ssl( ) ) {
 							boost::asio::async_read( *socket, buffer, handler );
 						} else {
-							boost::asio::async_read( socket->lowest_layer( ), buffer, handler );
+							boost::asio::async_read( socket->next_layer( ), buffer, handler );
 						}
 					}
 
@@ -114,13 +114,13 @@ namespace daw {
 						if( socket.use_ssl( ) ) {
 							boost::asio::async_read_until( *socket, buffer, std::forward<MatchType>( m ), handler );
 						} else {
-							boost::asio::async_read_until( socket->lowest_layer( ), buffer, std::forward<MatchType>( m ), handler );
+							boost::asio::async_read_until( socket->next_layer( ), buffer, std::forward<MatchType>( m ), handler );
 						}
 					}
 
 					template<typename Iterator, typename ComposedConnectHandler>
 					void async_connect( BoostSocket socket, Iterator it, ComposedConnectHandler handler ) {
-						boost::asio::async_connect( socket->lowest_layer( ), it, handler );
+						boost::asio::async_connect( socket->next_layer( ), it, handler );
 					}
 				}	// namespace impl
 			}	// namespace net
