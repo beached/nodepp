@@ -92,7 +92,7 @@ namespace daw {
 					boost::asio::ip::tcp::endpoint local_endpoint( BoostSocket const & socket );
 
 					template<typename HandshakeHandler>
-					void async_handshake( BoostSocket & socket, BoostSocket::BoostSocketValueType::handshake_type role, HandshakeHandler handler ) {
+					void async_handshake( BoostSocket socket, BoostSocket::BoostSocketValueType::handshake_type role, HandshakeHandler handler ) {
 						assert( static_cast<bool>(socket.m_socket) );
 						if( socket.encyption_on( ) ) {
 							return;
