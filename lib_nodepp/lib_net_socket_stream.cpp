@@ -60,8 +60,8 @@ namespace daw {
 						return new_buffer;
 					}
 
-					NetSocketStreamImpl::NetSocketStreamImpl( base::EventEmitter emitter, boost::asio::ssl::context::method ctx_method, bool use_ssl ):
-						m_socket( create_boost_socket( base::ServiceHandle::get( ), ctx_method, use_ssl ) ),
+					NetSocketStreamImpl::NetSocketStreamImpl( std::shared_ptr<boost::asio::ssl::context> ctx, base::EventEmitter emitter ):
+						m_socket( create_boost_socket( base::ServiceHandle::get( ), std::move( ctx ) ) ),
 						m_emitter( std::move( emitter ) ),
 						m_state( ),
 						m_read_options( ),
@@ -396,20 +396,21 @@ namespace daw {
 				}	// namespace impl
 
 				NetSocketStream create_net_socket_stream( daw::nodepp::base::EventEmitter emitter ) {
-					auto tmp = new impl::NetSocketStreamImpl( std::move( emitter ) );
-					if( nullptr == tmp ) {
-						return NetSocketStream( nullptr );
-					}
+					auto tmp = new impl::NetSocketStreamImpl( std::shared_ptr<boost::asio::ssl::context>( nullptr ), std::move( emitter ) );
 					auto result = NetSocketStream( tmp );
 					result->arm( "close" );
 					return result;
 				}
 
-				NetSocketStream create_net_ssl_socket_stream( boost::asio::ssl::context::method ctx_method, daw::nodepp::base::EventEmitter emitter ) {
-					auto tmp = new impl::NetSocketStreamImpl( std::move( emitter ), ctx_method, true );
-					if( nullptr == tmp ) {
-						return NetSocketStream( nullptr );
-					}
+				NetSocketStream create_net_socket_stream( std::shared_ptr<boost::asio::ssl::context> context, daw::nodepp::base::EventEmitter emitter ) {
+					auto tmp = new impl::NetSocketStreamImpl( std::move( context ), std::move( emitter ) );
+					auto result = NetSocketStream( tmp );
+					result->arm( "close" );
+					return result;
+				}
+
+				NetSocketStream create_net_socket_stream( boost::asio::ssl::context::method method, daw::nodepp::base::EventEmitter emitter ) {
+					auto tmp = new impl::NetSocketStreamImpl( std::make_shared<boost::asio::ssl::context>( method ), std::move( emitter ) );
 					auto result = NetSocketStream( tmp );
 					result->arm( "close" );
 					return result;

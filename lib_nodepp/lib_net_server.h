@@ -45,7 +45,7 @@ namespace daw {
 				using EndPoint = boost::asio::ip::tcp::endpoint;
 
 				NetServer create_net_server( daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
-				NetServer create_net_ssl_server( boost::asio::ssl::context::method = boost::asio::ssl::context::tlsv12, daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
+				NetServer create_net_ssl_server( boost::asio::ssl::context::method ctx_method = boost::asio::ssl::context::tlsv12, daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
 
 				namespace impl {
 					//////////////////////////////////////////////////////////////////////////
@@ -54,18 +54,26 @@ namespace daw {
 					//				daw::nodepp::lib::net::NetAddress, daw::nodepp::base::Error
 					class NetServerImpl: public daw::nodepp::base::enable_shared<NetServerImpl>, public daw::nodepp::base::StandardEvents < NetServerImpl > {
 						std::shared_ptr<boost::asio::ip::tcp::acceptor> m_acceptor;
+						std::shared_ptr<boost::asio::ssl::context> m_context;
 						daw::nodepp::base::EventEmitter m_emitter;
 						NetServerImpl( daw::nodepp::base::EventEmitter emitter );
+						NetServerImpl( boost::asio::ssl::context::method method, daw::nodepp::base::EventEmitter emitter );
 					public:
 						friend daw::nodepp::lib::net::NetServer daw::nodepp::lib::net::create_net_server( daw::nodepp::base::EventEmitter );
+						friend daw::nodepp::lib::net::NetServer daw::nodepp::lib::net::create_net_ssl_server( boost::asio::ssl::context::method, daw::nodepp::base::EventEmitter );
 
+						NetServerImpl( ) = delete;
 						NetServerImpl( NetServerImpl const & ) = default;
-						NetServerImpl( NetServerImpl&& other );
-						NetServerImpl& operator=( NetServerImpl && rhs );
+						NetServerImpl( NetServerImpl&& other ) = default;
+						NetServerImpl& operator=( NetServerImpl && rhs ) = default;
 						NetServerImpl& operator=( NetServerImpl const & ) = default;
 						~NetServerImpl( ) = default;
 
 						daw::nodepp::base::EventEmitter& emitter( );
+
+						boost::asio::ssl::context & ssl_context( );
+						boost::asio::ssl::context const & ssl_context( ) const;
+						bool using_ssl( ) const;
 
 						void listen( uint16_t port );
 						void listen( uint16_t port, std::string hostname, uint16_t backlog = 511 );

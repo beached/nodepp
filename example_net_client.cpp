@@ -34,7 +34,7 @@ int main( int, char const ** ) {
 	socket->on_connected( [socket]( ) mutable {
 		std::cout << "Connection from: " << socket->remote_address( ) << ":" << socket->remote_port( ) << std::endl;
 		socket->read_async( );
-	} ).on_data_received( [&has_directory, socket]( std::shared_ptr<base::data_t> data_buffer, bool ) mutable {
+	} ).on_data_received( [&has_directory, socket]( auto data_buffer, bool ) mutable {
 		if( data_buffer ) {
 			auto const msg = std::string { data_buffer->begin( ), data_buffer->end( ) };
 			std::cout << msg;

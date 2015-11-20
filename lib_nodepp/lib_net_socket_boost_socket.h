@@ -51,7 +51,7 @@ namespace daw {
 						using BoostSocketValueType = boost::asio::ssl::stream<boost::asio::ip::tcp::socket>;
 						std::shared_ptr <BoostSocketValueType> m_socket;
 						std::shared_ptr<boost::asio::ssl::context> m_ssl_context;
-						bool m_use_ssl;
+						bool m_ssl_on;
 
 						~BoostSocket( ) = default;
 						BoostSocket( BoostSocket const & ) = default;
@@ -60,18 +60,27 @@ namespace daw {
 						BoostSocket& operator=( BoostSocket && ) = default;
 						BoostSocket( ) = delete;
 
-						BoostSocket( std::shared_ptr<BoostSocketValueType> socket, std::shared_ptr<boost::asio::ssl::context> context, bool use_ssl );
+						BoostSocket( std::shared_ptr<BoostSocketValueType> socket, std::shared_ptr<boost::asio::ssl::context> context );
 
-						bool use_ssl( ) const;
-						bool & use_ssl( );
-						void use_ssl( bool && value );
 						BoostSocketValueType const & operator*( ) const;
 						BoostSocketValueType & operator*( );
 						BoostSocketValueType * operator->( ) const;
 						BoostSocketValueType * operator->( );
+
+						bool ssl_on( ) const;
+						bool & ssl_on( );
+						void ssl_on( bool value );
+
+						auto & ssl_context( ) {
+							return *m_ssl_context;
+						}
+
+						auto const & ssl_context( ) const {
+							return *m_ssl_context;
+						}
 					};
 
-					BoostSocket create_boost_socket( boost::asio::io_service & io_service, boost::asio::ssl::context::method ctx_method, bool use_ssl );
+					BoostSocket create_boost_socket( boost::asio::io_service & io_service, std::shared_ptr<boost::asio::ssl::context> context );
 
 					bool is_open( BoostSocket const & socket );
 					void shutdown( BoostSocket socket, boost::asio::ip::tcp::socket::shutdown_type );
@@ -85,7 +94,7 @@ namespace daw {
 					template<typename HandshakeHandler>
 					void async_handshake( BoostSocket & socket, bool const use_ssl( ), BoostSocket::BoostSocketValueType::handshake_type role, HandshakeHandler handler ) {
 						assert( static_cast<bool>(socket.m_socket) );
-						if( !socket.use_ssl( ) ) {
+						if( !socket.ssl_on( ) ) {
 							return;
 						}
 						socket->async_handshake( *socket, role, handler );
@@ -93,7 +102,7 @@ namespace daw {
 
 					template<typename ConstBufferSequence, typename WriteHandler>
 					void async_write( BoostSocket socket, ConstBufferSequence const & buffer, WriteHandler handler ) {
-						if( socket.use_ssl( ) ) {
+						if( socket.ssl_on( ) ) {
 							boost::asio::async_write( *socket, buffer, handler );
 						} else {
 							boost::asio::async_write( socket->next_layer( ), buffer, handler );
@@ -102,7 +111,7 @@ namespace daw {
 
 					template<typename MutableBufferSequence, typename ReadHandler>
 					void async_read( BoostSocket socket, MutableBufferSequence & buffer, ReadHandler handler ) {
-						if( socket.use_ssl( ) ) {
+						if( socket.ssl_on( ) ) {
 							boost::asio::async_read( *socket, buffer, handler );
 						} else {
 							boost::asio::async_read( socket->next_layer( ), buffer, handler );
@@ -111,7 +120,7 @@ namespace daw {
 
 					template<typename MutableBufferSequence, typename MatchType, typename ReadHandler>
 					void async_read_until( BoostSocket socket, MutableBufferSequence & buffer, MatchType && m, ReadHandler handler ) {
-						if( socket.use_ssl( ) ) {
+						if( socket.ssl_on( ) ) {
 							boost::asio::async_read_until( *socket, buffer, std::forward<MatchType>( m ), handler );
 						} else {
 							boost::asio::async_read_until( socket->next_layer( ), buffer, std::forward<MatchType>( m ), handler );

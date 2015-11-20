@@ -27,23 +27,10 @@ namespace daw {
 		namespace lib {
 			namespace net {
 				namespace impl {
-					BoostSocket::BoostSocket( std::shared_ptr<BoostSocket::BoostSocketValueType> socket, std::shared_ptr<boost::asio::ssl::context> context, bool use_ssl ): m_socket( std::move( socket ) ), m_ssl_context( std::move( context ) ), m_use_ssl( use_ssl ) { }
+					BoostSocket::BoostSocket( std::shared_ptr<BoostSocket::BoostSocketValueType> socket, std::shared_ptr<boost::asio::ssl::context> context ): m_socket( std::move( socket ) ), m_ssl_context( std::move( context ) ), m_ssl_on( false ) { }
 
-					BoostSocket create_boost_socket( boost::asio::io_service & io_service, boost::asio::ssl::context::method ctx_method, bool use_ssl ) {
-						auto ctx = std::make_shared<boost::asio::ssl::context>( ctx_method );
-						return BoostSocket( std::make_shared < boost::asio::ssl::stream<boost::asio::ip::tcp::socket>>( io_service, *ctx ), ctx, use_ssl );
-					}
-
-					bool BoostSocket::use_ssl( ) const {
-						return m_use_ssl;
-					}
-
-					bool & BoostSocket::use_ssl( ) {
-						return m_use_ssl;
-					}
-
-					void BoostSocket::use_ssl( bool && value ) {
-						m_use_ssl = std::forward<bool>( value );
+					BoostSocket create_boost_socket( boost::asio::io_service & io_service, std::shared_ptr<boost::asio::ssl::context> ctx ) {
+						return BoostSocket( std::make_shared < boost::asio::ssl::stream<boost::asio::ip::tcp::socket>>( io_service, *ctx ), ctx );
 					}
 
 					BoostSocket::BoostSocketValueType const & BoostSocket::operator*( ) const {
@@ -64,6 +51,18 @@ namespace daw {
 					BoostSocket::BoostSocketValueType * BoostSocket::operator->( ) {
 						assert( static_cast<bool>(m_socket) );
 						return m_socket.operator->( );
+					}
+
+					bool BoostSocket::ssl_on( ) const {
+						return m_ssl_on;
+					}
+
+					bool & BoostSocket::ssl_on( ) {
+						return m_ssl_on;
+					}
+
+					void BoostSocket::ssl_on( bool value ) {
+						m_ssl_on = value;
 					}
 
 					bool is_open( BoostSocket const & socket ) {

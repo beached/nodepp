@@ -51,7 +51,8 @@ namespace daw {
 				using NetSocketStream = std::shared_ptr < impl::NetSocketStreamImpl >;
 
 				NetSocketStream create_net_socket_stream( daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
-				NetSocketStream create_net_ssl_socket_stream( boost::asio::ssl::context::method ctx_method = boost::asio::ssl::context::tlsv12, daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
+				NetSocketStream create_net_socket_stream( std::shared_ptr<boost::asio::ssl::context> context, daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
+				NetSocketStream create_net_socket_stream( boost::asio::ssl::context::method method, daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
 
 				enum class NetSocketStreamReadMode { newline, buffer_full, predicate, next_byte, regex, values, double_newline };
 
@@ -120,10 +121,11 @@ namespace daw {
 						std::size_t m_bytes_read;
 						std::size_t m_bytes_written;
 
-						NetSocketStreamImpl( base::EventEmitter emitter, boost::asio::ssl::context::method ctx_method = boost::asio::ssl::context::tlsv12, bool use_ssl = false );
+						NetSocketStreamImpl( std::shared_ptr<boost::asio::ssl::context> ctx, base::EventEmitter emitter );
 					public:
 						friend NetSocketStream daw::nodepp::lib::net::create_net_socket_stream( daw::nodepp::base::EventEmitter );
-						friend NetSocketStream daw::nodepp::lib::net::create_net_ssl_socket_stream( boost::asio::ssl::context::method, daw::nodepp::base::EventEmitter );
+						friend NetSocketStream daw::nodepp::lib::net::create_net_socket_stream( boost::asio::ssl::context::method, daw::nodepp::base::EventEmitter );
+						friend NetSocketStream daw::nodepp::lib::net::create_net_socket_stream( std::shared_ptr < boost::asio::ssl::context>, daw::nodepp::base::EventEmitter );
 
 						NetSocketStreamImpl( NetSocketStreamImpl&& other ) = default;
 						NetSocketStreamImpl& operator=( NetSocketStreamImpl&& rhs ) = default;
