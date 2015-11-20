@@ -35,7 +35,7 @@ int main( int, char const ** ) {
 	using namespace daw::nodepp;
 	using namespace daw::nodepp::lib::net;
 
-	auto srv = create_net_server( );
+	auto srv = create_net_server( boost::asio::ssl::context::tlsv12_server );
 
 	srv->on_connection( [&]( NetSocketStream socket ) {
 		std::cout << "Connection from: " << socket->remote_address( ) << ":" << socket->remote_port( ) << std::endl;

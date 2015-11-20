@@ -185,7 +185,7 @@ namespace daw {
 					return NetServer( tmp );
 				}
 
-				NetServer create_net_ssl_server( boost::asio::ssl::context::method ctx_method, daw::nodepp::base::EventEmitter emitter ) {
+				NetServer create_net_server( boost::asio::ssl::context::method ctx_method, daw::nodepp::base::EventEmitter emitter ) {
 					auto tmp = new impl::NetServerImpl( ctx_method, std::move( emitter ) );
 					return NetServer( tmp );
 				}
