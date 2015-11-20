@@ -416,15 +416,23 @@ namespace daw {
 					return result;
 				}
 
-				NetSocketStream & operator<<( NetSocketStream & socket, boost::string_ref message ) {
-					if( socket ) {
-						socket->write_async( message );
-					} else {
-						throw std::runtime_error( "Attempt to use a null NetSocketStream" );
-					}
-					return socket;
-				}
+// 				daw::nodepp::lib::net::NetSocketStream& operator<<( daw::nodepp::lib::net::NetSocketStream socket, boost::string_ref message ) {
+// 					if( socket ) {
+// 						socket->write_async( message );
+// 					} else {
+// 						throw std::runtime_error( "Attempt to use a null NetSocketStream" );
+// 					}
+// 					return socket;
+// 				}
 			}	// namespace net
 		}	// namespace lib
 	}	// namespace nodepp
 }	// namespace daw
+daw::nodepp::lib::net::NetSocketStream& operator<<( daw::nodepp::lib::net::NetSocketStream socket, boost::string_ref message ) {
+	if( socket ) {
+		socket->write_async( message );
+	} else {
+		throw std::runtime_error( "Attempt to use a null NetSocketStream" );
+	}
+	return socket;
+}

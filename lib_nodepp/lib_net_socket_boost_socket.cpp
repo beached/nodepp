@@ -27,7 +27,7 @@ namespace daw {
 		namespace lib {
 			namespace net {
 				namespace impl {
-					BoostSocket::BoostSocket( std::shared_ptr<BoostSocket::BoostSocketValueType> socket, std::shared_ptr<boost::asio::ssl::context> context ): m_socket( std::move( socket ) ), m_ssl_context( std::move( context ) ), m_ssl_on( false ) { }
+					BoostSocket::BoostSocket( std::shared_ptr<BoostSocket::BoostSocketValueType> socket, std::shared_ptr<boost::asio::ssl::context> context ): m_socket( std::move( socket ) ), m_encryption_context( std::move( context ) ), m_encryption_enabled( false ) { }
 
 					BoostSocket create_boost_socket( boost::asio::io_service & io_service, std::shared_ptr<boost::asio::ssl::context> ctx ) {
 						return BoostSocket( std::make_shared < boost::asio::ssl::stream<boost::asio::ip::tcp::socket>>( io_service, *ctx ), ctx );
@@ -53,16 +53,16 @@ namespace daw {
 						return m_socket.operator->( );
 					}
 
-					bool BoostSocket::ssl_on( ) const {
-						return m_ssl_on;
+					bool BoostSocket::encyption_on( ) const {
+						return m_encryption_enabled;
 					}
 
-					bool & BoostSocket::ssl_on( ) {
-						return m_ssl_on;
+					bool & BoostSocket::encyption_on( ) {
+						return m_encryption_enabled;
 					}
 
-					void BoostSocket::ssl_on( bool value ) {
-						m_ssl_on = value;
+					void BoostSocket::encyption_on( bool value ) {
+						m_encryption_enabled = value;
 					}
 
 					bool is_open( BoostSocket const & socket ) {

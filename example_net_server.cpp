@@ -25,6 +25,7 @@
 
 #include "base_work_queue.h"
 #include "lib_net_server.h"
+#include "lib_net_socket_stream.h"
 #include <boost/utility/string_ref.hpp>
 #include <boost/filesystem.hpp>
 #include "daw_string.h"
@@ -40,7 +41,7 @@ int main( int, char const ** ) {
 	srv->on_connection( [&]( NetSocketStream socket ) {
 		std::cout << "Connection from: " << socket->remote_address( ) << ":" << socket->remote_port( ) << std::endl;
 
-		socket->on_data_received( [socket]( std::shared_ptr<base::data_t> data_buffer, bool ) mutable {
+		socket->on_data_received( [socket]( std::shared_ptr<daw::nodepp::base::data_t> data_buffer, bool ) mutable {
 			if( data_buffer ) {
 				auto const msg = daw::AsciiLower( daw::string::trim_copy( std::string { data_buffer->begin( ), data_buffer->end( ) } ) );
 				if( msg == "quit" ) {
@@ -52,6 +53,11 @@ int main( int, char const ** ) {
 					socket << "dir - show directory listing\r\n";
 					socket << "help - this message\r\n";
 					socket << "READY\r\n";
+				} else if( msg == "starttls" ) {
+					NetSocketStream local_socket = socket;
+					daw::nodepp::lib::net::impl::async_handshake( socket->socket( ), impl::BoostSocket::BoostSocketValueType::handshake_type::server, [local_socket]( auto const & error ) mutable {
+						local_socket << "Encryption enabled\r\n";
+					} );
 				} else {
 					socket << "SYNTAX ERROR\r\n\nREADY\r\n";
 				}
