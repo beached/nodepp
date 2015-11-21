@@ -62,6 +62,8 @@ int main( int, char const ** ) {
 					socket << "SYNTAX ERROR\r\n\nREADY\r\n";
 				}
 			}
+		} ).on_error( []( auto error ) {
+			std::cerr << "Error while serving: " << error << std::endl;
 		} ).set_read_mode( NetSocketStreamReadMode::newline );	// Every time a newline is received, on_data_received callback is called
 
 		socket << "READY\r\n";
