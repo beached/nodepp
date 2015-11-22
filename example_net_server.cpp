@@ -29,15 +29,39 @@
 #include <boost/utility/string_ref.hpp>
 #include <boost/filesystem.hpp>
 #include "daw_string.h"
+#include <boost/program_options.hpp>
 
 std::string get_directory_listing( boost::string_ref folder );
 
-int main( int, char const ** ) {
+int main( int argc, char const ** argv ) {
 	using namespace daw::nodepp;
 	using namespace daw::nodepp::lib::net;
+	namespace po = boost::program_options;
+	uint16_t port;
+	std::string cert = "";
+	std::string key = "";
 
-	auto srv = create_net_server( boost::asio::ssl::context::tlsv12_server );
+	po::options_description desc( "Allowed options" );
+	desc.add_options( )
+		("help", "produce help message")
+		("port", po::value<uint16_t>( &port )->default_value( 2020 ), "port to listen on")
+		("cert", po::value<std::string>( &cert )->default_value( "" ), "The certificate chain file")
+		("key", po::value<std::string>( &key )->default_value( "" ), "The certificate private key file");
 
+	po::variables_map vm;
+	po::store( po::parse_command_line( argc, argv, desc ), vm );
+	po::notify( vm );
+
+	daw::nodepp::lib::net::NetServer srv = create_net_server( boost::asio::ssl::context::tlsv12_server );
+
+	srv->listen( port );
+	if( !(cert.empty( ) || key.empty( )) ) {
+		auto & ctx = srv->ssl_context( );
+		using namespace boost::asio::ssl;
+		ctx.set_options( context::default_workarounds | context::no_sslv2 | context::no_sslv3 | context::no_tlsv1 );
+		ctx.use_certificate_chain_file( cert.c_str( ) );
+		ctx.use_private_key_file( key.c_str( ), context::pem );
+	}
 	srv->on_connection( [&]( NetSocketStream socket ) {
 		std::cout << "Connection from: " << socket->remote_address( ) << ":" << socket->remote_port( ) << std::endl;
 
@@ -56,7 +80,11 @@ int main( int, char const ** ) {
 				} else if( msg == "starttls" ) {
 					NetSocketStream local_socket = socket;
 					daw::nodepp::lib::net::impl::async_handshake( socket->socket( ), impl::BoostSocket::BoostSocketValueType::handshake_type::server, [local_socket]( auto const & error ) mutable {
-						local_socket << "Encryption enabled\r\n";
+						if( error ) {
+							std::cerr << "Error starting encryption: " << error << ": " << error.message( ) << std::endl;
+						} else {
+							local_socket << "Encryption enabled\r\n";
+						}
 					} );
 				} else {
 					socket << "SYNTAX ERROR\r\n\nREADY\r\n";
@@ -70,8 +98,6 @@ int main( int, char const ** ) {
 
 		socket->read_async( );
 	} );
-
-	srv->listen( 2020 );
 
 	base::start_service( base::StartServiceMode::Single );
 

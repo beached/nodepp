@@ -22,15 +22,36 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <boost/program_options.hpp>
 #include "lib_net_socket_stream.h"
 
-int main( int, char const ** ) {
+int main( int argc, char const ** argv ) {
 	using namespace daw::nodepp;
 	using namespace daw::nodepp::lib::net;
+	namespace po = boost::program_options;
 
-	auto socket = create_net_socket_stream( );
 	auto has_directory = false;
 
+	uint16_t port;
+	std::string host_name;
+	std::string ca_cert;
+
+	po::options_description desc( "Allowed options" );
+	desc.add_options( )
+		("help", "produce help message")
+		("port", po::value<uint16_t>( &port )->default_value( 2020 ), "port to connect to")
+		("key", po::value<std::string>( &host_name )->default_value( "" ), "The host to connect to")
+		("ca_cert", po::value<std::string>( &ca_cert )->default_value( "" ), "The certificate to verify server cert");
+
+	po::variables_map vm;
+	po::store( po::parse_command_line( argc, argv, desc ), vm );
+	po::notify( vm );
+
+	auto socket = create_net_socket_stream( boost::asio::ssl::context::tlsv12_client );
+	if( !ca_cert.empty( ) ) {
+		boost::asio::ssl::context & ctx = *(socket->socket( ).encryption_context);
+		ctx.load_verify_file( ca_cert.c_str( ) );
+	}
 	socket->on_connected( [socket]( ) mutable {
 		std::cout << "Connection from: " << socket->remote_address( ) << ":" << socket->remote_port( ) << std::endl;
 		socket->read_async( );
@@ -49,7 +70,7 @@ int main( int, char const ** ) {
 		}
 	} ).set_read_until_values( "READY\r\n", false );
 
-	socket->connect( "localhost", 2020 );
+	socket->connect( host_name.c_str( ), port );
 
 	base::start_service( base::StartServiceMode::Single );
 	return EXIT_SUCCESS;
