@@ -79,12 +79,12 @@ int main( int argc, char const ** argv ) {
 					socket << "READY\r\n";
 				} else if( msg == "starttls" ) {
 					NetSocketStream local_socket = socket;
-					daw::nodepp::lib::net::impl::async_handshake( socket->socket( ), impl::BoostSocket::BoostSocketValueType::handshake_type::server, [local_socket]( auto const & error ) mutable {
+					socket->socket( ).async_handshake( impl::BoostSocket::BoostSocketValueType::handshake_type::server, [local_socket]( auto const & error ) mutable {
 						if( error ) {
 							std::cerr << "Error starting encryption: " << error << ": " << error.message( ) << std::endl;
-						} else {
-							local_socket << "Encryption enabled\r\n";
+							return;
 						}
+						local_socket << "Encryption enabled\r\n";
 					} );
 				} else {
 					socket << "SYNTAX ERROR\r\n\nREADY\r\n";

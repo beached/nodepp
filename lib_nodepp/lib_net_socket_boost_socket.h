@@ -60,6 +60,8 @@ namespace daw {
 						BoostSocket& operator=( BoostSocket && ) = default;
 						BoostSocket( ) = delete;
 
+						explicit operator bool( ) const;
+
 						BoostSocket( std::shared_ptr<BoostSocketValueType> socket, std::shared_ptr<boost::asio::ssl::context> context );
 
 						BoostSocketValueType const & operator*( ) const;
@@ -78,61 +80,61 @@ namespace daw {
 						auto const & encryption_context( ) const {
 							return *m_encryption_context;
 						}
+
+						bool is_open( ) const;
+						void shutdown( boost::asio::ip::tcp::socket::shutdown_type );
+						boost::system::error_code shutdown( boost::asio::ip::tcp::socket::shutdown_type, boost::system::error_code & ec );
+						void close( );
+						boost::system::error_code close( boost::system::error_code & ec );
+						void cancel( );
+						boost::asio::ip::tcp::endpoint remote_endpoint( ) const;
+						boost::asio::ip::tcp::endpoint local_endpoint( ) const;
+
+						template<typename HandshakeHandler>
+						void async_handshake( BoostSocketValueType::handshake_type role, HandshakeHandler handler ) {
+							assert( static_cast<bool>(m_socket) );
+							if( encyption_on( ) ) {
+								return;
+							}
+							m_socket->async_handshake( role, handler );
+						}
+
+						template<typename ConstBufferSequence, typename WriteHandler>
+						void async_write( ConstBufferSequence const & buffer, WriteHandler handler ) {
+							if( encyption_on( ) ) {
+								boost::asio::async_write( *m_socket, buffer, handler );
+							} else {
+								boost::asio::async_write( m_socket->next_layer( ), buffer, handler );
+							}
+						}
+
+						template<typename MutableBufferSequence, typename ReadHandler>
+						void async_read( MutableBufferSequence & buffer, ReadHandler handler ) {
+							if( encyption_on( ) ) {
+								boost::asio::async_read( *m_socket, buffer, handler );
+							} else {
+								boost::asio::async_read( m_socket->next_layer( ), buffer, handler );
+							}
+						}
+
+						template<typename MutableBufferSequence, typename MatchType, typename ReadHandler>
+						void async_read_until( MutableBufferSequence & buffer, MatchType && m, ReadHandler handler ) {
+							if( encyption_on( ) ) {
+								boost::asio::async_read_until( *m_socket, buffer, std::forward<MatchType>( m ), handler );
+							} else {
+								boost::asio::async_read_until( m_socket->next_layer( ), buffer, std::forward<MatchType>( m ), handler );
+							}
+						}
+
+						template<typename Iterator, typename ComposedConnectHandler>
+						void async_connect( Iterator it, ComposedConnectHandler handler ) {
+							boost::asio::async_connect( m_socket->next_layer( ), it, handler );
+						}
+
+						void enable_encryption( boost::asio::ssl::stream_base::handshake_type handshake );
 					};
 
 					BoostSocket create_boost_socket( boost::asio::io_service & io_service, std::shared_ptr<boost::asio::ssl::context> context );
-
-					bool is_open( BoostSocket const & socket );
-					void shutdown( BoostSocket socket, boost::asio::ip::tcp::socket::shutdown_type );
-					boost::system::error_code shutdown( BoostSocket socket, boost::asio::ip::tcp::socket::shutdown_type, boost::system::error_code & ec );
-					void close( BoostSocket socket );
-					boost::system::error_code close( BoostSocket socket, boost::system::error_code & ec );
-					void cancel( BoostSocket socket );
-					boost::asio::ip::tcp::endpoint remote_endpoint( BoostSocket const & socket );
-					boost::asio::ip::tcp::endpoint local_endpoint( BoostSocket const & socket );
-
-					template<typename HandshakeHandler>
-					void async_handshake( BoostSocket socket, BoostSocket::BoostSocketValueType::handshake_type role, HandshakeHandler handler ) {
-						assert( static_cast<bool>(socket.m_socket) );
-						if( socket.encyption_on( ) ) {
-							return;
-						}
-						socket->async_handshake( role, handler );
-					}
-
-					template<typename ConstBufferSequence, typename WriteHandler>
-					void async_write( BoostSocket socket, ConstBufferSequence const & buffer, WriteHandler handler ) {
-						if( socket.encyption_on( ) ) {
-							boost::asio::async_write( *socket, buffer, handler );
-						} else {
-							boost::asio::async_write( socket->next_layer( ), buffer, handler );
-						}
-					}
-
-					template<typename MutableBufferSequence, typename ReadHandler>
-					void async_read( BoostSocket socket, MutableBufferSequence & buffer, ReadHandler handler ) {
-						if( socket.encyption_on( ) ) {
-							boost::asio::async_read( *socket, buffer, handler );
-						} else {
-							boost::asio::async_read( socket->next_layer( ), buffer, handler );
-						}
-					}
-
-					template<typename MutableBufferSequence, typename MatchType, typename ReadHandler>
-					void async_read_until( BoostSocket socket, MutableBufferSequence & buffer, MatchType && m, ReadHandler handler ) {
-						if( socket.encyption_on( ) ) {
-							boost::asio::async_read_until( *socket, buffer, std::forward<MatchType>( m ), handler );
-						} else {
-							boost::asio::async_read_until( socket->next_layer( ), buffer, std::forward<MatchType>( m ), handler );
-						}
-					}
-
-					template<typename Iterator, typename ComposedConnectHandler>
-					void async_connect( BoostSocket socket, Iterator it, ComposedConnectHandler handler ) {
-						boost::asio::async_connect( socket->next_layer( ), it, handler );
-					}
-
-					void enabled_encryption( boost::asio::ssl::stream_base::handshake_type handshake );
 				}	// namespace impl
 			}	// namespace net
 		}	// namespace lib

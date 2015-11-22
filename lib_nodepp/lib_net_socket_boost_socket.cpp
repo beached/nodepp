@@ -27,6 +27,10 @@ namespace daw {
 		namespace lib {
 			namespace net {
 				namespace impl {
+					BoostSocket::operator bool( ) const {
+						return static_cast<bool>(m_socket);
+					}
+
 					BoostSocket::BoostSocket( std::shared_ptr<BoostSocket::BoostSocketValueType> socket, std::shared_ptr<boost::asio::ssl::context> context ): m_socket( std::move( socket ) ), m_encryption_context( std::move( context ) ), m_encryption_enabled( false ) { }
 
 					BoostSocket create_boost_socket( boost::asio::io_service & io_service, std::shared_ptr<boost::asio::ssl::context> ctx ) {
@@ -65,36 +69,36 @@ namespace daw {
 						m_encryption_enabled = value;
 					}
 
-					bool is_open( BoostSocket const & socket ) {
-						return socket->next_layer( ).is_open( );
+					bool BoostSocket::is_open( ) const {
+						return m_socket->next_layer( ).is_open( );
 					}
 
-					void shutdown( BoostSocket socket, boost::asio::ip::tcp::socket::shutdown_type ) {
-						socket->shutdown( );
+					void BoostSocket::shutdown( boost::asio::ip::tcp::socket::shutdown_type ) {
+						m_socket->shutdown( );
 					}
 
-					boost::system::error_code shutdown( BoostSocket socket, boost::asio::ip::tcp::socket::shutdown_type, boost::system::error_code & ec ) {
-						return socket->shutdown( ec );
+					boost::system::error_code BoostSocket::shutdown( boost::asio::ip::tcp::socket::shutdown_type, boost::system::error_code & ec ) {
+						return m_socket->shutdown( ec );
 					}
 
-					void close( BoostSocket socket ) {
-						socket->shutdown( );
+					void BoostSocket::close( ) {
+						m_socket->shutdown( );
 					}
 
-					boost::system::error_code close( BoostSocket socket, boost::system::error_code & ec ) {
-						return socket->shutdown( ec );
+					boost::system::error_code BoostSocket::close( boost::system::error_code & ec ) {
+						return m_socket->shutdown( ec );
 					}
 
-					void cancel( BoostSocket socket ) {
-						socket->next_layer( ).cancel( );
+					void BoostSocket::cancel( ) {
+						m_socket->next_layer( ).cancel( );
 					}
 
-					boost::asio::ip::tcp::endpoint remote_endpoint( BoostSocket const & socket ) {
-						return socket->next_layer( ).remote_endpoint( );
+					boost::asio::ip::tcp::endpoint BoostSocket::remote_endpoint( ) const {
+						return m_socket->next_layer( ).remote_endpoint( );
 					}
 
-					boost::asio::ip::tcp::endpoint local_endpoint( BoostSocket const & socket ) {
-						return socket->next_layer( ).local_endpoint( );
+					boost::asio::ip::tcp::endpoint BoostSocket::local_endpoint( ) const {
+						return m_socket->next_layer( ).local_endpoint( );
 					}
 				}	// namespace impl
 			}	// namespace net

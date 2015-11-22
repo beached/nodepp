@@ -72,10 +72,10 @@ namespace daw {
 
 					NetSocketStreamImpl::~NetSocketStreamImpl( ) {
 						try {
-							if( m_socket.m_socket && daw::nodepp::lib::net::impl::is_open( m_socket ) ) {
+							if( m_socket.m_socket && m_socket.is_open( ) ) {
 								base::ErrorCode ec;
-								daw::nodepp::lib::net::impl::shutdown( m_socket, boost::asio::socket_base::shutdown_both, ec );
-								daw::nodepp::lib::net::impl::close( m_socket, ec );
+								m_socket.shutdown( boost::asio::socket_base::shutdown_both, ec );
+								m_socket.close( ec );
 							}
 						} catch( ... ) {
 							// Do nothing, we don't usually care.  It's gone, move on
@@ -204,7 +204,7 @@ namespace daw {
 						auto outstanding_writes = m_pending_writes->get_weak_ptr( );
 
 						m_pending_writes->inc_counter( );
-						daw::nodepp::lib::net::impl::async_write( m_socket, buff.asio_buff( ), [outstanding_writes, obj, buff]( base::ErrorCode const & err, size_t bytes_transfered ) mutable {
+						m_socket.async_write( buff.asio_buff( ), [outstanding_writes, obj, buff]( base::ErrorCode const & err, size_t bytes_transfered ) mutable {
 							handle_write( outstanding_writes, obj, buff, err, bytes_transfered );
 						} );
 					}
@@ -228,22 +228,22 @@ namespace daw {
 							case NetSocketStreamReadMode::next_byte:
 								throw std::runtime_error( "Read Until mode not implemented" );
 							case NetSocketStreamReadMode::buffer_full:
-								impl::async_read( m_socket, *read_buffer, handler );
+								m_socket.async_read( *read_buffer, handler );
 								break;
 							case NetSocketStreamReadMode::newline:
-								impl::async_read_until( m_socket, *read_buffer, "\n", handler );
+								m_socket.async_read_until( *read_buffer, "\n", handler );
 								break;
 							case NetSocketStreamReadMode::double_newline:
-								impl::async_read_until( m_socket, *read_buffer, dbl_newline, handler );
+								m_socket.async_read_until( *read_buffer, dbl_newline, handler );
 								break;
 							case NetSocketStreamReadMode::predicate:
-								impl::async_read_until( m_socket, *read_buffer, *m_read_options.read_predicate, handler );
+								m_socket.async_read_until( *read_buffer, *m_read_options.read_predicate, handler );
 								break;
 							case NetSocketStreamReadMode::values:
-								impl::async_read_until( m_socket, *read_buffer, m_read_options.read_until_values, handler );
+								m_socket.async_read_until( *read_buffer, m_read_options.read_until_values, handler );
 								break;
 							case NetSocketStreamReadMode::regex:
-								impl::async_read_until( m_socket, *read_buffer, boost::regex( m_read_options.read_until_values ), handler );
+								m_socket.async_read_until( *read_buffer, boost::regex( m_read_options.read_until_values ), handler );
 								break;
 
 							default:
@@ -269,7 +269,7 @@ namespace daw {
 						tcp::resolver resolver( base::ServiceHandle::get( ) );
 
 						auto obj = this->get_weak_ptr( );
-						impl::async_connect( m_socket, resolver.resolve( { host.to_string( ), std::to_string( port ) } ), [obj]( base::ErrorCode const & err, tcp::resolver::iterator it ) {
+						m_socket.async_connect( resolver.resolve( { host.to_string( ), std::to_string( port ) } ), [obj]( base::ErrorCode const & err, tcp::resolver::iterator it ) {
 							handle_connect( obj, err, it );
 						} );
 						return *this;
@@ -278,7 +278,7 @@ namespace daw {
 					std::size_t& NetSocketStreamImpl::buffer_size( ) { throw std::runtime_error( "Method not implemented" ); }
 
 					bool NetSocketStreamImpl::is_open( ) const {
-						return daw::nodepp::lib::net::impl::is_open( m_socket );
+						return m_socket.is_open( );
 					}
 
 					daw::nodepp::lib::net::impl::BoostSocket NetSocketStreamImpl::socket( ) {
@@ -298,7 +298,7 @@ namespace daw {
 					NetSocketStreamImpl&  NetSocketStreamImpl::end( ) {
 						m_state.end = true;
 						try {
-							daw::nodepp::lib::net::impl::shutdown( m_socket, boost::asio::ip::tcp::socket::shutdown_send );
+							m_socket.shutdown( boost::asio::ip::tcp::socket::shutdown_send );
 						} catch( ... ) {
 							this->emit_error( std::current_exception( ), "Error calling shutdown on socket", "NetSocketStreamImplImpl::end( )" );
 						}
@@ -321,16 +321,16 @@ namespace daw {
 						m_state.closed = true;
 						m_state.end = true;
 						try {
-							if( m_socket.m_socket && daw::nodepp::lib::net::impl::is_open( m_socket ) ) {
+							if( m_socket && m_socket.is_open( ) ) {
 								base::ErrorCode err;
 
-								daw::nodepp::lib::net::impl::shutdown( m_socket, boost::asio::ip::tcp::socket::shutdown_both, err );
+								m_socket.shutdown( boost::asio::ip::tcp::socket::shutdown_both, err );
 								if( emit_cb && err && err.value( ) != 107 ) {	// Already shutdown is ignored
 									emit_error( err, "NetSocketStreamImpl::close#shutdown" );
 								}
 								if( !m_state.closed ) {
 									err = base::ErrorCode( );
-									daw::nodepp::lib::net::impl::close( m_socket, err );
+									m_socket.close( err );
 									if( emit_cb && err ) {
 										emit_error( err, "NetSocketStreamImpl::close#close" );
 									}
@@ -346,7 +346,7 @@ namespace daw {
 					}
 
 					void NetSocketStreamImpl::cancel( ) {
-						daw::nodepp::lib::net::impl::cancel( m_socket );
+						m_socket.cancel( );
 					}
 
 					NetSocketStreamImpl&  NetSocketStreamImpl::set_timeout( int32_t ) { throw std::runtime_error( "Method not implemented" ); }
@@ -356,19 +356,19 @@ namespace daw {
 					NetSocketStreamImpl&  NetSocketStreamImpl::set_keep_alive( bool, int32_t ) { throw std::runtime_error( "Method not implemented" ); }
 
 					std::string NetSocketStreamImpl::remote_address( ) const {
-						return daw::nodepp::lib::net::impl::remote_endpoint( m_socket ).address( ).to_string( );
+						return m_socket.remote_endpoint( ).address( ).to_string( );
 					}
 
 					std::string NetSocketStreamImpl::local_address( ) const {
-						return daw::nodepp::lib::net::impl::local_endpoint( m_socket ).address( ).to_string( );
+						return m_socket.local_endpoint( ).address( ).to_string( );
 					}
 
 					uint16_t NetSocketStreamImpl::remote_port( ) const {
-						return daw::nodepp::lib::net::impl::remote_endpoint( m_socket ).port( );
+						return m_socket.remote_endpoint( ).port( );
 					}
 
 					uint16_t NetSocketStreamImpl::local_port( ) const {
-						return daw::nodepp::lib::net::impl::local_endpoint( m_socket ).port( );
+						return m_socket.local_endpoint( ).port( );
 					}
 
 					std::size_t NetSocketStreamImpl::bytes_read( ) const {
