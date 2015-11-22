@@ -15,7 +15,7 @@ ELSEIF( ${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" )
 ENDIF( )
 
 
-find_package(Boost 1.59.0 COMPONENTS system filesystem unit_test_framework REQUIRED)
+find_package(Boost 1.59.0 COMPONENTS system filesystem regex unit_test_framework program_options REQUIRED)
 
 set(HEADER_PREFIXES
 		concurrent_queue
