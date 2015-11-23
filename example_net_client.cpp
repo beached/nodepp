@@ -30,8 +30,6 @@ int main( int argc, char const ** argv ) {
 	using namespace daw::nodepp::lib::net;
 	namespace po = boost::program_options;
 
-	auto has_directory = false;
-
 	uint16_t port;
 	std::string host_name;
 	std::string ca_cert;
@@ -40,12 +38,17 @@ int main( int argc, char const ** argv ) {
 	desc.add_options( )
 		("help", "produce help message")
 		("port", po::value<uint16_t>( &port )->default_value( 2020 ), "port to connect to")
-		("key", po::value<std::string>( &host_name )->default_value( "" ), "The host to connect to")
+		("host", po::value<std::string>( &host_name )->default_value( "localhost" ), "The host to connect to")
 		("ca_cert", po::value<std::string>( &ca_cert )->default_value( "" ), "The certificate to verify server cert");
 
 	po::variables_map vm;
 	po::store( po::parse_command_line( argc, argv, desc ), vm );
 	po::notify( vm );
+
+	if( vm.count("help") ) {
+		std::cout << desc << std::endl;
+	    return EXIT_SUCCESS;
+	}
 
 	auto socket = create_net_socket_stream( boost::asio::ssl::context::tlsv12_client );
 
@@ -65,7 +68,7 @@ int main( int argc, char const ** argv ) {
 	};
 
 	auto const state_start_encrypton = [&]( NetSocketStream s ) {
-		s << "starttls";
+		s << "starttls\r\n";
 		s->socket( ).async_handshake( impl::BoostSocket::BoostSocketValueType::handshake_type::client, [&]( auto const & error ) mutable {
 			if( error ) {
 				std::cerr << "Error starting encryption: " << error << ": " << error.message( ) << std::endl;
@@ -79,8 +82,10 @@ int main( int argc, char const ** argv ) {
 	current_state = state_start_encrypton;
 
 	if( !ca_cert.empty( ) ) {
+		using namespace boost::asio::ssl;
 		boost::asio::ssl::context & ctx = socket->socket( ).encryption_context( );
 		ctx.load_verify_file( ca_cert.c_str( ) );
+		ctx.set_options( context::default_workarounds | boost::asio::ssl::context::single_dh_use );
 	}
 	socket->on_connected( [socket]( ) mutable {
 		std::cout << "Connection from: " << socket->remote_address( ) << ":" << socket->remote_port( ) << std::endl;

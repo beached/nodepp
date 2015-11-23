@@ -52,13 +52,18 @@ int main( int argc, char const ** argv ) {
 	po::store( po::parse_command_line( argc, argv, desc ), vm );
 	po::notify( vm );
 
+	if( vm.count("help") ) {
+		std::cout << desc << std::endl;
+	    return EXIT_SUCCESS;
+	}
+
 	daw::nodepp::lib::net::NetServer srv = create_net_server( boost::asio::ssl::context::tlsv12_server );
 
 	srv->listen( port );
 	if( !(cert.empty( ) || key.empty( )) ) {
 		auto & ctx = srv->ssl_context( );
 		using namespace boost::asio::ssl;
-		ctx.set_options( context::default_workarounds | context::no_sslv2 | context::no_sslv3 | context::no_tlsv1 );
+		ctx.set_options( context::default_workarounds | boost::asio::ssl::context::single_dh_use );
 		ctx.use_certificate_chain_file( cert.c_str( ) );
 		ctx.use_private_key_file( key.c_str( ), context::pem );
 	}

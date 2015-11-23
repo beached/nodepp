@@ -52,7 +52,11 @@ namespace daw {
 						std::shared_ptr <BoostSocketValueType> m_socket;
 						std::shared_ptr<boost::asio::ssl::context> m_encryption_context;
 						bool m_encryption_enabled;
-
+					private:
+						BoostSocketValueType & raw_socket( );
+						BoostSocketValueType const & raw_socket( ) const;
+						
+					public:
 						~BoostSocket( ) = default;
 						BoostSocket( BoostSocket const & ) = default;
 						BoostSocket& operator=( BoostSocket const & ) = default;
@@ -62,6 +66,9 @@ namespace daw {
 
 						explicit operator bool( ) const;
 
+						void init( );
+
+						BoostSocket( std::shared_ptr<boost::asio::ssl::context> context );
 						BoostSocket( std::shared_ptr<BoostSocketValueType> socket, std::shared_ptr<boost::asio::ssl::context> context );
 
 						BoostSocketValueType const & operator*( ) const;

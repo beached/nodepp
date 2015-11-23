@@ -61,7 +61,7 @@ namespace daw {
 					}
 
 					NetSocketStreamImpl::NetSocketStreamImpl( std::shared_ptr<boost::asio::ssl::context> ctx, base::EventEmitter emitter ):
-						m_socket( create_boost_socket( base::ServiceHandle::get( ), std::move( ctx ) ) ),
+						m_socket( std::move( ctx ) ),
 						m_emitter( std::move( emitter ) ),
 						m_state( ),
 						m_read_options( ),

@@ -21,39 +21,55 @@
 // SOFTWARE.
 
 #include "lib_net_socket_boost_socket.h"
+#include "base_service_handle.h"
 
 namespace daw {
 	namespace nodepp {
 		namespace lib {
 			namespace net {
 				namespace impl {
+					void BoostSocket::init( ) {
+						if( !m_socket ) {
+							assert( static_cast<bool>( m_encryption_context ) );
+							m_socket = std::make_shared<BoostSocketValueType>( base::ServiceHandle::get( ), *m_encryption_context );
+							assert( static_cast<bool>( m_socket ) );
+						}
+					}
+
+
+					BoostSocket::BoostSocketValueType & BoostSocket::raw_socket( ) {
+						init( );
+						return *m_socket;
+					}
+
+					BoostSocket::BoostSocketValueType const & BoostSocket::raw_socket( ) const {
+						assert( static_cast<bool>( m_socket ) );
+						return *m_socket;
+					}
+
 					BoostSocket::operator bool( ) const {
 						return static_cast<bool>(m_socket);
 					}
 
+					BoostSocket::BoostSocket( std::shared_ptr<boost::asio::ssl::context> context ): m_socket( nullptr ), m_encryption_context( std::move( context ) ), m_encryption_enabled( false ) { }
+
 					BoostSocket::BoostSocket( std::shared_ptr<BoostSocket::BoostSocketValueType> socket, std::shared_ptr<boost::asio::ssl::context> context ): m_socket( std::move( socket ) ), m_encryption_context( std::move( context ) ), m_encryption_enabled( false ) { }
 
-					BoostSocket create_boost_socket( boost::asio::io_service & io_service, std::shared_ptr<boost::asio::ssl::context> ctx ) {
-						return BoostSocket( std::make_shared < boost::asio::ssl::stream<boost::asio::ip::tcp::socket>>( io_service, *ctx ), ctx );
-					}
-
 					BoostSocket::BoostSocketValueType const & BoostSocket::operator*( ) const {
-						assert( static_cast<bool>(m_socket) );
-						return *m_socket;
+						return raw_socket( );
 					}
 
 					BoostSocket::BoostSocketValueType & BoostSocket::operator*( ) {
-						assert( static_cast<bool>(m_socket) );
-						return *m_socket;
+						return raw_socket( );
 					}
 
 					BoostSocket::BoostSocketValueType * BoostSocket::operator->( ) const {
-						assert( static_cast<bool>(m_socket) );
+						assert( static_cast<bool>( m_socket ) );
 						return m_socket.operator->( );
 					}
 
 					BoostSocket::BoostSocketValueType * BoostSocket::operator->( ) {
-						assert( static_cast<bool>(m_socket) );
+						init( );
 						return m_socket.operator->( );
 					}
 
@@ -70,35 +86,35 @@ namespace daw {
 					}
 
 					bool BoostSocket::is_open( ) const {
-						return m_socket->next_layer( ).is_open( );
+						return raw_socket( ).next_layer( ).is_open( );
 					}
 
 					void BoostSocket::shutdown( boost::asio::ip::tcp::socket::shutdown_type ) {
-						m_socket->shutdown( );
+						raw_socket( ).shutdown( );
 					}
 
 					boost::system::error_code BoostSocket::shutdown( boost::asio::ip::tcp::socket::shutdown_type, boost::system::error_code & ec ) {
-						return m_socket->shutdown( ec );
+						return raw_socket( ).shutdown( ec );
 					}
 
 					void BoostSocket::close( ) {
-						m_socket->shutdown( );
+						raw_socket( ).shutdown( );
 					}
 
 					boost::system::error_code BoostSocket::close( boost::system::error_code & ec ) {
-						return m_socket->shutdown( ec );
+						return raw_socket( ).shutdown( ec );
 					}
 
 					void BoostSocket::cancel( ) {
-						m_socket->next_layer( ).cancel( );
+						raw_socket( ).next_layer( ).cancel( );
 					}
 
 					boost::asio::ip::tcp::endpoint BoostSocket::remote_endpoint( ) const {
-						return m_socket->next_layer( ).remote_endpoint( );
+						return raw_socket( ).next_layer( ).remote_endpoint( );
 					}
 
 					boost::asio::ip::tcp::endpoint BoostSocket::local_endpoint( ) const {
-						return m_socket->next_layer( ).local_endpoint( );
+						return raw_socket( ).next_layer( ).local_endpoint( );
 					}
 				}	// namespace impl
 			}	// namespace net
