@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.4)
 
 project(lib_nodepp)
 
-find_package(Boost 1.59.0 COMPONENTS system filesystem regex unit_test_framework program_options REQUIRED)
+find_package(Boost 1.59.0 COMPONENTS system filesystem regex unit_test_framework REQUIRED)
 find_package(OpenSSL REQUIRED)
 
 MESSAGE( WARNING "Current Compiler:" ${CMAKE_CXX_COMPILER_ID} )
