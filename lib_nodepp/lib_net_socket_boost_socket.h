@@ -47,12 +47,13 @@ namespace daw {
 		namespace lib {
 			namespace net {
 				namespace impl {
+					using EncryptionContext = boost::asio::ssl::context;
 					struct BoostSocket {
 						using BoostSocketValueType = boost::asio::ssl::stream<boost::asio::ip::tcp::socket>;
-						std::shared_ptr <BoostSocketValueType> m_socket;
-						std::shared_ptr<boost::asio::ssl::context> m_encryption_context;
+						std::shared_ptr<EncryptionContext> m_encryption_context;
 						bool m_encryption_enabled;
 					private:
+						std::shared_ptr <BoostSocketValueType> m_socket;
 						BoostSocketValueType & raw_socket( );
 						BoostSocketValueType const & raw_socket( ) const;
 						
@@ -68,8 +69,8 @@ namespace daw {
 
 						void init( );
 
-						BoostSocket( std::shared_ptr<boost::asio::ssl::context> context );
-						BoostSocket( std::shared_ptr<BoostSocketValueType> socket, std::shared_ptr<boost::asio::ssl::context> context );
+						BoostSocket( std::shared_ptr<EncryptionContext> context );
+						BoostSocket( std::shared_ptr<BoostSocketValueType> socket, std::shared_ptr<EncryptionContext> context );
 
 						BoostSocketValueType const & operator*( ) const;
 						BoostSocketValueType & operator*( );
@@ -79,14 +80,10 @@ namespace daw {
 						bool encyption_on( ) const;
 						bool & encyption_on( );
 						void encyption_on( bool value );
+						void reset_socket( );
 
-						auto & encryption_context( ) {
-							return *m_encryption_context;
-						}
-
-						auto const & encryption_context( ) const {
-							return *m_encryption_context;
-						}
+						EncryptionContext & encryption_context( );
+						EncryptionContext const & encryption_context( ) const;
 
 						bool is_open( ) const;
 						void shutdown( boost::asio::ip::tcp::socket::shutdown_type );
@@ -141,7 +138,7 @@ namespace daw {
 						void enable_encryption( boost::asio::ssl::stream_base::handshake_type handshake );
 					};
 
-					BoostSocket create_boost_socket( boost::asio::io_service & io_service, std::shared_ptr<boost::asio::ssl::context> context );
+					BoostSocket create_boost_socket( boost::asio::io_service & io_service, std::shared_ptr<EncryptionContext> context );
 				}	// namespace impl
 			}	// namespace net
 		}	// namespace lib

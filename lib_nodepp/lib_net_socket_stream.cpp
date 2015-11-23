@@ -72,7 +72,7 @@ namespace daw {
 
 					NetSocketStreamImpl::~NetSocketStreamImpl( ) {
 						try {
-							if( m_socket.m_socket && m_socket.is_open( ) ) {
+							if( m_socket && m_socket.is_open( ) ) {
 								base::ErrorCode ec;
 								m_socket.shutdown( boost::asio::socket_base::shutdown_both, ec );
 								m_socket.close( ec );
@@ -335,7 +335,7 @@ namespace daw {
 										emit_error( err, "NetSocketStreamImpl::close#close" );
 									}
 								}
-								m_socket.m_socket.reset( );
+								m_socket.reset_socket( );
 							}
 						} catch( ... ) {
 							//emit_error( std::current_exception( ), "Error calling shutdown on socket", "NetSocketStreamImplImpl::close( )" );

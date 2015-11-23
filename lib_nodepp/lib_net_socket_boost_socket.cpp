@@ -36,6 +36,17 @@ namespace daw {
 						}
 					}
 
+					void BoostSocket::reset_socket( ) {
+						m_socket.reset( );
+					}
+
+					EncryptionContext & BoostSocket::encryption_context( ) {
+							return *m_encryption_context;
+					}
+
+					EncryptionContext const & BoostSocket::encryption_context( ) const {
+						return *m_encryption_context;
+					}
 
 					BoostSocket::BoostSocketValueType & BoostSocket::raw_socket( ) {
 						init( );
@@ -51,9 +62,9 @@ namespace daw {
 						return static_cast<bool>(m_socket);
 					}
 
-					BoostSocket::BoostSocket( std::shared_ptr<boost::asio::ssl::context> context ): m_socket( nullptr ), m_encryption_context( std::move( context ) ), m_encryption_enabled( false ) { }
+					BoostSocket::BoostSocket( std::shared_ptr<EncryptionContext> context ): m_socket( nullptr ), m_encryption_context( std::move( context ) ), m_encryption_enabled( false ) { }
 
-					BoostSocket::BoostSocket( std::shared_ptr<BoostSocket::BoostSocketValueType> socket, std::shared_ptr<boost::asio::ssl::context> context ): m_socket( std::move( socket ) ), m_encryption_context( std::move( context ) ), m_encryption_enabled( false ) { }
+					BoostSocket::BoostSocket( std::shared_ptr<BoostSocket::BoostSocketValueType> socket, std::shared_ptr<EncryptionContext> context ): m_socket( std::move( socket ) ), m_encryption_context( std::move( context ) ), m_encryption_enabled( false ) { }
 
 					BoostSocket::BoostSocketValueType const & BoostSocket::operator*( ) const {
 						return raw_socket( );
