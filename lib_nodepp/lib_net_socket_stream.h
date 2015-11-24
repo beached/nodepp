@@ -24,7 +24,6 @@
 
 #include <boost/asio.hpp>
 #include <boost/variant.hpp>
-#include <boost/asio/ssl.hpp>
 #include <cstdint>
 #include <memory>
 #include <string>
