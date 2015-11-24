@@ -36,17 +36,17 @@ link_directories( ${Boost_LIBRARY_DIRS} )
 include_directories( ${OPENSSL_INCLUDE_DIR} )
 
 add_executable(example_net_server example_net_server.cpp )
-target_link_libraries(example_net_server lib_nodepp ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
+target_link_libraries(example_net_server lib_nodepp ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
 
 add_executable(example_net_client example_net_client.cpp )
-target_link_libraries(example_net_client lib_nodepp ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
+target_link_libraries(example_net_client lib_nodepp ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES} ${COMPILER_SPECIFIC_LIBS})
 
 add_executable(example_web_service example_web_service.cpp )
-target_link_libraries(example_web_service lib_nodepp parse_json  ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
+target_link_libraries(example_web_service lib_nodepp parse_json  ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES} ${COMPILER_SPECIFIC_LIBS})
 
 add_executable(example_web_client example_web_client.cpp )
 target_link_libraries(example_web_client lib_nodepp parse_json  ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
 
 add_executable(example_event_emitter example_event_emitter.cpp )
-target_link_libraries(example_event_emitter lib_nodepp ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
+target_link_libraries(example_event_emitter lib_nodepp ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
 

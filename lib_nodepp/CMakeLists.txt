@@ -75,7 +75,7 @@ set(SOURCE_FILES
 		lib_net_dns.h
 		lib_net.h
 		lib_net_server.cpp
-		lib_net_server.h
+		lib_net_server.		
 		lib_net_socket_stream.cpp
 		lib_net_socket_stream.h
 		lib_net_socket_boost_socket.cpp
@@ -85,9 +85,9 @@ set(SOURCE_FILES
 include_directories( ../header_libraries )
 include_directories( ./parse_json )
 include_directories( ${Boost_INCLUDE_DIRS} )
-link_directories( ${Boost_LIBRARY_DIRS} )
+#link_directories( ${Boost_LIBRARY_DIRS} )
 include_directories( ${OPENSSL_INCLUDE_DIR} )
 
 
-add_library (lib_nodepp SHARED ${SOURCE_FILES})
-target_link_libraries( lib_nodepp parse_json ${OPENSSL_LIBRARIES} )
+add_library (lib_nodepp STATIC ${SOURCE_FILES})
+//target_link_libraries( lib_nodepp parse_json ${OPENSSL_LIBRARIES} )
