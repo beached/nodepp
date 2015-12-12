@@ -22,6 +22,8 @@ ELSEIF( ${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" )
 	set( BOOST_LIB, ${BOOST_LIBRARIES} )
 ENDIF( )
 
+message( WARNING "Using Boost libraries value of '${BOOST_LIB}'" )
+
 if(THREADS_HAVE_PTHREAD_ARG)
 	set(COMPILER_SPECIFIC_LIBS, "-lpthread" )
 endif( )
