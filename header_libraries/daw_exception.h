@@ -34,7 +34,6 @@ namespace daw {
 				EXCEPTION_TYPE( char const * msg ): std::runtime_error( msg ) { } \
 				EXCEPTION_TYPE( EXCEPTION_TYPE const & ) = default; \
 				EXCEPTION_TYPE& operator=( EXCEPTION_TYPE const & ) = default; \
-				virtual ~EXCEPTION_TYPE( ) = default; \
 				};
 
 		MAKE_DAW_EXCEPTION( NotImplemented );
