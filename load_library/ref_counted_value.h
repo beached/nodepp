@@ -24,7 +24,7 @@
 
 #include <functional>
 #include <cstdint>
-
+#include "../header_libraries/daw_exception.h"
 namespace daw {
 
 	template<typename T>
@@ -37,10 +37,12 @@ namespace daw {
 		
 		template<typename... Args>
 		ReferenceCountedValue( Args&&... args ) : m_value{ new T( std::forward<Args&&>( args )... ) }, m_counter{ new counter_t( ) }, m_cleaner{ nullptr } {
+			daw::exception::daw_throw_on_null( m_counter, "Unable to allocate value" );
 			*m_counter = 1;
 		}
 
 		explicit ReferenceCountedValue( T&& value ) : m_value{ new T( std::forward<T>( value ) ) }, m_counter{ new counter_t( ) }, m_cleaner{ nullptr } {			
+			daw::exception::daw_throw_on_null( m_counter, "Unable to allocate value" );
 			*m_counter = 1;
 		}
 

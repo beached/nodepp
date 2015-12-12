@@ -52,14 +52,13 @@ int main( int argc, char const ** argv ) {
 	po::store( po::parse_command_line( argc, argv, desc ), vm );
 	po::notify( vm );
 
-	if( vm.count("help") ) {
+	if( vm.count( "help" ) ) {
 		std::cout << desc << std::endl;
-	    return EXIT_SUCCESS;
+		return EXIT_SUCCESS;
 	}
 
 	daw::nodepp::lib::net::NetServer srv = create_net_server( boost::asio::ssl::context::tlsv12_server );
 
-	srv->listen( port );
 	if( !(cert.empty( ) || key.empty( )) ) {
 		auto & ctx = srv->ssl_context( );
 		using namespace boost::asio::ssl;
@@ -103,6 +102,8 @@ int main( int argc, char const ** argv ) {
 
 		socket->read_async( );
 	} );
+
+	srv->listen( port );
 
 	base::start_service( base::StartServiceMode::Single );
 

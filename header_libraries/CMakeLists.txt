@@ -21,6 +21,7 @@ set(HEADER_PREFIXES
 		concurrent_queue
 		daw_common_mixins
 		daw_range
+		daw_exception
 		daw_string
 		daw_traits
 		daw_utility
