@@ -36,9 +36,9 @@ link_directories( ${Boost_LIBRARY_DIRS} )
 
 add_library (parse_json STATIC ${SOURCE_FILES})
 
-#add_executable( parse_json_test_bin test.cpp )
-#target_link_libraries( parse_json_test_bin parse_json ${Boost_Libraries} )
+add_executable( parse_json_test_bin parse_json_test.cpp )
+target_link_libraries( parse_json_test_bin parse_json ${Boost_Libraries} )
 
 enable_testing( )
-#add_test( parse_json_test, parse_json_test_bin )
+add_test( parse_json_test, parse_json_test_bin )
 

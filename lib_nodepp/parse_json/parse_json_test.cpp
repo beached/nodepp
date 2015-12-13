@@ -99,6 +99,11 @@ struct B: public daw::json::JsonLink<B> {
 	}
 };
 
+template<typename K, typename V>
+bool operator==( std::unordered_map<K, V> const & a, std::unordered_map<K, V> const & b ) {
+	return a.size( ) == a.size( ) && std::equal( a.begin( ), a.end( ), b.begin( ) );
+}
+
 template<typename Stream>
 auto fsize( Stream & stream ) -> decltype(stream.tellg( )) {
 	auto cur_pos = stream.tellg( );
@@ -124,5 +129,5 @@ BOOST_AUTO_TEST_CASE( MapValues ) {
 	auto parsed = daw::json::parse_json( enc );
 	std::unordered_map<std::string, B> test_umap2;
 	daw::json::parse::json_to_value( test_umap2, *parsed );
-	BOOST_CHECK_EQUAL( test_umap, test_umap2 );
+	BOOST_REQUIRE( test_umap == test_umap2 );
 }

@@ -57,3 +57,5 @@ target_link_libraries(example_web_client lib_nodepp parse_json ${CMAKE_DL_LIBS} 
 add_executable(example_event_emitter example_event_emitter.cpp )
 target_link_libraries(example_event_emitter lib_nodepp ${CMAKE_DL_LIBS} ${Boost_Libs} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
 
+add_executable(example_parse_json example_parse_json.cpp )
+target_link_libraries(example_parse_json parse_json ${CMAKE_DL_LIBS} ${Boost_Libs} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
