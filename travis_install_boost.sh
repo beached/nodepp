@@ -12,7 +12,7 @@ if [ ! -d $BOOST_ROOT ]; then
 	cd boost_1_59_0;
 
 	echo "using gcc : : $BOOST_CXX ;" > ~/user-config.jam;
-	./bootstrap.sh --prefix="$BOOST_ROT"
+	./bootstrap.sh --prefix="$BOOST_ROOT"
 	
 	./b2 --prefix="$BOOST_ROOT" install; 
 else

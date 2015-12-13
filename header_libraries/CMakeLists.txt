@@ -5,12 +5,13 @@ project(header_libraries)
 MESSAGE( WARNING "Current Compiler:" ${CMAKE_CXX_COMPILER_ID} )
 
 find_package(Boost 1.59.0 COMPONENTS system filesystem regex unit_test_framework REQUIRED)
+set(Boost_LIBS -lboost_system -lboost_filesystem -lboost_regex -lboost_unit_test_framework)
 
 MESSAGE( WARNING "Current Compiler:" ${CMAKE_CXX_COMPILER_ID} )
 IF( ${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC" )
 	MESSAGE( WARNING "Using Visual Studio" )
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_WIN32_WINNT=0x0601" )
-	set( Boost_Libraries )
+	set( Boost_LIBS )
 ELSEIF( ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang" )
 	MESSAGE( WARNING "Using Clang" )
 	find_package(Threads REQUIRED)
@@ -43,7 +44,7 @@ LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 
 foreach( CUR_PREFIX ${HEADER_PREFIXES} )
 	add_executable( ${CUR_PREFIX}_test_bin ${CUR_PREFIX}.h ${CUR_PREFIX}_test.cpp header_libraries_test/test_main.cpp )
-	target_link_libraries( ${CUR_PREFIX}_test_bin ${Boost_Libraries} )
+	target_link_libraries( ${CUR_PREFIX}_test_bin ${Boost_LIBS} )
 	add_test( ${CUR_PREFIX}_test, ${CUR_PREFIX}_test_bin )
 endforeach( CUR_PREFIX )
 
