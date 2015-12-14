@@ -3,12 +3,13 @@ cmake_minimum_required(VERSION 2.8.0)
 project(parse_json)
 
 find_package(Boost 1.59.0 COMPONENTS system filesystem regex unit_test_framework REQUIRED)
+set(Boost_Libs ${BOOST_Libraries} -lboost_system -lboost_regex -lboost_filesystem -lboost_program_options -lboost_unit_test_framework )
 
 MESSAGE( WARNING "Current Compiler:" ${CMAKE_CXX_COMPILER_ID} )
 IF( ${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC" )
 	MESSAGE( WARNING "Using Visual Studio" )
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_WIN32_WINNT=0x0601" )
-	set( Boost_Libraries )
+	set( Boost_Libs )
 ELSEIF( ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang" )
 	MESSAGE( WARNING "Using Clang" )
 	find_package(Threads REQUIRED)
@@ -36,9 +37,10 @@ link_directories( ${Boost_LIBRARY_DIRS} )
 
 add_library (parse_json STATIC ${SOURCE_FILES})
 
-add_executable( parse_json_test_bin parse_json_test.cpp )
-target_link_libraries( parse_json_test_bin parse_json ${Boost_Libraries} )
-
 enable_testing( )
-add_test( parse_json_test, parse_json_test_bin )
+
+#add_executable( parse_json_test_bin parse_json_test.cpp )
+#target_link_libraries( parse_json_test_bin parse_json ${Boost_Libs} )
+
+#add_test( parse_json_test, parse_json_test_bin )
 

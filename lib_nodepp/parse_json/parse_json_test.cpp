@@ -30,6 +30,8 @@
 #include "daw_json.h"
 #include "daw_json_link.h"
 
+using namespace daw::json;
+
 struct Streamable {
 	std::string a;
 	Streamable( ) : a( "This is a test!" ) { }

@@ -21,3 +21,10 @@
 // SOFTWARE.
 
 #include "parse_json/daw_json.h"
+#include <cstdlib>
+
+int main( int, char** ) {
+
+
+	return EXIT_SUCCESS;
+}
