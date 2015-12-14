@@ -90,6 +90,13 @@ namespace daw {
 						return *this;
 					}
 				}	//namespace impl
+
+				// TODO: should be returning a response
+				HttpClientConnection get( boost::string_ref url, std::initializer_list<std::pair<std::string, boost::variant<bool, int64_t, double, std::string>>> options ) {
+					
+					return std::shared_ptr<impl::HttpClientConnectionImpl>( nullptr );
+				}
+
 			}	// namespace http
 		} // namespace lib
 	}	// namespace nodepp

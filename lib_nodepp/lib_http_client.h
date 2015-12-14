@@ -30,6 +30,7 @@
 #include "base_service_handle.h"
 #include "lib_http_request.h"
 #include "lib_http_server_response.h"
+#include "lib_http_client_connection_options.h"
 
 namespace daw {
 	namespace nodepp {
@@ -81,6 +82,12 @@ namespace daw {
 						HttpClientConnectionImpl & on_closed( std::function<void( )> listener );	// Only once as it is called on the way out
 					};	// HttpClientConnectionImpl
 				}	//namespace impl
+				using HttpClientConnection = std::shared_ptr<impl::HttpClientConnectionImpl>;
+
+				//HttpClientConnection get( boost::string_ref url );
+
+				HttpClientConnection get( boost::string_ref url, std::initializer_list<std::pair<std::string, boost::variant<bool, int64_t, double, std::string>>> options );
+
 			}	// namespace http
 		} // namespace lib
 	}	// namespace nodepp

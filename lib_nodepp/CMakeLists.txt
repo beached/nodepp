@@ -81,6 +81,8 @@ set(SOURCE_FILES
 		lib_net_socket_stream.h
 		lib_net_socket_boost_socket.cpp
 		lib_net_socket_boost_socket.h
+		lib_http_client_connection_options.cpp
+		lib_http_client_connection_options.h
 )
 
 include_directories( ../header_libraries )
