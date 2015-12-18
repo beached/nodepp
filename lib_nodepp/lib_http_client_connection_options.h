@@ -78,7 +78,7 @@ namespace daw {
 
 					template<typename T>
 					T get( boost::string_ref key ) const {
-						return boost::get<T>( m_dictionary[key.to_string( )] );
+						return boost::get<T>( *(m_dictionary.find( key.to_string( ) )) )
 					}
 
 				};
