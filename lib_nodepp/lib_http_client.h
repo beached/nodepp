@@ -86,7 +86,8 @@ namespace daw {
 
 				//HttpClientConnection get( boost::string_ref url );
 
-				HttpClientConnection get( boost::string_ref url, std::initializer_list<std::pair<std::string, boost::variant<bool, int64_t, double, std::string>>> options );
+				HttpClientConnection get( boost::string_ref url, std::initializer_list<std::pair<std::string, HttpClientConnectionOptions::value_type>> options );
+//				HttpClientConnection get( boost::string_ref url, std::initializer_list<std::pair<std::string, HttpClientConnectionOptions::value_type>> options, std::function<void()> on_success, std::function<void( )> on_error = nullptr );	// TODO fix me please, the callback really will have aparameters
 
 			}	// namespace http
 		} // namespace lib

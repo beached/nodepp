@@ -33,20 +33,20 @@ namespace daw {
 				NetServer create_server( daw::nodepp::base::options_t options = daw::nodepp::base::options_t { } );
 				template<typename Listener>
 				NetServer create_server( daw::nodepp::base::options_t options, Listener listener ) {
-					return create_server( options ).on( "connection", listener );
+					return create_server( options )->on( "connection", listener );
 				}
 
 				NetSocketStream create_connection( daw::nodepp::base::options_t options );
 				template<typename Listener>
 				NetServer create_connection( daw::nodepp::base::options_t options, Listener listener ) {
-					return create_connection( options ).on( "connect", listener );
+					return create_connection( options )->on( "connect", listener );
 				}
 
 				NetSocketStream create_connection( uint16_t port, std::string host = "" );
 
 				template<typename Listener>
 				NetServer create_connection( uint16_t port, std::string host = "", Listener listener ) {
-					return create_connection( options ).on( "connect", std::move( port ), std::move( host ) );
+					return create_connection( port, host )->on( "connect", listener );
 				}
 
 				uint8_t is_ip( std::string ip_address );

@@ -54,11 +54,6 @@ namespace daw {
 					return *this;
 				}
 
-
-				bool HttpClientConnectionOptions::is_empty( boost::string_ref key ) const {
-					return !static_cast<bool>(m_dictionary.find( key.to_string( ) )->second);
-				}
-
 				size_t HttpClientConnectionOptions::size( ) const {
 					return m_dictionary.size( );
 				}

@@ -33,8 +33,7 @@ namespace daw {
 		namespace lib {
 			namespace http {
 				struct HttpClientConnectionOption {
-					using value_type = boost::optional<boost::variant<bool, int64_t, double, std::string>>;
-					using NO_VALUE = value_type( );
+					using value_type = boost::variant<bool, int64_t, double, std::string, std::initializer_list<bool>, std::initializer_list<int64_t>, std::initializer_list<double>, std::initializer_list<std::string>>;
 				private:
 					std::pair<std::string, value_type> m_value;
 				public:
@@ -53,7 +52,8 @@ namespace daw {
 				};
 
 				struct HttpClientConnectionOptions {
-					using value_type = HttpClientConnectionOption::value_type;
+					//typedef boost::variant<bool, int64_t, double, std::string> value_type;
+					using value_type = boost::variant<bool, int64_t, double, std::string, std::initializer_list<bool>, std::initializer_list<int64_t>, std::initializer_list<double>, std::initializer_list<std::string>>;
 				private:
 					using dictionary_t = std::unordered_map < std::string, value_type>;
 					dictionary_t m_dictionary;
@@ -71,7 +71,6 @@ namespace daw {
 					HttpClientConnectionOptions( std::initializer_list<HttpClientConnectionOption> values );
 					HttpClientConnectionOptions & operator=( std::initializer_list<HttpClientConnectionOption> values );
 
-					bool is_empty( boost::string_ref key ) const;
 					size_t size( ) const;
 					void clear( );
 					std::vector<std::string> keys( ) const;
