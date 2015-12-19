@@ -53,7 +53,7 @@ namespace daw {
 
 						using handler_argument_t = Resolver::iterator;
 
-						virtual ~NetDnsImpl( ) = default;
+						~NetDnsImpl( ) = default;
 						NetDnsImpl( NetDnsImpl const & ) = delete;
 						NetDnsImpl& operator=( NetDnsImpl const & rhs ) = delete;
 						NetDnsImpl( NetDnsImpl&& other ) = default;

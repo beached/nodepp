@@ -57,7 +57,7 @@ namespace daw {
 					bool valid( ) const;
 				};
 
-				class WorkQueueImpl final: public daw::nodepp::base::enable_shared<WorkQueueImpl>, public daw::nodepp::base::StandardEvents < WorkQueueImpl > {
+				class WorkQueueImpl: public daw::nodepp::base::enable_shared<WorkQueueImpl>, public daw::nodepp::base::StandardEvents < WorkQueueImpl > {
 					daw::concurrent_queue<work_item_t> m_work_queue;
 					std::atomic<bool> m_continue;
 					daw::thread::Semaphore<int> m_worker_count;

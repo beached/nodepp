@@ -39,7 +39,7 @@ namespace daw {
 				HttpConnection create_http_connection( daw::nodepp::lib::net::NetSocketStream&& socket, daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
 
 				namespace impl {
-					class HttpConnectionImpl final: public daw::nodepp::base::enable_shared<HttpConnectionImpl>, public daw::nodepp::base::StandardEvents < HttpConnectionImpl > {
+					class HttpConnectionImpl: public daw::nodepp::base::enable_shared<HttpConnectionImpl>, public daw::nodepp::base::StandardEvents < HttpConnectionImpl > {
 						daw::nodepp::lib::net::NetSocketStream m_socket;
 
 						HttpConnectionImpl( daw::nodepp::lib::net::NetSocketStream && socket, daw::nodepp::base::EventEmitter emitter );

@@ -161,7 +161,7 @@ namespace daw {
 				m_name( std::move( name ) ),
 				m_data_map( ) { }	// TODO: look into moving set_links call into here
 
-			~JsonLink( ) = default;
+			virtual ~JsonLink( ) = default;
 
 			JsonLink( JsonLink const & ) = default;
 

@@ -56,7 +56,7 @@ namespace daw {
 				enum class NetSocketStreamReadMode { newline, buffer_full, predicate, next_byte, regex, values, double_newline };
 
 				namespace impl {
-					struct NetSocketStreamImpl final: public daw::nodepp::base::SelfDestructing<NetSocketStreamImpl>, public daw::nodepp::base::stream::StreamReadableEvents<NetSocketStreamImpl>, public daw::nodepp::base::stream::StreamWritableEvents < NetSocketStreamImpl > {
+					struct NetSocketStreamImpl: public daw::nodepp::base::SelfDestructing<NetSocketStreamImpl>, public daw::nodepp::base::stream::StreamReadableEvents<NetSocketStreamImpl>, public daw::nodepp::base::stream::StreamWritableEvents < NetSocketStreamImpl > {
 						using match_iterator_t = boost::asio::buffers_iterator <base::stream::StreamBuf::const_buffers_type >;
 						using match_function_t = std::function < std::pair<match_iterator_t, bool>( match_iterator_t begin, match_iterator_t end ) >;
 					private:

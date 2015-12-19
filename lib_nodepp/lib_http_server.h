@@ -60,7 +60,7 @@ namespace daw {
 						HttpServerImpl& operator=( HttpServerImpl const & ) = default;
 						HttpServerImpl& operator=( HttpServerImpl && rhs ) = default;
 						HttpServerImpl( HttpServerImpl const & ) = default;
-						virtual ~HttpServerImpl( ) = default;
+						~HttpServerImpl( ) = default;
 
 						void listen_on( uint16_t port );
 

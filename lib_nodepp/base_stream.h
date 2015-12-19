@@ -42,7 +42,7 @@ namespace daw {
 						return static_cast<Derived*>(this)->emitter( );
 					}
 				protected:
-					virtual ~StreamWritableEvents( ) = default;
+					~StreamWritableEvents( ) = default;
 				public:
 
 					//////////////////////////////////////////////////////////////////////////
@@ -92,7 +92,7 @@ namespace daw {
 					}
 
 				protected:
-					virtual ~StreamReadableEvents( ) = default;
+					~StreamReadableEvents( ) = default;
 				public:
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Event emitted when data is received

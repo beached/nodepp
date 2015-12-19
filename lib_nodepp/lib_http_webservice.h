@@ -43,7 +43,7 @@ namespace daw {
 
 				namespace impl {
 					template<typename ResultType, typename... Argument>
-					class HttpWebServiceImpl final: public daw::nodepp::base::enable_shared<HttpWebServiceImpl<ResultType, Argument...>>, public daw::nodepp::base::StandardEvents < HttpWebServiceImpl<ResultType, Argument...> > {
+					class HttpWebServiceImpl: public daw::nodepp::base::enable_shared<HttpWebServiceImpl<ResultType, Argument...>>, public daw::nodepp::base::StandardEvents < HttpWebServiceImpl<ResultType, Argument...> > {
 						static_assert(sizeof...(Argument) <= 1, "Either 1 or 0 arguments are accepted");
 						// 						static_assert < std::is_base_of<JsonLink<ResultType>, ResultType>::value, "ResultType must derive from JsonLink<ResultType>" );
 						// 						static_assert < std::is_base_of<JsonLink<Argument...>, ResultType>::value, "Argument must derive from JsonLink<Argument>" );

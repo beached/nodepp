@@ -42,7 +42,7 @@ namespace daw {
 				std::shared_ptr<Derived> get_ptr( ) { return static_cast<Derived*>(this)->shared_from_this( ); }
 				std::weak_ptr<Derived> get_weak_ptr( ) { return this->get_ptr( ); }
 			protected:
-				virtual ~enable_shared( ) = default;
+				~enable_shared( ) = default;
 			};	// struct enable_shared
 
 			namespace impl {

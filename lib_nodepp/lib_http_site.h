@@ -64,7 +64,7 @@ namespace daw {
 						site_registration( boost::string_ref Host, boost::string_ref Path, daw::nodepp::lib::http::HttpClientRequestMethod Method, std::function < void( daw::nodepp::lib::http::HttpClientRequest, daw::nodepp::lib::http::HttpServerResponse ) > Listener );
 					};	// site_registration
 
-					class HttpSiteImpl final: public daw::nodepp::base::enable_shared<HttpSiteImpl>, public daw::nodepp::base::StandardEvents < HttpSiteImpl > {
+					class HttpSiteImpl: public daw::nodepp::base::enable_shared<HttpSiteImpl>, public daw::nodepp::base::StandardEvents < HttpSiteImpl > {
 					public:
 						using registered_pages_t = std::vector < site_registration >;
 						using iterator = registered_pages_t::iterator;
@@ -87,7 +87,7 @@ namespace daw {
 						HttpSiteImpl& operator=( HttpSiteImpl const & ) = delete;
 						HttpSiteImpl( HttpSiteImpl&& ) = delete;
 						HttpSiteImpl& operator=( HttpSiteImpl&& ) = delete;
-						virtual ~HttpSiteImpl( ) = default;
+						~HttpSiteImpl( ) = default;
 						//////////////////////////////////////////////////////////////////////////
 						/// Summary:	Register a listener for a HTTP method and path on any
 						///				host
