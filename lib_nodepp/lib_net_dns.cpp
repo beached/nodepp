@@ -41,24 +41,8 @@ namespace daw {
 					using namespace daw::nodepp;
 
 					NetDnsImpl::NetDnsImpl( base::EventEmitter emitter ):
-						m_resolver( daw::make_unique<Resolver>( base::ServiceHandle::get( ) ) ),
-						m_emitter( emitter ) { }
-
-					NetDnsImpl::NetDnsImpl( NetDnsImpl&& other ):
-						m_resolver( std::move( other.m_resolver ) ),
-						m_emitter( std::move( other.m_emitter ) ) { }
-
-					NetDnsImpl& NetDnsImpl::operator=( NetDnsImpl && rhs ) {
-						if( this != &rhs ) {
-							m_resolver = std::move( rhs.m_resolver );
-							m_emitter = std::move( rhs.m_emitter );
-						}
-						return *this;
-					}
-
-					base::EventEmitter& NetDnsImpl::emitter( ) {
-						return m_emitter;
-					}
+						daw::nodepp::base::StandardEvents < NetDnsImpl >( std::move( emitter ) ),
+						m_resolver( daw::make_unique<Resolver>( base::ServiceHandle::get( ) ) ) { }					
 
 					void NetDnsImpl::resolve( Resolver::query & query ) {
 						std::weak_ptr<NetDnsImpl> obj( this->get_ptr( ) );

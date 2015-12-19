@@ -28,7 +28,7 @@ namespace daw {
 	namespace nodepp {
 		namespace lib {
 			namespace net {
-				class NetAddress {
+				class NetAddress final {
 					std::string m_address;
 				public:
 					NetAddress( );

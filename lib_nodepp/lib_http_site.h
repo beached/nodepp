@@ -64,13 +64,12 @@ namespace daw {
 						site_registration( boost::string_ref Host, boost::string_ref Path, daw::nodepp::lib::http::HttpClientRequestMethod Method, std::function < void( daw::nodepp::lib::http::HttpClientRequest, daw::nodepp::lib::http::HttpServerResponse ) > Listener );
 					};	// site_registration
 
-					class HttpSiteImpl: public daw::nodepp::base::enable_shared<HttpSiteImpl>, public daw::nodepp::base::StandardEvents < HttpSiteImpl > {
+					class HttpSiteImpl final: public daw::nodepp::base::enable_shared<HttpSiteImpl>, public daw::nodepp::base::StandardEvents < HttpSiteImpl > {
 					public:
 						using registered_pages_t = std::vector < site_registration >;
 						using iterator = registered_pages_t::iterator;
 
 					private:
-						daw::nodepp::base::EventEmitter m_emitter;
 						daw::nodepp::lib::http::HttpServer m_server;
 						registered_pages_t m_registered_sites;
 						std::unordered_map<uint16_t, std::function < void( HttpClientRequest, daw::nodepp::lib::http::HttpServerResponse, uint16_t ) >> m_error_listeners;
@@ -88,7 +87,7 @@ namespace daw {
 						HttpSiteImpl& operator=( HttpSiteImpl const & ) = delete;
 						HttpSiteImpl( HttpSiteImpl&& ) = delete;
 						HttpSiteImpl& operator=( HttpSiteImpl&& ) = delete;
-						~HttpSiteImpl( ) = default;
+						virtual ~HttpSiteImpl( ) = default;
 						//////////////////////////////////////////////////////////////////////////
 						/// Summary:	Register a listener for a HTTP method and path on any
 						///				host
@@ -98,8 +97,6 @@ namespace daw {
 						/// Summary:	Register a listener for a HTTP method and path on a
 						///				specific hostname
 						HttpSiteImpl& on_requests_for( boost::string_ref hostname, daw::nodepp::lib::http::HttpClientRequestMethod method, std::string path, std::function<void( daw::nodepp::lib::http::HttpClientRequest, daw::nodepp::lib::http::HttpServerResponse )> listener );
-
-						daw::nodepp::base::EventEmitter& emitter( );
 
 						void remove_site( iterator item );
 

@@ -47,16 +47,12 @@ namespace daw {
 				}
 
 				WorkQueueImpl::WorkQueueImpl( uint32_t max_workers, EventEmitter emitter ):
-					m_work_queue( ),
-					m_emitter( std::move( emitter ) ),
+					daw::nodepp::base::StandardEvents<WorkQueueImpl>( std::move( emitter ) ),
+					m_work_queue( ),					
 					m_continue( false ),
 					m_worker_count( ),
 					m_max_workers( std::move( max_workers ) ),
 					m_item_count( 1 ) { }
-
-				EventEmitter& WorkQueueImpl::emitter( ) {
-					return m_emitter;
-				}
 
 				int64_t  WorkQueueImpl::add_work_item( std::function<void( int64_t )> work_item, std::function<void( int64_t, base::OptionalError )> on_completion, bool auto_start ) {
 					int64_t task_id = static_cast<int64_t>(m_item_count++);

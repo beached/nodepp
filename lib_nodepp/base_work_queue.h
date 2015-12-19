@@ -57,9 +57,8 @@ namespace daw {
 					bool valid( ) const;
 				};
 
-				class WorkQueueImpl: public daw::nodepp::base::enable_shared<WorkQueueImpl>, public daw::nodepp::base::StandardEvents < WorkQueueImpl > {
+				class WorkQueueImpl final: public daw::nodepp::base::enable_shared<WorkQueueImpl>, public daw::nodepp::base::StandardEvents < WorkQueueImpl > {
 					daw::concurrent_queue<work_item_t> m_work_queue;
-					daw::nodepp::base::EventEmitter m_emitter;
 					std::atomic<bool> m_continue;
 					daw::thread::Semaphore<int> m_worker_count;
 					int64_t m_max_workers;
@@ -74,8 +73,6 @@ namespace daw {
 					~WorkQueueImpl( );
 					WorkQueueImpl( WorkQueueImpl const & ) = delete;
 					WorkQueueImpl& operator=(WorkQueueImpl const &) = delete;
-
-					daw::nodepp::base::EventEmitter& emitter( );
 
 					int64_t add_work_item( std::function<void( int64_t task_id )> work_item, std::function<void( int64_t task_id, daw::nodepp::base::OptionalError )> on_completion = nullptr, bool auto_start = true );
 

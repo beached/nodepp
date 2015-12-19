@@ -23,6 +23,7 @@
 #pragma once
 
 #include <boost/optional.hpp>
+#include <boost/utility/string_ref.hpp>
 #include <cstdint>
 #include <ostream>
 
@@ -51,8 +52,7 @@ namespace daw {
 					//////////////////////////////////////////////////////////////////////////
 					// Summary:		An HTTP Client class
 					// Requires:
-					class HttpClientImpl: public daw::nodepp::base::enable_shared<HttpClientImpl>, public daw::nodepp::base::StandardEvents<HttpClientImpl> {
-						daw::nodepp::base::EventEmitter m_emitter;
+					class HttpClientImpl final: public daw::nodepp::base::enable_shared<HttpClientImpl>, public daw::nodepp::base::StandardEvents<HttpClientImpl> {
 						daw::nodepp::lib::net::NetSocketStream m_client;
 
 					public:
@@ -62,9 +62,7 @@ namespace daw {
 						HttpClientImpl& operator=( HttpClientImpl const & ) = default;
 						HttpClientImpl& operator=( HttpClientImpl && rhs ) = default;
 						HttpClientImpl( HttpClientImpl const & ) = default;
-						~HttpClientImpl( ) = default;
-
-						daw::nodepp::base::EventEmitter& emitter( );
+						~HttpClientImpl( ) override = default;
 
 						void request( std::string scheme, std::string host, uint16_t port, daw::nodepp::lib::http::HttpClientRequest request );
 						HttpClientImpl & on_connection( std::function<void( HttpClientConnection )> listener );
@@ -72,7 +70,6 @@ namespace daw {
 
 					class HttpClientConnectionImpl: public daw::nodepp::base::enable_shared<HttpClientConnectionImpl>, public daw::nodepp::base::StandardEvents<HttpClientConnectionImpl> {
 						daw::nodepp::lib::net::NetSocketStream m_socket;
-						daw::nodepp::base::EventEmitter m_emitter;
 
 					public:
 						HttpClientConnectionImpl( daw::nodepp::lib::net::NetSocketStream socket, daw::nodepp::base::EventEmitter emitter );

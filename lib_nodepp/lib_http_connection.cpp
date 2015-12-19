@@ -46,8 +46,8 @@ namespace daw {
 					}	// namespace anonymous
 
 					HttpConnectionImpl::HttpConnectionImpl( lib::net::NetSocketStream&& socket, base::EventEmitter emitter ):
-						m_socket( std::move( socket ) ),
-						m_emitter( std::move( emitter ) ) { }
+						daw::nodepp::base::StandardEvents<HttpConnectionImpl>( std::move( emitter ) ),
+						m_socket( std::move( socket ) ) { }
 
 					void HttpConnectionImpl::start( ) {
 						auto obj = this->get_weak_ptr( );
@@ -76,10 +76,6 @@ namespace daw {
 							.set_read_mode( lib::net::NetSocketStreamReadMode::double_newline );
 
 						m_socket->read_async( );
-					}
-
-					base::EventEmitter& HttpConnectionImpl::emitter( ) {
-						return m_emitter;
 					}
 
 					void HttpConnectionImpl::close( ) {

@@ -61,8 +61,8 @@ namespace daw {
 					}
 
 					NetSocketStreamImpl::NetSocketStreamImpl( std::shared_ptr<boost::asio::ssl::context> ctx, base::EventEmitter emitter ):
+						daw::nodepp::base::SelfDestructing<NetSocketStreamImpl>( std::move( emitter ) ),
 						m_socket( std::move( ctx ) ),
-						m_emitter( std::move( emitter ) ),
 						m_state( ),
 						m_read_options( ),
 						m_pending_writes( new daw::thread::Semaphore<int>( ) ),
@@ -80,10 +80,6 @@ namespace daw {
 						} catch( ... ) {
 							// Do nothing, we don't usually care.  It's gone, move on
 						}
-					}
-
-					base::EventEmitter& NetSocketStreamImpl::emitter( ) {
-						return m_emitter;
 					}
 
 					NetSocketStreamImpl& NetSocketStreamImpl::set_read_mode( NetSocketStreamReadMode mode ) {

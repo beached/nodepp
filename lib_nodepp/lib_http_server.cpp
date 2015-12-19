@@ -43,27 +43,9 @@ namespace daw {
 					using namespace daw::nodepp;
 
 					HttpServerImpl::HttpServerImpl( base::EventEmitter emitter ):
+						daw::nodepp::base::StandardEvents<HttpServerImpl>( std::move( emitter ) ),
 						m_netserver( lib::net::create_net_server( ) ),
-						m_emitter( std::move( emitter ) ),
 						m_connections( ) { }
-
-					HttpServerImpl::HttpServerImpl( HttpServerImpl&& other ) :
-						m_netserver( std::move( other.m_netserver ) ),
-						m_emitter( std::move( other.m_emitter ) ),
-						m_connections( std::move( other.m_connections ) ) { }
-
-					HttpServerImpl& HttpServerImpl::operator=( HttpServerImpl && rhs ) {
-						if( this != &rhs ) {
-							m_netserver = std::move( rhs.m_netserver );
-							m_emitter = std::move( rhs.m_emitter );
-							m_connections = std::move( rhs.m_connections );
-						}
-						return *this;
-					}
-
-					base::EventEmitter& HttpServerImpl::emitter( ) {
-						return m_emitter;
-					}
 
 					void HttpServerImpl::emit_client_connected( HttpConnection connection ) {
 						emitter( )->emit( "client_connected", std::move( connection ) );

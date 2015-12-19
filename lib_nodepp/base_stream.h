@@ -34,96 +34,98 @@ namespace daw {
 
 				template<typename Derived>
 				class StreamWritableEvents {
-					Derived& child( ) {
+					Derived & derived( ) {
 						return *static_cast<Derived*>(this);
 					}
 
-					daw::nodepp::base::EventEmitter& emitter( ) {
-						return child( ).emitter( );
+					auto derived_emitter( ) {
+						return static_cast<Derived*>(this)->emitter( );
 					}
 				protected:
-					~StreamWritableEvents( ) = default;
+					virtual ~StreamWritableEvents( ) = default;
 				public:
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Event emitted when a pending write is completed
 					Derived& on_write_completion( std::function<void( )> listener ) {
-						emitter( )->add_listener( "write_completion", listener );
-						return child( );
+						derived_emitter( )->add_listener( "write_completion", listener );
+						return derived( );
 					}
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Event emitted when the next pending write is completed
 					Derived& on_next_write_completion( std::function<void( )> listener ) {
-						this->emitter( )->add_listener( "write_completion", listener );
-						return child( );
+						derived_emitter( )->add_listener( "write_completion", listener );
+						return derived( );
 					}
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Event emitted when end( ... ) has been called and all
 					///				data has been flushed
 					Derived& on_all_writes_completed( std::function<void( )> listener ) {
-						emitter( )->add_listener( "all_writes_completed", listener );
-						return child( );
+						derived_emitter( )->add_listener( "all_writes_completed", listener );
+						return derived( );
 					}
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Event emitted when an async write completes
 					void emit_write_completion( ) {
-						emitter( )->emit( "write_completion" );
+						derived_emitter( )->emit( "write_completion" );
 					}
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	All async writes have completed
 					void emit_all_writes_completed( ) {
-						emitter( )->emit( "all_writes_completed" );
+						derived_emitter( )->emit( "all_writes_completed" );
 					}
 				};	// class StreamWritableEvents
 
 				template<typename Derived>
 				class StreamReadableEvents {
+				private:
 					Derived& derived( ) {
 						return *static_cast<Derived*>(this);
 					}
 
-					daw::nodepp::base::EventEmitter& emitter( ) {
-						return derived( ).emitter( );
+					auto derived_emitter( ) {
+						return static_cast<Derived*>(this)->emitter( );
 					}
+
 				protected:
-					~StreamReadableEvents( ) = default;
+					virtual ~StreamReadableEvents( ) = default;
 				public:
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Event emitted when data is received
 					Derived& on_data_received( std::function<void( std::shared_ptr<base::data_t>, bool )> listener ) {
-						emitter( )->add_listener( "data_received", listener );
+						derived_emitter( )->add_listener( "data_received", listener );
 						return derived( );
 					}
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Event emitted when data is received
 					Derived& on_next_data_received( std::function<void( std::shared_ptr<base::data_t>, bool )> listener ) {
-						emitter( )->add_listener( "data_received", listener, true );
+						derived_emitter( )->add_listener( "data_received", listener, true );
 						return derived( );
 					}
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Event emitted when of of stream is read.
 					Derived& on_eof( std::function<void( )> listener ) {
-						emitter( )->add_listener( "eof", listener );
+						derived_emitter( )->add_listener( "eof", listener );
 						return derived( );
 					}
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Event emitted when of of stream is read.
 					Derived& on_next_eof( std::function<void( )> listener ) {
-						emitter( )->add_listener( "eof", listener, true );
+						derived_emitter( )->add_listener( "eof", listener, true );
 						return derived( );
 					}
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Event emitted when the stream is closed
 					Derived& on_closed( std::function<void( )> listener ) {
-						emitter( )->add_listener( "closed", listener );
+						derived_emitter( )->add_listener( "closed", listener );
 						return derived( );
 					}
 
@@ -131,19 +133,19 @@ namespace daw {
 					/// Summary:	Emit an event with the data received and whether the eof
 					///				has been reached
 					void emit_data_received( std::shared_ptr<daw::nodepp::base::data_t> buffer, bool end_of_file ) {
-						emitter( )->emit( "data_received", std::move( buffer ), end_of_file );
+						derived_emitter( )->emit( "data_received", std::move( buffer ), end_of_file );
 					}
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when the eof has been reached
 					void emit_eof( ) {
-						emitter( )->emit( "eof" );
+						derived_emitter( )->emit( "eof" );
 					}
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when the socket is closed
 					void emit_closed( ) {
-						emitter( )->emit( "closed" );
+						derived_emitter( )->emit( "closed" );
 					}
 
 					template<typename StreamWritableObj>

@@ -56,13 +56,13 @@ namespace daw {
 						listener( nullptr ) { }
 
 					HttpSiteImpl::HttpSiteImpl( base::EventEmitter emitter ):
-						m_emitter( std::move( emitter ) ),
+						daw::nodepp::base::StandardEvents<HttpSiteImpl>( std::move( emitter ) ),
 						m_server( create_http_server( ) ),
 						m_registered_sites( ),
 						m_error_listeners( ) { }
 
 					HttpSiteImpl::HttpSiteImpl( HttpServer server, base::EventEmitter emitter ):
-						m_emitter( std::move( emitter ) ),
+						daw::nodepp::base::StandardEvents<HttpSiteImpl>( std::move( emitter ) ),
 						m_server( std::move( server ) ),
 						m_registered_sites( ),
 						m_error_listeners( ) { }
@@ -100,10 +100,6 @@ namespace daw {
 								} );
 							} );
 						} );
-					}
-
-					base::EventEmitter& HttpSiteImpl::emitter( ) {
-						return m_emitter;
 					}
 
 					void HttpSiteImpl::sort_registered( ) {

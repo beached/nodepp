@@ -48,7 +48,7 @@ namespace daw {
 			namespace net {
 				namespace impl {
 					using EncryptionContext = boost::asio::ssl::context;
-					struct BoostSocket {
+					struct BoostSocket final {
 						using BoostSocketValueType = boost::asio::ssl::stream<boost::asio::ip::tcp::socket>;
 						std::shared_ptr<EncryptionContext> m_encryption_context;
 						bool m_encryption_enabled;

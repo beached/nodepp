@@ -42,18 +42,14 @@ namespace daw {
 					using namespace boost::asio::ip;
 
 					NetServerImpl::NetServerImpl( base::EventEmitter emitter ):
+						daw::nodepp::base::StandardEvents < NetServerImpl >( std::move( emitter ) ),
 						m_acceptor( std::make_shared<boost::asio::ip::tcp::acceptor>( base::ServiceHandle::get( ) ) ),
-						m_context( nullptr ),
-						m_emitter( emitter ) { }
+						m_context( nullptr ) { }
 
 					NetServerImpl::NetServerImpl( boost::asio::ssl::context::method method, daw::nodepp::base::EventEmitter emitter ):
+						daw::nodepp::base::StandardEvents < NetServerImpl >( std::move( emitter ) ),
 						m_acceptor( std::make_shared<boost::asio::ip::tcp::acceptor>( base::ServiceHandle::get( ) ) ),
-						m_context( std::make_shared < boost::asio::ssl::context>( method ) ),
-						m_emitter( emitter ) { }
-
-					base::EventEmitter& NetServerImpl::emitter( ) {
-						return m_emitter;
-					}
+						m_context( std::make_shared < boost::asio::ssl::context>( method ) ) { }
 
 					boost::asio::ssl::context & NetServerImpl::ssl_context( ) {
 						return *m_context;

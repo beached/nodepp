@@ -40,7 +40,7 @@ namespace daw {
 				using namespace daw::nodepp;
 				namespace impl {
 					HttpServerResponseImpl::HttpServerResponseImpl( std::weak_ptr<lib::net::impl::NetSocketStreamImpl> socket, base::EventEmitter emitter ):
-						m_emitter( emitter ),
+						daw::nodepp::base::StandardEvents<HttpServerResponseImpl>( std::move( emitter ) ),
 						m_socket( socket ),
 						m_version( 1, 1 ),
 						m_headers( ),
@@ -70,10 +70,6 @@ namespace daw {
 						}
 						action( m_socket.lock( ) );
 						return true;
-					}
-
-					base::EventEmitter& HttpServerResponseImpl::emitter( ) {
-						return m_emitter;
 					}
 
 					HttpServerResponseImpl& HttpServerResponseImpl::write( base::data_t const & data ) {

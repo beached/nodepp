@@ -46,21 +46,20 @@ namespace daw {
 
 				namespace impl {
 					class NetDnsImpl: public daw::nodepp::base::enable_shared<NetDnsImpl>, public daw::nodepp::base::StandardEvents < NetDnsImpl > {
-						NetDnsImpl( daw::nodepp::base::EventEmitter );
+						NetDnsImpl( daw::nodepp::base::EventEmitter emitter );
 
 					public:
 						friend daw::nodepp::lib::net::NetDns daw::nodepp::lib::net::create_net_dns( daw::nodepp::base::EventEmitter );
 
 						using handler_argument_t = Resolver::iterator;
 
-						NetDnsImpl( NetDnsImpl&& other );
-						NetDnsImpl& operator=( NetDnsImpl && rhs );
-
-						~NetDnsImpl( ) = default;
+						virtual ~NetDnsImpl( ) = default;
 						NetDnsImpl( NetDnsImpl const & ) = delete;
 						NetDnsImpl& operator=( NetDnsImpl const & rhs ) = delete;
+						NetDnsImpl( NetDnsImpl&& other ) = default;
+						NetDnsImpl& operator=( NetDnsImpl && rhs ) = default;
 
-						daw::nodepp::base::EventEmitter& emitter( );
+
 						//////////////////////////////////////////////////////////////////////////
 						// Summary: resolve name or ip address and call callback of form
 						// void(base::ErrorCode, Resolver::iterator)

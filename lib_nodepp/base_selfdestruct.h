@@ -16,7 +16,14 @@ namespace daw {
 				static std::mutex s_mutex;
 
 			public:
-				SelfDestructing( ) = default;
+				SelfDestructing( ) = delete;
+				explicit SelfDestructing( daw::nodepp::base::EventEmitter emitter ): daw::nodepp::base::StandardEvents<Derived>( std::move( emitter ) ) { }
+
+				virtual ~SelfDestructing( ) = default;
+				SelfDestructing( SelfDestructing const & ) = default;
+				SelfDestructing( SelfDestructing && ) = default;
+				SelfDestructing & operator=( SelfDestructing const & ) = default;
+				SelfDestructing & operator=( SelfDestructing && ) = default;
 
 				void arm( boost::string_ref event ) {
 					std::unique_lock<std::mutex> lock1( s_mutex );
