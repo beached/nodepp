@@ -56,9 +56,9 @@ namespace daw {
 
 				Callback& operator=( Callback const & ) = default;
 
-				Callback( Callback && other );
+				Callback( Callback && ) = default;
 
-				Callback& operator=( Callback && rhs );
+				Callback& operator=( Callback && ) = default;
 
 				const id_t& id( ) const;
 

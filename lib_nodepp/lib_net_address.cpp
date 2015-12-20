@@ -34,14 +34,6 @@ namespace daw {
 						throw std::runtime_error( "Invalid address" );
 					}
 				}
-				NetAddress::NetAddress( NetAddress && other ):m_address( std::move( other.m_address ) ) { }
-
-				NetAddress& NetAddress::operator=(NetAddress && rhs) {
-					if( this != &rhs ) {
-						m_address = std::move( rhs.m_address );
-					}
-					return *this;
-				}
 
 				boost::string_ref NetAddress::operator()( ) const {
 					return m_address;

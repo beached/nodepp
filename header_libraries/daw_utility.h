@@ -79,21 +79,17 @@ namespace daw {
 
 	namespace impl {
 		template<typename T>
-		class EqualToImpl {
+		class EqualToImpl final {
 			T m_value;
 		public:
+			EqualToImpl( T value ):m_value( value ) { }
 			EqualToImpl( ) = delete;
 			~EqualToImpl( ) = default;
 			EqualToImpl( EqualToImpl const & ) = default;
 			EqualToImpl& operator=( EqualToImpl const & ) = default;
-			EqualToImpl( EqualToImpl && other ): m_value( std::move( other.m_value ) ) { }
-			EqualToImpl& operator=( EqualToImpl && rhs ) {
-				if( this != &rhs ) {
-					m_value = std::move( rhs.m_value );
-				}
-				return *this;
-			}
-			EqualToImpl( T value ):m_value( value ) { }
+			EqualToImpl( EqualToImpl && ) = default;
+			EqualToImpl& operator=( EqualToImpl && ) = default;
+ 
 			bool operator()( T const & value ) {
 				return m_value == value;
 			}
@@ -105,19 +101,16 @@ namespace daw {
 	}
 
 	template<typename T>
-	class equal_to_last {
+	class equal_to_last final {
 		T* m_value;
 	public:
 		equal_to_last( ): m_value( nullptr ) { }
 		~equal_to_last( ) = default;
+		equal_to_last( equal_to_last const & ) = default;
+		equal_to_last( equal_to_last && ) = default;
 		equal_to_last& operator=( equal_to_last const & ) = default;
-		equal_to_last( equal_to_last && other ): m_value( std::move( other.m_value ) ) { }
-		equal_to_last& operator=( equal_to_last && rhs ) {
-			if( this != &rhs ) {
-				m_value = std::move( rhs.m_value );
-			}
-			return *this;
-		}
+		equal_to_last& operator=( equal_to_last && ) = default;
+
 		bool operator()( T const & value ) {
 			bool result = false;
 			if( m_value ) {
@@ -130,19 +123,14 @@ namespace daw {
 
 	namespace impl {
 		template<typename Function>
-		class NotImpl {
+		class NotImpl final {
 			Function m_function;
 		public:
 			NotImpl( Function func ): m_function( func ) { }
 			~NotImpl( ) = default;
+			NotImpl( NotImpl && ) = default;
 			NotImpl& operator=( NotImpl const & ) = default;
-			NotImpl( NotImpl && other ): m_function( std::move( other.m_function ) ) { }
-			NotImpl& operator=( NotImpl && rhs ) {
-				if( this != &rhs ) {
-					m_function = std::move( rhs.m_function );
-				}
-				return *this;
-			}
+			NotImpl& operator=( NotImpl && ) = default;
 
 			template<typename...Args>
 			bool operator()( Args&&... args ) {
@@ -374,11 +362,14 @@ namespace daw {
 	/// Summary:	Use this to move a value into a lambda capture by copy
 	///				capture without incurring a copy
 	template<typename T>
-	class MoveCapture {
+	class MoveCapture final {
 		mutable T m_value;
 	public:
 		MoveCapture( ) = delete;
+		~MoveCapture( ) = default;
 		MoveCapture( T && val ): m_value( std::move( val ) ) { }
+		MoveCapture( MoveCapture && ) = default;		
+		MoveCapture & operator=( MoveCapture && ) = default;
 
 		MoveCapture( MoveCapture const & other ): m_value( std::move( other.m_value ) ) { }
 
@@ -388,6 +379,7 @@ namespace daw {
 			}
 			return *this;
 		}
+
 
 		T& value( ) {
 			return m_value;
@@ -408,8 +400,6 @@ namespace daw {
 		T const * operator->( ) const {
 			return m_value.operator->( );
 		}
-
-		~MoveCapture( ) = default;
 
 		T move_out( ) {
 			auto result = std::move( m_value );

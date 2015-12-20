@@ -46,21 +46,21 @@ namespace daw {
 					//////////////////////////////////////////////////////////////////////////
 					// Summary:		An HTTP Server class
 					// Requires:	daw::nodepp::lib::net::NetServer
-					class HttpServerImpl: public daw::nodepp::base::enable_shared<HttpServerImpl>, public daw::nodepp::base::StandardEvents < HttpServerImpl > {
+					class HttpServerImpl final: public daw::nodepp::base::enable_shared<HttpServerImpl>, public daw::nodepp::base::StandardEvents < HttpServerImpl > {
 						daw::nodepp::lib::net::NetServer m_netserver;
 						std::list<HttpConnection> m_connections;
 
 						static void handle_connection( std::weak_ptr<HttpServerImpl> obj, daw::nodepp::lib::net::NetSocketStream socket );
 
-						HttpServerImpl( daw::nodepp::base::EventEmitter emitter );
+						explicit HttpServerImpl( daw::nodepp::base::EventEmitter emitter );
 					public:
 						friend daw::nodepp::lib::http::HttpServer daw::nodepp::lib::http::create_http_server( daw::nodepp::base::EventEmitter );
 
-						HttpServerImpl( HttpServerImpl&& other ) = default;
-						HttpServerImpl& operator=( HttpServerImpl const & ) = default;
-						HttpServerImpl& operator=( HttpServerImpl && rhs ) = default;
-						HttpServerImpl( HttpServerImpl const & ) = default;
 						~HttpServerImpl( ) = default;
+						HttpServerImpl( HttpServerImpl const & ) = default;
+						HttpServerImpl( HttpServerImpl &&  ) = default;
+						HttpServerImpl& operator=( HttpServerImpl const & ) = default;
+						HttpServerImpl& operator=( HttpServerImpl && ) = default;
 
 						void listen_on( uint16_t port );
 

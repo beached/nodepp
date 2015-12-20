@@ -33,16 +33,17 @@ namespace daw {
 			// Summary:		Wraps around an string representing the encoding of
 			//				binary data (e.g. utf8, binary, hex)
 			// Requires:
-			class Encoding {
+			class Encoding final {
 				std::string m_encoding;
 				static std::vector<std::string> const &	valid_enodings( );
 			public:
 				Encoding( );
 				explicit Encoding( std::string encoding );
 				Encoding( Encoding const & ) = default;
-				Encoding& operator=(Encoding const &) = default;
-				Encoding( Encoding && other );
-				Encoding& operator=(Encoding && rhs);
+				Encoding( Encoding && ) = default;
+				Encoding & operator=( Encoding const & ) = default;
+				Encoding & operator=( Encoding && ) = default;
+
 				Encoding& operator=(boost::string_ref rhs);
 
 				~Encoding( ) = default;

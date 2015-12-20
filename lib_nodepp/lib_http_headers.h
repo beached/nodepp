@@ -29,26 +29,34 @@ namespace daw {
 	namespace nodepp {
 		namespace lib {
 			namespace http {
-				struct HttpHeader {
+				struct HttpHeader final {
 					std::string name;
 					std::string value;
 
 					HttpHeader( );
 					HttpHeader( std::string Name, std::string Value );
 					HttpHeader( boost::string_ref Name, boost::string_ref Value );
+					~HttpHeader( ) = default;
+					HttpHeader( HttpHeader const & ) = default;
+					HttpHeader( HttpHeader && ) = default;
+					HttpHeader & operator=( HttpHeader const & ) = default;
+					HttpHeader & operator=( HttpHeader && ) = default;
+
 					std::string to_string( ) const;
 					bool empty( ) const;
 				};
 
-				struct HttpHeaders {
+				struct HttpHeaders final {
 					std::vector<HttpHeader> headers;
 
 					HttpHeaders( );
 					HttpHeaders( std::initializer_list<HttpHeader> values );
 					~HttpHeaders( ) = default;
 					HttpHeaders( HttpHeaders const & ) = default;
-					HttpHeaders( HttpHeaders && other );
-					HttpHeaders& operator=(HttpHeaders && rhs);
+					HttpHeaders( HttpHeaders && ) = default;
+					HttpHeaders& operator=( HttpHeaders const & ) = default;
+					HttpHeaders& operator=( HttpHeaders && ) = default;
+
 					std::vector<HttpHeader>::iterator begin( );
 					std::vector<HttpHeader>::iterator end( );
 					std::vector<HttpHeader>::const_iterator cbegin( ) const;

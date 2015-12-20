@@ -32,13 +32,13 @@ namespace daw {
 					std::string m_address;
 				public:
 					NetAddress( );
+					explicit NetAddress( std::string address );
 					~NetAddress( ) = default;
 					NetAddress( NetAddress const & ) = default;
-					NetAddress( NetAddress && other );
-					explicit NetAddress( std::string address );
-
+					NetAddress( NetAddress && ) = default;
 					NetAddress& operator=( NetAddress const & ) = default;
-					NetAddress& operator=( NetAddress && rhs );
+					NetAddress& operator=( NetAddress && ) = default;
+					
 
 					boost::string_ref operator()( ) const;
 

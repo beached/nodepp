@@ -56,22 +56,25 @@ namespace daw {
 				enum class NetSocketStreamReadMode { newline, buffer_full, predicate, next_byte, regex, values, double_newline };
 
 				namespace impl {
-					struct NetSocketStreamImpl: public daw::nodepp::base::SelfDestructing<NetSocketStreamImpl>, public daw::nodepp::base::stream::StreamReadableEvents<NetSocketStreamImpl>, public daw::nodepp::base::stream::StreamWritableEvents < NetSocketStreamImpl > {
+					struct NetSocketStreamImpl final: public daw::nodepp::base::SelfDestructing<NetSocketStreamImpl>, public daw::nodepp::base::stream::StreamReadableEvents<NetSocketStreamImpl>, public daw::nodepp::base::stream::StreamWritableEvents < NetSocketStreamImpl > {
 						using match_iterator_t = boost::asio::buffers_iterator <base::stream::StreamBuf::const_buffers_type >;
 						using match_function_t = std::function < std::pair<match_iterator_t, bool>( match_iterator_t begin, match_iterator_t end ) >;
 					private:
 						BoostSocket m_socket;
 
-						struct netsockstream_state_t {
+						struct netsockstream_state_t final {
 							bool closed;
 							bool end;
 							netsockstream_state_t( ): closed( false ), end( false ) { }
-							netsockstream_state_t( netsockstream_state_t const & ) = default;
-							netsockstream_state_t& operator=( netsockstream_state_t const & ) = default;
 							~netsockstream_state_t( ) = default;
+							netsockstream_state_t( netsockstream_state_t const & ) = default;
+							netsockstream_state_t( netsockstream_state_t && ) = default;
+							netsockstream_state_t& operator=( netsockstream_state_t const & ) = default;
+							netsockstream_state_t& operator=( netsockstream_state_t && ) = default;
+
 						} m_state;
 
-						struct netsockstream_readoptions_t {
+						struct netsockstream_readoptions_t final {
 							NetSocketStreamReadMode read_mode;
 							size_t max_read_size;
 							std::unique_ptr<NetSocketStreamImpl::match_function_t> read_predicate;
@@ -83,6 +86,8 @@ namespace daw {
 								read_predicate( ),
 								read_until_values( ) { }
 
+							~netsockstream_readoptions_t( ) = default;
+							
 							netsockstream_readoptions_t( size_t max_read_size_ ):
 								read_mode( NetSocketStreamReadMode::newline ),
 								max_read_size( max_read_size_ ),
@@ -90,26 +95,12 @@ namespace daw {
 								read_until_values( ) { }
 
 							netsockstream_readoptions_t( netsockstream_readoptions_t const & ) = delete;
+							netsockstream_readoptions_t( netsockstream_readoptions_t && ) = default;
 							netsockstream_readoptions_t& operator=( netsockstream_readoptions_t const & ) = delete;
-
-							inline netsockstream_readoptions_t( netsockstream_readoptions_t && other ):
-								read_mode( std::move( other.read_mode ) ),
-								max_read_size( std::move( other.max_read_size ) ),
-								read_predicate( std::move( other.read_predicate ) ),
-								read_until_values( ) { }
-
-							inline netsockstream_readoptions_t& operator=( netsockstream_readoptions_t && rhs ) {
-								if( this != &rhs ) {
-									read_mode = std::move( rhs.read_mode );
-									max_read_size = std::move( rhs.max_read_size );
-									read_predicate = std::move( rhs.read_predicate );
-								}
-								return *this;
-							}
-							~netsockstream_readoptions_t( ) = default;
+							netsockstream_readoptions_t& operator=( netsockstream_readoptions_t && ) = default;														
 						} m_read_options;
 
-						struct ssl_params_t {
+						struct ssl_params_t final {
 							void set_verify_mode( );
 							void set_verify_callback( );
 						};
@@ -125,12 +116,11 @@ namespace daw {
 						friend NetSocketStream daw::nodepp::lib::net::create_net_socket_stream( boost::asio::ssl::context::method, daw::nodepp::base::EventEmitter );
 						friend NetSocketStream daw::nodepp::lib::net::create_net_socket_stream( std::shared_ptr < boost::asio::ssl::context>, daw::nodepp::base::EventEmitter );
 
-						NetSocketStreamImpl( NetSocketStreamImpl&& other ) = default;
-						NetSocketStreamImpl& operator=( NetSocketStreamImpl&& rhs ) = default;
 						~NetSocketStreamImpl( );
-
-						NetSocketStreamImpl( NetSocketStreamImpl const & ) = delete;
+						NetSocketStreamImpl( NetSocketStreamImpl const & ) = delete;						
+						NetSocketStreamImpl( NetSocketStreamImpl&& ) = default;
 						NetSocketStreamImpl& operator=( NetSocketStreamImpl const & ) = delete;
+						NetSocketStreamImpl& operator=( NetSocketStreamImpl&& ) = default;						
 
 						NetSocketStreamImpl&  read_async( std::shared_ptr<daw::nodepp::base::stream::StreamBuf> read_buffer = nullptr );
 						daw::nodepp::base::data_t read( );

@@ -78,8 +78,8 @@ namespace daw {
 					EventEmitterImpl( EventEmitterImpl const & ) = delete;
 					~EventEmitterImpl( ) = default;
 					EventEmitterImpl& operator=( EventEmitterImpl const & ) = delete;
-					EventEmitterImpl( EventEmitterImpl && other ) = delete;
-					EventEmitterImpl& operator=( EventEmitterImpl && rhs ) = delete;
+					EventEmitterImpl( EventEmitterImpl && ) = delete;
+					EventEmitterImpl& operator=( EventEmitterImpl && ) = delete;
 
 					void remove_listener( boost::string_ref event, callback_id_t id );
 

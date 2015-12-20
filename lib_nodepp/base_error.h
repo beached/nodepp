@@ -38,7 +38,7 @@ namespace daw {
 			// Summary:		Contains key/value pairs describing an error condition.
 			//				Description is mandatory.
 			// Requires:
-			class Error: public std::exception {
+			class Error final: public std::exception {
 				std::map<std::string, std::string> m_keyvalues;
 				bool m_frozen;
 				std::shared_ptr<Error> m_child;
@@ -48,11 +48,11 @@ namespace daw {
 				~Error( );
 				explicit Error( boost::string_ref description );
 				explicit Error( ErrorCode const & err );
-				Error( Error && );
 				Error( Error const & ) = default;
-				explicit Error( boost::string_ref description, std::exception_ptr ex_ptr );
+				Error( Error && ) = default;
 				Error& operator=( Error const & ) = default;
-				Error& operator=( Error && rhs );
+				Error& operator=( Error && ) = default;
+				Error( boost::string_ref description, std::exception_ptr ex_ptr );
 
 				Error& add( boost::string_ref name, boost::string_ref value );
 				boost::string_ref get( boost::string_ref name ) const;

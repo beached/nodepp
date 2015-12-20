@@ -52,26 +52,33 @@ namespace daw {
 					//////////////////////////////////////////////////////////////////////////
 					// Summary:		An HTTP Client class
 					// Requires:
-					class HttpClientImpl: public daw::nodepp::base::enable_shared<HttpClientImpl>, public daw::nodepp::base::StandardEvents<HttpClientImpl> {
+					class HttpClientImpl final: public daw::nodepp::base::enable_shared<HttpClientImpl>, public daw::nodepp::base::StandardEvents<HttpClientImpl> {
 						daw::nodepp::lib::net::NetSocketStream m_client;
 
 					public:
-						HttpClientImpl( daw::nodepp::base::EventEmitter emitter );
+						explicit HttpClientImpl( daw::nodepp::base::EventEmitter emitter );
 						HttpClientImpl( ) = delete;
-						HttpClientImpl( HttpClientImpl&& other ) = default;
-						HttpClientImpl& operator=( HttpClientImpl const & ) = default;
-						HttpClientImpl& operator=( HttpClientImpl && rhs ) = default;
 						HttpClientImpl( HttpClientImpl const & ) = default;
-						~HttpClientImpl( ) override = default;
+						HttpClientImpl( HttpClientImpl && ) = default;
+						HttpClientImpl& operator=( HttpClientImpl const & ) = default;
+						HttpClientImpl& operator=( HttpClientImpl && ) = default;
+						~HttpClientImpl( ) = default;
 
 						void request( std::string scheme, std::string host, uint16_t port, daw::nodepp::lib::http::HttpClientRequest request );
 						HttpClientImpl & on_connection( std::function<void( HttpClientConnection )> listener );
 					};	// class HttpClientImpl
 
-					class HttpClientConnectionImpl: public daw::nodepp::base::enable_shared<HttpClientConnectionImpl>, public daw::nodepp::base::StandardEvents<HttpClientConnectionImpl> {
+					class HttpClientConnectionImpl final: public daw::nodepp::base::enable_shared<HttpClientConnectionImpl>, public daw::nodepp::base::StandardEvents<HttpClientConnectionImpl> {
 						daw::nodepp::lib::net::NetSocketStream m_socket;
 
 					public:
+						HttpClientConnectionImpl( ) = default;
+						~HttpClientConnectionImpl( ) = default;
+						HttpClientConnectionImpl( HttpClientConnectionImpl const & ) = default;
+						HttpClientConnectionImpl( HttpClientConnectionImpl && ) = default;
+						HttpClientConnectionImpl & operator=( HttpClientConnectionImpl const & ) = default;
+						HttpClientConnectionImpl & operator=( HttpClientConnectionImpl && ) = default;
+
 						HttpClientConnectionImpl( daw::nodepp::lib::net::NetSocketStream socket, daw::nodepp::base::EventEmitter emitter );
 
 						HttpClientConnectionImpl & on_response_returned( std::function<void( daw::nodepp::lib::http::HttpServerResponse )> listener );

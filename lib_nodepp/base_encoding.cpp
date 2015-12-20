@@ -46,14 +46,6 @@ namespace daw {
 				return *this;
 			}
 
-			Encoding::Encoding( Encoding && other ): m_encoding( std::move( other.m_encoding ) ) { }
-			Encoding& Encoding::operator = ( Encoding && rhs ) {
-				if( this != &rhs ) {
-					m_encoding = std::move( rhs.m_encoding );
-				}
-				return *this;
-			}
-
 			boost::string_ref Encoding::operator()( ) const { return m_encoding; }
 
 			void Encoding::set( std::string encoding ) {

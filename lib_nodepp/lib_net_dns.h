@@ -45,20 +45,20 @@ namespace daw {
 				using Resolver = boost::asio::ip::tcp::resolver;
 
 				namespace impl {
-					class NetDnsImpl: public daw::nodepp::base::enable_shared<NetDnsImpl>, public daw::nodepp::base::StandardEvents < NetDnsImpl > {
-						NetDnsImpl( daw::nodepp::base::EventEmitter emitter );
+					class NetDnsImpl final: public daw::nodepp::base::enable_shared<NetDnsImpl>, public daw::nodepp::base::StandardEvents < NetDnsImpl > {
+						explicit NetDnsImpl( daw::nodepp::base::EventEmitter emitter );
 
 					public:
 						friend daw::nodepp::lib::net::NetDns daw::nodepp::lib::net::create_net_dns( daw::nodepp::base::EventEmitter );
 
 						using handler_argument_t = Resolver::iterator;
-
+						
+						NetDnsImpl( ) = delete;
 						~NetDnsImpl( ) = default;
 						NetDnsImpl( NetDnsImpl const & ) = delete;
-						NetDnsImpl& operator=( NetDnsImpl const & rhs ) = delete;
-						NetDnsImpl( NetDnsImpl&& other ) = default;
-						NetDnsImpl& operator=( NetDnsImpl && rhs ) = default;
-
+						NetDnsImpl( NetDnsImpl&& ) = default;
+						NetDnsImpl& operator=( NetDnsImpl const & ) = delete;						
+						NetDnsImpl& operator=( NetDnsImpl && ) = default;
 
 						//////////////////////////////////////////////////////////////////////////
 						// Summary: resolve name or ip address and call callback of form
@@ -78,7 +78,6 @@ namespace daw {
 
 					private:
 						std::unique_ptr<Resolver> m_resolver;
-						daw::nodepp::base::EventEmitter m_emitter;
 
 						static void handle_resolve( std::weak_ptr<NetDnsImpl> obj, base::ErrorCode const & err, Resolver::iterator it );
 

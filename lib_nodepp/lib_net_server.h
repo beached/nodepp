@@ -52,21 +52,22 @@ namespace daw {
 					// Summary:		A TCP Server class
 					// Requires:	daw::nodepp::base::EventEmitter, daw::nodepp::base::options_t,
 					//				daw::nodepp::lib::net::NetAddress, daw::nodepp::base::Error
-					class NetServerImpl: public daw::nodepp::base::enable_shared<NetServerImpl>, public daw::nodepp::base::StandardEvents < NetServerImpl > {
+					class NetServerImpl final: public daw::nodepp::base::enable_shared<NetServerImpl>, public daw::nodepp::base::StandardEvents < NetServerImpl > {
 						std::shared_ptr<boost::asio::ip::tcp::acceptor> m_acceptor;
 						std::shared_ptr<boost::asio::ssl::context> m_context;
-						NetServerImpl( daw::nodepp::base::EventEmitter emitter );
+						
+						explicit NetServerImpl( daw::nodepp::base::EventEmitter emitter );
 						NetServerImpl( boost::asio::ssl::context::method method, daw::nodepp::base::EventEmitter emitter );
 					public:
 						friend daw::nodepp::lib::net::NetServer daw::nodepp::lib::net::create_net_server( daw::nodepp::base::EventEmitter );
 						friend daw::nodepp::lib::net::NetServer daw::nodepp::lib::net::create_net_server( boost::asio::ssl::context::method, daw::nodepp::base::EventEmitter );
 
 						NetServerImpl( ) = delete;
-						NetServerImpl( NetServerImpl const & ) = default;
-						NetServerImpl( NetServerImpl&& other ) = default;
-						NetServerImpl& operator=( NetServerImpl && rhs ) = default;
-						NetServerImpl& operator=( NetServerImpl const & ) = default;
 						~NetServerImpl( ) = default;
+						NetServerImpl( NetServerImpl const & ) = default;
+						NetServerImpl( NetServerImpl && ) = default;
+						NetServerImpl& operator=( NetServerImpl const & ) = default;						
+						NetServerImpl& operator=( NetServerImpl && ) = default;
 
 						boost::asio::ssl::context & ssl_context( );
 						boost::asio::ssl::context const & ssl_context( ) const;
@@ -123,7 +124,6 @@ namespace daw {
 						void emit_closed( );
 
 					private:
-
 						static void handle_accept( std::weak_ptr<NetServerImpl> obj, NetSocketStream&& socket, base::ErrorCode const & err );
 
 						void start_accept( );

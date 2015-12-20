@@ -41,18 +41,19 @@ namespace daw {
 				daw::ReferenceCountedValue<handle_t> m_handle;
 			public:
 				OSLibraryHandle( ) = delete;
+				~OSLibraryHandle( );
 
-				
 				explicit OSLibraryHandle(std::string library_path);
 				explicit OSLibraryHandle(std::wstring library_path);
 
-				OSLibraryHandle( OSLibraryHandle const & other );
-				OSLibraryHandle( OSLibraryHandle && other );
-				OSLibraryHandle operator=(OSLibraryHandle rhs);
+				OSLibraryHandle( OSLibraryHandle const & ) = default;
+				OSLibraryHandle( OSLibraryHandle && ) = default;
+				OSLibraryHandle & operator=( OSLibraryHandle const &  ) = default;
+				OSLibraryHandle & operator=( OSLibraryHandle && ) = default;
+
 				handle_t& get( );
 				handle_t const& get( ) const;
 					
-				~OSLibraryHandle( );
 			};	// class OSLibraryHandle
 		}	// namespace impl
 

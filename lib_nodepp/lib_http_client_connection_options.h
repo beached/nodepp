@@ -32,7 +32,7 @@ namespace daw {
 	namespace nodepp {
 		namespace lib {
 			namespace http {
-				struct HttpClientConnectionOption {
+				struct HttpClientConnectionOption final {
 					using value_type = boost::variant<bool, int64_t, double, std::string, std::initializer_list<bool>, std::initializer_list<int64_t>, std::initializer_list<double>, std::initializer_list<std::string>>;
 				private:
 					std::pair<std::string, value_type> m_value;
@@ -51,7 +51,7 @@ namespace daw {
 					operator std::pair<std::string, value_type>( ) const;
 				};
 
-				struct HttpClientConnectionOptions {
+				struct HttpClientConnectionOptions final {
 					//typedef boost::variant<bool, int64_t, double, std::string> value_type;
 					using value_type = boost::variant<bool, int64_t, double, std::string, std::initializer_list<bool>, std::initializer_list<int64_t>, std::initializer_list<double>, std::initializer_list<std::string>>;
 				private:

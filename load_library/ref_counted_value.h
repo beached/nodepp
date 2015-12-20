@@ -28,7 +28,7 @@
 namespace daw {
 
 	template<typename T>
-	class ReferenceCountedValue {
+	class ReferenceCountedValue final {
 		using counter_t = int64_t;
 		T* m_value;
 		counter_t* m_counter;

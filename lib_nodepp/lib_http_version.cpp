@@ -80,14 +80,6 @@ namespace daw {
 					return *this;
 				}
 
-				HttpVersion& HttpVersion::operator=( HttpVersion && rhs ) {
-					if( this != &rhs ) {
-						m_is_valid = std::move( rhs.m_is_valid );
-						m_version = std::move( rhs.m_version );
-					}
-					return *this;
-				}
-
 				std::string HttpVersion::to_string( ) const {
 					return std::to_string( major( ) ) + "." + std::to_string( minor( ) );
 				}

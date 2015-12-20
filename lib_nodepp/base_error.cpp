@@ -59,27 +59,7 @@ namespace daw {
 				m_exception( std::move( ex_ptr ) ) {
 				m_keyvalues.emplace( "description", description.to_string( ) );
 			}
-
-			Error::Error( Error && other ):
-				std::exception( std::move( other ) ),
-				m_keyvalues( std::move( other.m_keyvalues ) ),
-				m_frozen( std::move( other.m_frozen ) ),
-				m_child( std::move( other.m_child ) ),
-				m_exception( std::move( other.m_exception ) ) {
-				assert( m_keyvalues.find( "description" ) != m_keyvalues.end( ) );
-			}
-
-			Error& Error::operator=( Error && rhs ) {
-				if( this != &rhs ) {
-					m_keyvalues = std::move( rhs.m_keyvalues );
-					m_frozen = std::move( rhs.m_frozen );
-					m_child = std::move( rhs.m_child );
-					m_exception = std::move( rhs.m_exception );
-				}
-				assert( m_keyvalues.find( "description" ) != m_keyvalues.end( ) );
-				return *this;
-			}
-
+			
 			Error& Error::add( boost::string_ref name, boost::string_ref value ) {
 				assert( m_keyvalues.find( "description" ) != m_keyvalues.end( ) );
 				if( m_frozen ) {

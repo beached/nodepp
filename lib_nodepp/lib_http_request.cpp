@@ -132,22 +132,6 @@ namespace daw {
 					set_links( );
 				}
 
-				HttpUrlQueryPair::HttpUrlQueryPair( HttpUrlQueryPair && other ):
-					JsonLink( std::move( other ) ),
-					name( std::move( other.name ) ),
-					value( std::move( other.value ) ) {
-					set_links( );
-				}
-
-				HttpUrlQueryPair& HttpUrlQueryPair::operator=( HttpUrlQueryPair && rhs ) {
-					if( this != &rhs ) {
-						name = std::move( rhs.name );
-						value = std::move( rhs.value );
-						set_links( );
-					}
-					return *this;
-				}
-
 				void HttpUrlQueryPair::set_links( ) {
 					this->reset_jsonlink( );
 					this->link_string( "name", name );
@@ -160,24 +144,6 @@ namespace daw {
 					query( ),
 					fragment( ) {
 					set_links( );
-				}
-
-				HttpUrl::HttpUrl( HttpUrl && other ):
-					JsonLink( std::move( other ) ),
-					path( std::move( other.path ) ),
-					query( std::move( other.query ) ),
-					fragment( std::move( other.fragment ) ) {
-					set_links( );
-				}
-
-				HttpUrl& HttpUrl::operator=( HttpUrl && rhs ) {
-					if( this != &rhs ) {
-						path = std::move( rhs.path );
-						query = std::move( rhs.query );
-						fragment = std::move( rhs.fragment );
-						set_links( );
-					}
-					return *this;
 				}
 
 				void HttpUrl::set_links( ) {
@@ -196,24 +162,6 @@ namespace daw {
 					set_links( );
 				}
 
-				HttpRequestLine::HttpRequestLine( HttpRequestLine && other ):
-					JsonLink( std::move( other ) ),
-					method( std::move( other.method ) ),
-					url( std::move( other.url ) ),
-					version( std::move( other.version ) ) {
-					set_links( );
-				}
-
-				HttpRequestLine& HttpRequestLine::operator=( HttpRequestLine && rhs ) {
-					if( this != &rhs ) {
-						method = std::move( rhs.method );
-						url = std::move( rhs.url );
-						version = std::move( rhs.version );
-						set_links( );
-					}
-					return *this;
-				}
-
 				void HttpRequestLine::set_links( ) {
 					this->reset_jsonlink( );
 					this->link_streamable( "method", method );
@@ -225,27 +173,22 @@ namespace daw {
 					set_links( );
 				}
 
-				HttpClientRequestBody::HttpClientRequestBody( HttpClientRequestBody && other ):
-					JsonLink<HttpClientRequestBody>( std::move( other ) ),
-					content_type( std::move( other.content_type ) ),
-					content( std::move( other.content ) ) {
-					set_links( );
-				}
-
-				HttpClientRequestBody& HttpClientRequestBody::operator=( HttpClientRequestBody && rhs ) {
-					if( this != &rhs ) {
-						content_type = std::move( rhs.content_type );
-						content = std::move( rhs.content );
-						set_links( );
-					}
-					return *this;
-				}
-
 				void HttpClientRequestBody::set_links( ) {
 					this->reset_jsonlink( );
 					this->link_string( "content_type", content_type );
 					this->link_string( "content", content );
 				}
+
+				HttpClientRequestHeaders::HttpClientRequestHeaders( HttpClientRequestHeaders::container_type h ): headers( std::move( h ) ) { }
+
+				HttpClientRequestHeaders::iterator HttpClientRequestHeaders::find( boost::string_ref key ) {
+					return headers.find( key.to_string( ) );
+				}
+
+				HttpClientRequestHeaders::const_iterator HttpClientRequestHeaders::find( boost::string_ref key ) const {
+					return headers.find( key.to_string( ) );
+				}
+
 
 				namespace impl {
 					HttpClientRequestImpl::HttpClientRequestImpl( ):
@@ -254,24 +197,6 @@ namespace daw {
 						headers( ),
 						body( ) {
 						set_links( );
-					}
-
-					HttpClientRequestImpl::HttpClientRequestImpl( HttpClientRequestImpl && other ):
-						JsonLink( std::move( other ) ),
-						request_line( std::move( other.request_line ) ),
-						headers( std::move( other.headers ) ),
-						body( std::move( other.body ) ) {
-						set_links( );
-					}
-
-					HttpClientRequestImpl& HttpClientRequestImpl::operator=( HttpClientRequestImpl && rhs ) {
-						if( this != &rhs ) {
-							request_line = std::move( rhs.request_line );
-							headers = std::move( rhs.headers );
-							body = std::move( rhs.body );
-							set_links( );
-						}
-						return *this;
 					}
 
 					void HttpClientRequestImpl::set_links( ) {

@@ -42,7 +42,7 @@ namespace daw {
 				HttpServerResponse create_http_server_response( std::weak_ptr<daw::nodepp::lib::net::impl::NetSocketStreamImpl> socket, daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
 
 				namespace impl {
-					class HttpServerResponseImpl: public daw::nodepp::base::enable_shared<HttpServerResponseImpl>, public daw::nodepp::base::stream::StreamWritableEvents<HttpServerResponseImpl>, public daw::nodepp::base::StandardEvents<HttpServerResponseImpl> {
+					class HttpServerResponseImpl final: public daw::nodepp::base::enable_shared<HttpServerResponseImpl>, public daw::nodepp::base::stream::StreamWritableEvents<HttpServerResponseImpl>, public daw::nodepp::base::StandardEvents<HttpServerResponseImpl> {
 						std::weak_ptr<daw::nodepp::lib::net::impl::NetSocketStreamImpl> m_socket;
 						HttpVersion m_version;
 						HttpHeaders m_headers;
@@ -58,12 +58,11 @@ namespace daw {
 					public:
 						friend HttpServerResponse daw::nodepp::lib::http::create_http_server_response( std::weak_ptr<daw::nodepp::lib::net::impl::NetSocketStreamImpl>, daw::nodepp::base::EventEmitter );
 
-						HttpServerResponseImpl( HttpServerResponseImpl const & ) = delete;
 						~HttpServerResponseImpl( ) = default;
+						HttpServerResponseImpl( HttpServerResponseImpl const & ) = delete;
+						HttpServerResponseImpl( HttpServerResponseImpl && ) = default;												
 						HttpServerResponseImpl& operator=( HttpServerResponseImpl const & ) = delete;
-
-						HttpServerResponseImpl( HttpServerResponseImpl&& other ) = delete;
-						HttpServerResponseImpl& operator=( HttpServerResponseImpl && rhs ) = delete;
+						HttpServerResponseImpl& operator=( HttpServerResponseImpl && ) = default;
 
 						HttpServerResponseImpl& write( daw::nodepp::base::data_t const & data );
 						HttpServerResponseImpl& write( boost::string_ref data, daw::nodepp::base::Encoding const & encoding = daw::nodepp::base::Encoding( ) );

@@ -28,10 +28,16 @@
 
 namespace daw {
 	template<class Result, class Func>
-	struct forwarding_visitor: boost::static_visitor<Result> {
+	struct forwarding_visitor final: boost::static_visitor<Result> {
 		Func func;
 		forwarding_visitor( const Func& f ):func( f ) { }
 		forwarding_visitor( Func&& f ):func( std::move( f ) ) { }
+		~forwarding_visitor( ) = default;
+		forwarding_visitor( forwarding_visitor const & ) = default;
+		forwarding_visitor( forwarding_visitor && ) = default;
+		forwarding_visitor & operator=( forwarding_visitor const & ) = default;
+		forwarding_visitor & operator=( forwarding_visitor && ) = default;
+
 		template<class Arg>
 		Result operator()( Arg && arg ) const {
 			return func( std::forward<Arg>( arg ) );
@@ -58,12 +64,12 @@ namespace daw {
 						BoostSocketValueType const & raw_socket( ) const;
 						
 					public:
+						BoostSocket( ) = delete;
 						~BoostSocket( ) = default;
 						BoostSocket( BoostSocket const & ) = default;
 						BoostSocket& operator=( BoostSocket const & ) = default;
 						BoostSocket( BoostSocket && ) = default;
-						BoostSocket& operator=( BoostSocket && ) = default;
-						BoostSocket( ) = delete;
+						BoostSocket& operator=( BoostSocket && ) = default;						
 
 						explicit operator bool( ) const;
 

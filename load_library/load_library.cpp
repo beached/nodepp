@@ -33,19 +33,11 @@ namespace daw {
 					close_library( *handle );
 				} );
 			}
+
 			OSLibraryHandle::OSLibraryHandle(std::wstring library_path) : m_handle{ impl::load_library(std::move(library_path)) } { 
 				m_handle.set_cleaner( []( handle_t* handle ) {
 					close_library( *handle );
 				} );
-			}
-
-			OSLibraryHandle::OSLibraryHandle( OSLibraryHandle const & other ):m_handle( other.m_handle ) { }
-
-			OSLibraryHandle::OSLibraryHandle( OSLibraryHandle && other ): m_handle( std::move( other.m_handle ) ) { }
-
-			OSLibraryHandle OSLibraryHandle::operator=(OSLibraryHandle rhs) {
-				m_handle = std::move( rhs.m_handle );
-				return *this;
 			}
 			
 			OSLibraryHandle::handle_t& OSLibraryHandle::get( ) {

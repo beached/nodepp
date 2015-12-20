@@ -36,16 +36,6 @@ namespace daw {
 
 			Callback::Callback( ) : m_id { -1 }, m_callback { 0 } { }
 
-			Callback::Callback( Callback && other ) : m_id { std::move( other.m_id ) }, m_callback { std::move( other.m_callback ) } { }
-
-			Callback& Callback::operator=(Callback && rhs) {
-				if( this != &rhs ) {
-					m_id = std::move( rhs.m_id );
-					m_callback = std::move( rhs.m_callback );
-				}
-				return *this;
-			}
-
 			const Callback::id_t& Callback::id( ) const {
 				return m_id;
 			}
