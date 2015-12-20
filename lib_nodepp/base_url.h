@@ -30,7 +30,7 @@
 namespace daw {
 	namespace nodepp {
 		namespace base {
-			struct Url {
+			struct Url final {
 				typedef std::map< std::string, std::string > query_t;
 				boost::optional< std::string > root;
 				boost::optional< std::string > hierarchy;

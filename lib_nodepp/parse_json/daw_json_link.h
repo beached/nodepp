@@ -127,22 +127,43 @@ namespace daw {
 
 		template<typename Derived>
 		class JsonLink {
-			std::string m_name;
 			using encode_function_t = std::function < void( std::string & json_text ) >;
 			using decode_function_t = std::function < void( json_obj json_values ) >;
 
-			struct bind_functions_t {
+			struct bind_functions_t final {
 				encode_function_t encode;
 				decode_function_t decode;
-				bind_functions_t( ): encode( nullptr ), decode( nullptr ) { }
+				
+				bind_functions_t( ): 
+					encode( nullptr ), 
+					decode( nullptr ) { }
+
+				~bind_functions_t( ) = default;
+				bind_functions_t( bind_functions_t const & ) = default;
+				bind_functions_t( bind_functions_t && ) = default;
+				bind_functions_t & operator=( bind_functions_t const & ) = default;
+				bind_functions_t & operator=( bind_functions_t && ) = default;
 			};
 
-			struct data_description_t {
+			struct data_description_t final {
 				::daw::json::impl::value_t json_type;
 				bind_functions_t bind_functions;
-				data_description_t( ): json_type( nullptr ), bind_functions( ) { }
+				
+				data_description_t( ): 
+					json_type( nullptr ), 
+					bind_functions( ) { }
+
+				~data_description_t( ) = default;
+				data_description_t( data_description_t const & ) = default;
+				data_description_t( data_description_t && ) = default;
+				data_description_t & operator=( data_description_t const & ) = default;
+				data_description_t & operator=( data_description_t && ) = default;
+
+
 			};	// struct data_description
 
+
+			std::string m_name;
 			std::unordered_map<std::string, data_description_t> m_data_map;
 
 			template<typename T>
@@ -162,22 +183,10 @@ namespace daw {
 				m_data_map( ) { }	// TODO: look into moving set_links call into here
 
 			virtual ~JsonLink( ) = default;
-
 			JsonLink( JsonLink const & ) = default;
-
 			JsonLink& operator=( JsonLink const & ) = default;
-
-			JsonLink( JsonLink && other ):
-				m_name( std::move( other.m_name ) ),
-				m_data_map( std::move( other.m_data_map ) ) { }
-
-			JsonLink& operator=( JsonLink && rhs ) {
-				if( this != &rhs ) {
-					m_name = std::move( rhs.m_name );
-					m_data_map = std::move( rhs.m_data_map );
-				}
-				return *this;
-			}
+			JsonLink( JsonLink &&  ) = default;
+			JsonLink& operator=( JsonLink && ) = default;
 
 			std::string & json_object_name( ) {
 				return m_name;

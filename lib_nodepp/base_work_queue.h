@@ -44,7 +44,7 @@ namespace daw {
 			WorkQueue create_work_queue( uint32_t max_workers = std::thread::hardware_concurrency( ), daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
 
 			namespace impl {
-				struct work_item_t {
+				struct work_item_t final {
 					std::function<void( int64_t )> work_item;
 					std::function<void( int64_t, base::OptionalError )> on_completion;
 					int64_t task_id;
@@ -57,7 +57,7 @@ namespace daw {
 					bool valid( ) const;
 				};
 
-				class WorkQueueImpl: public daw::nodepp::base::enable_shared<WorkQueueImpl>, public daw::nodepp::base::StandardEvents < WorkQueueImpl > {
+				class WorkQueueImpl final: public daw::nodepp::base::enable_shared<WorkQueueImpl>, public daw::nodepp::base::StandardEvents < WorkQueueImpl > {
 					daw::concurrent_queue<work_item_t> m_work_queue;
 					std::atomic<bool> m_continue;
 					daw::thread::Semaphore<int> m_worker_count;
@@ -72,8 +72,10 @@ namespace daw {
 					WorkQueueImpl( uint32_t max_workers, daw::nodepp::base::EventEmitter emitter );
 					~WorkQueueImpl( );
 					WorkQueueImpl( WorkQueueImpl const & ) = delete;
+					WorkQueueImpl( WorkQueueImpl && ) = default;
 					WorkQueueImpl& operator=(WorkQueueImpl const &) = delete;
-
+					WorkQueueImpl& operator=( WorkQueueImpl && ) = default;
+					
 					int64_t add_work_item( std::function<void( int64_t task_id )> work_item, std::function<void( int64_t task_id, daw::nodepp::base::OptionalError )> on_completion = nullptr, bool auto_start = true );
 
 					void run( );

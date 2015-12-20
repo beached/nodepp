@@ -29,7 +29,7 @@ namespace daw {
 		namespace base {
 			using IoService = boost::asio::io_service;
 
-			struct ServiceHandle {
+			struct ServiceHandle final {
 				static IoService& get( );
 				static void run( );
 				static void stop( );

@@ -37,7 +37,7 @@ namespace daw {
 			//				This is needed because std::function are not comparable
 			//				to each other.
 			// Requires:
-			class Callback {
+			class Callback final {
 			public:
 				using id_t = int64_t;
 			private:

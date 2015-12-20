@@ -36,7 +36,7 @@
 namespace daw {
 	namespace json {
 		namespace impl {
-			struct null_value { };
+			struct null_value final { };
 			struct object_value;
 			struct array_value;
 
@@ -95,7 +95,7 @@ namespace daw {
 
 			using value_opt_t = boost::optional < value_t > ;
 
-			struct array_value {
+			struct array_value final {
 				std::vector<value_t> items;
 			};
 
@@ -103,7 +103,7 @@ namespace daw {
 
 			object_value_item make_object_value_item( std::string first, value_t second );
 
-			struct object_value: public daw::mixins::VectorLikeProxy < object_value, std::vector<object_value_item> > {
+			struct object_value final: public daw::mixins::VectorLikeProxy < object_value, std::vector<object_value_item> > {
 				std::vector<object_value_item> members;
 				inline std::vector<object_value_item> & container( ) {
 					return members;

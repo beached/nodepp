@@ -34,6 +34,7 @@ namespace daw {
 
 				template<typename Derived>
 				class StreamWritableEvents {
+				private:
 					Derived & derived( ) {
 						return *static_cast<Derived*>(this);
 					}
@@ -42,7 +43,7 @@ namespace daw {
 						return static_cast<Derived*>(this)->emitter( );
 					}
 				protected:
-					~StreamWritableEvents( ) = default;
+					virtual ~StreamWritableEvents( ) = default;
 				public:
 
 					//////////////////////////////////////////////////////////////////////////
@@ -92,7 +93,7 @@ namespace daw {
 					}
 
 				protected:
-					~StreamReadableEvents( ) = default;
+					virtual ~StreamReadableEvents( ) = default;
 				public:
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Event emitted when data is received
