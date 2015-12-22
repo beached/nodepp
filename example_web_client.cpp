@@ -39,7 +39,7 @@ int main( int, char ** ) {
 		} );
 	} );
 
-	auto req = get( "https://www.google.ca", { { "Verify", true } } );
+	auto req = get( u8"https://www.google.ca", { { "Verify", true } } );
 
 	auto request = create_http_client_request( "/", HttpClientRequestMethod::Get );
 
