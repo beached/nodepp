@@ -3,18 +3,22 @@ language: cpp
 compiler:
   - gcc
 install:
-  - if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5" BOOST_CXX="g++-5"; else export BOOST_CXX="g++"; fi
-  - export BOOST_ROOT=~/libboost_1_59_0/usr
+  - export BOOST_BASE=~/libboost_1_60_0
+  - if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5" BOOST_CXX="g++-5" BOOST_ROOT="${BOOST_BASE}/usr"; fi
+  - if [ "$CXX" = "clang++" ]; then export BOOST_ROOT="${BOOST_BASE}_clang/usr" BOOST_CXX="clang++"; fi
   - /bin/bash travis_install_boost.sh || { rm -rf "$BOOST_ROOT" ; exit 1; }
 cache:
   directories:
-    - ~/libboost_1_59_0
+    - ~/libboost_1_60_0
+    - ~/libboost_1_60_0_clang
 addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
     packages:
       - cmake
+	  - clang
+	  - libc++
       - g++-5
       - gcc-5
       - libbz2-dev
