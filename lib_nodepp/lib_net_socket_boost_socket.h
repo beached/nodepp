@@ -150,4 +150,5 @@ namespace daw {
 		}	// namespace lib
 	}	// namespace nodepp
 }	// namespace daw
-#undef create_visitor
+// TOOD remove #undef create_visitor
+

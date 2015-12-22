@@ -53,7 +53,7 @@ namespace daw {
 						HttpConnectionImpl( HttpConnectionImpl && ) = default;
 						HttpConnectionImpl& operator=(HttpConnectionImpl &&) = default;
 
-						~HttpConnectionImpl( ) = default;
+						~HttpConnectionImpl( );
 
 						HttpConnectionImpl& on_client_error( std::function<void( daw::nodepp::base::Error )> listener );
 						HttpConnectionImpl& on_next_client_error( std::function<void( daw::nodepp::base::Error )> listener );
@@ -75,3 +75,4 @@ namespace daw {
 		}	// namespace lib
 	}	// namespace nodepp
 }	// namespace daw
+

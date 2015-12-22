@@ -87,9 +87,9 @@ set(SOURCE_FILES
 
 include_directories( ../header_libraries )
 include_directories( ./parse_json )
-include_directories( ${Boost_INCLUDE_DIRS} )
+include_directories( SYSTEM ${Boost_INCLUDE_DIRS} )
 #link_directories( ${Boost_LIBRARY_DIRS} )
-include_directories( ${OPENSSL_INCLUDE_DIR} )
+include_directories( SYSTEM ${OPENSSL_INCLUDE_DIR} )
 
 
 add_library (lib_nodepp STATIC ${SOURCE_FILES})

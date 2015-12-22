@@ -58,4 +58,5 @@ namespace daw {
 			};	// class Encoding
 		}	// namespace base
 	}	// namespace nodepp
-}	// namespace daw
+} 	// namespace daw
+

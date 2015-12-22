@@ -35,7 +35,7 @@ set(SOURCE_FILES
 )
 
 include_directories( ../header_libraries )
-include_directories( ${Boost_INCLUDE_DIRS} )
+include_directories( SYSTEM ${Boost_INCLUDE_DIRS} )
 link_directories( ${Boost_LIBRARY_DIRS} )
 
 add_library (load_library STATIC ${SOURCE_FILES})

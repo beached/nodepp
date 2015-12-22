@@ -62,7 +62,7 @@ namespace daw {
 						HttpClientImpl( HttpClientImpl && ) = default;
 						HttpClientImpl& operator=( HttpClientImpl const & ) = default;
 						HttpClientImpl& operator=( HttpClientImpl && ) = default;
-						~HttpClientImpl( ) = default;
+						~HttpClientImpl( );
 
 						void request( std::string scheme, std::string host, uint16_t port, daw::nodepp::lib::http::HttpClientRequest request );
 						HttpClientImpl & on_connection( std::function<void( HttpClientConnection )> listener );
@@ -73,7 +73,7 @@ namespace daw {
 
 					public:
 						HttpClientConnectionImpl( ) = default;
-						~HttpClientConnectionImpl( ) = default;
+						~HttpClientConnectionImpl( );
 						HttpClientConnectionImpl( HttpClientConnectionImpl const & ) = default;
 						HttpClientConnectionImpl( HttpClientConnectionImpl && ) = default;
 						HttpClientConnectionImpl & operator=( HttpClientConnectionImpl const & ) = default;
@@ -97,3 +97,4 @@ namespace daw {
 		} // namespace lib
 	}	// namespace nodepp
 }	// namespace daw
+

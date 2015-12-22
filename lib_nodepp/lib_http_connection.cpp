@@ -49,6 +49,9 @@ namespace daw {
 						daw::nodepp::base::StandardEvents<HttpConnectionImpl>( std::move( emitter ) ),
 						m_socket( std::move( socket ) ) { }
 
+
+					HttpConnectionImpl::~HttpConnectionImpl( ) { }
+
 					void HttpConnectionImpl::start( ) {
 						auto obj = this->get_weak_ptr( );
 						m_socket->on_next_data_received( [obj]( std::shared_ptr<base::data_t> data_buffer, bool ) mutable {
@@ -137,3 +140,4 @@ namespace daw {
 		}	// namespace lib
 	}	// namespace nodepp
 }	// namespace daw
+

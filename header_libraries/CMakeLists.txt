@@ -39,7 +39,7 @@ enable_testing( )
 
 #add_definitions( -DBOOST_TEST_MAIN )
 ADD_DEFINITIONS(-DBOOST_TEST_DYN_LINK) 
-INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
+include_directories( SYSTEM ${Boost_INCLUDE_DIRS})
 LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 
 foreach( CUR_PREFIX ${HEADER_PREFIXES} )

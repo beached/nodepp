@@ -46,7 +46,9 @@ namespace daw {
 					HttpClientImpl & HttpClientImpl::on_connection( std::function<void( HttpClientConnection )> listener ) {
 						return *this;
 					}
-					
+				
+					HttpClientImpl::~HttpClientImpl( ) { }
+					HttpClientConnectionImpl::~HttpClientConnectionImpl( ) { }
 					void HttpClientImpl::request( std::string scheme, std::string host, uint16_t port, daw::nodepp::lib::http::HttpClientRequest request ) {
 						auto socket = m_client;
 						socket->on_connected( [socket, scheme, request, host, port]( ) mutable {
@@ -98,3 +100,4 @@ namespace daw {
 		} // namespace lib
 	}	// namespace nodepp
 }	// namespace daw
+

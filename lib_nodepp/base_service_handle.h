@@ -44,4 +44,5 @@ namespace daw {
 			void start_service( StartServiceMode mode = StartServiceMode::Single );
 		}	// namespace base
 	}	// namespace nodepp
-}	// namespace daw
+} 	// namespace daw
+
