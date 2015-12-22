@@ -33,7 +33,7 @@ int main( int, char ** ) {
 	auto req = get( u8"https://www.google.ca", { { "Verify", true } } );
 
 	daw::nodepp::base::start_service( );
-	system( "pause" );
+	
 	return EXIT_SUCCESS;
 }
 
