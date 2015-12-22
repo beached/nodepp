@@ -67,6 +67,8 @@ namespace daw {
 						m_registered_sites( ),
 						m_error_listeners( ) { }
 
+					HttpSiteImpl::~HttpSiteImpl( ) {}
+
 					void HttpSiteImpl::start( ) {
 						m_server->on_error( this->get_weak_ptr( ), "Child" )
 							.delegate_to<daw::nodepp::lib::net::EndPoint>( "listening", this->get_weak_ptr( ), "listening" )

@@ -86,7 +86,7 @@ namespace daw {
 						friend HttpSite daw::nodepp::lib::http::create_http_site( daw::nodepp::base::EventEmitter );
 						friend HttpSite daw::nodepp::lib::http::create_http_site( daw::nodepp::lib::http::HttpServer, daw::nodepp::base::EventEmitter );
 						
-						~HttpSiteImpl( ) = default;
+						~HttpSiteImpl( );
 						HttpSiteImpl( HttpSiteImpl const & ) = delete;
 						HttpSiteImpl( HttpSiteImpl&& ) = default;
 						HttpSiteImpl& operator=( HttpSiteImpl const & ) = delete;
