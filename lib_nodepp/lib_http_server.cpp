@@ -47,6 +47,8 @@ namespace daw {
 						m_netserver( lib::net::create_net_server( ) ),
 						m_connections( ) { }
 
+					HttpServerImpl::~HttpServerImpl( ) { }
+
 					void HttpServerImpl::emit_client_connected( HttpConnection connection ) {
 						emitter( )->emit( "client_connected", std::move( connection ) );
 					}

@@ -56,7 +56,7 @@ namespace daw {
 					public:
 						friend daw::nodepp::lib::http::HttpServer daw::nodepp::lib::http::create_http_server( daw::nodepp::base::EventEmitter );
 
-						~HttpServerImpl( ) = default;
+						~HttpServerImpl( );
 						HttpServerImpl( HttpServerImpl const & ) = default;
 						HttpServerImpl( HttpServerImpl &&  ) = default;
 						HttpServerImpl& operator=( HttpServerImpl const & ) = default;
