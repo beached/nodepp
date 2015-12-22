@@ -51,6 +51,8 @@ namespace daw {
 						m_acceptor( std::make_shared<boost::asio::ip::tcp::acceptor>( base::ServiceHandle::get( ) ) ),
 						m_context( std::make_shared < boost::asio::ssl::context>( method ) ) { }
 
+					NetServerImpl::~NetServerImpl( ) { }
+
 					boost::asio::ssl::context & NetServerImpl::ssl_context( ) {
 						return *m_context;
 					}

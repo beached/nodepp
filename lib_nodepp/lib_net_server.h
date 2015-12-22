@@ -63,7 +63,7 @@ namespace daw {
 						friend daw::nodepp::lib::net::NetServer daw::nodepp::lib::net::create_net_server( boost::asio::ssl::context::method, daw::nodepp::base::EventEmitter );
 
 						NetServerImpl( ) = delete;
-						~NetServerImpl( ) = default;
+						~NetServerImpl( );
 						NetServerImpl( NetServerImpl const & ) = default;
 						NetServerImpl( NetServerImpl && ) = default;
 						NetServerImpl& operator=( NetServerImpl const & ) = default;						
