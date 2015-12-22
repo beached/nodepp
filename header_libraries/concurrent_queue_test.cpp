@@ -25,3 +25,4 @@
 #include "concurrent_queue.h"
 
 BOOST_AUTO_TEST_CASE( concurrent_queue_none_yet ) { }
+

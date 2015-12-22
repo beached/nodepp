@@ -27,3 +27,4 @@
 BOOST_AUTO_TEST_CASE( daw_exception_none_yet ) {
 	BOOST_WARN_MESSAGE( true, "daw_exception_test unimplemented" );
 }
+

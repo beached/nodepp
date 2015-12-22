@@ -302,3 +302,4 @@ BOOST_AUTO_TEST_CASE( daw_traits_is_mixed_from ) {
 	auto test2 = daw::traits::is_mixed_from<daw_traits_is_mixed_from_ns::Base, daw_traits_is_mixed_from_ns::NonDerived>::value;
 	BOOST_REQUIRE_MESSAGE( false == test2, "2. Base<NonDerived> should not be a base for NonDerived" );
 }
+
