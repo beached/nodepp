@@ -4,7 +4,6 @@ language: cpp
 
 compiler:
   - gcc
-  - clang
 
 install:
   - export BOOST_BASE="~/libboost_1_60_0"
