@@ -29,23 +29,10 @@
 
 int main( int, char ** ) {
 	using namespace daw::nodepp::lib::http;
-	auto client = create_http_client( );
-
-	client->on_connection( []( HttpClientConnection connection ) {
-		connection->on_response_returned( []( HttpServerResponse response ) {
-			if( response ) {
-				std::cout << boost::string_ref( response->body( ).data( ), response->body( ).size( ) ).to_string( ) << std::endl;
-			}
-		} );
-	} );
 
 	auto req = get( u8"https://www.google.ca", { { "Verify", true } } );
 
-	auto request = create_http_client_request( "/", HttpClientRequestMethod::Get );
-
-	client->request( "http", "dawdevel.ca", 80, request );
-
-	start_service( daw::nodepp::base::StartServiceMode::Single );
+	daw::nodepp::base::start_service( );
 	system( "pause" );
 	return EXIT_SUCCESS;
 }
