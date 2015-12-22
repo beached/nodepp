@@ -4,7 +4,7 @@ language: cpp
 
 compiler:
   - gcc
-
+  - clang
 install:
   - export BOOST_BASE="~/libboost_1_60_0"
   - if [ "${CXX}" = "g++" ]; then export CXX="g++-5" CC="gcc-5" BOOST_CXX="g++-5" BOOST_ROOT="${BOOST_BASE}/usr" BOOST_SH="travis_install_boost.sh"; fi
@@ -22,8 +22,8 @@ addons:
       - ubuntu-toolchain-r-test
     packages:
       - cmake
-	  - clang
-	  - libc++
+      - clang
+      - libc++
       - g++-5
       - gcc-5
       - libbz2-dev
