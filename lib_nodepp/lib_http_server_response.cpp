@@ -72,6 +72,8 @@ namespace daw {
 						return true;
 					}
 
+					HttpServerResponseImpl::~HttpServerResponseImpl( ) {}
+
 					HttpServerResponseImpl& HttpServerResponseImpl::write( base::data_t const & data ) {
 						m_body.insert( std::end( m_body ), std::begin( data ), std::end( data ) );
 						return *this;

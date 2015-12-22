@@ -58,7 +58,7 @@ namespace daw {
 					public:
 						friend HttpServerResponse daw::nodepp::lib::http::create_http_server_response( std::weak_ptr<daw::nodepp::lib::net::impl::NetSocketStreamImpl>, daw::nodepp::base::EventEmitter );
 
-						~HttpServerResponseImpl( ) = default;
+						~HttpServerResponseImpl( );
 						HttpServerResponseImpl( HttpServerResponseImpl const & ) = delete;
 						HttpServerResponseImpl( HttpServerResponseImpl && ) = default;												
 						HttpServerResponseImpl& operator=( HttpServerResponseImpl const & ) = delete;
