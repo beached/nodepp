@@ -82,6 +82,10 @@ namespace daw {
 				case value_types::object:
 					m_value.object = new object_value( *other.m_value.object );
 					break;
+				case value_types::integral:
+				case value_types::real:
+				case value_types::boolean:
+				case value_types::null:
 				default:
 					m_value = other.m_value;
 				}
@@ -100,6 +104,10 @@ namespace daw {
 					case value_types::object:
 						m_value.object = new object_value( *rhs.m_value.object );
 						break;
+					case value_types::integral:
+					case value_types::real:
+					case value_types::boolean:
+					case value_types::null:
 					default:
 						m_value = rhs.m_value;
 					}
