@@ -2,11 +2,12 @@ sudo: false
 language: cpp
 compiler:
   - gcc
+  - clang
 install:
   - export BOOST_BASE=~/libboost_1_60_0
-  - if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5" BOOST_CXX="g++-5" BOOST_ROOT="${BOOST_BASE}/usr"; fi
-  - if [ "$CXX" = "clang++" ]; then export BOOST_ROOT="${BOOST_BASE}_clang/usr" BOOST_CXX="clang++"; fi
-  - /bin/bash travis_install_boost.sh || { rm -rf "$BOOST_ROOT" ; exit 1; }
+  - if [ "${CXX}" = "g++" ]; then export CXX="g++-5" CC="gcc-5" BOOST_CXX="g++-5" BOOST_ROOT="${BOOST_BASE}/usr" BOOST_SH="travis_install_boost.sh"; fi
+  - if [ "${CXX}" = "clang++" ]; then export BOOST_ROOT="${BOOST_BASE}_clang/usr" BOOST_CXX="clang++"  BOOST_SH="travis_install_boost_clang.sh"; fi
+  - /bin/bash "${BOOST_SH}" || { rm -rf "${BOOST_ROOT}" ; exit 1; }
 cache:
   directories:
     - ~/libboost_1_60_0
