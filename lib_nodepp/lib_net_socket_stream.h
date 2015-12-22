@@ -196,5 +196,5 @@ namespace daw {
 		}	// namespace lib
 	}	// namespace nodepp
 }	// namespace daw
-daw::nodepp::lib::net::NetSocketStream& operator<<( daw::nodepp::lib::net::NetSocketStream socket, boost::string_ref message );
+daw::nodepp::lib::net::NetSocketStream& operator<<( daw::nodepp::lib::net::NetSocketStream & socket, boost::string_ref message );
 
