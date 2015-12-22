@@ -29,12 +29,22 @@
 namespace daw {
 	namespace exception {
 #define MAKE_DAW_EXCEPTION( EXCEPTION_TYPE ) \
-			struct EXCEPTION_TYPE: public std::runtime_error { \
-				EXCEPTION_TYPE( std::string const & msg ): std::runtime_error( msg.c_str( ) ) { } \
-				EXCEPTION_TYPE( char const * msg ): std::runtime_error( msg ) { } \
-				EXCEPTION_TYPE( EXCEPTION_TYPE const & ) = default; \
-				EXCEPTION_TYPE& operator=( EXCEPTION_TYPE const & ) = default; \
-				};
+			namespace impl { \
+				template<typename MsgType> \
+				struct EXCEPTION_TYPE final { \
+					MsgType message; \
+					EXCEPTION_TYPE( std::string msg ): message( std::move( msg ) ) { } \
+					EXCEPTION_TYPE( char const * msg ): message( msg ) { } \
+					EXCEPTION_TYPE( ) = delete; \
+					~EXCEPTION_TYPE( ) = default; \
+					EXCEPTION_TYPE( EXCEPTION_TYPE const & ) = default; \
+					EXCEPTION_TYPE( EXCEPTION_TYPE && ) = default; \
+					EXCEPTION_TYPE& operator=( EXCEPTION_TYPE const & ) = default; \
+					EXCEPTION_TYPE& operator=( EXCEPTION_TYPE && ) = default; \
+					std::string const & what( ) { return message; } \
+					}; \
+				} \
+				using EXCEPTION_TYPE = impl::EXCEPTION_TYPE<std::string>;
 
 		MAKE_DAW_EXCEPTION( NotImplemented );
 		MAKE_DAW_EXCEPTION( FatalError );

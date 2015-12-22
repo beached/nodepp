@@ -43,7 +43,7 @@ struct test {
 	uint32_t s( std::string bblah ) {
 		uint32_t count = 0;
 		for( auto it = bblah.begin( ); it != bblah.end( ); ++it ) {
-			count += (uint32_t)*it;
+			count += static_cast<uint32_t>( *it );
 		}
 		return count;
 	}
@@ -82,3 +82,4 @@ int main( int, char const ** ) {
 
 	return EXIT_SUCCESS;
 }
+
