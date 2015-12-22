@@ -132,6 +132,8 @@ namespace daw {
 					set_links( );
 				}
 
+				HttpUrlQueryPair::~HttpUrlQueryPair( ) { }
+
 				void HttpUrlQueryPair::set_links( ) {
 					this->reset_jsonlink( );
 					this->link_string( "name", name );
@@ -145,6 +147,8 @@ namespace daw {
 					fragment( ) {
 					set_links( );
 				}
+
+				HttpUrl::~HttpUrl( ) { }
 
 				void HttpUrl::set_links( ) {
 					this->reset_jsonlink( );
@@ -162,6 +166,8 @@ namespace daw {
 					set_links( );
 				}
 
+				HttpRequestLine::~HttpRequestLine( ) { }
+
 				void HttpRequestLine::set_links( ) {
 					this->reset_jsonlink( );
 					this->link_streamable( "method", method );
@@ -173,6 +179,8 @@ namespace daw {
 					set_links( );
 				}
 
+				HttpClientRequestBody::~HttpClientRequestBody( ) { }
+
 				void HttpClientRequestBody::set_links( ) {
 					this->reset_jsonlink( );
 					this->link_string( "content_type", content_type );
@@ -180,6 +188,8 @@ namespace daw {
 				}
 
 				HttpClientRequestHeaders::HttpClientRequestHeaders( HttpClientRequestHeaders::container_type h ): headers( std::move( h ) ) { }
+
+				HttpClientRequestHeaders::~HttpClientRequestHeaders( ) { }
 
 				HttpClientRequestHeaders::iterator HttpClientRequestHeaders::find( boost::string_ref key ) {
 					return headers.find( key.to_string( ) );
@@ -198,6 +208,8 @@ namespace daw {
 						body( ) {
 						set_links( );
 					}
+
+					HttpClientRequestImpl::~HttpClientRequestImpl( ) { }
 
 					void HttpClientRequestImpl::set_links( ) {
 						this->reset_jsonlink( );

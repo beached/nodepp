@@ -57,7 +57,7 @@ namespace daw {
 
 					HttpUrlQueryPair( );
 					HttpUrlQueryPair( std::pair<std::string, boost::optional<std::string>> const & vals );
-					virtual ~HttpUrlQueryPair( ) = default;
+					~HttpUrlQueryPair( );
 					HttpUrlQueryPair( HttpUrlQueryPair const & ) = default;
 					HttpUrlQueryPair( HttpUrlQueryPair && ) = default;
 					HttpUrlQueryPair& operator=( HttpUrlQueryPair const & ) = default;
@@ -72,7 +72,7 @@ namespace daw {
 					boost::optional<std::string> fragment;
 
 					HttpUrl( );
-					~HttpUrl( ) = default;
+					~HttpUrl( );
 					HttpUrl( HttpUrl const & ) = default;
 					HttpUrl( HttpUrl && ) = default;
 					HttpUrl& operator=( HttpUrl const & ) = default;
@@ -89,7 +89,7 @@ namespace daw {
 					std::string version;
 
 					HttpRequestLine( );
-					~HttpRequestLine( ) = default;
+					~HttpRequestLine( );
 					HttpRequestLine( HttpRequestLine const & ) = default;
 					HttpRequestLine( HttpRequestLine && ) = default;
 					HttpRequestLine& operator=( HttpRequestLine const & ) = default;
@@ -103,7 +103,7 @@ namespace daw {
 					std::string content;
 
 					HttpClientRequestBody( );
-					virtual ~HttpClientRequestBody( ) = default;
+					~HttpClientRequestBody( );
 					HttpClientRequestBody( HttpClientRequestBody const & ) = default;
 					HttpClientRequestBody( HttpClientRequestBody && ) = default;
 					HttpClientRequestBody& operator=( HttpClientRequestBody const & ) = default;
@@ -127,7 +127,7 @@ namespace daw {
 				public:
 					HttpClientRequestHeaders( ) = default;
 					explicit HttpClientRequestHeaders( container_type h );
-					~HttpClientRequestHeaders( ) = default;
+					~HttpClientRequestHeaders( );
 					HttpClientRequestHeaders( HttpClientRequestHeaders const & ) = default;
 					HttpClientRequestHeaders( HttpClientRequestHeaders && ) = default;
 					HttpClientRequestHeaders & operator=( HttpClientRequestHeaders const & ) = default;
@@ -145,7 +145,7 @@ namespace daw {
 						boost::optional<daw::nodepp::lib::http::HttpClientRequestBody> body;
 
 						HttpClientRequestImpl( );
-						~HttpClientRequestImpl( ) = default;
+						~HttpClientRequestImpl( );
 						HttpClientRequestImpl( HttpClientRequestImpl const & ) = default;
 						HttpClientRequestImpl( HttpClientRequestImpl && ) = default;
 						HttpClientRequestImpl& operator=( HttpClientRequestImpl const & ) = default;
