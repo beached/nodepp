@@ -38,3 +38,4 @@ int main( int, char** ) {
 	std::cout << result << std::endl;
 	return 0;
 }
+
