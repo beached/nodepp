@@ -42,7 +42,9 @@ namespace daw {
 
 					NetDnsImpl::NetDnsImpl( base::EventEmitter emitter ):
 						daw::nodepp::base::StandardEvents < NetDnsImpl >( std::move( emitter ) ),
-						m_resolver( daw::make_unique<Resolver>( base::ServiceHandle::get( ) ) ) { }					
+						m_resolver( daw::make_unique<Resolver>( base::ServiceHandle::get( ) ) ) { }
+
+					NetDnsImpl::~NetDnsImpl( ) { }
 
 					void NetDnsImpl::resolve( Resolver::query & query ) {
 						std::weak_ptr<NetDnsImpl> obj( this->get_ptr( ) );
