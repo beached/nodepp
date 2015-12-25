@@ -10,7 +10,7 @@ namespace daw {
 		namespace base {
 			namespace impl {
 				template<typename T, int TAG=0>
-				constexpr std::mutex& get_static_mutex( ) {
+				std::mutex& get_static_mutex( ) {
 					static std::mutex result;
 
 					return result;
@@ -28,9 +28,7 @@ namespace daw {
 			public:
 				SelfDestructing( ) = delete;
 				explicit SelfDestructing( daw::nodepp::base::EventEmitter emitter ): 
-					daw::nodepp::base::StandardEvents<Derived>( std::move( emitter ) ),
-					s_selfs( ),
-					s_mutex( ) { }
+					daw::nodepp::base::StandardEvents<Derived>( std::move( emitter ) ) { }
 
 				virtual ~SelfDestructing( ) = default;
 				SelfDestructing( SelfDestructing const & ) = default;
@@ -50,10 +48,10 @@ namespace daw {
 			};	// class SelfDestructing
 
 			template<typename Derived>
-			std::list<std::shared_ptr<Derived>> SelfDestructing<Derived>::s_selfs;
+			std::list<std::shared_ptr<SelfDestructing<Derived>>> SelfDestructing<Derived>::s_selfs;
 
 			template<typename Derived>
-			std::mutex SelfDestructing<Derived>::s_mutex = impl::get_static_mutex( );
+			std::mutex& SelfDestructing<Derived>::s_mutex = impl::get_static_mutex<SelfDestructing<Derived>>( );
 
 		}	// namespace base
 	}	// namespace nodepp
