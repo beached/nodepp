@@ -39,8 +39,8 @@ namespace daw {
 		namespace base {
 			namespace json {
 				struct JsonLink;
-			}
-		}
+			}	// namespace json
+		}	// namespace base
 		namespace lib {
 			namespace http {
 				enum class HttpClientRequestMethod { Options = 1, Get, Head, Post, Put, Delete, Trace, Connect, Any };
@@ -66,26 +66,26 @@ namespace daw {
 					void set_links( );
 				};	// struct HttpUrlQueryPair
 
-				struct HttpUrl final: public daw::json::JsonLink < HttpUrl > {
+				struct HttpAbsoluteUrl final: public daw::json::JsonLink < HttpAbsoluteUrl > {
 					std::string path;
 					boost::optional<std::vector<HttpUrlQueryPair>> query;
 					boost::optional<std::string> fragment;
 
-					HttpUrl( );
-					~HttpUrl( );
-					HttpUrl( HttpUrl const & ) = default;
-					HttpUrl( HttpUrl && ) = default;
-					HttpUrl& operator=( HttpUrl const & ) = default;
-					HttpUrl& operator=( HttpUrl && ) = default;
+					HttpAbsoluteUrl( );
+					~HttpAbsoluteUrl( );
+					HttpAbsoluteUrl( HttpAbsoluteUrl const & ) = default;
+					HttpAbsoluteUrl( HttpAbsoluteUrl && ) = default;
+					HttpAbsoluteUrl& operator=( HttpAbsoluteUrl const & ) = default;
+					HttpAbsoluteUrl& operator=( HttpAbsoluteUrl && ) = default;
 										
 					void set_links( );
-				};	// struct HttpUrl
+				};	// struct HttpAbsoluteUrl
 
-				std::string to_string( HttpUrl const & url );
+				std::string to_string( HttpAbsoluteUrl const & url );
 
 				struct HttpRequestLine final: public daw::json::JsonLink < HttpRequestLine > {
 					HttpClientRequestMethod method;
-					HttpUrl url;
+					HttpAbsoluteUrl url;
 					std::string version;
 
 					HttpRequestLine( );
@@ -167,7 +167,7 @@ namespace daw {
 
 				HttpClientRequest parse_http_request( daw::nodepp::base::data_t::iterator first, daw::nodepp::base::data_t::iterator last );
 
-				std::shared_ptr<daw::nodepp::lib::http::HttpUrl> parse_url_path( boost::string_ref path );
+				std::shared_ptr<daw::nodepp::lib::http::HttpAbsoluteUrl> parse_url_path( boost::string_ref path );
 
 				HttpClientRequest create_http_client_request( boost::string_ref path, HttpClientRequestMethod const & method );
 			} // namespace http

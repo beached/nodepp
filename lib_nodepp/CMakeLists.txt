@@ -67,6 +67,7 @@ set(SOURCE_FILES
 		lib_http_site.cpp
 		lib_http_site.h
 		lib_http_statuscodes.cpp
+		lib_http_url.h
 		lib_http_version.cpp
 		lib_http_version.h
 		lib_http_webservice.h
