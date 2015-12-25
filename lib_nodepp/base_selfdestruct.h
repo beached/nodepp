@@ -8,16 +8,29 @@
 namespace daw {
 	namespace nodepp {
 		namespace base {
+			namespace impl {
+				template<typename T, int TAG=0>
+				constexpr std::mutex& get_static_mutex( ) {
+					static std::mutex result;
+
+					return result;
+				}
+			}	// namespace impl
+
 			// Creates a class that will destruct after the event name passed to it is called(e.g. close/end) unless it is referenced elsewhere
 			template<typename Derived>
 			class SelfDestructing: public daw::nodepp::base::enable_shared <Derived>, public daw::nodepp::base::StandardEvents<Derived> {
 			private:
-				static std::list<std::shared_ptr<Derived>> s_selfs;
-				static std::mutex s_mutex;
+				// These are static so that the owner has the life of the program, not the individual instances
+				static std::list<std::shared_ptr<SelfDestructing<Derived>>> s_selfs;	
+				static std::mutex& s_mutex;
 
 			public:
 				SelfDestructing( ) = delete;
-				explicit SelfDestructing( daw::nodepp::base::EventEmitter emitter ): daw::nodepp::base::StandardEvents<Derived>( std::move( emitter ) ) { }
+				explicit SelfDestructing( daw::nodepp::base::EventEmitter emitter ): 
+					daw::nodepp::base::StandardEvents<Derived>( std::move( emitter ) ),
+					s_selfs( ),
+					s_mutex( ) { }
 
 				virtual ~SelfDestructing( ) = default;
 				SelfDestructing( SelfDestructing const & ) = default;
@@ -28,7 +41,7 @@ namespace daw {
 				void arm( boost::string_ref event ) {
 					std::unique_lock<std::mutex> lock1( s_mutex );
 					auto obj = this->get_ptr( );
-					auto pos = s_selfs.insert( std::end( s_selfs ), std::move( obj ) );
+					auto pos = s_selfs.insert( std::end( s_selfs ), obj );
 					this->emitter( )->add_listener( event.to_string( ) + "_selfdestruct", [pos]( ) {
 						std::unique_lock<std::mutex> lock2( s_mutex );
 						s_selfs.erase( pos );
@@ -40,7 +53,8 @@ namespace daw {
 			std::list<std::shared_ptr<Derived>> SelfDestructing<Derived>::s_selfs;
 
 			template<typename Derived>
-			std::mutex SelfDestructing<Derived>::s_mutex;
+			std::mutex SelfDestructing<Derived>::s_mutex = impl::get_static_mutex( );
+
 		}	// namespace base
 	}	// namespace nodepp
 }	// namespace daw
