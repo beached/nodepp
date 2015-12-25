@@ -23,6 +23,8 @@
 #pragma once
 
 #include "lib_http_url.h"
+#include <boost/spirit/include/qi_parse_attr.hpp>
+#include "lib_http_request_parser_impl.h"
 
 namespace daw {
 	namespace nodepp {
@@ -49,26 +51,56 @@ namespace daw {
 					this->link_string( "username", username );
 					this->link_string( "password", password );
 				}
+				namespace impl {					
+					HttpUrlImpl::HttpUrlImpl( ):
+						scheme( ),
+						auth_info( ),
+						host( ),
+						port( 0 ),
+						request( request ) {
+						
+						set_links( );
+					}
+	
+					HttpUrlImpl::~HttpUrlImpl( ) { }
+	
+					void HttpUrlImpl::set_links( ) {
+						this->reset_jsonlink( );
+						this->link_string( "scheme", scheme );
+						this->link_object( "auth_info", auth_info );
+						this->link_string( "host", host );
+						this->link_integral( "port", port );
+						this->link_object( "request", request );
+					}
+				}	// namespace impl
 
-				HttpUrl::HttpUrl( ):
-					scheme( ),
-					auth_info( ),
-					host( ),
-					port( 0 ),
-					request( request ) {
-					
-					set_links( );
+				HttpUrl parse_url( boost::string_ref url_string ) {
+					auto result = std::make_shared<impl::HttpUrlImpl>( );
+					if( !boost::spirit::qi::parse( url_string.begin( ), url_string.end( ), daw::nodepp::lib::http::request_parser::url_parse_grammar<decltype(url_string.begin( ))>( ), *result ) ) {
+						result = nullptr;
+					}
+					return result;
 				}
 
-				HttpUrl::~HttpUrl( ) { }
+				std::string to_string( HttpUrl const & url ) {
+					if( !url ) {
+						return std::string( );
+					}
+					return to_string( *url );
+				}
 
-				void HttpUrl::set_links( ) {
-					this->reset_jsonlink( );
-					this->link_string( "scheme", scheme );
-					this->link_object( "auth_info", auth_info );
-					this->link_string( "host", host );
-					this->link_integral( "port", port );
-					this->link_object( "request", request );
+				std::string to_string( impl::HttpUrlImpl const & url ) {
+					std::stringstream ss;
+					ss << url.scheme << "://";
+					if( url.auth_info ) {
+						ss << url.auth_info->username << ":" << url.auth_info->password << "@";
+					}
+					ss << url.host;
+					if( url.port > 0u ) {
+						ss << url.port;
+					}
+					ss << "/" << url.request;
+					return ss.str( );
 				}
 			} // namespace http
 		}	// namespace lib

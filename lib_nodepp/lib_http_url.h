@@ -23,7 +23,8 @@
 #pragma once
 
 #include <string>
-
+#include <memory>
+#include <boost/utility/string_ref.hpp>
 #include "base_types.h"
 #include "parse_json/daw_json_link.h"
 #include "lib_http_request.h"
@@ -51,23 +52,33 @@ namespace daw {
 					void set_links( );
 				};	// struct UrlAuthInfo
 
-				struct HttpUrl final: public daw::json::JsonLink < HttpUrl > {
-					std::string scheme;
-					boost::optional<UrlAuthInfo> auth_info;
-					std::string host;
-					boost::optional<uint16_t> port;
-					HttpAbsoluteUrl request;
+				namespace impl {
+					struct HttpUrlImpl final: public daw::json::JsonLink < HttpUrlImpl > {
+						std::string scheme;
+						boost::optional<UrlAuthInfo> auth_info;
+						std::string host;
+						boost::optional<uint16_t> port;
+						HttpAbsoluteUrl request;
 
-					HttpUrl( );
-					~HttpUrl( );
+						HttpUrlImpl( );
+						~HttpUrlImpl( );
 
-					HttpUrl( HttpUrl const & ) = default;
-					HttpUrl( HttpUrl && ) = default;
-					HttpUrl& operator=( HttpUrl const & ) = default;
-					HttpUrl& operator=( HttpUrl && ) = default;
+						HttpUrlImpl( HttpUrlImpl const & ) = default;
+						HttpUrlImpl( HttpUrlImpl && ) = default;
+						HttpUrlImpl& operator=( HttpUrlImpl const & ) = default;
+						HttpUrlImpl& operator=( HttpUrlImpl && ) = default;
 
-					void set_links( );
-				};	// struct HttpUrl
+						void set_links( );
+					};	// struct HttpUrlImpl
+				}	// namespace impl
+
+				using HttpUrl = std::shared_ptr<impl::HttpUrlImpl>;
+
+				std::string to_string( impl::HttpUrlImpl const & url );
+				std::string to_string( HttpUrl const & url );
+
+
+				HttpUrl parse_url( boost::string_ref url_string );
 
 			} // namespace http
 		}	// namespace lib

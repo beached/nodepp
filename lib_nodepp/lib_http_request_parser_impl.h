@@ -148,18 +148,47 @@ namespace daw {
 					};	// struct abs_url_parse_grammar
 
 					template<typename Iterator>
-					struct url_parse_grammar( ): qi::grammar<Iterator, daw::nodepp::lib::http::HttpUrl( )> {
+					struct url_parse_grammar: qi::grammar<Iterator, daw::nodepp::lib::http::impl::HttpUrlImpl( )> {
 						url_parse_grammar( ): url_parse_grammar::base_type( url_string ) {
-							scheme = qi::alpha> *qi::char_( "a-zA-Z_0-9+.-" );
-							auth_info = +qi::char_( "a-zA-Z_0-9+.-" )> lit( ':' )> +qi::char_( "a-zA-Z_0-9+.-" );
+							scheme = qi::alpha >> *qi::char_( "a-zA-Z_0-9+.-" ) >> lit( "://" );
+							auth_info = +qi::char_( "a-zA-Z_0-9+.-" ) > lit( ':' ) > +qi::char_( "a-zA-Z_0-9+.-" ) >> lit( '@' );
 							port = lit( ':' )> +qi::digit;
-							url_string = qi::eps> scheme> lit( "://" ) >> -(auth_info> lit( '@' )) >> host >> -port >> lit( '/' ) >> request;
+							host = +(~char_( "()<>@,;:\\\"/[]?={} \x09" ));
+							url_string = qi::eps > scheme >> -auth_info >> host >> -port >> lit( '/' ) >> request;
+
+							scheme.name( "scheme" );
+							auth_info.name( "auth_info" );
+							port.name( "port" );
+							host.name( "host" );
+							url_string.name( "url_string" );							
+							request.name( "request" );
+
+							using namespace qi::labels;
+							using namespace boost::phoenix;
+							using qi::fail;
+							using qi::debug;
+
+							qi::on_error <fail>( url,
+												 boost::phoenix::ref( std::cout )
+												 << val( "Error! Expecting " )
+												 << qi::_4
+												 << val( " here: \"" )
+												 << construct<std::string>( qi::_3, qi::_2 )
+												 << val( "\"" )
+												 << std::endl
+												 );
+
+							//debug( url );
+
 						}
 
+						qi::rule<Iterator, std::string( )> scheme;
 						qi::rule<Iterator, daw::nodepp::lib::http::UrlAuthInfo( )> auth_info;
-						qi::rule<Iterator, std::string( )> token;
 						qi::rule<Iterator, uint16_t> port;
-					}
+						qi::rule<Iterator, std::string( )> host;
+						qi::rule<Iterator, daw::nodepp::lib::http::impl::HttpUrlImpl( )> url_string;
+						qi::rule<Iterator, daw::nodepp::lib::http::HttpAbsoluteUrl( )> request;
+					};	// struct url_parse_grammar
 
 					template <typename Iterator>
 					struct http_request_parse_grammar: qi::grammar <Iterator, daw::nodepp::lib::http::impl::HttpClientRequestImpl( )> {

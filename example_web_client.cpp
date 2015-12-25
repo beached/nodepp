@@ -30,7 +30,7 @@
 int main( int, char ** ) {
 	using namespace daw::nodepp::lib::http;
 
-	auto req = get( u8"https://www.google.ca", { { "Verify", true } } );
+	auto req = get( "https://www.google.ca", { { "Verify", true } } );
 
 	daw::nodepp::base::start_service( );
 	

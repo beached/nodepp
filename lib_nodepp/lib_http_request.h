@@ -164,9 +164,10 @@ namespace daw {
 				// 				};	// struct HttpClientRequest
 
 				using HttpClientRequest = std::shared_ptr < impl::HttpClientRequestImpl >;
-
+				
 				HttpClientRequest parse_http_request( daw::nodepp::base::data_t::iterator first, daw::nodepp::base::data_t::iterator last );
 
+				
 				std::shared_ptr<daw::nodepp::lib::http::HttpAbsoluteUrl> parse_url_path( boost::string_ref path );
 
 				HttpClientRequest create_http_client_request( boost::string_ref path, HttpClientRequestMethod const & method );

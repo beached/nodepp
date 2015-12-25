@@ -25,6 +25,7 @@
 #include <iostream>
 
 #include "lib_http_client.h"
+#include "lib_http_url.h"
 
 namespace daw {
 	namespace nodepp {
@@ -90,8 +91,8 @@ namespace daw {
 				}	//namespace impl
 
 				// TODO: should be returning a response
-				HttpClientConnection get( boost::string_ref url, std::initializer_list<std::pair<std::string, HttpClientConnectionOptions::value_type>> options ) {
-					
+				HttpClientConnection get( boost::string_ref url_string, std::initializer_list<std::pair<std::string, HttpClientConnectionOptions::value_type>> options ) {
+					auto url = parse_url( url_string );
 					return std::shared_ptr<impl::HttpClientConnectionImpl>( nullptr );
 				}
 

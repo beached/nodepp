@@ -41,7 +41,6 @@ set(SOURCE_FILES
 		base_service_handle.h
 		base_stream.h
 		base_types.h
-		base_url.h
 		base_work_queue.cpp
 		base_work_queue.h
 		base_write_buffer.cpp
@@ -67,6 +66,7 @@ set(SOURCE_FILES
 		lib_http_site.cpp
 		lib_http_site.h
 		lib_http_statuscodes.cpp
+		lib_http_url.cpp
 		lib_http_url.h
 		lib_http_version.cpp
 		lib_http_version.h
