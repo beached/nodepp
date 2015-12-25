@@ -151,9 +151,9 @@ namespace daw {
 					struct url_parse_grammar: qi::grammar<Iterator, daw::nodepp::lib::http::impl::HttpUrlImpl( )> {
 						url_parse_grammar( ): url_parse_grammar::base_type( url_string ) {
 							scheme = qi::alpha >> *qi::char_( "a-zA-Z_0-9+.-" ) >> lit( "://" );
-							username = +qi::char_( "a-zA-Z_0-9+.-" );
-							password = +qi::char_( "a-zA-Z_0-9+.-" );
-							auth_info = username >> lit( ':' ) >> password;
+							username = +qi::char_( "a-zA-Z_0-9+.-" ) >> ':';
+							password = +qi::char_( "a-zA-Z_0-9+.-" ) >> '@';
+							auth_info = username >> password;
 							port = lit( ':' )> +qi::digit;
 							host = +(~char_( "()<>@,;:\\\"/[]?={} \x09" ));
 							url_string = qi::eps > scheme >> -auth_info >> host >> -port >> lit( '/' ) >> request;
