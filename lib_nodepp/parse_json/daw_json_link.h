@@ -352,8 +352,8 @@ namespace daw {
 					assert( value_ptr );
 					auto result = nullable_decoder_helper<int64_t>( name, json_values );
 					if( result ) {
-						assert( result <= std::numeric_limits<T>::max( ) );
-						assert( result >= std::numeric_limits<T>::min( ) );
+						assert( *result <= std::numeric_limits<T>::max( ) );
+						assert( *result >= std::numeric_limits<T>::min( ) );
 					}
 					*value_ptr = static_cast<T>(result);
 				};
