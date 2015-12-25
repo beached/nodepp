@@ -38,7 +38,7 @@ namespace daw {
 		}	// namespace base
 		namespace lib {
 			namespace http {
-				struct UrlAuthInfo final: public daw::json::JsonLink<UrlAuthInfo> {
+				struct UrlAuthInfo: public daw::json::JsonLink<UrlAuthInfo> {
 					std::string username;
 					std::string password;
 
@@ -53,7 +53,7 @@ namespace daw {
 				};	// struct UrlAuthInfo
 
 				namespace impl {
-					struct HttpUrlImpl final: public daw::json::JsonLink < HttpUrlImpl > {
+					struct HttpUrlImpl: public daw::json::JsonLink < HttpUrlImpl > {
 						std::string scheme;
 						boost::optional<UrlAuthInfo> auth_info;
 						std::string host;

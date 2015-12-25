@@ -168,7 +168,7 @@ namespace daw {
 							using qi::fail;
 							using qi::debug;
 
-							qi::on_error <fail>( url,
+							qi::on_error <fail>( url_string,
 												 boost::phoenix::ref( std::cout )
 												 << val( "Error! Expecting " )
 												 << qi::_4

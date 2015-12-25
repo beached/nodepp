@@ -20,8 +20,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#pragma once
-
 #include "lib_http_url.h"
 #include <boost/spirit/include/qi_parse_attr.hpp>
 #include "lib_http_request_parser_impl.h"
@@ -56,8 +54,8 @@ namespace daw {
 						scheme( ),
 						auth_info( ),
 						host( ),
-						port( 0 ),
-						request( request ) {
+						port( ),
+						request( ) {
 						
 						set_links( );
 					}
@@ -96,8 +94,8 @@ namespace daw {
 						ss << url.auth_info->username << ":" << url.auth_info->password << "@";
 					}
 					ss << url.host;
-					if( url.port > 0u ) {
-						ss << url.port;
+					if( url.port ) {
+						ss << *(url.port);
 					}
 					ss << "/" << url.request;
 					return ss.str( );
