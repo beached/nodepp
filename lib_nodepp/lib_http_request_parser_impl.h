@@ -42,7 +42,7 @@
 #include "lib_http_request.h"
 #include "lib_http_url.h"
 
-BOOST_FUSION_ADAPT_STRUCT(
+	BOOST_FUSION_ADAPT_STRUCT(
 	daw::nodepp::lib::http::HttpUrlQueryPair,
 	(std::string, name)
 	(boost::optional<std::string>, value)
@@ -53,6 +53,21 @@ BOOST_FUSION_ADAPT_STRUCT(
 	(std::string, path)
 	(boost::optional<std::vector<daw::nodepp::lib::http::HttpUrlQueryPair >>, query)
 	(boost::optional<std::string>, fragment)
+	)
+
+	BOOST_FUSION_ADAPT_STRUCT(
+	daw::nodepp::lib::http::UrlAuthInfo,
+	(std::string, username)
+	(std::string, password)
+	)
+
+	BOOST_FUSION_ADAPT_STRUCT(
+	daw::nodepp::lib::http::impl::HttpUrlImpl,
+	(std::string, scheme)
+	(boost::optional<daw::nodepp::lib::http::UrlAuthInfo>, auth_info)
+	(std::string, host)
+	(boost::optional<uint16_t>, port)
+	(daw::nodepp::lib::http::HttpAbsoluteUrl, request)
 	)
 
 	BOOST_FUSION_ADAPT_STRUCT(
@@ -150,13 +165,13 @@ namespace daw {
 					template<typename Iterator>
 					struct url_parse_grammar: qi::grammar<Iterator, daw::nodepp::lib::http::impl::HttpUrlImpl( )> {
 						url_parse_grammar( ): url_parse_grammar::base_type( url_string ) {
-							scheme = qi::alpha >> *qi::char_( "a-zA-Z_0-9+.-" ) >> lit( "://" );
-							username = +qi::char_( "a-zA-Z_0-9+.-" ) >> ':';
-							password = +qi::char_( "a-zA-Z_0-9+.-" ) >> '@';
+							scheme = qi::esp > (qi::char( "a-zA-Z" ) >> *qi::char( "a-zA-Z_0-9+.-" )) >> lit( "://" );
+							username = +qi::char_( "a-zA-Z_0-9+.-" ) >> lit( ':' );
+							password = +qi::char_( "a-zA-Z_0-9+.-" ) >> lit( '@' );
 							auth_info = username >> password;
-							port = lit( ':' )> +qi::digit;
+							port = lit( ':' ) >> +qi::digit;
 							host = +(~char_( "()<>@,;:\\\"/[]?={} \x09" ));
-							url_string = qi::eps > scheme >> -auth_info >> host >> -port >> lit( '/' ) >> request;
+							url_string = scheme >> -auth_info >> host >> -port >> lit( '/' ) >> request;
 
 							scheme.name( "scheme" );
 							username.name( "username" );
