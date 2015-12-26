@@ -71,10 +71,7 @@ namespace daw {
 				}	// namespace impl
 				
 				std::string to_string( HttpUrl const & url ) {
-					if( !url ) {
-						return std::string( );
-					}
-					return to_string( *url );
+					return url ? to_string( *url ) : "";
 				}
 
 				std::string to_string( impl::HttpUrlImpl const & url ) {
