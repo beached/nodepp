@@ -10,10 +10,9 @@ if [ ! -d "${BOOST_ROOT}" ]; then
 	echo "building boost";
 	cd boost_1_60_0;
 
-	echo "using ${BUILD_TYPE} : : ${BOOST_CXX} ;" > ~/user-config.jam;
-	./bootstrap.sh toolset=${BUILD_TYPE} --prefix="${BOOST_ROOT}"
+	./bootstrap.sh toolset=${BUILD_TYPE}-5 --prefix="${BOOST_ROOT}"
 	
-	./b2 --prefix="${BOOST_ROOT}" install; 
+	./b2 --toolset=${BUILD_TYPE}-5 --prefix="${BOOST_ROOT}" install; 
 else
 	echo "using cached boost folder"
 fi
