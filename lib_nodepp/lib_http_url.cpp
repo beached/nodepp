@@ -68,7 +68,7 @@ namespace daw {
 						this->link_object( "auth_info", auth_info );
 						this->link_string( "host", host );
 						this->link_integral( "port", port );
-						this->link_object( "request", request );
+						this->link_string( "request", request );
 					}
 				}	// namespace impl
 

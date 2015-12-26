@@ -8,22 +8,13 @@
 namespace daw {
 	namespace nodepp {
 		namespace base {
-			namespace impl {
-				template<typename T, int TAG=0>
-				std::mutex& get_static_mutex( ) {
-					static std::mutex result;
-
-					return result;
-				}
-			}	// namespace impl
-
 			// Creates a class that will destruct after the event name passed to it is called(e.g. close/end) unless it is referenced elsewhere
 			template<typename Derived>
 			class SelfDestructing: public daw::nodepp::base::enable_shared <Derived>, public daw::nodepp::base::StandardEvents<Derived> {
 			private:
 				// These are static so that the owner has the life of the program, not the individual instances
 				static std::list<std::shared_ptr<SelfDestructing<Derived>>> s_selfs;	
-				static std::mutex& s_mutex;
+				static std::mutex s_mutex;
 
 			public:
 				SelfDestructing( ) = delete;
@@ -47,12 +38,19 @@ namespace daw {
 				}
 			};	// class SelfDestructing
 
+#ifdef __clang__ 
+// Hide warning abount global constructor, need it here until I find a better way
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wglobal-constructors"
+#endif	//__clang__ 
 			template<typename Derived>
 			std::list<std::shared_ptr<SelfDestructing<Derived>>> SelfDestructing<Derived>::s_selfs;
 
 			template<typename Derived>
-			std::mutex& SelfDestructing<Derived>::s_mutex = impl::get_static_mutex<SelfDestructing<Derived>>( );
-
+			std::mutex SelfDestructing<Derived>::s_mutex;
+#ifdef __clang__ 
+#pragma clang diagnostic pop
+#endif	//__clang__ 
 		}	// namespace base
 	}	// namespace nodepp
 }	// namespace daw

@@ -27,7 +27,6 @@
 #include <boost/utility/string_ref.hpp>
 #include "base_types.h"
 #include "parse_json/daw_json_link.h"
-#include "lib_http_request.h"
 
 namespace daw {
 	namespace nodepp {
@@ -58,7 +57,7 @@ namespace daw {
 						boost::optional<UrlAuthInfo> auth_info;
 						std::string host;
 						boost::optional<uint16_t> port;
-						HttpAbsoluteUrl request;
+						std::string request;
 
 						HttpUrlImpl( );
 						~HttpUrlImpl( );
