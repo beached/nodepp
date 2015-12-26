@@ -165,13 +165,13 @@ namespace daw {
 					template<typename Iterator>
 					struct url_parse_grammar: qi::grammar<Iterator, daw::nodepp::lib::http::impl::HttpUrlImpl( )> {
 						url_parse_grammar( ): url_parse_grammar::base_type( url_string ) {
-							scheme = qi::esp > (qi::char( "a-zA-Z" ) >> *qi::char( "a-zA-Z_0-9+.-" )) >> lit( "://" );
-							username = +qi::char_( "a-zA-Z_0-9+.-" ) >> lit( ':' );
-							password = +qi::char_( "a-zA-Z_0-9+.-" ) >> lit( '@' );
-							auth_info = username >> password;
+							scheme = qi::char_( "a-zA-Z" ) >> *qi::char_( "a-zA-Z_0-9+.-" );
+							username = +qi::char_( "a-zA-Z_0-9+.-" );
+							password = +qi::char_( "a-zA-Z_0-9+.-" );
+							auth_info = username >> lit( ':' ) >> password >> lit( '@' );
 							port = lit( ':' ) >> +qi::digit;
 							host = +(~char_( "()<>@,;:\\\"/[]?={} \x09" ));
-							url_string = scheme >> -auth_info >> host >> -port >> lit( '/' ) >> request;
+							url_string = qi::eps > scheme >> lit( "://" ) >> -auth_info >> host >> -port >> lit( '/' ) >> request;
 
 							scheme.name( "scheme" );
 							username.name( "username" );
