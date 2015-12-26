@@ -1,3 +1,7 @@
+#!/bin/bash
+set -e
+
+echo "Boost Root is set to: '${BOOST_ROOT}'"
 if [ ! -d "${BOOST_ROOT}" ]; then
 	# check to see if protobuf folder is empty
 	BUILD_TYPE=gcc
@@ -11,7 +15,6 @@ if [ ! -d "${BOOST_ROOT}" ]; then
 	cd boost_1_60_0;
 
 	./bootstrap.sh toolset=${BUILD_TYPE}-5 --prefix="${BOOST_ROOT}"
-	
 	./b2 --toolset=${BUILD_TYPE}-5 --prefix="${BOOST_ROOT}" install; 
 else
 	echo "using cached boost folder"

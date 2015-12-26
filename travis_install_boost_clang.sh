@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
 
+echo "Boost Root is set to: '${BOOST_ROOT}'"
 if [ ! -d "${BOOST_ROOT}" ]; then
 	# check to see if protobuf folder is empty
 	BUILD_TYPE=clang
