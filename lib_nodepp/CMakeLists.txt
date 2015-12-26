@@ -55,10 +55,11 @@ set(SOURCE_FILES
 		lib_http.h
 		lib_http_header.cpp
 		lib_http_headers.h
+		lib_http_parser.cpp
+		lib_http_parser.h
+		lib_http_parser_impl.h
 		lib_http_request.cpp
 		lib_http_request.h
-		lib_http_request_parser_impl.cpp
-		lib_http_request_parser_impl.h
 		lib_http_server.cpp
 		lib_http_server.h
 		lib_http_server_response.cpp

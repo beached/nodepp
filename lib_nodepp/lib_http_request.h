@@ -33,6 +33,7 @@
 
 #include "base_types.h"
 #include "parse_json/daw_json_link.h"
+#include "lib_http_parser.h"
 
 namespace daw {
 	namespace nodepp {
@@ -153,23 +154,8 @@ namespace daw {
 						
 						void set_links( );
 					};	// struct HttpClientRequestImpl
-				}	// namespace impl
-
-				// 				struct HttpClientRequest {
-				// 					HttpClientRequestMethod method;
-				// 					std::string version;
-				// 					std::string path;
-				// 					typename impl::HttpClientRequestImpl::headers_t headers;
-				// 					boost::optional<std::vector<impl::HttpUrlQueryPairImpl>> query;
-				// 				};	// struct HttpClientRequest
-
-				using HttpClientRequest = std::shared_ptr < impl::HttpClientRequestImpl >;
+				}	// namespace impl			
 				
-				HttpClientRequest parse_http_request( daw::nodepp::base::data_t::iterator first, daw::nodepp::base::data_t::iterator last );
-
-				
-				std::shared_ptr<daw::nodepp::lib::http::HttpAbsoluteUrl> parse_url_path( boost::string_ref path );
-
 				HttpClientRequest create_http_client_request( boost::string_ref path, HttpClientRequestMethod const & method );
 			} // namespace http
 		}	// namespace lib

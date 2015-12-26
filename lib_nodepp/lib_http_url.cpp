@@ -21,8 +21,6 @@
 // SOFTWARE.
 
 #include "lib_http_url.h"
-#include <boost/spirit/include/qi_parse_attr.hpp>
-#include "lib_http_request_parser_impl.h"
 
 namespace daw {
 	namespace nodepp {
@@ -71,15 +69,7 @@ namespace daw {
 						this->link_string( "request", request );
 					}
 				}	// namespace impl
-
-				HttpUrl parse_url( boost::string_ref url_string ) {
-					auto result = std::make_shared<impl::HttpUrlImpl>( );
-					if( !boost::spirit::qi::parse( url_string.begin( ), url_string.end( ), daw::nodepp::lib::http::request_parser::url_parse_grammar<decltype(url_string.begin( ))>( ), *result ) ) {
-						result = nullptr;
-					}
-					return result;
-				}
-
+				
 				std::string to_string( HttpUrl const & url ) {
 					if( !url ) {
 						return std::string( );

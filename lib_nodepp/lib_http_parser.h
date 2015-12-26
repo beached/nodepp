@@ -3,13 +3,15 @@
 // Copyright (c) 2014-2015 Darrell Wright
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files( the "Software" ), to deal
+// of this software and associated documentation files( the "Software" ), to
+// deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included in all
+// The above copyright notice and this permission notice shall be included in
+// all
 // copies or substantial portions of the Software.
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -20,20 +22,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "lib_http_request_parser_impl.h"
-#include <boost/spirit/home/qi/parse.hpp>
+#pragma once
+
+#include <memory>
+#include "base_types.h"
+#include <boost/utility/string_ref.hpp>
 
 namespace daw {
 	namespace nodepp {
 		namespace lib {
 			namespace http {
-				std::shared_ptr<daw::nodepp::lib::http::impl::HttpClientRequestImpl> parse_http_request( daw::nodepp::base::data_t::iterator first, daw::nodepp::base::data_t::iterator last ) {
-					auto result = std::make_shared < daw::nodepp::lib::http::impl::HttpClientRequestImpl >( );
-					if( !boost::spirit::qi::parse( first, last, daw::nodepp::lib::http::request_parser::http_request_parse_grammar<decltype(first)>( ), *result ) ) {
-						result = nullptr;
-					}
-					return result;
+				namespace impl {
+					struct HttpClientRequestImpl;					
+					struct HttpUrlImpl;
 				}
+				struct HttpAbsoluteUrl;
+
+				using HttpClientRequest = std::shared_ptr<daw::nodepp::lib::http::impl::HttpClientRequestImpl>;
+				using HttpUrl = std::shared_ptr<daw::nodepp::lib::http::impl::HttpUrlImpl>;
+
+				HttpClientRequest parse_http_request( daw::nodepp::base::data_t::iterator first, daw::nodepp::base::data_t::iterator last );
+				std::shared_ptr<daw::nodepp::lib::http::HttpAbsoluteUrl> parse_url_path( boost::string_ref path );
+				HttpUrl parse_url( boost::string_ref url_string );
+
 			} // namespace http
 		}	// namespace lib
 	}	// namespace nodepp

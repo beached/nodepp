@@ -27,7 +27,7 @@
 #include "lib_http_request.h"
 #include "parse_json/daw_json.h"
 #include "daw_utility.h"
-#include "lib_http_request_parser_impl.h"
+#include "lib_http_parser.h"
 
 namespace daw {
 	namespace nodepp {
@@ -218,14 +218,6 @@ namespace daw {
 						this->link_object( "body", body );
 					}
 				}	// namespace impl
-
-				std::shared_ptr<daw::nodepp::lib::http::HttpAbsoluteUrl> parse_url_path( boost::string_ref path ) {
-					auto result = std::make_shared < daw::nodepp::lib::http::HttpAbsoluteUrl>( );
-					if( !boost::spirit::qi::parse( path.begin( ), path.end( ), daw::nodepp::lib::http::request_parser::abs_url_parse_grammar<decltype(path.begin( ))>( ), *result ) ) {
-						result = nullptr;
-					}
-					return result;
-				}
 
 				HttpClientRequest create_http_client_request( boost::string_ref path, HttpClientRequestMethod const & method ) {
 					auto result = std::make_shared<impl::HttpClientRequestImpl>( );
