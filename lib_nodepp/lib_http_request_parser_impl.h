@@ -171,8 +171,8 @@ namespace daw {
 							auth_info = username >> lit( ':' ) >> password >> lit( '@' );
 							port = lit( ':' ) >> qi::uint_;
 							host = +(~char_( "()<>@,;:\\\"/[]?={} \x09" ));
-							request = *char_;
-							url_string = qi::eps > scheme >> lit( "://" ) >> -auth_info >> host >> -port >> lit( '/' ) >> request;
+							request = lit( '/' ) >> *char_;
+							url_string = qi::eps > scheme >> lit( "://" ) >> -auth_info >> host >> -port >> -request;
 
 							scheme.name( "scheme" );
 							username.name( "username" );
