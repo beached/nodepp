@@ -169,7 +169,7 @@ namespace daw {
 							username = +qi::char_( "a-zA-Z_0-9+.-" );
 							password = +qi::char_( "a-zA-Z_0-9+.-" );
 							auth_info = username >> lit( ':' ) >> password >> lit( '@' );
-							port = lit( ':' ) >> +qi::digit;
+							port = lit( ':' ) >> qi::uint_;
 							host = +(~char_( "()<>@,;:\\\"/[]?={} \x09" ));
 							url_string = qi::eps > scheme >> lit( "://" ) >> -auth_info >> host >> -port >> lit( '/' ) >> request;
 
