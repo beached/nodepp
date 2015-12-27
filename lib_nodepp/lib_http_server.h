@@ -48,7 +48,7 @@ namespace daw {
 					// Requires:	daw::nodepp::lib::net::NetServer
 					class HttpServerImpl final: public daw::nodepp::base::enable_shared<HttpServerImpl>, public daw::nodepp::base::StandardEvents < HttpServerImpl > {
 						daw::nodepp::lib::net::NetServer m_netserver;
-						std::list<HttpConnection> m_connections;
+						std::list<HttpServerConnection> m_connections;
 
 						static void handle_connection( std::weak_ptr<HttpServerImpl> obj, daw::nodepp::lib::net::NetSocketStream socket );
 
@@ -102,15 +102,15 @@ namespace daw {
 						HttpServerImpl& on_listening( std::function<void( daw::nodepp::lib::net::EndPoint )> listener );
 						HttpServerImpl& on_next_listening( std::function<void( daw::nodepp::lib::net::EndPoint )> listener );
 
-						HttpServerImpl& on_client_connected( std::function<void( HttpConnection )> listener );
-						HttpServerImpl& on_next_client_connected( std::function<void( HttpConnection )> listener );
+						HttpServerImpl& on_client_connected( std::function<void( HttpServerConnection )> listener );
+						HttpServerImpl& on_next_client_connected( std::function<void( HttpServerConnection )> listener );
 
 						HttpServerImpl& on_closed( std::function<void( )> listener );
 						HttpServerImpl& on_next_closed( std::function<void( )> listener );
 
 						size_t timeout( ) const;
 
-						void emit_client_connected( HttpConnection connection );
+						void emit_client_connected( HttpServerConnection connection );
 						void emit_closed( );
 						void emit_listening( daw::nodepp::lib::net::EndPoint endpoint );
 					};	// class Server

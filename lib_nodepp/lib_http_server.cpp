@@ -49,7 +49,7 @@ namespace daw {
 
 					HttpServerImpl::~HttpServerImpl( ) { }
 
-					void HttpServerImpl::emit_client_connected( HttpConnection connection ) {
+					void HttpServerImpl::emit_client_connected( HttpServerConnection connection ) {
 						emitter( )->emit( "client_connected", std::move( connection ) );
 					}
 
@@ -64,7 +64,7 @@ namespace daw {
 					void HttpServerImpl::handle_connection( std::weak_ptr<HttpServerImpl> obj, lib::net::NetSocketStream socket ) {
 						auto msocket = daw::as_move_capture( std::move( socket ) );
 						run_if_valid( obj, "Exception while connecting", "HttpServerImpl::handle_connection", [obj, msocket]( HttpServer self ) mutable {
-							auto connection = create_http_connection( msocket.move_out( ) );
+							auto connection = create_http_server_connection( msocket.move_out( ) );
 							auto it = self->m_connections.emplace( self->m_connections.end( ), connection );
 
 							connection->on_error( self, "HttpServerImpl::handle_connection" )
@@ -116,12 +116,12 @@ namespace daw {
 						return *this;
 					}
 
-					HttpServerImpl& HttpServerImpl::on_client_connected( std::function<void( HttpConnection )> listener ) {
+					HttpServerImpl& HttpServerImpl::on_client_connected( std::function<void( HttpServerConnection )> listener ) {
 						emitter( )->add_listener( "client_connected", listener );
 						return *this;
 					}
 
-					HttpServerImpl& HttpServerImpl::on_next_client_connected( std::function<void( HttpConnection )> listener ) {
+					HttpServerImpl& HttpServerImpl::on_next_client_connected( std::function<void( HttpServerConnection )> listener ) {
 						emitter( )->add_listener( "client_connected", listener, true );
 						return *this;
 					}

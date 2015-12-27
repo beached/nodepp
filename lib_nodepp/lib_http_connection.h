@@ -34,34 +34,34 @@ namespace daw {
 			namespace http {
 				enum class HttpConnectionState { Request, Message };
 
-				namespace impl { class HttpConnectionImpl; }
-				using HttpConnection = std::shared_ptr < impl::HttpConnectionImpl > ;
-				HttpConnection create_http_connection( daw::nodepp::lib::net::NetSocketStream&& socket, daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
+				namespace impl { class HttpServerConnectionImpl; }
+				using HttpServerConnection = std::shared_ptr < impl::HttpServerConnectionImpl > ;
+				HttpServerConnection create_http_server_connection( daw::nodepp::lib::net::NetSocketStream&& socket, daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
 
 				namespace impl {
-					class HttpConnectionImpl final: public daw::nodepp::base::enable_shared<HttpConnectionImpl>, public daw::nodepp::base::StandardEvents < HttpConnectionImpl > {
+					class HttpServerConnectionImpl final: public daw::nodepp::base::enable_shared<HttpServerConnectionImpl>, public daw::nodepp::base::StandardEvents < HttpServerConnectionImpl > {
 						daw::nodepp::lib::net::NetSocketStream m_socket;
 
-						HttpConnectionImpl( daw::nodepp::lib::net::NetSocketStream && socket, daw::nodepp::base::EventEmitter emitter );
+						HttpServerConnectionImpl( daw::nodepp::lib::net::NetSocketStream && socket, daw::nodepp::base::EventEmitter emitter );
 					public:
-						friend HttpConnection daw::nodepp::lib::http::create_http_connection( daw::nodepp::lib::net::NetSocketStream&&, daw::nodepp::base::EventEmitter emitter );
+						friend HttpServerConnection daw::nodepp::lib::http::create_http_server_connection( daw::nodepp::lib::net::NetSocketStream&&, daw::nodepp::base::EventEmitter emitter );
 
-						HttpConnectionImpl( ) = delete;
+						HttpServerConnectionImpl( ) = delete;
 
-						HttpConnectionImpl( HttpConnectionImpl const & ) = delete;
-						HttpConnectionImpl& operator=(HttpConnectionImpl const &) = delete;
-						HttpConnectionImpl( HttpConnectionImpl && ) = default;
-						HttpConnectionImpl& operator=(HttpConnectionImpl &&) = default;
+						HttpServerConnectionImpl( HttpServerConnectionImpl const & ) = delete;
+						HttpServerConnectionImpl& operator=(HttpServerConnectionImpl const &) = delete;
+						HttpServerConnectionImpl( HttpServerConnectionImpl && ) = default;
+						HttpServerConnectionImpl& operator=(HttpServerConnectionImpl &&) = default;
 
-						~HttpConnectionImpl( );
+						~HttpServerConnectionImpl( );
 
-						HttpConnectionImpl& on_client_error( std::function<void( daw::nodepp::base::Error )> listener );
-						HttpConnectionImpl& on_next_client_error( std::function<void( daw::nodepp::base::Error )> listener );
+						HttpServerConnectionImpl& on_client_error( std::function<void( daw::nodepp::base::Error )> listener );
+						HttpServerConnectionImpl& on_next_client_error( std::function<void( daw::nodepp::base::Error )> listener );
 
-						HttpConnectionImpl& on_request_made( std::function<void( HttpClientRequest, HttpServerResponse )> listener );
-						HttpConnectionImpl& on_next_request_made( std::function<void( HttpClientRequest, HttpServerResponse )> listener );
+						HttpServerConnectionImpl& on_request_made( std::function<void( HttpClientRequest, HttpServerResponse )> listener );
+						HttpServerConnectionImpl& on_next_request_made( std::function<void( HttpClientRequest, HttpServerResponse )> listener );
 
-						HttpConnectionImpl& on_closed( std::function<void( )> listener );	// Only once as it is called on the way out
+						HttpServerConnectionImpl& on_closed( std::function<void( )> listener );	// Only once as it is called on the way out
 						void close( );
 						void start( );
 						daw::nodepp::lib::net::NetSocketStream socket( );

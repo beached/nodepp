@@ -45,18 +45,18 @@ namespace daw {
 						}
 					}	// namespace anonymous
 
-					HttpConnectionImpl::HttpConnectionImpl( lib::net::NetSocketStream&& socket, base::EventEmitter emitter ):
-						daw::nodepp::base::StandardEvents<HttpConnectionImpl>( std::move( emitter ) ),
+					HttpServerConnectionImpl::HttpServerConnectionImpl( lib::net::NetSocketStream&& socket, base::EventEmitter emitter ):
+						daw::nodepp::base::StandardEvents<HttpServerConnectionImpl>( std::move( emitter ) ),
 						m_socket( std::move( socket ) ) { }
 
 
-					HttpConnectionImpl::~HttpConnectionImpl( ) { }
+					HttpServerConnectionImpl::~HttpServerConnectionImpl( ) { }
 
-					void HttpConnectionImpl::start( ) {
+					void HttpServerConnectionImpl::start( ) {
 						auto obj = this->get_weak_ptr( );
 						m_socket->on_next_data_received( [obj]( std::shared_ptr<base::data_t> data_buffer, bool ) mutable {
 							if( data_buffer ) {
-								run_if_valid( obj, "Exception in processing received data", "HttpConnectionImpl::start#on_next_data_received", [&]( HttpConnection self ) {
+								run_if_valid( obj, "Exception in processing received data", "HttpConnectionImpl::start#on_next_data_received", [&]( HttpServerConnection self ) {
 									try {
 										auto request = parse_http_request( data_buffer->begin( ), data_buffer->end( ) );
 										data_buffer.reset( );
@@ -81,21 +81,21 @@ namespace daw {
 						m_socket->read_async( );
 					}
 
-					void HttpConnectionImpl::close( ) {
+					void HttpServerConnectionImpl::close( ) {
 						if( m_socket ) {
 							m_socket->close( );
 						}
 					}
 
-					void HttpConnectionImpl::emit_closed( ) {
+					void HttpServerConnectionImpl::emit_closed( ) {
 						emitter( )->emit( "closed" );
 					}
 
-					void HttpConnectionImpl::emit_client_error( base::Error error ) {
+					void HttpServerConnectionImpl::emit_client_error( base::Error error ) {
 						emitter( )->emit( "client_error", error );
 					}
 
-					void HttpConnectionImpl::emit_request_made( HttpClientRequest request, HttpServerResponse response ) {
+					void HttpServerConnectionImpl::emit_request_made( HttpClientRequest request, HttpServerResponse response ) {
 						emitter( )->emit( "request_made", request, response );
 					}
 
@@ -103,38 +103,38 @@ namespace daw {
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary: Event emitted when the connection is closed
-					HttpConnectionImpl& HttpConnectionImpl::on_closed( std::function<void( )> listener ) {
+					HttpServerConnectionImpl& HttpServerConnectionImpl::on_closed( std::function<void( )> listener ) {
 						emitter( )->add_listener( "closed", listener, true );
 						return *this;
 					}
 
-					HttpConnectionImpl& HttpConnectionImpl::on_client_error( std::function<void( base::Error )> listener ) {
+					HttpServerConnectionImpl& HttpServerConnectionImpl::on_client_error( std::function<void( base::Error )> listener ) {
 						emitter( )->add_listener( "client_error", listener );
 						return *this;
 					}
 
-					HttpConnectionImpl& HttpConnectionImpl::on_next_client_error( std::function<void( base::Error )> listener ) {
+					HttpServerConnectionImpl& HttpServerConnectionImpl::on_next_client_error( std::function<void( base::Error )> listener ) {
 						emitter( )->add_listener( "client_error", listener, true );
 						return *this;
 					}
 
-					HttpConnectionImpl& HttpConnectionImpl::on_request_made( std::function<void( HttpClientRequest, HttpServerResponse )> listener ) {
+					HttpServerConnectionImpl& HttpServerConnectionImpl::on_request_made( std::function<void( HttpClientRequest, HttpServerResponse )> listener ) {
 						emitter( )->add_listener( "request_made", listener );
 						return *this;
 					}
 
-					HttpConnectionImpl& HttpConnectionImpl::on_next_request_made( std::function<void( HttpClientRequest, HttpServerResponse )> listener ) {
+					HttpServerConnectionImpl& HttpServerConnectionImpl::on_next_request_made( std::function<void( HttpClientRequest, HttpServerResponse )> listener ) {
 						emitter( )->add_listener( "request_made", listener, true );
 						return *this;
 					}
 
-					lib::net::NetSocketStream HttpConnectionImpl::socket( ) {
+					lib::net::NetSocketStream HttpServerConnectionImpl::socket( ) {
 						return m_socket;
 					}
 				}	// namespace impl
 
-				HttpConnection create_http_connection( lib::net::NetSocketStream&& socket, base::EventEmitter emitter ) {
-					return HttpConnection( new impl::HttpConnectionImpl( std::move( socket ), std::move( emitter ) ) );
+				HttpServerConnection create_http_server_connection( lib::net::NetSocketStream&& socket, base::EventEmitter emitter ) {
+					return HttpServerConnection( new impl::HttpServerConnectionImpl( std::move( socket ), std::move( emitter ) ) );
 				}
 			} // namespace http
 		}	// namespace lib

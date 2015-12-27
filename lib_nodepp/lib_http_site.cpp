@@ -72,7 +72,7 @@ namespace daw {
 					void HttpSiteImpl::start( ) {
 						m_server->on_error( this->get_weak_ptr( ), "Child" )
 							.delegate_to<daw::nodepp::lib::net::EndPoint>( "listening", this->get_weak_ptr( ), "listening" )
-							.on_client_connected( [&]( HttpConnection connection ) {
+							.on_client_connected( [&]( HttpServerConnection connection ) {
 							auto obj = this->get_weak_ptr( );
 							connection->
 								on_error( this->get_weak_ptr( ), "child connection" )

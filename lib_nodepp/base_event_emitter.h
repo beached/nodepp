@@ -382,9 +382,9 @@ namespace daw {
 				///				obj_emitter.delegate_to<daw::nodepp::lib::net::EndPoint>( "listening", dest_obj.get_weak_ptr( ), "listening" );
 				template<typename... Args, typename DestinationType>
 				Derived& delegate_to( boost::string_ref source_event, std::weak_ptr<DestinationType> destination_obj, std::string destination_event ) {
-					auto handler = [destination_obj, destination_event]( Args... args ) {
+					auto handler = [destination_obj, destination_event]( Args&&... args ) {
 						if( !destination_obj.expired( ) ) {
-							destination_obj.lock( )->emitter( )->emit( destination_event, std::move( args )... );
+							destination_obj.lock( )->emitter( )->emit( destination_event, std::forward<Args>( args )... );
 						}
 					};
 					m_emitter->on( source_event, handler );
