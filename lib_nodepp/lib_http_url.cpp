@@ -83,25 +83,25 @@ namespace daw {
 					this->link_string( "fragment", fragment );
 				}
 
-				std::string to_string( HttpAbsoluteUrlPath const & path ) {
+				std::string to_string( HttpAbsoluteUrlPath const & url_path ) {
 					std::stringstream ss;
-					ss << url.path;
-					if( url.query ) {
-						for( auto const & qp : url.query.get( ) ) {
+					ss << url_path.path;
+					if( url_path.query ) {
+						for( auto const & qp : url_path.query.get( ) ) {
 							ss << "?" << qp.name;
 							if( qp.value ) {
 								ss << "=" << qp.value.get( );
 							}
 						}
 					}
-					if( url.fragment ) {
-						ss << "#" << url.fragment.get( );
+					if( url_path.fragment ) {
+						ss << "#" << url_path.fragment.get( );
 					}
 					return ss.str( );
 				}
 
-				std::ostream& operator<<( std::ostream& os, HttpAbsoluteUrlPath const & path ) {
-					os << to_string( path );
+				std::ostream& operator<<( std::ostream& os, HttpAbsoluteUrlPath const & url_path ) {
+					os << to_string( url_path );
 					return os;
 				}
 

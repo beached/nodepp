@@ -25,6 +25,7 @@
 #include <iostream>
 
 #include "lib_http_client.h"
+#include "lib_http_request.h"
 #include "lib_http_url.h"
 
 namespace daw {

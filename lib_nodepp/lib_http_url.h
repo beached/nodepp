@@ -83,8 +83,8 @@ namespace daw {
 					void set_links( );
 				};	// struct HttpAbsoluteUrl
 
-				std::string to_string( HttpAbsoluteUrlPath const & path );
-				std::ostream& operator<<( std::ostream& os, HttpAbsoluteUrlPath const & path );
+				std::string to_string( HttpAbsoluteUrlPath const & url_path );
+				std::ostream& operator<<( std::ostream& os, HttpAbsoluteUrlPath const & url_path );
 
 				namespace impl {
 					struct HttpUrlImpl: public daw::json::JsonLink < HttpUrlImpl > {
