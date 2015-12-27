@@ -27,6 +27,7 @@
 #include <boost/utility/string_ref.hpp>
 #include "base_types.h"
 #include "parse_json/daw_json_link.h"
+#include "lib_http_parser.h"
 
 namespace daw {
 	namespace nodepp {
@@ -71,13 +72,8 @@ namespace daw {
 					};	// struct HttpUrlImpl
 				}	// namespace impl
 
-				using HttpUrl = std::shared_ptr<impl::HttpUrlImpl>;
-
 				std::string to_string( impl::HttpUrlImpl const & url );
 				std::string to_string( HttpUrl const & url );
-
-
-				HttpUrl parse_url( boost::string_ref url_string );
 
 			} // namespace http
 		}	// namespace lib
