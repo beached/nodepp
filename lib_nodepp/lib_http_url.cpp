@@ -157,7 +157,7 @@ namespace daw {
 					}
 
 					if( url.auth_info ) {
-						ss << *(url.auth_info) << "@";					}
+						ss << *(url.auth_info) << "@";
 					}
 
 					if( url.path ) {
@@ -167,7 +167,7 @@ namespace daw {
 					return ss.str( );
 				}
 
-				std::ostream& operator<<( std::ostream& os, HttpUrl const & url ) {
+				std::ostream& operator<<( std::ostream& os, http::HttpUrl const & url ) {
 					if( url ) {
 						os << to_string( *url );
 					}
