@@ -22,7 +22,7 @@ addons:
     packages:
       - cmake
       - clang
-      - libc++abi
+      - libc++
       - g++-5
       - gcc-5
       - libbz2-dev
