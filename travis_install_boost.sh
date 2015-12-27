@@ -2,7 +2,7 @@
 set -e
 BOOST_VERSION="1_60_0"
 
-# PREREQS:  BOOST_ROOT, CC
+# PREREQS:  BOOST_ROOT, CC, CXXFLAGS, LINKFLAGS
 
 echo "Boost Root is set to: '${BOOST_ROOT}'"
 if [ ! -d "${BOOST_ROOT}" ]; then
@@ -17,7 +17,7 @@ if [ ! -d "${BOOST_ROOT}" ]; then
 	cd "boost_${BOOST_VERSION}";
 	echo "Building boost in '`pwd`'"
 	./bootstrap.sh toolset=${CC} --prefix="${BOOST_ROOT}"
-	./b2 --toolset=${CC} --prefix="${BOOST_ROOT}" install; 
+	./b2 toolset=${CC} cxxflags="${CXXFLAGS}" linkflags="${LINKFLAGS}" --prefix="${BOOST_ROOT}" install;
 else
 	echo "using cached boost folder"
 fi
