@@ -67,7 +67,7 @@
 	(boost::optional<daw::nodepp::lib::http::UrlAuthInfo>, auth_info)
 	(std::string, host)
 	(boost::optional<uint16_t>, port)
-	(daw::nodepp::lib::http::HttpAbsoluteUrlPath, request)
+	(boost::optional<daw::nodepp::lib::http::HttpAbsoluteUrlPath>, path)
 	)
 
 	BOOST_FUSION_ADAPT_STRUCT(
@@ -171,7 +171,7 @@ namespace daw {
 							auth_info = username >> lit( ':' ) >> password >> lit( '@' );
 							port = lit( ':' ) >> qi::uint_;
 							host = +(~char_( "()<>@,;:\\\"/[]?={} \x09" ));
-							url_string = qi::eps > scheme >> lit( "://" ) >> -auth_info >> host >> -port >> -request;
+							url_string = qi::eps > scheme >> lit( "://" ) >> -auth_info >> host >> -port >> -path;
 
 							scheme.name( "scheme" );
 							username.name( "username" );
@@ -180,7 +180,7 @@ namespace daw {
 							port.name( "port" );
 							host.name( "host" );
 							url_string.name( "url_string" );							
-							request.name( "request" );
+							path.name( "path" );
 
 							using namespace qi::labels;
 							using namespace boost::phoenix;
@@ -208,7 +208,8 @@ namespace daw {
 						qi::rule<Iterator, uint16_t> port;
 						qi::rule<Iterator, std::string( )> host;
 						qi::rule<Iterator, daw::nodepp::lib::http::impl::HttpUrlImpl( )> url_string;
-						qi::rule<Iterator, daw::nodepp::lib::http::HttpAbsoluteUrlPath( )> request;
+						abs_url_parse_grammar<Iterator> path;
+//						qi::rule<Iterator, daw::nodepp::lib::http::HttpAbsoluteUrlPath( )> path;
 					};	// struct url_parse_grammar
 
 					template <typename Iterator>

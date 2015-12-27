@@ -53,6 +53,9 @@ namespace daw {
 					void set_links( );
 				};	// struct UrlAuthInfo
 
+				std::string to_string( UrlAuthInfo const & auth );
+				std::ostream& operator<<( std::ostream& os, UrlAuthInfo const & auth );
+	
 				struct HttpUrlQueryPair: public daw::json::JsonLink < HttpUrlQueryPair > {
 					std::string name;
 					boost::optional<std::string> value;
@@ -68,7 +71,7 @@ namespace daw {
 					void set_links( );
 				};	// struct HttpUrlQueryPair
 
-				struct HttpAbsoluteUrlPath final: public daw::json::JsonLink<HttpAbsoluteUrlPath> {
+				struct HttpAbsoluteUrlPath: public daw::json::JsonLink<HttpAbsoluteUrlPath> {
 					std::string path;
 					boost::optional<std::vector<HttpUrlQueryPair>> query;
 					boost::optional<std::string> fragment;
@@ -92,7 +95,7 @@ namespace daw {
 						boost::optional<UrlAuthInfo> auth_info;
 						std::string host;
 						boost::optional<uint16_t> port;
-						HttpAbsoluteUrlPath request;
+						boost::optional<HttpAbsoluteUrlPath> path;
 
 						HttpUrlImpl( );
 						~HttpUrlImpl( );

@@ -215,7 +215,7 @@ namespace daw {
 					range.move_next( );
 					for( auto const & value : range ) {
 						value.second.bind_functions.encode( tmp );
-						result << "," << tmp;
+						result << ", " << tmp;
 					}
 				}
 				return details::json_name( m_name ) + details::enbrace( result.str( ) );

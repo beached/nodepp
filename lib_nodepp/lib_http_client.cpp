@@ -94,6 +94,7 @@ namespace daw {
 				// TODO: should be returning a response
 				HttpClientConnection get( boost::string_ref url_string, std::initializer_list<std::pair<std::string, HttpClientConnectionOptions::value_type>> options ) {
 					auto url = parse_url( url_string );
+					std::cout << "url: " << url->encode( ) << std::endl;
 					std::cout << "url: " << url << std::endl;
 					return std::shared_ptr<impl::HttpClientConnectionImpl>( nullptr );
 				}

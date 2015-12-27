@@ -42,6 +42,16 @@ namespace daw {
 
 				UrlAuthInfo::~UrlAuthInfo( ) { }
 
+				std::string to_string( UrlAuthInfo const & auth ) {
+					std::stringstream ss;
+					ss << auth.username << ":" << auth.password;
+					return ss.str( );
+				}
+
+				std::ostream& operator<<( std::ostream& os, UrlAuthInfo const & auth ) {
+					os << to_string( auth );
+					return os;
+				}
 
 				HttpUrlQueryPair::HttpUrlQueryPair( ):
 					JsonLink( ),
@@ -110,13 +120,14 @@ namespace daw {
 					this->link_string( "username", username );
 					this->link_string( "password", password );
 				}
+
 				namespace impl {					
 					HttpUrlImpl::HttpUrlImpl( ):
 						scheme( ),
 						auth_info( ),
 						host( ),
 						port( ),
-						request( ) {
+						path( ) {
 						
 						set_links( );
 					}
@@ -129,7 +140,7 @@ namespace daw {
 						this->link_string( "host", host );
 						this->link_integral( "port", port );
 						this->link_object( "auth_info", auth_info );
-						this->link_object( "request", request );
+						this->link_object( "path", path );
 					}
 				}	// namespace impl
 				
@@ -144,10 +155,15 @@ namespace daw {
 					if( url.port ) {
 						ss << *(url.port);
 					}
+
 					if( url.auth_info ) {
-						ss << url.auth_info->username << ":" << url.auth_info->password << "@";
+						ss << *(url.auth_info) << "@";					}
 					}
-					ss << "/" << url.request;
+
+					if( url.path ) {
+						ss << "/" << *(url.path);
+					}
+
 					return ss.str( );
 				}
 
@@ -157,6 +173,7 @@ namespace daw {
 					}
 					return os;
 				}
+
 				std::ostream& operator<<( std::ostream& os, impl::HttpUrlImpl const & url ) {
 					os << to_string( url );
 					return os;	
