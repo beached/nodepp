@@ -130,11 +130,11 @@ namespace daw {
 						for( auto& callback : callbacks ) {
 							if( !callback.second.empty( ) ) {
 								try {
-									callback.second.exec( args... );
+									callback.second( args... );
 								} catch( boost::bad_any_cast const & ) {
 									if( m_allow_cb_without_params ) {
 										try {
-											callback.second.exec( );
+											callback.second( );
 										} catch( boost::bad_any_cast const & ) {
 											throw std::runtime_error( "Type of event listener does not match.  This shouldn't happen" );
 										}
