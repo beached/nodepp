@@ -28,9 +28,9 @@
 #include "lib_http_client.h"
 
 int main( int, char ** ) {
-	using namespace daw::nodepp::lib::http;
+	using namespace daw::nodepp::lib;
 
-	auto req = get( "https://www.google.ca", { { "Verify", true } } );
+	auto req = http::get( "https://www.google.ca", { { "Verify", true } } );
 
 	daw::nodepp::base::start_service( );
 	
