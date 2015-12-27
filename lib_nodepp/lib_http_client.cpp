@@ -97,6 +97,8 @@ namespace daw {
 					return std::shared_ptr<impl::HttpClientConnectionImpl>( nullptr );
 				}
 
+				//HttpClientConnection get( boost::string_ref url, std::initializer_list<std::pair<std::string, HttpClientConnectionOptions::value_type>> options, std::function<void( )> on_success, std::function<void( )> on_error = nullptr );	// TODO fix me please, the callback really will have aparameters
+
 			}	// namespace http
 		} // namespace lib
 	}	// namespace nodepp
