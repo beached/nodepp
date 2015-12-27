@@ -130,7 +130,7 @@ namespace daw {
 						for( auto& callback : callbacks ) {
 							if( !callback.second.empty( ) ) {
 								try {
-									callback.second( args... );
+									callback.second( std::forward<Args>( args )... );
 								} catch( boost::bad_any_cast const & ) {
 									if( m_allow_cb_without_params ) {
 										try {
