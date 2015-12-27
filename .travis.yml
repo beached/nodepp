@@ -7,9 +7,9 @@ compiler:
   - clang
 install:
   - export BOOST_BASE="~/libboost"
-  - if [ "${CXX}" = "g++" ]; then export CXX="g++-5" CC="gcc-5" BOOST_CXX="g++-5" BOOST_ROOT="${BOOST_BASE}/gcc" BOOST_SH="travis_install_boost.sh"; fi
-  - if [ "${CXX}" = "clang++" ]; then export BOOST_ROOT="${BOOST_BASE}/clang" BOOST_CXX="clang++"  BOOST_SH="travis_install_boost_clang.sh"; fi
-  - /bin/bash "${BOOST_SH}" || { rm -rf "${BOOST_ROOT}" ; exit 1; }
+  - if [ "${CXX}" = "g++" ]; then export CXX="g++-5" CC="gcc-5" BOOST_CXX="g++-5" BOOST_ROOT="${BOOST_BASE}/gcc" CXXFLAGS="" LINKFLAGS=""; fi
+  - if [ "${CXX}" = "clang++" ]; then export BOOST_ROOT="${BOOST_BASE}/clang" BOOST_CXX="clang++"  CXXFLAGS="-stdlib=libc++" LINKFLAGS="-stdlib=libc++"; fi
+  - /bin/bash "./travis_install_boost.sh" || { rm -rf "${BOOST_ROOT}" ; exit 1; }
 
 cache:
   directories:
