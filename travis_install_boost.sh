@@ -2,6 +2,8 @@
 set -e
 BOOST_VERSION="1_60_0"
 
+# PREREQS:  BOOST_ROOT, CC
+
 echo "Boost Root is set to: '${BOOST_ROOT}'"
 if [ ! -d "${BOOST_ROOT}" ]; then
 	BUILD_TYPE=${CC}
