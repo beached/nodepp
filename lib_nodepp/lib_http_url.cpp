@@ -126,9 +126,9 @@ namespace daw {
 					void HttpUrlImpl::set_links( ) {
 						this->reset_jsonlink( );
 						this->link_string( "scheme", scheme );
-						this->link_object( "auth_info", auth_info );
 						this->link_string( "host", host );
 						this->link_integral( "port", port );
+						this->link_object( "auth_info", auth_info );
 						this->link_object( "request", request );
 					}
 				}	// namespace impl
@@ -140,12 +140,12 @@ namespace daw {
 				std::string to_string( impl::HttpUrlImpl const & url ) {
 					std::stringstream ss;
 					ss << url.scheme << "://";
-					if( url.auth_info ) {
-						ss << url.auth_info->username << ":" << url.auth_info->password << "@";
-					}
 					ss << url.host;
 					if( url.port ) {
 						ss << *(url.port);
+					}
+					if( url.auth_info ) {
+						ss << url.auth_info->username << ":" << url.auth_info->password << "@";
 					}
 					ss << "/" << url.request;
 					return ss.str( );
