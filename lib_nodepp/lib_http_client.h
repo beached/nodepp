@@ -29,7 +29,7 @@
 
 #include "base_event_emitter.h"
 #include "base_service_handle.h"
-#include "lib_http_request.h"
+#include "lib_http_url.h"
 #include "lib_http_server_response.h"
 #include "lib_http_client_connection_options.h"
 

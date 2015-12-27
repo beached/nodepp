@@ -42,6 +42,69 @@ namespace daw {
 
 				UrlAuthInfo::~UrlAuthInfo( ) { }
 
+
+				HttpUrlQueryPair::HttpUrlQueryPair( ):
+					JsonLink( ),
+					name( ),
+					value( ) {
+					set_links( );
+				}
+
+				HttpUrlQueryPair::HttpUrlQueryPair( std::pair<std::string, boost::optional<std::string>> const & vals ):
+					JsonLink( ),
+					name( vals.first ),
+					value( vals.second ) {
+					set_links( );
+				}
+
+				HttpUrlQueryPair::~HttpUrlQueryPair( ) { }
+
+				void HttpUrlQueryPair::set_links( ) {
+					this->reset_jsonlink( );
+					this->link_string( "name", name );
+					this->link_string( "value", value );
+				}
+
+				HttpAbsoluteUrlPath::HttpAbsoluteUrlPath( ):
+					JsonLink( ),
+					path( ),
+					query( ),
+					fragment( ) {
+					set_links( );
+				}
+
+				HttpAbsoluteUrlPath::~HttpAbsoluteUrlPath( ) { }
+
+				void HttpAbsoluteUrlPath::set_links( ) {
+					this->reset_jsonlink( );
+
+					this->link_string( "path", path );
+					this->link_array( "query", query );
+					this->link_string( "fragment", fragment );
+				}
+
+				std::string to_string( HttpAbsoluteUrlPath const & path ) {
+					std::stringstream ss;
+					ss << url.path;
+					if( url.query ) {
+						for( auto const & qp : url.query.get( ) ) {
+							ss << "?" << qp.name;
+							if( qp.value ) {
+								ss << "=" << qp.value.get( );
+							}
+						}
+					}
+					if( url.fragment ) {
+						ss << "#" << url.fragment.get( );
+					}
+					return ss.str( );
+				}
+
+				std::ostream& operator<<( std::ostream& os, HttpAbsoluteUrlPath const & path ) {
+					os << to_string( path );
+					return os;
+				}
+
 				void UrlAuthInfo::set_links( ) {
 					this->reset_jsonlink( );
 					this->link_string( "username", username );
@@ -66,7 +129,7 @@ namespace daw {
 						this->link_object( "auth_info", auth_info );
 						this->link_string( "host", host );
 						this->link_integral( "port", port );
-						this->link_string( "request", request );
+						this->link_object( "request", request );
 					}
 				}	// namespace impl
 				
@@ -87,6 +150,19 @@ namespace daw {
 					ss << "/" << url.request;
 					return ss.str( );
 				}
+
+				std::ostream& operator<<( std::ostream& os, HttpUrl const & url ) {
+					if( url ) {
+						os << to_string( *url );
+					}
+					return os;
+				}
+				std::ostream& operator<<( std::ostream& os, impl::HttpUrlImpl const & url ) {
+					os << to_string( url );
+					return os;	
+				}
+
+
 			} // namespace http
 		}	// namespace lib
 	}	// namespace nodepp

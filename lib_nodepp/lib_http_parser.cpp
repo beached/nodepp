@@ -38,8 +38,8 @@ namespace daw {
 					return result;
 				}
 
-				std::shared_ptr<daw::nodepp::lib::http::HttpAbsoluteUrl> parse_url_path( boost::string_ref path ) {
-					auto result = std::make_shared < daw::nodepp::lib::http::HttpAbsoluteUrl>( );
+				std::shared_ptr<daw::nodepp::lib::http::HttpAbsoluteUrlPath> parse_url_path( boost::string_ref path ) {
+					auto result = std::make_shared < daw::nodepp::lib::http::HttpAbsoluteUrlPath>( );
 					if( !boost::spirit::qi::parse( path.begin( ), path.end( ), daw::nodepp::lib::http::request_parser::abs_url_parse_grammar<decltype(path.begin( ))>( ), *result ) ) {
 						result = nullptr;
 					}

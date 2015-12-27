@@ -49,7 +49,7 @@
 	)
 
 	BOOST_FUSION_ADAPT_STRUCT(
-	daw::nodepp::lib::http::HttpAbsoluteUrl,
+	daw::nodepp::lib::http::HttpAbsoluteUrlPath,
 	(std::string, path)
 	(boost::optional<std::vector<daw::nodepp::lib::http::HttpUrlQueryPair >>, query)
 	(boost::optional<std::string>, fragment)
@@ -67,13 +67,13 @@
 	(boost::optional<daw::nodepp::lib::http::UrlAuthInfo>, auth_info)
 	(std::string, host)
 	(boost::optional<uint16_t>, port)
-	(std::string, request)
+	(daw::nodepp::lib::http::HttpAbsoluteUrlPath, request)
 	)
 
 	BOOST_FUSION_ADAPT_STRUCT(
 	daw::nodepp::lib::http::HttpRequestLine,
 	(daw::nodepp::lib::http::HttpClientRequestMethod, method)
-	(daw::nodepp::lib::http::HttpAbsoluteUrl, url)
+	(daw::nodepp::lib::http::HttpAbsoluteUrlPath, url)
 	(std::string, version)
 	)
 
@@ -118,7 +118,7 @@ namespace daw {
 					}	// namespace anonymous
 
 					template <typename Iterator>
-					struct abs_url_parse_grammar: qi::grammar <Iterator, daw::nodepp::lib::http::HttpAbsoluteUrl( )> {
+					struct abs_url_parse_grammar: qi::grammar <Iterator, daw::nodepp::lib::http::HttpAbsoluteUrlPath( )> {
 						abs_url_parse_grammar( ): abs_url_parse_grammar::base_type( url ) {
 							key = qi::char_( "a-zA-Z_" ) >> *qi::char_( "a-zA-Z_0-9" );
 							value = +qi::char_( "a-zA-Z_0-9" );
@@ -153,7 +153,7 @@ namespace daw {
 
 											   //debug( url );
 						}
-						qi::rule<Iterator, daw::nodepp::lib::http::HttpAbsoluteUrl( )> url;
+						qi::rule<Iterator, daw::nodepp::lib::http::HttpAbsoluteUrlPath( )> url;
 						qi::rule<Iterator, std::string( )> path;
 						qi::rule<Iterator, daw::nodepp::lib::http::HttpUrlQueryPair( )> query_pair;
 						qi::rule<Iterator, boost::optional<std::vector<daw::nodepp::lib::http::HttpUrlQueryPair >>( )> query;
@@ -171,7 +171,6 @@ namespace daw {
 							auth_info = username >> lit( ':' ) >> password >> lit( '@' );
 							port = lit( ':' ) >> qi::uint_;
 							host = +(~char_( "()<>@,;:\\\"/[]?={} \x09" ));
-							request = lit( '/' ) >> *char_;
 							url_string = qi::eps > scheme >> lit( "://" ) >> -auth_info >> host >> -port >> -request;
 
 							scheme.name( "scheme" );
@@ -209,7 +208,7 @@ namespace daw {
 						qi::rule<Iterator, uint16_t> port;
 						qi::rule<Iterator, std::string( )> host;
 						qi::rule<Iterator, daw::nodepp::lib::http::impl::HttpUrlImpl( )> url_string;
-						qi::rule<Iterator, std::string( )> request;
+						qi::rule<Iterator, daw::nodepp::lib::http::HttpAbsoluteUrlPath( )> request;
 					};	// struct url_parse_grammar
 
 					template <typename Iterator>
@@ -270,7 +269,7 @@ namespace daw {
 
 						qi::rule<Iterator, std::string( )> http_version;
 						abs_url_parse_grammar<Iterator> url;
-						//qi::rule<Iterator, daw::nodepp::lib::http::HttpAbsoluteUrl( )> url;
+						//qi::rule<Iterator, daw::nodepp::lib::http::HttpAbsoluteUrlPath( )> url;
 						qi::rule<Iterator, std::pair<std::string, std::string>( )> header_pair;
 						qi::rule<Iterator, daw::nodepp::lib::http::HttpRequestLine( )> request_line;
 						qi::rule<Iterator, std::string( )> field_value;

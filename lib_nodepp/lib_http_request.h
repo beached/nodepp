@@ -33,6 +33,7 @@
 
 #include "base_types.h"
 #include "parse_json/daw_json_link.h"
+#include "lib_http_url.h"
 #include "lib_http_parser.h"
 
 namespace daw {
@@ -51,42 +52,11 @@ namespace daw {
 				std::string to_string( HttpClientRequestMethod method );
 
 				std::string value_to_json( std::string const & name, HttpClientRequestMethod method );
-
-				struct HttpUrlQueryPair: public daw::json::JsonLink < HttpUrlQueryPair > {
-					std::string name;
-					boost::optional<std::string> value;
-
-					HttpUrlQueryPair( );
-					HttpUrlQueryPair( std::pair<std::string, boost::optional<std::string>> const & vals );
-					~HttpUrlQueryPair( );
-					HttpUrlQueryPair( HttpUrlQueryPair const & ) = default;
-					HttpUrlQueryPair( HttpUrlQueryPair && ) = default;
-					HttpUrlQueryPair& operator=( HttpUrlQueryPair const & ) = default;
-					HttpUrlQueryPair& operator=( HttpUrlQueryPair && ) = default;
-					
-					void set_links( );
-				};	// struct HttpUrlQueryPair
-
-				struct HttpAbsoluteUrl final: public daw::json::JsonLink < HttpAbsoluteUrl > {
-					std::string path;
-					boost::optional<std::vector<HttpUrlQueryPair>> query;
-					boost::optional<std::string> fragment;
-
-					HttpAbsoluteUrl( );
-					~HttpAbsoluteUrl( );
-					HttpAbsoluteUrl( HttpAbsoluteUrl const & ) = default;
-					HttpAbsoluteUrl( HttpAbsoluteUrl && ) = default;
-					HttpAbsoluteUrl& operator=( HttpAbsoluteUrl const & ) = default;
-					HttpAbsoluteUrl& operator=( HttpAbsoluteUrl && ) = default;
-										
-					void set_links( );
-				};	// struct HttpAbsoluteUrl
-
-				std::string to_string( HttpAbsoluteUrl const & url );
+				
 
 				struct HttpRequestLine final: public daw::json::JsonLink < HttpRequestLine > {
 					HttpClientRequestMethod method;
-					HttpAbsoluteUrl url;
+					HttpAbsoluteUrlPath url;
 					std::string version;
 
 					HttpRequestLine( );

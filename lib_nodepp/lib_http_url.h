@@ -25,6 +25,7 @@
 #include <string>
 #include <memory>
 #include <boost/utility/string_ref.hpp>
+#include <boost/optional.hpp>
 #include "base_types.h"
 #include "parse_json/daw_json_link.h"
 #include "lib_http_parser.h"
@@ -52,13 +53,46 @@ namespace daw {
 					void set_links( );
 				};	// struct UrlAuthInfo
 
+				struct HttpUrlQueryPair: public daw::json::JsonLink < HttpUrlQueryPair > {
+					std::string name;
+					boost::optional<std::string> value;
+
+					HttpUrlQueryPair( );
+					HttpUrlQueryPair( std::pair<std::string, boost::optional<std::string>> const & vals );
+					~HttpUrlQueryPair( );
+					HttpUrlQueryPair( HttpUrlQueryPair const & ) = default;
+					HttpUrlQueryPair( HttpUrlQueryPair && ) = default;
+					HttpUrlQueryPair& operator=( HttpUrlQueryPair const & ) = default;
+					HttpUrlQueryPair& operator=( HttpUrlQueryPair && ) = default;
+
+					void set_links( );
+				};	// struct HttpUrlQueryPair
+
+				struct HttpAbsoluteUrlPath final: public daw::json::JsonLink<HttpAbsoluteUrlPath> {
+					std::string path;
+					boost::optional<std::vector<HttpUrlQueryPair>> query;
+					boost::optional<std::string> fragment;
+
+					HttpAbsoluteUrlPath( );
+					~HttpAbsoluteUrlPath( );
+					HttpAbsoluteUrlPath( HttpAbsoluteUrlPath const & ) = default;
+					HttpAbsoluteUrlPath( HttpAbsoluteUrlPath && ) = default;
+					HttpAbsoluteUrlPath& operator=( HttpAbsoluteUrlPath const & ) = default;
+					HttpAbsoluteUrlPath& operator=( HttpAbsoluteUrlPath && ) = default;
+
+					void set_links( );
+				};	// struct HttpAbsoluteUrl
+
+				std::string to_string( HttpAbsoluteUrlPath const & path );
+				std::ostream& operator<<( std::ostream& os, HttpAbsoluteUrlPath const & path );
+
 				namespace impl {
 					struct HttpUrlImpl: public daw::json::JsonLink < HttpUrlImpl > {
 						std::string scheme;
 						boost::optional<UrlAuthInfo> auth_info;
 						std::string host;
 						boost::optional<uint16_t> port;
-						std::string request;
+						HttpAbsoluteUrlPath request;
 
 						HttpUrlImpl( );
 						~HttpUrlImpl( );
@@ -74,9 +108,12 @@ namespace daw {
 
 				std::string to_string( impl::HttpUrlImpl const & url );
 				std::string to_string( HttpUrl const & url );
+				std::ostream& operator<<( std::ostream& os, HttpUrl const & url );
+				std::ostream& operator<<( std::ostream& os, impl::HttpUrlImpl const & url );
 
 			} // namespace http
 		}	// namespace lib
 	}	// namespace nodepp
 }	// namespace daw
+
 

@@ -89,7 +89,7 @@ namespace daw {
 					throw std::runtime_error( "unknown http request method" );
 				}
 
-				std::ostream& operator<<( std::ostream& os, HttpClientRequestMethod const method ) {
+				std::ostream& operator<<( std::ostream& os, HttpClientRequestMethod method ) {
 					os << to_string( method );
 					return os;
 				}
@@ -99,63 +99,6 @@ namespace daw {
 					is >> method_string;
 					method = http_request_method_from_string( method_string );
 					return is;
-				}
-
-				std::string to_string( HttpAbsoluteUrl const & url ) {
-					std::stringstream ss;
-					ss << url.path;
-					if( url.query ) {
-						for( auto const & qp : url.query.get( ) ) {
-							ss << "?" << qp.name;
-							if( qp.value ) {
-								ss << "=" << qp.value.get( );
-							}
-						}
-					}
-					if( url.fragment ) {
-						ss << "#" << url.fragment.get( );
-					}
-					return ss.str( );
-				}
-
-				HttpUrlQueryPair::HttpUrlQueryPair( ):
-					JsonLink( ),
-					name( ),
-					value( ) {
-					set_links( );
-				}
-
-				HttpUrlQueryPair::HttpUrlQueryPair( std::pair<std::string, boost::optional<std::string>> const & vals ):
-					JsonLink( ),
-					name( vals.first ),
-					value( vals.second ) {
-					set_links( );
-				}
-
-				HttpUrlQueryPair::~HttpUrlQueryPair( ) { }
-
-				void HttpUrlQueryPair::set_links( ) {
-					this->reset_jsonlink( );
-					this->link_string( "name", name );
-					this->link_string( "value", value );
-				}
-
-				HttpAbsoluteUrl::HttpAbsoluteUrl( ):
-					JsonLink( ),
-					path( ),
-					query( ),
-					fragment( ) {
-					set_links( );
-				}
-
-				HttpAbsoluteUrl::~HttpAbsoluteUrl( ) { }
-
-				void HttpAbsoluteUrl::set_links( ) {
-					this->reset_jsonlink( );
-
-					this->link_string( "path", path );
-					this->link_array( "query", query );
-					this->link_string( "fragment", fragment );
 				}
 
 				HttpRequestLine::HttpRequestLine( ):
@@ -198,7 +141,6 @@ namespace daw {
 				HttpClientRequestHeaders::const_iterator HttpClientRequestHeaders::find( boost::string_ref key ) const {
 					return headers.find( key.to_string( ) );
 				}
-
 
 				namespace impl {
 					HttpClientRequestImpl::HttpClientRequestImpl( ):
