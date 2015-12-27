@@ -69,7 +69,7 @@ namespace daw {
 				bool empty( ) const;
 
 				template<typename... Args>
-				void exec( Args&&... args ) {
+				void operator( )( Args&&... args ) {
 					using cb_type = std::function < void( typename std::remove_reference<Args>::type... ) >;
 					try {
 						auto callback = boost::any_cast<cb_type>(m_callback);
