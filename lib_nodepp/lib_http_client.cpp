@@ -92,15 +92,11 @@ namespace daw {
 				}	//namespace impl
 
 				// TODO: should be returning a response
-				HttpClientConnection get( boost::string_ref url_string, std::initializer_list<std::pair<std::string, HttpClientConnectionOptions::value_type>> options ) {
+				void get( boost::string_ref url_string, std::initializer_list<std::pair<std::string, HttpClientConnectionOptions::value_type>> options, std::function<void( HttpClientResponseMessage )> on_completion ) {				
 					auto url = parse_url( url_string );
 					std::cout << "url: " << url->encode( ) << std::endl;
 					std::cout << "url: " << url << std::endl;
-					return std::shared_ptr<impl::HttpClientConnectionImpl>( nullptr );
 				}
-
-				//HttpClientConnection get( boost::string_ref url, std::initializer_list<std::pair<std::string, HttpClientConnectionOptions::value_type>> options, std::function<void( )> on_success, std::function<void( )> on_error = nullptr );	// TODO fix me please, the callback really will have aparameters
-
 			}	// namespace http
 		} // namespace lib
 	}	// namespace nodepp

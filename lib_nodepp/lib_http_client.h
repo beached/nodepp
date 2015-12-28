@@ -42,6 +42,8 @@ namespace daw {
 					class HttpClientConnectionImpl;
 				}
 
+				class HttpClientResponseMessage { };
+
 				using HttpClient = std::shared_ptr<impl::HttpClientImpl>;
 				HttpClient create_http_client( daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
 
@@ -88,7 +90,7 @@ namespace daw {
 				}	//namespace impl
 				using HttpClientConnection = std::shared_ptr<impl::HttpClientConnectionImpl>;
 
-				void get( boost::string_ref url, std::initializer_list<std::pair<std::string, HttpClientConnectionOptions::value_type>> options, std::function<void( HttpResponseMessage reponse )> on_completion );
+				void get( boost::string_ref url_string, std::initializer_list<std::pair<std::string, HttpClientConnectionOptions::value_type>> options, std::function<void( HttpClientResponseMessage )> on_completion );
 
 			}	// namespace http
 		} // namespace lib
