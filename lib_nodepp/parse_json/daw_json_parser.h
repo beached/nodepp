@@ -184,7 +184,7 @@ namespace daw {
 
 		template<> int64_t const & get<int64_t>( impl::value_t const & val );
 		template<> double const & get<double>( impl::value_t const & val );
-		template<> std::string get<std::string>( impl::value_t const & val );
+		//template<> boost::string_ref const  get<std::string>( impl::value_t const & val );
 		template<> bool const & get<bool>( impl::value_t const & val );
 		template<> impl::object_value const & get<impl::object_value>( impl::value_t const & val );
 		template<> impl::array_value const & get<impl::array_value>( impl::value_t const & val );

@@ -725,9 +725,9 @@ namespace daw {
 			return val.get_real( );
 		}
 
-		template<> std::string get<std::string>( impl::value_t const & val ) {
-			return val.get_string( );
-		}
+// 		template<> std::string get<std::string>( impl::value_t const & val ) {
+// 			return val.get_string( );
+// 		}
 
 		template<> bool const & get<bool>( impl::value_t const & val ) {
 			return val.get_boolean( );
