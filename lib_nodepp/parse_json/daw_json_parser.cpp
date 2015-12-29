@@ -497,7 +497,7 @@ namespace daw {
 						current.move_next( );
 					}
 					if( !at_end( current ) ) {
-						auto result = value_t( string_value( range.first + 1, current.first ) );
+						auto result = value_t( create_string_value( range.first + 1, current.first ) );
 						current.move_next( );
 						range = current;
 						return result;
