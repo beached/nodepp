@@ -22,33 +22,25 @@
 
 #include "parse_json/daw_json_parser.h"
 #include <cstdlib>
-#include <sys/mman.h>
-#include <cstdio>
-#include <unistd.h>
-#include <err.h>
-#include <fcntl.h>
+#include <boost/iostreams/device/mapped_file.hpp>
 #include <iostream>
 
 int main( int argc, char** argv ) {
-	assert( argc > 1 || "Must supply a json file" );
-	int fd = -1;
-	if( (fd = open( argv[1], O_RDONLY, 0 )) == -1 ) {
-		err( 1, "open" );
+	if( argc <= 1 ) {
+		std::cerr << "Must supply a json file" << std::endl;
+		exit( EXIT_FAILURE );
 	}
-
-	char const * const json_str = static_cast<char*>( mmap( nullptr, 4096, PROT_READ, MAP_FILE|MAP_PRIVATE, fd, 0 ) );
-
-	if( MAP_FAILED == json_str ) {
-		errx( 1, "mmap" );
+	boost::iostreams::mapped_file_source json_str;
+	json_str.open( "argv[1]" );
+	if( !json_str.is_open( ) ) {
+		std::cerr << "Error opening file: " << argv[1] << std::endl;
+		exit( EXIT_FAILURE );
 	}
-
 
 	using namespace daw::json::impl;
 	using namespace daw::json;
 
-	std::cout << json_str << std::endl;
-
-	auto json = parse_json( json_str );
+	auto json = parse_json( boost::string_ref( json_str.data( ), json_str.size( ) ) );
 	if( !json ) {
 		std::cerr << "Could not find data" << std::endl;
 		exit( EXIT_FAILURE );
@@ -74,9 +66,6 @@ int main( int argc, char** argv ) {
 	default:
 		std::cout << "other\n";
 	}	
-
-	munmap( (void*)json_str, 4096 );
-	close( fd );
 
 	return EXIT_SUCCESS;
 }

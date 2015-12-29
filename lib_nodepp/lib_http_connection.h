@@ -35,7 +35,7 @@ namespace daw {
 				enum class HttpConnectionState { Request, Message };
 
 				namespace impl { class HttpServerConnectionImpl; }
-				using HttpServerConnection = std::shared_ptr < impl::HttpServerConnectionImpl > ;
+				using HttpServerConnection = std::shared_ptr < impl::HttpServerConnectionImpl >;
 				HttpServerConnection create_http_server_connection( daw::nodepp::lib::net::NetSocketStream&& socket, daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
 
 				namespace impl {
@@ -49,9 +49,9 @@ namespace daw {
 						HttpServerConnectionImpl( ) = delete;
 
 						HttpServerConnectionImpl( HttpServerConnectionImpl const & ) = delete;
-						HttpServerConnectionImpl& operator=(HttpServerConnectionImpl const &) = delete;
+						HttpServerConnectionImpl& operator=( HttpServerConnectionImpl const & ) = delete;
 						HttpServerConnectionImpl( HttpServerConnectionImpl && ) = default;
-						HttpServerConnectionImpl& operator=(HttpServerConnectionImpl &&) = default;
+						HttpServerConnectionImpl& operator=( HttpServerConnectionImpl && ) = default;
 
 						~HttpServerConnectionImpl( );
 
@@ -75,4 +75,3 @@ namespace daw {
 		}	// namespace lib
 	}	// namespace nodepp
 }	// namespace daw
-
