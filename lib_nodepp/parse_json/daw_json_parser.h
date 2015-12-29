@@ -113,12 +113,14 @@ namespace daw {
 
 			class value_t {
 				struct u_value_t {
-					int64_t integral;
-					double real;
-					string_value string;
-					bool boolean;
-					std::nullptr_t null;
-					array_value* array;
+					union {
+						int64_t integral;
+						double real;
+						string_value string;
+						bool boolean;
+						//std::nullptr_t null;
+						array_value* array;
+					};
 					object_value object_v;
 					
 					void clear( );

@@ -95,10 +95,10 @@ namespace daw {
 			}
 
 			value_t::value_t( ) : m_value_type( value_types::null ) {
-				m_value.null = nullptr;
+				m_value.clear( );
 			}
 
-			value_t::value_t( int64_t const & value ) : m_value_type( value_types::integral ) {
+			value_t::value_t( int64_t const & value ) : m_value_type( value_types::integral ) {				
 				m_value.integral = value;
 			}
 
@@ -123,7 +123,7 @@ namespace daw {
 			}
 
 			value_t::value_t( std::nullptr_t ) : m_value_type( value_types::null ) {
-				m_value.null = nullptr;
+				m_value.clear( );
 			}
 
 			value_t::value_t( array_value value ) : m_value_type( value_types::array ) {
