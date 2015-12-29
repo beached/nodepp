@@ -35,6 +35,51 @@ namespace daw {
 		namespace impl {
 			using namespace daw::range;
 
+			string_value::string_value( ): 
+				m_begin( nullptr ),
+				m_end( nullptr ) { }
+
+			
+			string_value::string_value( char const * const first, char const * const last ):
+				m_begin( first ),
+				m_end( last + 1 ) { }
+
+			string_value::string_value( std::string const & str ):
+				m_begin( str.data( ) ),
+				m_end( str.data( ) + str.size( ) ) { }
+
+			string_value::const_iterator string_value::begin( ) const {
+				return m_begin;
+			}
+
+			string_value::const_iterator string_value::end( ) const {
+				return m_end;
+			}
+
+			string_value & string_value::operator=( std::string const & str ) {
+				m_begin = str.data( );
+				m_end = str.data( ) + str.size( );
+				return *this;
+			}
+
+			string_value::const_reference string_value::operator[]( size_t pos ) const {
+				assert( m_begin + pos < m_end );
+				return *(m_begin + pos);
+			}
+			
+			size_t string_value::size( ) const {
+				return std::distance( m_begin, m_end );
+			}
+
+			void string_value::clear( ) {
+				m_begin = nullptr;
+				m_end = nullptr;
+			}
+
+			std::string to_string( string_value const & str ) {
+				return { str.begin( ), str.end( ) };
+			}
+
 			value_t::value_t( ) : m_value_type( value_types::null ) {
 				m_value.null = nullptr;
 			}
@@ -47,12 +92,12 @@ namespace daw {
 				m_value.real = value;
 			}
 
-			value_t::value_t( std::string value ) : m_value_type( value_types::string ) {
-				m_value.string = new std::string( std::move( value ) );
+			value_t::value_t( std::string const & value ) : m_value_type( value_types::string ) {
+				m_value.string_v = value;
 			}
 
 			value_t::value_t( boost::string_ref value ): m_value_type( value_types::string ) {
-				m_value.string = new std::string( value.to_string( ) );
+				m_value.string_v = string_value( value.begin( ), value.end( ) );
 			}
 
 			value_t::value_t( bool value ) : m_value_type( value_types::boolean ) {
@@ -74,7 +119,7 @@ namespace daw {
 			value_t::value_t( value_t const & other ): m_value_type( other.m_value_type ) {
 				switch( m_value_type ) {
 				case value_types::string:
-					m_value.string = new std::string( *other.m_value.string );
+					m_value.string_v = other.m_value.string_v;
 					break;
 				case value_types::array:
 					m_value.array = new array_value( *other.m_value.array );
@@ -96,7 +141,7 @@ namespace daw {
 					m_value_type = rhs.m_value_type;
 					switch( m_value_type ) {
 					case value_types::string:
-						m_value.string = new std::string( *rhs.m_value.string );
+						m_value.string_v = rhs.m_value.string_v;
 						break;
 					case value_types::array:
 						m_value.array = new array_value( *rhs.m_value.array );
@@ -119,7 +164,7 @@ namespace daw {
 			value_t::value_t( value_t && other ) :
 				m_value( std::move( other.m_value ) ),
 				m_value_type( std::move( other.m_value_type ) ) {
-				other.m_value.string = nullptr;
+				other.m_value.string_v.clear( );
 				other.m_value_type = value_types::null;
 			}
 
@@ -127,7 +172,7 @@ namespace daw {
 				if( this != &rhs ) {
 					m_value = std::move( rhs.m_value );
 					m_value_type = std::move( rhs.m_value_type );
-					rhs.m_value.string = nullptr;
+					rhs.m_value.string_v.clear( );
 					rhs.m_value_type = value_types::null;
 				}
 				return *this;
@@ -169,16 +214,10 @@ namespace daw {
 
 			std::string const & value_t::get_string( ) const {
 				assert( m_value_type == value_types::string );
-				assert( m_value.string != nullptr );
-				return *m_value.string;
+				assert( m_value.string_v.begin( ) != nullptr );
+				return to_string( m_value.string_v );
 			}
-
-			std::string & value_t::get_string( ) {
-				assert( m_value_type == value_types::string );
-				assert( m_value.string != nullptr );
-				return *m_value.string;
-			}
-
+			
 			bool value_t::is_integral( ) const {
 				return m_value_type == value_types::integral;
 			}
@@ -234,11 +273,8 @@ namespace daw {
 			void value_t::cleanup( ) {
 				switch( m_value_type ) {
 				case value_types::string:
-					if( m_value.string != nullptr ) {
-						delete m_value.string;
-						m_value.string = nullptr;
-						m_value_type = value_types::null;
-					}
+					m_value.string_v.clear( );
+					m_value_type = value_types::null;					
 					break;
 				case value_types::object:
 					if( m_value.object != nullptr ) {
@@ -267,59 +303,68 @@ namespace daw {
 				return m_value_type;
 			}
 
-			std::ostream& operator<<(std::ostream& os, value_t const & value) {
+			std::string to_string( value_t const & value) {
+				std::stringstream ss;
 				switch( value.type( ) ) {
 				case value_t::value_types::array: {
-					os << "[ ";
+					ss << "[ ";
 					const auto & arry = value.get_array( ).items;
 					if( !arry.empty( ) ) {
-						os << arry[0];
+						ss << arry[0];
 						for( size_t n = 1; n < arry.size( ); ++n ) {
-							os << ", " << arry[n];
+							ss << ", " << arry[n];
 						}
 					}
-					os << " ]";
+					ss << " ]";
 				}
 												  break;
 				case value_t::value_types::boolean:
-					os << (value.get_boolean( ) ? "True" : "False");
+					ss << (value.get_boolean( ) ? "True" : "False");
 					break;
 				case value_t::value_types::integral:
-					os << value.get_integral( );
+					ss << value.get_integral( );
 					break;
 				case value_t::value_types::null:
-					os << "null";
+					ss << "null";
 					break;
 				case value_t::value_types::object: {
-					os << "{ ";
+					ss << "{ ";
 					const auto & items = value.get_object( ).members;
 					if( !items.empty( ) ) {
-						os << '"' << items[0].first << "\" : " << items[0].second;
+						ss << '"' << items[0].first << "\" : " << items[0].second;
 						for( size_t n = 1; n < items.size( ); ++n ) {
-							os << ", \"" << items[n].first << "\" : " << items[n].second;
+							ss << ", \"" << items[n].first << "\" : " << items[n].second;
 						}
 					}
-					os << " }";
+					ss << " }";
 				}
 												   break;
 				case value_t::value_types::real:
-					os << value.get_real( );
+					ss << value.get_real( );
 					break;
 				case value_t::value_types::string:
-					os << '"' << value.get_string( ) << '"';
+					ss << '"' << value.get_string( ) << '"';
 					break;
 				default:
 					throw std::runtime_error( "Unexpected value type" );
 				}
+				return ss.str( );
+			}
+
+			std::string to_string( std::shared_ptr<value_t> const & value ) {
+				if( value ) {
+					return to_string( *value );
+				}
+				return "{ null }";
+			}
+
+			std::ostream& operator<<( std::ostream& os, value_t const & value ) {
+				os << to_string( value );
 				return os;
 			}
 
 			std::ostream& operator<<(std::ostream& os, std::shared_ptr<value_t> const & value) {
-				if( value ) {
-					os << *value;
-				} else {
-					os << "{null}";
-				}
+				os << to_string( value );
 				return os;
 			}
 
@@ -681,5 +726,6 @@ namespace daw {
 		template<> impl::array_value const & get<impl::array_value>( impl::value_t const & val ) {
 			return val.get_array( );
 		}
+
 	}	// namespace json
 }	// namespace daw

@@ -39,12 +39,43 @@ namespace daw {
 			struct null_value final { };
 			struct object_value;
 			struct array_value;
+			//struct string_value;
+
+			struct string_value final {
+				using iterator = char const * const;
+				using const_iterator = char const * const;
+				using value_type = char const;
+				using reference = char const &;
+				using const_reference = char const &;
+			private:
+				char const * m_begin;
+				char const * m_end;
+			public:
+				string_value( );
+				string_value( char const * const first, char const * const last );
+				string_value( std::string const & str );
+				~string_value( ) = default;
+				string_value( string_value const & ) = default;
+				string_value( string_value && ) = default;
+				string_value & operator=( string_value const & ) = default;
+				string_value & operator=( std::string const & str );
+				string_value & operator=( string_value && ) = default;
+
+				const_iterator begin( ) const;
+				const_iterator end( ) const;
+
+				const_reference operator[]( size_t pos ) const;
+				size_t size( ) const;
+				void clear( );
+			};
+			
+			std::string to_string( string_value const & str );
 
 			class value_t {
 				union {
 					int64_t integral;
 					double real;
-					std::string* string;
+					string_value string_v;
 					bool boolean;
 					std::nullptr_t null;
 					array_value* array;
@@ -58,7 +89,7 @@ namespace daw {
 				value_t( );
 				explicit value_t( int64_t const & value );
 				explicit value_t( double const & value );
-				explicit value_t( std::string value );
+				explicit value_t( std::string const & value );
 				explicit value_t( boost::string_ref value );
 				explicit value_t( bool value );
 				explicit value_t( std::nullptr_t value );
@@ -74,7 +105,6 @@ namespace daw {
 				double const & get_real( ) const;
 				double & get_real( );
 				std::string const & get_string( ) const;
-				std::string & get_string( );
 				bool const & get_boolean( ) const;
 				bool & get_boolean( );
 				object_value const & get_object( ) const;
@@ -98,6 +128,33 @@ namespace daw {
 			struct array_value final {
 				std::vector<value_t> items;
 			};
+
+// 			struct string_value final {
+// 				using iterator = char const * const;
+// 				using const_iterator = char const * const;
+// 				using value_type = char const;
+// 				using reference = char const &;
+// 				using const_reference = char const &;
+// 			private:
+// 				char const * const m_begin;
+// 				char const * const m_end;
+// 			public:
+// 				string_value( );	
+// 				string_value( char const * const first, char const * const last );
+// 				~string_value( ) = default;
+// 				string_value( string_value const & ) = default;
+// 				string_value( string_value && ) = default;
+// 				string_value & operator=( string_value const & ) = default;
+// 				string_value & operator=( string_value && ) = default;
+// 
+// 				const_iterator begin( ) const;
+// 				const_iterator end( ) const;
+// 
+// 				const_reference operator[]( size_t pos ) const;
+// 				size_t size( ) const;
+// 			};
+
+//			std::string to_string( string_value const & str );
 
 			using object_value_item = std::pair < std::string, value_t > ;
 
@@ -132,8 +189,11 @@ namespace daw {
 				mapped_type & operator[]( boost::string_ref key );
 				mapped_type const & operator[]( boost::string_ref key ) const;
 			};
-			std::ostream& operator<<(std::ostream& os, value_t const & value);
-			std::ostream& operator<<(std::ostream& os, std::shared_ptr<value_t> const & value);
+			std::string to_string( value_t const & value );
+			std::string to_string( std::ostream& os, std::shared_ptr<value_t> const & value );
+
+			std::ostream& operator<<( std::ostream& os, value_t const & value );
+			std::ostream& operator<<( std::ostream& os, std::shared_ptr<value_t> const & value );
 		}	// namespace impl
 		using json_obj = std::shared_ptr < impl::value_t > ;
 

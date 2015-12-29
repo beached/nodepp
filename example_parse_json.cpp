@@ -46,26 +46,7 @@ int main( int argc, char** argv ) {
 		exit( EXIT_FAILURE );
 	}
 
-	std::cout << "value: " << daw::json::get<std::string>( *json ) << "\n";
-	switch( json->type( ) ) {
-	case value_t::value_types::integral:
-		std::cout << json->get_integral( ) << "\n";
-		break;
-	case value_t::value_types::real:
-		std::cout << json->get_real( ) << "\n";
-		break;
-	case value_t::value_types::boolean:
-		std::cout << json->get_boolean( ) << "\n";
-		break;
-	case value_t::value_types::string:
-		std::cout << "'" << json->get_string( ) << "'\n";
-		break;
-	case value_t::value_types::null:
-		std::cout << "null\n";
-		break;
-	default:
-		std::cout << "other\n";
-	}	
+	std::cout << "value: " << json << "\n";
 
 	return EXIT_SUCCESS;
 }
