@@ -36,10 +36,46 @@
 namespace daw {
 	namespace json {
 		namespace impl {
+			class value_t;
 			struct null_value final { };
-			struct object_value;
+			
+			using object_value_item = std::pair < std::string, value_t >;
+
+			object_value_item make_object_value_item( std::string first, value_t second );
+
+			struct object_value final: public daw::mixins::VectorLikeProxy < object_value, std::vector<object_value_item> > {
+				std::vector<object_value_item> members;
+
+				object_value( ) = default;
+				~object_value( ) = default;
+
+				object_value( object_value const & ) = default;
+				object_value( object_value && ) = default;
+
+				object_value & operator=( object_value const & ) = default;
+				object_value & operator=( object_value && ) = default;
+
+
+				inline std::vector<object_value_item> & container( ) {
+					return members;
+				}
+
+				inline std::vector<object_value_item> const & container( ) const {
+					return members;
+				}
+
+				using key_type = std::string;
+				using mapped_type = value_t;
+
+				iterator find( boost::string_ref const key );
+				const_iterator find( boost::string_ref const key ) const;
+
+				mapped_type & operator[]( boost::string_ref key );
+				mapped_type const & operator[]( boost::string_ref key ) const;
+			};	// struct object_value
+
+
 			struct array_value;
-			//struct string_value;
 
 			struct string_value final {
 				using iterator = char const * const;
@@ -76,14 +112,16 @@ namespace daw {
 			std::string to_string( string_value const & str );
 
 			class value_t {
-				union u_value_t {
+				struct u_value_t {
 					int64_t integral;
 					double real;
 					string_value string;
 					bool boolean;
 					std::nullptr_t null;
 					array_value* array;
-					object_value* object;
+					object_value object_v;
+					
+					void clear( );
 				} m_value;
 			public:
 				enum class value_types { integral, real, string, boolean, null, array, object };
@@ -134,39 +172,6 @@ namespace daw {
 				std::vector<value_t> items;
 			};
 
-			using object_value_item = std::pair < std::string, value_t > ;
-
-			object_value_item make_object_value_item( std::string first, value_t second );
-
-			struct object_value final: public daw::mixins::VectorLikeProxy < object_value, std::vector<object_value_item> > {
-				std::vector<object_value_item> members;
-				inline std::vector<object_value_item> & container( ) {
-					return members;
-				}
-
-				inline std::vector<object_value_item> const & container( ) const {
-					return members;
-				}
-
-				// 				using iterator = std::vector<object_value_item>::iterator;
-				// 				using const_iterator = std::vector<object_value_item>::const_iterator;
-				// 				using value_type = object_value_item;
-				using key_type = std::string;
-				using mapped_type = value_t;
-
-				iterator find( boost::string_ref const key );
-				const_iterator find( boost::string_ref const key ) const;
-
-				// 				iterator begin( );
-				// 				const_iterator begin( ) const;
-				// 				iterator end( );
-				// 				const_iterator end( ) const;
-
-				// 				iterator insert( iterator where, object_value_item item );
-				// 				void push_back( object_value_item item );
-				mapped_type & operator[]( boost::string_ref key );
-				mapped_type const & operator[]( boost::string_ref key ) const;
-			};
 			std::string to_string( value_t const & value );
 			std::string to_string( std::ostream& os, std::shared_ptr<value_t> const & value );
 
@@ -178,15 +183,15 @@ namespace daw {
 		json_obj parse_json( boost::string_ref const json_text );
 
 		template<typename T>
-		T const & get( impl::value_t const & );/*
+		T get( impl::value_t const & );/*
 											   static_assert(false, "Unsupported get type called");
 											   }*/
 
-		template<> int64_t const & get<int64_t>( impl::value_t const & val );
-		template<> double const & get<double>( impl::value_t const & val );
-		//template<> boost::string_ref const  get<std::string>( impl::value_t const & val );
-		template<> bool const & get<bool>( impl::value_t const & val );
-		template<> impl::object_value const & get<impl::object_value>( impl::value_t const & val );
-		template<> impl::array_value const & get<impl::array_value>( impl::value_t const & val );
+		template<> int64_t get<int64_t>( impl::value_t const & val );
+		template<> double get<double>( impl::value_t const & val );
+		template<> std::string get<std::string>( impl::value_t const & val );
+		template<> bool get<bool>( impl::value_t const & val );
+		template<> impl::object_value get<impl::object_value>( impl::value_t const & val );
+		template<> impl::array_value get<impl::array_value>( impl::value_t const & val );
 	}	// namespace json
 }	// namespace daw

@@ -87,7 +87,11 @@ namespace daw {
 			}
 
 			std::string to_string( string_value const & str ) {
-				return { str.begin( ), str.end( ) };
+				return { str.begin( ), str.size( ) };
+			}
+
+			void value_t::u_value_t::clear( ) {
+				memset( this, 0, sizeof( u_value_t ) );
 			}
 
 			value_t::value_t( ) : m_value_type( value_types::null ) {
@@ -127,7 +131,7 @@ namespace daw {
 			}
 
 			value_t::value_t( object_value value ) : m_value_type( value_types::object ) {
-				m_value.object = new object_value( std::move( value ) );
+				m_value.object_v = std::move( value );
 			}
 
 			value_t::value_t( value_t const & other ): m_value_type( other.m_value_type ) {
@@ -139,7 +143,7 @@ namespace daw {
 					m_value.array = new array_value( *other.m_value.array );
 					break;
 				case value_types::object:
-					m_value.object = new object_value( *other.m_value.object );
+					m_value.object_v = other.m_value.object_v;
 					break;
 				case value_types::integral:
 				case value_types::real:
@@ -161,7 +165,7 @@ namespace daw {
 						m_value.array = new array_value( *rhs.m_value.array );
 						break;
 					case value_types::object:
-						m_value.object = new object_value( *rhs.m_value.object );
+						m_value.object_v = rhs.m_value.object_v;
 						break;
 					case value_types::integral:
 					case value_types::real:
@@ -262,14 +266,12 @@ namespace daw {
 
 			object_value const & value_t::get_object( ) const {
 				assert( m_value_type == value_types::object );
-				assert( m_value.object != nullptr );
-				return *m_value.object;
+				return m_value.object_v;
 			}
 
 			object_value & value_t::get_object( ) {
 				assert( m_value_type == value_types::object );
-				assert( m_value.object != nullptr );
-				return *m_value.object;
+				return m_value.object_v;
 			}
 
 			array_value const & value_t::get_array( ) const {
@@ -285,32 +287,8 @@ namespace daw {
 			}
 
 			void value_t::cleanup( ) {
-				switch( m_value_type ) {
-				case value_types::string:
-					m_value.string.clear( );
-					m_value_type = value_types::null;					
-					break;
-				case value_types::object:
-					if( m_value.object != nullptr ) {
-						delete m_value.object;
-						m_value.object = nullptr;
-						m_value_type = value_types::null;
-					}
-
-					break;
-				case value_types::array:
-					if( m_value.array != nullptr ) {
-						delete m_value.array;
-						m_value.array = nullptr;
-						m_value_type = value_types::null;
-					}
-					break;
-				case value_types::integral:	// Do nothing for rest
-				case value_types::real:
-				case value_types::boolean:
-				case value_types::null:
-					break;
-				}
+				m_value_type = value_types::null;
+				m_value.clear( );
 			}
 
 			value_t::value_types value_t::type( ) const {
@@ -717,27 +695,27 @@ namespace daw {
 			return std::make_shared<impl::value_t>( nullptr );
 		}
 
-		template<> int64_t const & get<int64_t>( impl::value_t const & val ) {
+		template<> int64_t get<int64_t>( impl::value_t const & val ) {
 			return val.get_integral( );
 		}
 
-		template<> double const & get<double>( impl::value_t const & val ) {
+		template<> double get<double>( impl::value_t const & val ) {
 			return val.get_real( );
 		}
 
-// 		template<> std::string get<std::string>( impl::value_t const & val ) {
-// 			return val.get_string( );
-// 		}
+		template<> std::string get<std::string>( impl::value_t const & val ) {
+			return val.get_string( );
+		}
 
-		template<> bool const & get<bool>( impl::value_t const & val ) {
+		template<> bool get<bool>( impl::value_t const & val ) {
 			return val.get_boolean( );
 		}
 
-		template<> impl::object_value const & get<impl::object_value>( impl::value_t const & val ) {
+		template<> impl::object_value get<impl::object_value>( impl::value_t const & val ) {
 			return val.get_object( );
 		}
 
-		template<> impl::array_value const & get<impl::array_value>( impl::value_t const & val ) {
+		template<> impl::array_value get<impl::array_value>( impl::value_t const & val ) {
 			return val.get_array( );
 		}
 
