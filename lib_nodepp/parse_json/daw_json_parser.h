@@ -39,46 +39,6 @@ namespace daw {
 			class value_t;
 			struct null_value final { };
 			
-			using object_value_item = std::pair < std::string, value_t >;
-
-			object_value_item make_object_value_item( std::string first, value_t second );
-
-			struct object_value final: public daw::mixins::VectorLikeProxy < object_value, std::vector<object_value_item> > {
-				std::vector<object_value_item> members;
-
-				object_value( ) = default;
-				~object_value( ) = default;
-
-				object_value( object_value const & ) = default;
-				object_value( object_value && ) = default;
-
-				object_value & operator=( object_value const & ) = default;
-				object_value & operator=( object_value && ) = default;
-
-
-				inline std::vector<object_value_item> & container( ) {
-					return members;
-				}
-
-				inline std::vector<object_value_item> const & container( ) const {
-					return members;
-				}
-
-				using key_type = std::string;
-				using mapped_type = value_t;
-
-				iterator find( boost::string_ref const key );
-				const_iterator find( boost::string_ref const key ) const;
-
-				mapped_type & operator[]( boost::string_ref key );
-				mapped_type const & operator[]( boost::string_ref key ) const;
-			};	// struct object_value
-
-
-			struct array_value final {
-				std::vector<value_t> items;
-			};	// struct array_value
-
 			struct string_value final {
 				using iterator = char const * const;
 				using const_iterator = char const * const;
@@ -107,11 +67,52 @@ namespace daw {
 				size_t size( ) const;
 				void clear( );
 			};
-			
+
 			string_value create_string_value( char const * const first, char const * const last );
 			string_value create_string_value( std::string const & str );
 
 			std::string to_string( string_value const & str );
+			std::ostream& operator<<( std::ostream& os, string_value const & value );
+
+			using object_value_item = std::pair < string_value, value_t >;
+
+			object_value_item make_object_value_item( string_value first, value_t second );
+
+			struct object_value final: public daw::mixins::VectorLikeProxy < object_value, std::vector<object_value_item> > {
+				std::vector<object_value_item> members_v;
+
+				object_value( ) = default;
+				~object_value( ) = default;
+
+				object_value( object_value const & ) = default;
+				object_value( object_value && ) = default;
+
+				object_value & operator=( object_value const & ) = default;
+				object_value & operator=( object_value && ) = default;
+
+
+				inline std::vector<object_value_item> & container( ) {
+					return members_v;
+				}
+
+				inline std::vector<object_value_item> const & container( ) const {
+					return members_v;
+				}
+
+				using key_type = std::string;
+				using mapped_type = value_t;
+
+				iterator find( boost::string_ref const key );
+				const_iterator find( boost::string_ref const key ) const;
+
+				mapped_type & operator[]( boost::string_ref key );
+				mapped_type const & operator[]( boost::string_ref key ) const;
+			};	// struct object_value
+
+
+			struct array_value final {
+				std::vector<value_t> items;
+			};	// struct array_value
 
 			class value_t {
 				struct u_value_t {

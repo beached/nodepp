@@ -90,6 +90,11 @@ namespace daw {
 				return { str.begin( ), str.size( ) };
 			}
 
+			std::ostream& operator<<( std::ostream& os, string_value const& value ) {
+				os << to_string( value );
+				return os;
+			}
+
 			void value_t::u_value_t::clear( ) {
 				memset( this, 0, sizeof( u_value_t ) );
 			}
@@ -319,7 +324,7 @@ namespace daw {
 					break;
 				case value_t::value_types::object: {
 					ss << "{ ";
-					const auto & items = value.get_object( ).members;
+					const auto & items = value.get_object( ).members_v;
 					if( !items.empty( ) ) {
 						ss << '"' << items[0].first << "\" : " << items[0].second;
 						for( size_t n = 1; n < items.size( ); ++n ) {
@@ -358,18 +363,18 @@ namespace daw {
 				return os;
 			}
 
-			object_value_item make_object_value_item( std::string first, value_t second ) {
-				return std::make_pair<std::string, value_t>( std::move( first ), std::move( second ) );
+			object_value_item make_object_value_item( string_value first, value_t second ) {
+				return std::make_pair<string_value, value_t>( std::move( first ), std::move( second ) );
 			}
 
 			object_value::iterator object_value::find( boost::string_ref const key ) {
-				return std::find_if( members.begin( ), members.end( ), [key]( object_value_item const & item ) {
-					return item.first == key;
+				return std::find_if( members_v.begin( ), members_v.end( ), [key]( object_value_item const & item ) {
+					return boost::string_ref( item.first.begin( ), item.first.end( ) ) == key;
 				} );
 			}
 
 			object_value::const_iterator object_value::find( boost::string_ref const key ) const {
-				return std::find_if( members.cbegin( ), members.cend( ), [key]( object_value_item const & item ) {
+				return std::find_if( members_v.cbegin( ), members_v.cend( ), [key]( object_value_item const & item ) {
 					return item.first == key;
 				} );
 			}

@@ -24,7 +24,9 @@
 #include <cstdlib>
 #include <boost/iostreams/device/mapped_file.hpp>
 #include <iostream>
+#include <mutex>
 
+#pragma omp single
 int main( int argc, char** argv ) {
 	if( argc <= 1 ) {
 		std::cerr << "Must supply a json file" << std::endl;
@@ -45,9 +47,10 @@ int main( int argc, char** argv ) {
 		std::cerr << "Could not find data" << std::endl;
 		exit( EXIT_FAILURE );
 	}
-
+	std::mutex m;
+	std::unique_lock<std::mutex> l;
 	std::cout << "value: " << json << "\n";
-
+	system( "pause" );
 	return EXIT_SUCCESS;
 }
 

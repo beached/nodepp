@@ -128,7 +128,7 @@ namespace daw {
 			std::string value_to_json_object( boost::string_ref name, ::daw::json::impl::object_value const & object ) {
 				std::stringstream result;
 				result << json_name( name ) << "{";
-				auto range = ::daw::range::make_range( object.members.begin( ), object.members.end( ) );
+				auto range = ::daw::range::make_range( object.members_v.begin( ), object.members_v.end( ) );
 				if( !range.empty( ) ) {
 					result << value_to_json( range.front( ).first, range.front( ).second );
 					range.move_next( );
