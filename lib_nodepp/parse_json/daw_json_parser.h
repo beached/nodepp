@@ -134,33 +134,6 @@ namespace daw {
 				std::vector<value_t> items;
 			};
 
-// 			struct string_value final {
-// 				using iterator = char const * const;
-// 				using const_iterator = char const * const;
-// 				using value_type = char const;
-// 				using reference = char const &;
-// 				using const_reference = char const &;
-// 			private:
-// 				char const * const m_begin;
-// 				char const * const m_end;
-// 			public:
-// 				string_value( );	
-// 				string_value( char const * const first, char const * const last );
-// 				~string_value( ) = default;
-// 				string_value( string_value const & ) = default;
-// 				string_value( string_value && ) = default;
-// 				string_value & operator=( string_value const & ) = default;
-// 				string_value & operator=( string_value && ) = default;
-// 
-// 				const_iterator begin( ) const;
-// 				const_iterator end( ) const;
-// 
-// 				const_reference operator[]( size_t pos ) const;
-// 				size_t size( ) const;
-// 			};
-
-//			std::string to_string( string_value const & str );
-
 			using object_value_item = std::pair < std::string, value_t > ;
 
 			object_value_item make_object_value_item( std::string first, value_t second );
@@ -211,7 +184,7 @@ namespace daw {
 
 		template<> int64_t const & get<int64_t>( impl::value_t const & val );
 		template<> double const & get<double>( impl::value_t const & val );
-		template<> std::string const & get<std::string>( impl::value_t const & val );
+		template<> std::string get<std::string>( impl::value_t const & val );
 		template<> bool const & get<bool>( impl::value_t const & val );
 		template<> impl::object_value const & get<impl::object_value>( impl::value_t const & val );
 		template<> impl::array_value const & get<impl::array_value>( impl::value_t const & val );
