@@ -78,7 +78,7 @@ namespace daw {
 			}
 			
 			size_t string_value::size( ) const {
-				return std::distance( m_begin, m_end );
+				return static_cast<size_t>(std::distance( m_begin, m_end ));
 			}
 
 			void string_value::clear( ) {
