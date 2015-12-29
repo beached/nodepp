@@ -72,7 +72,7 @@ namespace daw {
 			std::string to_string( string_value const & str );
 
 			class value_t {
-				union {
+				union u_value_t {
 					int64_t integral;
 					double real;
 					string_value string_v;
@@ -80,6 +80,8 @@ namespace daw {
 					std::nullptr_t null;
 					array_value* array;
 					object_value* object;
+
+					u_value_t( ) = default;
 				} m_value;
 			public:
 				enum class value_types { integral, real, string, boolean, null, array, object };

@@ -80,7 +80,7 @@ namespace daw {
 				return { str.begin( ), str.end( ) };
 			}
 
-			value_t::value_t( ) : m_value_type( value_types::null ) {
+			value_t::value_t( ) : m_value( 0 ), m_value_type( value_types::null ) {
 				m_value.null = nullptr;
 			}
 
