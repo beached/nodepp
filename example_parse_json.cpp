@@ -31,7 +31,7 @@ int main( int argc, char** argv ) {
 		exit( EXIT_FAILURE );
 	}
 	boost::iostreams::mapped_file_source json_str;
-	json_str.open( "argv[1]" );
+	json_str.open( argv[1] );
 	if( !json_str.is_open( ) ) {
 		std::cerr << "Error opening file: " << argv[1] << std::endl;
 		exit( EXIT_FAILURE );
