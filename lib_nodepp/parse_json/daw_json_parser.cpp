@@ -127,11 +127,11 @@ namespace daw {
 			}
 
 			value_t::value_t( array_value value ) : m_value_type( value_types::array ) {
-				m_value.array = new array_value( std::move( value ) );
+				m_value.array_v = std::move( value );
 			}
 
 			value_t::value_t( object_value value ) : m_value_type( value_types::object ) {
-				m_value.object_v = std::move( value );
+				m_value.object = std::move( value );
 			}
 
 			value_t::value_t( value_t const & other ): m_value_type( other.m_value_type ) {
@@ -140,10 +140,10 @@ namespace daw {
 					m_value.string = other.m_value.string;
 					break;
 				case value_types::array:
-					m_value.array = new array_value( *other.m_value.array );
+					m_value.array_v = other.m_value.array_v;
 					break;
 				case value_types::object:
-					m_value.object_v = other.m_value.object_v;
+					m_value.object = other.m_value.object;
 					break;
 				case value_types::integral:
 				case value_types::real:
@@ -162,10 +162,10 @@ namespace daw {
 						m_value.string = rhs.m_value.string;
 						break;
 					case value_types::array:
-						m_value.array = new array_value( *rhs.m_value.array );
+						m_value.array_v = rhs.m_value.array_v;
 						break;
 					case value_types::object:
-						m_value.object_v = rhs.m_value.object_v;
+						m_value.object = rhs.m_value.object;
 						break;
 					case value_types::integral:
 					case value_types::real:
@@ -266,24 +266,22 @@ namespace daw {
 
 			object_value const & value_t::get_object( ) const {
 				assert( m_value_type == value_types::object );
-				return m_value.object_v;
+				return m_value.object;
 			}
 
 			object_value & value_t::get_object( ) {
 				assert( m_value_type == value_types::object );
-				return m_value.object_v;
+				return m_value.object;
 			}
 
 			array_value const & value_t::get_array( ) const {
 				assert( m_value_type == value_types::array );
-				assert( m_value.array != nullptr );
-				return *m_value.array;
+				return m_value.array_v;
 			}
 
 			array_value & value_t::get_array( ) {
 				assert( m_value_type == value_types::array );
-				assert( m_value.array != nullptr );
-				return *m_value.array;
+				return m_value.array_v;
 			}
 
 			void value_t::cleanup( ) {

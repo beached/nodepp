@@ -75,7 +75,9 @@ namespace daw {
 			};	// struct object_value
 
 
-			struct array_value;
+			struct array_value final {
+				std::vector<value_t> items;
+			};	// struct array_value
 
 			struct string_value final {
 				using iterator = char const * const;
@@ -118,10 +120,9 @@ namespace daw {
 						double real;
 						string_value string;
 						bool boolean;
-						//std::nullptr_t null;
-						array_value* array;
 					};
-					object_value object_v;
+					array_value array_v;
+					object_value object;
 					
 					void clear( );
 				} m_value;
@@ -169,10 +170,6 @@ namespace daw {
 			};
 
 			using value_opt_t = boost::optional < value_t > ;
-
-			struct array_value final {
-				std::vector<value_t> items;
-			};
 
 			std::string to_string( value_t const & value );
 			std::string to_string( std::ostream& os, std::shared_ptr<value_t> const & value );
