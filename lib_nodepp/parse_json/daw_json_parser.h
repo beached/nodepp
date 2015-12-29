@@ -51,9 +51,7 @@ namespace daw {
 				char const * m_begin;
 				char const * m_end;
 			public:
-				string_value( );
-				string_value( char const * const first, char const * const last );
-				string_value( std::string const & str );
+				string_value( ) = default;
 				~string_value( ) = default;
 				string_value( string_value const & ) = default;
 				string_value( string_value && ) = default;
@@ -64,24 +62,28 @@ namespace daw {
 				const_iterator begin( ) const;
 				const_iterator end( ) const;
 
+				void set( const_iterator first, const_iterator last );
+				void set( std::string const & str );
+
 				const_reference operator[]( size_t pos ) const;
 				size_t size( ) const;
 				void clear( );
 			};
 			
+			string_value create_string_value( char const * const first, char const * const last );
+			string_value create_string_value( std::string const & str );
+
 			std::string to_string( string_value const & str );
 
 			class value_t {
 				union u_value_t {
 					int64_t integral;
 					double real;
-					string_value string_v;
+					string_value string;
 					bool boolean;
 					std::nullptr_t null;
 					array_value* array;
 					object_value* object;
-
-					u_value_t( ) = default;
 				} m_value;
 			public:
 				enum class value_types { integral, real, string, boolean, null, array, object };
@@ -93,6 +95,7 @@ namespace daw {
 				explicit value_t( double const & value );
 				explicit value_t( std::string const & value );
 				explicit value_t( boost::string_ref value );
+				explicit value_t( string_value value );
 				explicit value_t( bool value );
 				explicit value_t( std::nullptr_t value );
 				explicit value_t( array_value value );
@@ -106,7 +109,7 @@ namespace daw {
 				int64_t & get_integral( );
 				double const & get_real( ) const;
 				double & get_real( );
-				std::string const & get_string( ) const;
+				std::string get_string( ) const;
 				bool const & get_boolean( ) const;
 				bool & get_boolean( );
 				object_value const & get_object( ) const;

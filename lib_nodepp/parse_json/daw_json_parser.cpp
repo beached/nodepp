@@ -35,18 +35,18 @@ namespace daw {
 		namespace impl {
 			using namespace daw::range;
 
-			string_value::string_value( ): 
-				m_begin( nullptr ),
-				m_end( nullptr ) { }
+			string_value create_string_value( char const * const first, char const * const last ) {
+				string_value result;
+				result.set( first, last );
+				return result;
+			}
 
-			
-			string_value::string_value( char const * const first, char const * const last ):
-				m_begin( first ),
-				m_end( last + 1 ) { }
+			string_value create_string_value( std::string const & str ) {
+				string_value result;
+				result.set( str );
+				return result;
+			}
 
-			string_value::string_value( std::string const & str ):
-				m_begin( str.data( ) ),
-				m_end( str.data( ) + str.size( ) ) { }
 
 			string_value::const_iterator string_value::begin( ) const {
 				return m_begin;
@@ -54,6 +54,16 @@ namespace daw {
 
 			string_value::const_iterator string_value::end( ) const {
 				return m_end;
+			}
+
+			void string_value::set( const_iterator first, const_iterator last ) {
+				m_begin = first;
+				m_end = last + 1;
+			}
+
+			void string_value::set( std::string const & str ) {
+				m_begin = str.data( );
+				m_end = str.data( ) + str.length( );
 			}
 
 			string_value & string_value::operator=( std::string const & str ) {
@@ -80,7 +90,7 @@ namespace daw {
 				return { str.begin( ), str.end( ) };
 			}
 
-			value_t::value_t( ) : m_value( 0 ), m_value_type( value_types::null ) {
+			value_t::value_t( ) : m_value_type( value_types::null ) {
 				m_value.null = nullptr;
 			}
 
@@ -93,11 +103,15 @@ namespace daw {
 			}
 
 			value_t::value_t( std::string const & value ) : m_value_type( value_types::string ) {
-				m_value.string_v = value;
+				m_value.string = create_string_value( value );
 			}
 
 			value_t::value_t( boost::string_ref value ): m_value_type( value_types::string ) {
-				m_value.string_v = string_value( value.begin( ), value.end( ) );
+				m_value.string.set( value.data( ), value.data( ) + (value.size( )-1) );
+			}
+
+			value_t::value_t( string_value value ): m_value_type( value_types::string ) {
+				m_value.string = value;
 			}
 
 			value_t::value_t( bool value ) : m_value_type( value_types::boolean ) {
@@ -119,7 +133,7 @@ namespace daw {
 			value_t::value_t( value_t const & other ): m_value_type( other.m_value_type ) {
 				switch( m_value_type ) {
 				case value_types::string:
-					m_value.string_v = other.m_value.string_v;
+					m_value.string = other.m_value.string;
 					break;
 				case value_types::array:
 					m_value.array = new array_value( *other.m_value.array );
@@ -141,7 +155,7 @@ namespace daw {
 					m_value_type = rhs.m_value_type;
 					switch( m_value_type ) {
 					case value_types::string:
-						m_value.string_v = rhs.m_value.string_v;
+						m_value.string = rhs.m_value.string;
 						break;
 					case value_types::array:
 						m_value.array = new array_value( *rhs.m_value.array );
@@ -164,7 +178,7 @@ namespace daw {
 			value_t::value_t( value_t && other ) :
 				m_value( std::move( other.m_value ) ),
 				m_value_type( std::move( other.m_value_type ) ) {
-				other.m_value.string_v.clear( );
+				other.m_value.string.clear( );
 				other.m_value_type = value_types::null;
 			}
 
@@ -172,7 +186,7 @@ namespace daw {
 				if( this != &rhs ) {
 					m_value = std::move( rhs.m_value );
 					m_value_type = std::move( rhs.m_value_type );
-					rhs.m_value.string_v.clear( );
+					rhs.m_value.string.clear( );
 					rhs.m_value_type = value_types::null;
 				}
 				return *this;
@@ -212,10 +226,10 @@ namespace daw {
 				return m_value.real;
 			}
 
-			std::string const & value_t::get_string( ) const {
+			std::string value_t::get_string( ) const {
 				assert( m_value_type == value_types::string );
-				assert( m_value.string_v.begin( ) != nullptr );
-				return to_string( m_value.string_v );
+				assert( m_value.string.begin( ) != nullptr );
+				return to_string( m_value.string );
 			}
 			
 			bool value_t::is_integral( ) const {
@@ -273,7 +287,7 @@ namespace daw {
 			void value_t::cleanup( ) {
 				switch( m_value_type ) {
 				case value_types::string:
-					m_value.string_v.clear( );
+					m_value.string.clear( );
 					m_value_type = value_types::null;					
 					break;
 				case value_types::object:
@@ -483,7 +497,7 @@ namespace daw {
 						current.move_next( );
 					}
 					if( !at_end( current ) ) {
-						auto result = value_opt_t( std::string( range.first + 1, current.first ) );
+						auto result = value_t( string_value( range.first + 1, current.first ) );
 						current.move_next( );
 						range = current;
 						return result;
