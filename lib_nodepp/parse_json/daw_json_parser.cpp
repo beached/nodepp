@@ -406,7 +406,7 @@ namespace daw {
 			object_value::mapped_type & object_value::operator[]( boost::string_ref key ) {
 				auto pos = find( key );
 				if( end( ) == pos ) {
-					pos = insert( pos, std::make_pair<std::string, value_t>( key.to_string( ), value_t( nullptr ) ) );
+					pos = insert( pos, std::make_pair<string_value, value_t>( key.to_string( ), value_t( nullptr ) ) );
 				}
 				return pos->second;
 			}
