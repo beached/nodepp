@@ -41,12 +41,15 @@ namespace daw {
 				return result;
 			}
 
-			string_value create_string_value( std::string const & str ) {
+			string_value create_string_value(boost::string_ref const& str) {
 				string_value result;
-				result.set( str );
+				result.set( str.begin( ), str.end( ) );
 				return result;
 			}
 
+			string_value::operator boost::basic_string_ref<char>() const {
+				return boost::string_ref( begin( ), size( ) );
+			}
 
 			string_value::const_iterator string_value::begin( ) const {
 				return m_begin;
@@ -84,6 +87,14 @@ namespace daw {
 			void string_value::clear( ) {
 				m_begin = nullptr;
 				m_end = nullptr;
+			}
+			
+			bool operator==( string_value const & first, string_value const & second ) {
+				return std::equal( first.begin( ), first.end( ), second.begin( ) );
+			}
+
+			bool operator==( string_value const & first, boost::string_ref const & second ) {
+				return std::equal( first.begin( ), first.end( ), second.begin( ) );
 			}
 
 			std::string to_string( string_value const & str ) {
@@ -369,12 +380,12 @@ namespace daw {
 
 			object_value::iterator object_value::find( boost::string_ref const key ) {
 				return std::find_if( members_v.begin( ), members_v.end( ), [key]( object_value_item const & item ) {
-					return boost::string_ref( item.first.begin( ), item.first.end( ) ) == key;
+					return item.first == key;
 				} );
 			}
 
 			object_value::const_iterator object_value::find( boost::string_ref const key ) const {
-				return std::find_if( members_v.cbegin( ), members_v.cend( ), [key]( object_value_item const & item ) {
+				return std::find_if( members_v.begin( ), members_v.end( ), [key]( object_value_item const & item ) {
 					return item.first == key;
 				} );
 			}
@@ -406,7 +417,7 @@ namespace daw {
 			object_value::mapped_type & object_value::operator[]( boost::string_ref key ) {
 				auto pos = find( key );
 				if( end( ) == pos ) {
-					pos = insert( pos, std::make_pair<string_value, value_t>( key.to_string( ), value_t( nullptr ) ) );
+					pos = insert( pos, std::make_pair<string_value, value_t>( create_string_value( key ), value_t( nullptr ) ) );
 				}
 				return pos->second;
 			}
@@ -575,7 +586,8 @@ namespace daw {
 					}
 					range = current;
 
-					return std::make_pair< std::string, value_t >( std::move( lbl ), std::move( *value ) );
+					
+					return boost::optional<object_value_item>( std::make_pair< std::string, value_t >( std::move( lbl ), std::move( *value ) ) );
 				}
 
 				template<typename Iterator>
@@ -724,3 +736,27 @@ namespace daw {
 
 	}	// namespace json
 }	// namespace daw
+
+namespace {
+	// hash_sequence, borrowed from VS2015's string hash and modified to work with two iterators
+	size_t hash_sequence( char const * first, char const * const last ) {
+		// FNV-1a hash function for bytes in [_First, _First + _Count)
+#if defined(_WIN64)	// TODO Fix for cross platform
+		static_assert(sizeof( size_t ) == 8, "This code is for 64-bit size_t.");
+		size_t const offset_basis = 14695981039346656037ULL;
+		size_t const prime = 1099511628211ULL;
+
+#else /* defined(_WIN64) */
+		static_assert(sizeof( size_t ) == 4, "This code is for 32-bit size_t.");
+		size_t const offset_basis = 2166136261U;
+		size_t const prime = 16777619U;
+#endif /* defined(_WIN64) */
+
+		auto result = offset_basis;
+		for( ; first != last; ++first ) {
+			result ^= static_cast<size_t>(*first);
+			result *= prime;
+		}
+		return result;
+	}
+}

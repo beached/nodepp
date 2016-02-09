@@ -124,7 +124,7 @@ namespace daw {
 				assert( from.is_object( ) );
 
 				auto const & obj = from.get_object( );
-				assert( obj.members.size( ) == 2 );
+				assert( obj.members_v.size( ) == 2 );
 
 				Key key;
 				auto const & key_obj = obj["key"];

@@ -24,9 +24,9 @@ namespace daw {
 			value_t make_type_obj( boost::string_ref name, value_t selected_type ) {
 				object_value result;
 				if( !name.empty( ) ) {
-					result.push_back( make_object_value_item( "name", value_t( name ) ) );
+					result.push_back( make_object_value_item( create_string_value( "name" ), value_t( name ) ) );
 				}
-				result.push_back( make_object_value_item( "type", std::move( selected_type ) ) );
+				result.push_back( make_object_value_item( create_string_value( "type" ), std::move( selected_type ) ) );
 
 				return value_t( std::move( result ) );
 			}

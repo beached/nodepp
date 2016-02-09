@@ -30,12 +30,14 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <string>
 
 #include "daw_common_mixins.h"
 
 namespace daw {
 	namespace json {
 		namespace impl {
+			size_t hash_sequence( char const * first, char const * const last );
 			class value_t;
 			struct null_value final { };
 			
@@ -56,7 +58,7 @@ namespace daw {
 				string_value & operator=( string_value const & ) = default;
 				string_value & operator=( std::string const & str );
 				string_value & operator=( string_value && ) = default;
-
+				operator boost::string_ref( ) const;
 				const_iterator begin( ) const;
 				const_iterator end( ) const;
 
@@ -68,8 +70,11 @@ namespace daw {
 				void clear( );
 			};
 
+			bool operator==( string_value const & first, string_value const & second );
+			bool operator==( string_value const & first, boost::string_ref const & second );
+
 			string_value create_string_value( char const * const first, char const * const last );
-			string_value create_string_value( std::string const & str );
+			string_value create_string_value( boost::string_ref const & str );
 
 			std::string to_string( string_value const & str );
 			std::ostream& operator<<( std::ostream& os, string_value const & value );
@@ -80,7 +85,6 @@ namespace daw {
 
 			struct object_value final: public daw::mixins::VectorLikeProxy < object_value, std::vector<object_value_item> > {
 				std::vector<object_value_item> members_v;
-
 				object_value( ) = default;
 				~object_value( ) = default;
 
@@ -195,3 +199,12 @@ namespace daw {
 		template<> impl::array_value get<impl::array_value>( impl::value_t const & val );
 	}	// namespace json
 }	// namespace daw
+
+namespace std {
+	template<>
+	struct hash<daw::json::impl::string_value> {
+		size_t operator()( daw::json::impl::string_value const & value ) const {
+			return daw::json::impl::hash_sequence( value.begin( ), value.end( ) );
+		}
+	};
+}
