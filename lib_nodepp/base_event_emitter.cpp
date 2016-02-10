@@ -44,7 +44,7 @@ namespace daw {
 
 				bool EventEmitterImpl::at_max_listeners( boost::string_ref event ) {
 					auto result = 0 != m_max_listeners;
-					result &= listeners( )[event.to_string( )].size( ) >= m_max_listeners;
+					result &= listeners( )[event.to_string( )].size( )>= m_max_listeners;
 					return result;
 				}
 

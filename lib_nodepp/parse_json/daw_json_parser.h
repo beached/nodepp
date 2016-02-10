@@ -79,11 +79,11 @@ namespace daw {
 			std::string to_string( string_value const & str );
 			std::ostream& operator<<( std::ostream& os, string_value const & value );
 
-			using object_value_item = std::pair < string_value, value_t >;
+			using object_value_item = std::pair <string_value, value_t>;
 
 			object_value_item make_object_value_item( string_value first, value_t second );
 
-			struct object_value final: public daw::mixins::VectorLikeProxy < object_value, std::vector<object_value_item> > {
+			struct object_value final: public daw::mixins::VectorLikeProxy <object_value, std::vector<object_value_item>> {
 				std::vector<object_value_item> members_v;
 				object_value( ) = default;
 				~object_value( ) = default;
@@ -174,7 +174,7 @@ namespace daw {
 				bool is_object( ) const;
 			};
 
-			using value_opt_t = boost::optional < value_t > ;
+			using value_opt_t = boost::optional <value_t> ;
 
 			std::string to_string( value_t const & value );
 			std::string to_string( std::ostream& os, std::shared_ptr<value_t> const & value );
@@ -182,7 +182,7 @@ namespace daw {
 			std::ostream& operator<<( std::ostream& os, value_t const & value );
 			std::ostream& operator<<( std::ostream& os, std::shared_ptr<value_t> const & value );
 		}	// namespace impl
-		using json_obj = std::shared_ptr < impl::value_t > ;
+		using json_obj = std::shared_ptr <impl::value_t> ;
 
 		json_obj parse_json( boost::string_ref const json_text );
 

@@ -69,7 +69,7 @@ namespace daw {
 
 			std::ostream& operator<<( std::ostream& os, Error const & error );
 
-			using OptionalError = std::shared_ptr < Error >;
+			using OptionalError = std::shared_ptr <Error>;
 
 			//////////////////////////////////////////////////////////////////////////
 			/// Summary:	Create a null error (e.g. no error)

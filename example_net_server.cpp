@@ -53,7 +53,7 @@ int main( int argc, char const ** argv ) {
 	po::notify( vm );
 
 	if( vm.count( "help" ) ) {
-		std::cout << desc << std::endl;
+		std::cout <<desc <<std::endl;
 		return EXIT_SUCCESS;
 	}
 
@@ -67,7 +67,7 @@ int main( int argc, char const ** argv ) {
 		ctx.use_private_key_file( key.c_str( ), context::pem );
 	}
 	srv->on_connection( [&]( NetSocketStream socket ) {
-		std::cout << "Connection from: " << socket->remote_address( ) << ":" << socket->remote_port( ) << std::endl;
+		std::cout <<"Connection from: " <<socket->remote_address( ) <<":" <<socket->remote_port( ) <<std::endl;
 
 		socket->on_data_received( [socket]( std::shared_ptr<daw::nodepp::base::data_t> data_buffer, bool ) mutable {
 			if( data_buffer ) {
@@ -75,30 +75,30 @@ int main( int argc, char const ** argv ) {
 				if( msg == "quit" ) {
 					socket->end( "GOOD-BYTE\r\n" );
 				} else if( msg == "dir" ) {
-					socket << get_directory_listing( "." ) << "\r\nREADY\r\n";
+					socket <<get_directory_listing( "." ) <<"\r\nREADY\r\n";
 				} else if( msg == "help" ) {
-					socket << "quit - close connection\r\n";
-					socket << "dir - show directory listing\r\n";
-					socket << "help - this message\r\n";
-					socket << "READY\r\n";
+					socket <<"quit - close connection\r\n";
+					socket <<"dir - show directory listing\r\n";
+					socket <<"help - this message\r\n";
+					socket <<"READY\r\n";
 				} else if( msg == "starttls" ) {
 					NetSocketStream local_socket = socket;
 					socket->socket( ).async_handshake( impl::BoostSocket::BoostSocketValueType::handshake_type::server, [local_socket]( auto const & error ) mutable {
 						if( error ) {
-							std::cerr << "Error starting encryption: " << error << ": " << error.message( ) << std::endl;
+							std::cerr <<"Error starting encryption: " <<error <<": " <<error.message( ) <<std::endl;
 							return;
 						}
-						local_socket << "Encryption enabled\r\n";
+						local_socket <<"Encryption enabled\r\n";
 					} );
 				} else {
-					socket << "SYNTAX ERROR\r\n\nREADY\r\n";
+					socket <<"SYNTAX ERROR\r\n\nREADY\r\n";
 				}
 			}
 		} ).on_error( []( auto error ) {
-			std::cerr << "Error while serving: " << error << std::endl;
+			std::cerr <<"Error while serving: " <<error <<std::endl;
 		} ).set_read_mode( NetSocketStreamReadMode::newline );	// Every time a newline is received, on_data_received callback is called
 
-		socket << "READY\r\n";
+		socket <<"READY\r\n";
 
 		socket->read_async( );
 	} );
@@ -117,20 +117,20 @@ std::string get_directory_listing( boost::string_ref folder ) {
 	try {
 		if( exists( p ) ) {
 			if( fs::is_regular_file( p ) ) {
-				ss << p << " size is " << fs::file_size( p ) << "\r\n";
+				ss <<p <<" size is " <<fs::file_size( p ) <<"\r\n";
 			} else if( fs::is_directory( p ) ) {
-				ss << p << " is a directory containing:\n";
+				ss <<p <<" is a directory containing:\n";
 				std::copy( fs::directory_iterator( p ), fs::directory_iterator( ), std::ostream_iterator<fs::directory_entry>( ss, "\r\n" ) );
 			} else {
-				ss << p << " exists, but is neither a regular file nor a directory\n";
+				ss <<p <<" exists, but is neither a regular file nor a directory\n";
 			}
 		} else {
-			ss << p << " does not exist\n";
+			ss <<p <<" does not exist\n";
 		}
 	}
 
 	catch( const fs::filesystem_error& ex ) {
-		ss << "ERROR: " << ex.what( ) << '\n';
+		ss <<"ERROR: " <<ex.what( ) <<'\n';
 	}
 
 	return ss.str( );

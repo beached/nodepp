@@ -38,7 +38,7 @@ namespace daw {
 				namespace impl {
 					class HttpServerResponseImpl;
 				}
-				using HttpServerResponse = std::shared_ptr < impl::HttpServerResponseImpl >;
+				using HttpServerResponse = std::shared_ptr <impl::HttpServerResponseImpl>;
 				HttpServerResponse create_http_server_response( std::weak_ptr<daw::nodepp::lib::net::impl::NetSocketStreamImpl> socket, daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
 
 				namespace impl {

@@ -77,7 +77,7 @@ namespace daw {
 			}
 
 			string_value::const_reference string_value::operator[]( size_t pos ) const {
-				assert( m_begin + pos < m_end );
+				assert( m_begin + pos <m_end );
 				return *(m_begin + pos);
 			}
 			
@@ -103,7 +103,7 @@ namespace daw {
 			}
 
 			std::ostream& operator<<( std::ostream& os, string_value const& value ) {
-				os << to_string( value );
+				os <<to_string( value );
 				return os;
 			}
 
@@ -314,43 +314,43 @@ namespace daw {
 				std::stringstream ss;
 				switch( value.type( ) ) {
 				case value_t::value_types::array: {
-					ss << "[ ";
+					ss <<"[ ";
 					const auto & arry = value.get_array( ).items;
 					if( !arry.empty( ) ) {
-						ss << arry[0];
-						for( size_t n = 1; n < arry.size( ); ++n ) {
-							ss << ", " << arry[n];
+						ss <<arry[0];
+						for( size_t n = 1; n <arry.size( ); ++n ) {
+							ss <<", " <<arry[n];
 						}
 					}
-					ss << " ]";
+					ss <<" ]";
 				}
 												  break;
 				case value_t::value_types::boolean:
-					ss << (value.get_boolean( ) ? "True" : "False");
+					ss <<(value.get_boolean( ) ? "True" : "False");
 					break;
 				case value_t::value_types::integral:
-					ss << value.get_integral( );
+					ss <<value.get_integral( );
 					break;
 				case value_t::value_types::null:
-					ss << "null";
+					ss <<"null";
 					break;
 				case value_t::value_types::object: {
-					ss << "{ ";
+					ss <<"{ ";
 					const auto & items = value.get_object( ).members_v;
 					if( !items.empty( ) ) {
-						ss << '"' << items[0].first << "\" : " << items[0].second;
-						for( size_t n = 1; n < items.size( ); ++n ) {
-							ss << ", \"" << items[n].first << "\" : " << items[n].second;
+						ss <<'"' <<items[0].first <<"\" : " <<items[0].second;
+						for( size_t n = 1; n <items.size( ); ++n ) {
+							ss <<", \"" <<items[n].first <<"\" : " <<items[n].second;
 						}
 					}
-					ss << " }";
+					ss <<" }";
 				}
 												   break;
 				case value_t::value_types::real:
-					ss << value.get_real( );
+					ss <<value.get_real( );
 					break;
 				case value_t::value_types::string:
-					ss << '"' << value.get_string( ) << '"';
+					ss <<'"' <<value.get_string( ) <<'"';
 					break;
 				default:
 					throw std::runtime_error( "Unexpected value type" );
@@ -366,12 +366,12 @@ namespace daw {
 			}
 
 			std::ostream& operator<<( std::ostream& os, value_t const & value ) {
-				os << to_string( value );
+				os <<to_string( value );
 				return os;
 			}
 
 			std::ostream& operator<<(std::ostream& os, std::shared_ptr<value_t> const & value) {
-				os << to_string( value );
+				os <<to_string( value );
 				return os;
 			}
 
@@ -465,7 +465,7 @@ namespace daw {
 
 				template<typename Iterator>
 				bool forward_if_equal( Range<Iterator>& range, boost::string_ref value ) {
-					bool result = std::distance( range.first, range.last ) >= static_cast<typename std::iterator_traits<Iterator>::difference_type>(value.size( ));
+					bool result = std::distance( range.first, range.last )>= static_cast<typename std::iterator_traits<Iterator>::difference_type>(value.size( ));
 					result = result && std::equal( range.first, range.first + value.size( ), std::begin( value ) );
 					if( result ) {
 						safe_advance( range, static_cast<typename std::iterator_traits<Iterator>::difference_type>(value.size( )) );

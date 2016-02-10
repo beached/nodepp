@@ -56,7 +56,7 @@ namespace daw {
 				std::string to_string( UrlAuthInfo const & auth );
 				std::ostream& operator<<( std::ostream& os, UrlAuthInfo const & auth );
 	
-				struct HttpUrlQueryPair: public daw::json::JsonLink < HttpUrlQueryPair > {
+				struct HttpUrlQueryPair: public daw::json::JsonLink <HttpUrlQueryPair> {
 					std::string name;
 					boost::optional<std::string> value;
 
@@ -90,7 +90,7 @@ namespace daw {
 				std::ostream& operator<<( std::ostream& os, HttpAbsoluteUrlPath const & url_path );
 
 				namespace impl {
-					struct HttpUrlImpl: public daw::json::JsonLink < HttpUrlImpl > {
+					struct HttpUrlImpl: public daw::json::JsonLink <HttpUrlImpl> {
 						std::string scheme;
 						boost::optional<UrlAuthInfo> auth_info;
 						std::string host;

@@ -44,12 +44,12 @@ namespace daw {
 
 				std::string to_string( UrlAuthInfo const & auth ) {
 					std::stringstream ss;
-					ss << auth.username << ":" << auth.password;
+					ss <<auth.username <<":" <<auth.password;
 					return ss.str( );
 				}
 
 				std::ostream& operator<<( std::ostream& os, UrlAuthInfo const & auth ) {
-					os << to_string( auth );
+					os <<to_string( auth );
 					return os;
 				}
 
@@ -95,23 +95,23 @@ namespace daw {
 
 				std::string to_string( HttpAbsoluteUrlPath const & url_path ) {
 					std::stringstream ss;
-					ss << url_path.path;
+					ss <<url_path.path;
 					if( url_path.query ) {
 						for( auto const & qp : url_path.query.get( ) ) {
-							ss << "?" << qp.name;
+							ss <<"?" <<qp.name;
 							if( qp.value ) {
-								ss << "=" << qp.value.get( );
+								ss <<"=" <<qp.value.get( );
 							}
 						}
 					}
 					if( url_path.fragment ) {
-						ss << "#" << url_path.fragment.get( );
+						ss <<"#" <<url_path.fragment.get( );
 					}
 					return ss.str( );
 				}
 
 				std::ostream& operator<<( std::ostream& os, HttpAbsoluteUrlPath const & url_path ) {
-					os << to_string( url_path );
+					os <<to_string( url_path );
 					return os;
 				}
 
@@ -150,18 +150,18 @@ namespace daw {
 
 				std::string to_string( impl::HttpUrlImpl const & url ) {
 					std::stringstream ss;
-					ss << url.scheme << "://";
-					ss << url.host;
+					ss <<url.scheme <<"://";
+					ss <<url.host;
 					if( url.port ) {
-						ss << *(url.port);
+						ss <<*(url.port);
 					}
 
 					if( url.auth_info ) {
-						ss << *(url.auth_info) << "@";
+						ss <<*(url.auth_info) <<"@";
 					}
 
 					if( url.path ) {
-						ss << "/" << *(url.path);
+						ss <<"/" <<*(url.path);
 					}
 
 					return ss.str( );
@@ -169,13 +169,13 @@ namespace daw {
 
 				std::ostream& operator<<( std::ostream& os, http::HttpUrl const & url ) {
 					if( url ) {
-						os << to_string( *url );
+						os <<to_string( *url );
 					}
 					return os;
 				}
 
 				std::ostream& operator<<( std::ostream& os, impl::HttpUrlImpl const & url ) {
-					os << to_string( url );
+					os <<to_string( url );
 					return os;	
 				}
 

@@ -55,7 +55,7 @@ namespace daw {
 					//typedef boost::variant<bool, int64_t, double, std::string> value_type;
 					using value_type = boost::variant<bool, int64_t, double, std::string, std::initializer_list<bool>, std::initializer_list<int64_t>, std::initializer_list<double>, std::initializer_list<std::string>>;
 				private:
-					using dictionary_t = std::unordered_map < std::string, value_type>;
+					using dictionary_t = std::unordered_map <std::string, value_type>;
 					dictionary_t m_dictionary;
 				public:
 					HttpClientConnectionOptions( ) = default;

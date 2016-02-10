@@ -56,8 +56,8 @@ namespace daw {
 						socket->on_connected( [socket, scheme, request, host, port]( ) mutable {
 							auto const & request_line = request->request_line;
 							std::stringstream ss;
-							ss << to_string( request_line.method ) << " " << to_string( request_line.url ) << " HTTP/1.1\r\n";
-							ss << "Host: " << host << ":" << std::to_string( port ) << "\r\n\r\n";
+							ss <<to_string( request_line.method ) <<" " <<to_string( request_line.url ) <<" HTTP/1.1\r\n";
+							ss <<"Host: " <<host <<":" <<std::to_string( port ) <<"\r\n\r\n";
 							auto msg = ss.str( );
 							socket->end( msg );
 							socket->set_read_mode( net::NetSocketStreamReadMode::double_newline );
@@ -65,9 +65,9 @@ namespace daw {
 						} ).on_data_received( [socket]( std::shared_ptr<base::data_t> data_buffer, bool ) {
 							if( data_buffer ) {
 								for( auto const & ch : *data_buffer ) {
-									std::cout << ch;
+									std::cout <<ch;
 								}
-								std::cout << std::endl;
+								std::cout <<std::endl;
 							}
 						} );
 
@@ -94,8 +94,8 @@ namespace daw {
 				// TODO: should be returning a response
 				void get( boost::string_ref url_string, std::initializer_list<std::pair<std::string, HttpClientConnectionOptions::value_type>> options, std::function<void( HttpClientResponseMessage )> on_completion ) {				
 					auto url = parse_url( url_string );
-					std::cout << "url: " << url->encode( ) << std::endl;
-					std::cout << "url: " << url << std::endl;
+					std::cout <<"url: " <<url->encode( ) <<std::endl;
+					std::cout <<"url: " <<url <<std::endl;
 				}
 			}	// namespace http
 		} // namespace lib

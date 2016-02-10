@@ -55,7 +55,7 @@ namespace daw {
 					ServiceHandle::run( );
 					break;
 				case StartServiceMode::OnePerCore:
-					for( int n = 0; n < static_cast<int>(std::thread::hardware_concurrency( )) - 1; ++n ) {
+					for( int n = 0; n <static_cast<int>(std::thread::hardware_concurrency( )) - 1; ++n ) {
 						std::async( []( ) {
 							ServiceHandle::run( );
 						} );

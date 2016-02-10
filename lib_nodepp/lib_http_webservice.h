@@ -43,18 +43,18 @@ namespace daw {
 
 				namespace impl {
 					template<typename ResultType, typename... Argument>
-					class HttpWebServiceImpl final: public daw::nodepp::base::enable_shared<HttpWebServiceImpl<ResultType, Argument...>>, public daw::nodepp::base::StandardEvents < HttpWebServiceImpl<ResultType, Argument...> > {
+					class HttpWebServiceImpl final: public daw::nodepp::base::enable_shared<HttpWebServiceImpl<ResultType, Argument...>>, public daw::nodepp::base::StandardEvents <HttpWebServiceImpl<ResultType, Argument...>> {
 						static_assert(sizeof...(Argument) <= 1, "Either 1 or 0 arguments are accepted");
-						// 						static_assert < std::is_base_of<JsonLink<ResultType>, ResultType>::value, "ResultType must derive from JsonLink<ResultType>" );
-						// 						static_assert < std::is_base_of<JsonLink<Argument...>, ResultType>::value, "Argument must derive from JsonLink<Argument>" );
+						// 						static_assert <std::is_base_of<JsonLink<ResultType>, ResultType>::value, "ResultType must derive from JsonLink<ResultType>" );
+						// 						static_assert <std::is_base_of<JsonLink<Argument...>, ResultType>::value, "Argument must derive from JsonLink<Argument>" );
 						daw::nodepp::lib::http::HttpClientRequestMethod m_method;
 						std::string m_base_path;
-						std::function < ResultType( Argument const & ... )> m_handler;
+						std::function <ResultType( Argument const & ... )> m_handler;
 						bool m_synchronous;
 					public:
 						HttpWebServiceImpl( ) = delete;
-						HttpWebServiceImpl( daw::nodepp::lib::http::HttpClientRequestMethod method, boost::string_ref base_path, std::function < ResultType( Argument const & ... )> handler, bool synchronous = false, daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) ):
-							daw::nodepp::base::StandardEvents < HttpWebServiceImpl<ResultType, Argument...> >( std::move( emitter ) ),
+						HttpWebServiceImpl( daw::nodepp::lib::http::HttpClientRequestMethod method, boost::string_ref base_path, std::function <ResultType( Argument const & ... )> handler, bool synchronous = false, daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) ):
+							daw::nodepp::base::StandardEvents <HttpWebServiceImpl<ResultType, Argument...>>( std::move( emitter ) ),
 							m_method( std::move( method ) ),
 							m_base_path( base_path.to_string( ) ),
 							m_handler( std::move( handler ) ),
@@ -78,7 +78,7 @@ namespace daw {
 								{
 									daw::json::impl::object_value obj;
 									//auto const & query = request->request_line.url.query;
-									if( sizeof...(Argument) > 0 ) {
+									if( sizeof...(Argument)> 0 ) {
 										if( auto const & query = request->request_line.url.query ) {
 										} else if( request->body ) {
 										}
@@ -105,10 +105,10 @@ namespace daw {
 
 				// TODO: build trait that allows for types that are jsonlink like or have a value_to_json/json_to_value overload
 				template<typename ResultType, typename Argument> //, typename std::enable_if<daw::traits::is_mixed_from<daw::json::JsonLink, ResultType>::value && daw::traits::is_mixed_from<daw::json::JsonLink, Argument>::value, long>::type = 0>
-				using HttpWebService = std::shared_ptr < impl::HttpWebServiceImpl < ResultType, Argument > >;
+				using HttpWebService = std::shared_ptr <impl::HttpWebServiceImpl <ResultType, Argument>>;
 
-				template < typename ResultType, typename Argument> //, typename std::enable_if<daw::traits::is_mixed_from<daw::json::JsonLink, ResultType>::value && daw::traits::is_mixed_from<daw::json::JsonLink, Argument>::value, long>::type = 0>
-				HttpWebService<ResultType, Argument> create_web_service( daw::nodepp::lib::http::HttpClientRequestMethod method, boost::string_ref base_path, std::function < ResultType( Argument const & )> handler, bool synchronous = false ) {
+				template <typename ResultType, typename Argument> //, typename std::enable_if<daw::traits::is_mixed_from<daw::json::JsonLink, ResultType>::value && daw::traits::is_mixed_from<daw::json::JsonLink, Argument>::value, long>::type = 0>
+				HttpWebService<ResultType, Argument> create_web_service( daw::nodepp::lib::http::HttpClientRequestMethod method, boost::string_ref base_path, std::function <ResultType( Argument const & )> handler, bool synchronous = false ) {
 					//
 					return std::make_shared<impl::HttpWebServiceImpl<ResultType, Argument>>( method, base_path, handler, synchronous );
 				}

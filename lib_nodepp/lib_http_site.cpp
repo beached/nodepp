@@ -43,7 +43,7 @@ namespace daw {
 						return rhs.host == host && rhs.path == path && rhs.method == method;
 					}
 
-					site_registration::site_registration( boost::string_ref Host, boost::string_ref Path, HttpClientRequestMethod Method, std::function < void( HttpClientRequest, HttpServerResponse ) > Listener ):
+					site_registration::site_registration( boost::string_ref Host, boost::string_ref Path, HttpClientRequestMethod Method, std::function <void( HttpClientRequest, HttpServerResponse )> Listener ):
 						host( Host.to_string( ) ),
 						path( Path.to_string( ) ),
 						method( std::move( Method ) ),
@@ -84,7 +84,7 @@ namespace daw {
 											return std::string( );
 										}
 										auto result = daw::string::split( host_it->second, ':' );
-										if( 0 < result.size( ) && result.size( ) <= 2 ) {
+										if( 0 <result.size( ) && result.size( ) <= 2 ) {
 											return result[0];
 										}
 										return std::string( );
@@ -106,11 +106,11 @@ namespace daw {
 
 					void HttpSiteImpl::sort_registered( ) {
 						daw::algorithm::sort( m_registered_sites, []( site_registration const & lhs, site_registration const & rhs ) {
-							return lhs.host < rhs.host;
+							return lhs.host <rhs.host;
 						} );
 
 						daw::algorithm::stable_sort( m_registered_sites, []( site_registration const & lhs, site_registration const & rhs ) {
-							return lhs.path < rhs.path;
+							return lhs.path <rhs.path;
 						} );
 					}
 
@@ -151,7 +151,7 @@ namespace daw {
 						return *this;
 					}
 
-					HttpSiteImpl& HttpSiteImpl::on_any_page_error( std::function < void( HttpClientRequest, HttpServerResponse, uint16_t error_no ) > listener ) {
+					HttpSiteImpl& HttpSiteImpl::on_any_page_error( std::function <void( HttpClientRequest, HttpServerResponse, uint16_t error_no )> listener ) {
 						m_error_listeners[0] = listener;
 						return *this;
 					}
@@ -161,7 +161,7 @@ namespace daw {
 						return *this;
 					}
 
-					HttpSiteImpl& HttpSiteImpl::on_page_error( uint16_t error_no, std::function < void( HttpClientRequest, HttpServerResponse, uint16_t ) > listener ) {
+					HttpSiteImpl& HttpSiteImpl::on_page_error( uint16_t error_no, std::function <void( HttpClientRequest, HttpServerResponse, uint16_t )> listener ) {
 						m_error_listeners[error_no] = std::move( listener );
 						return *this;
 					}
@@ -178,7 +178,7 @@ namespace daw {
 
 					void HttpSiteImpl::emit_page_error( HttpClientRequest request, HttpServerResponse response, uint16_t error_no ) {
 						auto err_it = m_error_listeners.find( error_no );
-						std::function < void( HttpClientRequest, HttpServerResponse, uint16_t )> handler = std::bind( &HttpSiteImpl::default_page_error_listener, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3 );
+						std::function <void( HttpClientRequest, HttpServerResponse, uint16_t )> handler = std::bind( &HttpSiteImpl::default_page_error_listener, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3 );
 
 						if( std::end( m_error_listeners ) != err_it ) {
 							handler = err_it->second;

@@ -44,7 +44,7 @@ int main( int, char const ** ) {
 	using namespace daw::nodepp::lib::net;
 	using namespace daw::nodepp::lib::http;
 
-	struct X: public daw::json::JsonLink < X > {
+	struct X: public daw::json::JsonLink <X> {
 		int value;
 		X( int val = 0 ): value( std::move( val ) ) {
 			set_links( );
@@ -66,7 +66,7 @@ int main( int, char const ** ) {
 	test->connect( site );
 
 	site->on_listening( []( daw::nodepp::lib::net::EndPoint endpoint ) {
-		std::cout << "Listening on " << endpoint << "\n";
+		std::cout <<"Listening on " <<endpoint <<"\n";
 	} ).on_requests_for( HttpClientRequestMethod::Get, "/", [&]( HttpClientRequest request, HttpServerResponse response ) {
 		auto req = request->encode( );
 		request->decode( req );
@@ -82,7 +82,7 @@ int main( int, char const ** ) {
 			.add_header( "Connection", "close" )
 			.end( schema_json );
 	} ).on_error( []( base::Error error ) {
-		std::cerr << error << std::endl;
+		std::cerr <<error <<std::endl;
 	} ).on_page_error( 404, []( lib::http::HttpClientRequest request, lib::http::HttpServerResponse response, uint16_t ) {
 		response->end( "Johnny Five is alive\r\n" );
 	} ).listen_on( 8080 );

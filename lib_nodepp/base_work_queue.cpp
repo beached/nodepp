@@ -43,7 +43,7 @@ namespace daw {
 					task_id( std::move( TaskId ) ) { }
 
 				bool work_item_t::valid( ) const {
-					return task_id > 0 && static_cast<bool>(work_item);
+					return task_id> 0 && static_cast<bool>(work_item);
 				}
 
 				WorkQueueImpl::WorkQueueImpl( uint32_t max_workers, EventEmitter emitter ):
@@ -81,12 +81,12 @@ namespace daw {
 							try {
 								current_item.work_item( current_item.task_id );
 								if( static_cast<bool>(current_item.on_completion) ) {
-									std::cout << "posting completion of task: " << current_item.task_id << "\n";
+									std::cout <<"posting completion of task: " <<current_item.task_id <<"\n";
 									on_main_thread( [current_item]( ) mutable {
 										current_item.on_completion( current_item.task_id, create_optional_error( ) );
 									} );
 								} else {
-									std::cout << "not posting completion of task: " << current_item.task_id << "\n";
+									std::cout <<"not posting completion of task: " <<current_item.task_id <<"\n";
 								}
 							} catch( ... ) {
 								if( current_item.on_completion ) {
@@ -107,7 +107,7 @@ namespace daw {
 					m_continue = true;
 					m_work_queue.reset( );
 					auto self = this->get_ptr( );
-					for( auto n = 0; n < m_max_workers && m_worker_count.count( ) < m_max_workers; ++n ) {
+					for( auto n = 0; n <m_max_workers && m_worker_count.count( ) <m_max_workers; ++n ) {
 						std::async( [self]( ) {
 							while( self->m_continue ) {
 								try {

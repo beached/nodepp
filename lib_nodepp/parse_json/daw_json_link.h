@@ -127,8 +127,8 @@ namespace daw {
 
 		template<typename Derived>
 		class JsonLink {
-			using encode_function_t = std::function < void( std::string & json_text ) >;
-			using decode_function_t = std::function < void( json_obj json_values ) >;
+			using encode_function_t = std::function <void( std::string & json_text )>;
+			using decode_function_t = std::function <void( json_obj json_values )>;
 
 			struct bind_functions_t final {
 				encode_function_t encode;
@@ -210,11 +210,11 @@ namespace daw {
 				auto range = daw::range::make_range( m_data_map );
 				if( !range.empty( ) ) {
 					range.front( ).second.bind_functions.encode( tmp );
-					result << tmp;
+					result <<tmp;
 					range.move_next( );
 					for( auto const & value : range ) {
 						value.second.bind_functions.encode( tmp );
-						result << ", " << tmp;
+						result <<", " <<tmp;
 					}
 				}
 				return details::json_name( m_name ) + details::enbrace( result.str( ) );
@@ -331,7 +331,7 @@ namespace daw {
 					assert( value_ptr );
 					auto result = decoder_helper<int64_t>( name, json_values );
 					assert( result <= std::numeric_limits<T>::max( ) );
-					assert( result >= std::numeric_limits<T>::min( ) );
+					assert( result>= std::numeric_limits<T>::min( ) );
 					*value_ptr = static_cast<T>(result);
 				};
 				m_data_map[impl::create_string_value( name )] = std::move( data_description );
@@ -352,7 +352,7 @@ namespace daw {
 					auto result = nullable_decoder_helper<int64_t>( name, json_values );
 					if( result ) {
 						assert( *result <= std::numeric_limits<T>::max( ) );	// TODO determine if throwing is more appropriate
-						assert( *result >= std::numeric_limits<T>::min( ) );
+						assert( *result>= std::numeric_limits<T>::min( ) );
 					}
 					*value_ptr = static_cast<T>(*result);
 				};
@@ -571,7 +571,7 @@ namespace daw {
 					assert( member->second.is_string( ) );
 					std::stringstream ss( member->second.get_string( ) );
 					auto str = ss.str( );
-					ss >> *value_ptr;
+					ss>> *value_ptr;
 				};
 				m_data_map[impl::create_string_value( name )] = std::move( data_description );
 				return *this;
@@ -582,7 +582,7 @@ namespace daw {
 
 		// 		template<typename Derived>
 		// 		std::ostream& operator<<(std::ostream& os, JsonLink<Derived> const & data) {
-		// 			os << data.encode( );
+		// 			os <<data.encode( );
 		// 			return os;
 		// 		}
 

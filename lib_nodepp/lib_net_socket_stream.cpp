@@ -132,12 +132,12 @@ namespace daw {
 							auto& response_buffers = self->m_response_buffers;
 
 							read_buffer->commit( bytes_transfered );
-							if( 0 < bytes_transfered ) {
+							if( 0 <bytes_transfered ) {
 								std::istream resp( read_buffer.get( ) );
 								auto new_data = std::make_shared<base::data_t>( bytes_transfered, 0 );
 								resp.read( new_data->data( ), static_cast<std::streamsize>(bytes_transfered) );
 								read_buffer->consume( bytes_transfered );
-								if( 0 < self->emitter( )->listener_count( "data_received" ) ) {
+								if( 0 <self->emitter( )->listener_count( "data_received" ) ) {
 									// Handle when the emitter comes after the data starts pouring in.  This might be best placed in newEvent
 									// have not decided
 									if( !response_buffers.empty( ) ) {

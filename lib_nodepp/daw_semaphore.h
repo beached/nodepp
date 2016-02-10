@@ -34,7 +34,7 @@ namespace daw {
 		// Allows threads to wait for the counter to return to 0 after being
 		// incremented with reserve and decremented with notify
 		template<typename Counter>
-		class Semaphore final: public daw::nodepp::base::enable_shared < Semaphore<Counter> > {
+		class Semaphore final: public daw::nodepp::base::enable_shared <Semaphore<Counter>> {
 			mutable std::mutex m_mutex;
 			std::condition_variable m_condition;
 			Counter m_counter;
@@ -57,7 +57,7 @@ namespace daw {
 
 			bool has_outstanding( ) {
 				std::unique_lock<std::mutex> lck( m_mutex );
-				auto result = m_counter >= 0;
+				auto result = m_counter>= 0;
 				lck.unlock( );
 				m_condition.notify_one( );
 				return result;

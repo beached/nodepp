@@ -70,7 +70,7 @@ namespace daw {
 
 				template<typename... Args>
 				void operator( )( Args&&... args ) {
-					using cb_type = std::function < void( typename std::remove_reference<Args>::type... ) >;
+					using cb_type = std::function <void( typename std::remove_reference<Args>::type... )>;
 					try {
 						auto callback = boost::any_cast<cb_type>(m_callback);
 						callback( std::forward<Args>( args )... );

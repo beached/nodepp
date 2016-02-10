@@ -35,7 +35,7 @@ int main( int, char** ) {
 	auto result = daw::system::call_dll_function<std::string>( "./cygtestlib.dll", "test", std::string{ "this is a test" } );
 	#endif
 	
-	std::cout << result << std::endl;
+	std::cout <<result <<std::endl;
 	return 0;
 }
 

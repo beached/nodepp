@@ -41,7 +41,7 @@ namespace daw {
 			std::tm tm = { };
 			localtime_s( &tm, &timestamp );
 			auto count = std::strftime( buffer, 200, format.c_str( ), &tm );
-			assert( count < 200 );
+			assert( count <200 );
 			return std::string( buffer, buffer + count + 1 );
 		}
 
@@ -127,17 +127,17 @@ namespace daw {
 
 			std::string value_to_json_object( boost::string_ref name, ::daw::json::impl::object_value const & object ) {
 				std::stringstream result;
-				result << json_name( name ) << "{";
+				result <<json_name( name ) <<"{";
 				auto range = ::daw::range::make_range( object.members_v.begin( ), object.members_v.end( ) );
 				if( !range.empty( ) ) {
-					result << value_to_json( range.front( ).first, range.front( ).second );
+					result <<value_to_json( range.front( ).first, range.front( ).second );
 					range.move_next( );
 					for( auto const & value : range ) {
-						result << ", " << value_to_json( value.first, value.second );
+						result <<", " <<value_to_json( value.first, value.second );
 					}
 				}
 
-				result << "}";
+				result <<"}";
 				return result.str( );
 			}
 		}	// namespace generate

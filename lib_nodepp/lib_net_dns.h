@@ -39,13 +39,13 @@ namespace daw {
 					class NetDnsImpl;
 				}
 
-				using NetDns = std::shared_ptr < impl::NetDnsImpl >;
+				using NetDns = std::shared_ptr <impl::NetDnsImpl>;
 
 				NetDns create_net_dns( daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
 				using Resolver = boost::asio::ip::tcp::resolver;
 
 				namespace impl {
-					class NetDnsImpl final: public daw::nodepp::base::enable_shared<NetDnsImpl>, public daw::nodepp::base::StandardEvents < NetDnsImpl > {
+					class NetDnsImpl final: public daw::nodepp::base::enable_shared<NetDnsImpl>, public daw::nodepp::base::StandardEvents <NetDnsImpl> {
 						explicit NetDnsImpl( daw::nodepp::base::EventEmitter emitter );
 
 					public:

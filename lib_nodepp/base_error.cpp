@@ -134,30 +134,30 @@ namespace daw {
 			std::string Error::to_string( boost::string_ref prefix ) const {
 				assert( m_keyvalues.find( "description" ) != m_keyvalues.end( ) );
 				std::stringstream ss;
-				ss << prefix << "Description: " << m_keyvalues.at( "description" ) << "\n";
+				ss <<prefix <<"Description: " <<m_keyvalues.at( "description" ) <<"\n";
 				for( auto const & row : m_keyvalues ) {
 					if( row.first.compare( "description" ) != 0 ) {
-						ss << prefix << "'" << row.first << "',	'" << row.second << "'\n";
+						ss <<prefix <<"'" <<row.first <<"',	'" <<row.second <<"'\n";
 					}
 				}
 				if( m_exception ) {
 					try {
 						std::rethrow_exception( m_exception );
 					} catch( std::exception const & ex ) {
-						ss << "Exception message: " << ex.what( ) << "\n";
+						ss <<"Exception message: " <<ex.what( ) <<"\n";
 					} catch( ... ) {
-						ss << "Unknown exception\n";
+						ss <<"Unknown exception\n";
 					}
 				}
 				if( has_child( ) ) {
-					ss << child( ).to_string( prefix.to_string( ) + "# " );
+					ss <<child( ).to_string( prefix.to_string( ) + "# " );
 				}
-				ss << "\n";
+				ss <<"\n";
 				return ss.str( );
 			}
 
 			std::ostream& operator<<( std::ostream& os, Error const & error ) {
-				os << error.to_string( );
+				os <<error.to_string( );
 				return os;
 			}
 

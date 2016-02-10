@@ -42,18 +42,18 @@ namespace daw {
 			template<typename Container, typename std::enable_if<daw::traits::is_container_not_string<Container>::value, long>::type>
 			std::string value_to_json( boost::string_ref name, Container const & values ) {
 				std::stringstream result;
-				result << ::daw::json::details::json_name( name ) << "[ ";
+				result <<::daw::json::details::json_name( name ) <<"[ ";
 				{
 					auto values_range = daw::range::make_range( values.begin( ), values.end( ) );
 					if( !values_range.empty( ) ) {
-						result << value_to_json( "", values_range.front( ) );
+						result <<value_to_json( "", values_range.front( ) );
 						values_range.move_next( );
 						for( auto const & item : values_range ) {
-							result << "," << value_to_json( "", item );
+							result <<"," <<value_to_json( "", item );
 						}
 					}
 				}
-				result << " ]";
+				result <<" ]";
 				return result.str( );
 			}
 
@@ -65,8 +65,8 @@ namespace daw {
 			template<typename Number, typename std::enable_if<std::is_floating_point<Number>::value, int>::type>
 			std::string value_to_json_number( boost::string_ref name, Number const & value ) {
 				std::stringstream ss;
-				ss << ::daw::json::details::json_name( name );
-				ss << std::setprecision( std::numeric_limits<Number>::max_digits10 ) << value;
+				ss <<::daw::json::details::json_name( name );
+				ss <<std::setprecision( std::numeric_limits<Number>::max_digits10 ) <<value;
 				return ss.str( );
 			}
 
@@ -155,7 +155,7 @@ namespace daw {
 				static_assert(!std::is_const<decltype(to)>::value, "To parameter on json_to_value cannot be const");
 				assert( from.is_integral( ) );
 				auto result = get<int64_t>( from );
-				assert( static_cast<int64_t>(std::numeric_limits<T>::max( )) >= result );
+				assert( static_cast<int64_t>(std::numeric_limits<T>::max( ))>= result );
 				assert( static_cast<int64_t>(std::numeric_limits<T>::min( )) <= result );
 				to = static_cast<T>(result);
 			}

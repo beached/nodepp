@@ -41,7 +41,7 @@ namespace daw {
 					using namespace daw::nodepp;
 
 					NetDnsImpl::NetDnsImpl( base::EventEmitter emitter ):
-						daw::nodepp::base::StandardEvents < NetDnsImpl >( std::move( emitter ) ),
+						daw::nodepp::base::StandardEvents <NetDnsImpl>( std::move( emitter ) ),
 						m_resolver( daw::make_unique<Resolver>( base::ServiceHandle::get( ) ) ) { }
 
 					NetDnsImpl::~NetDnsImpl( ) { }

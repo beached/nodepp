@@ -90,13 +90,13 @@ namespace daw {
 				}
 
 				std::ostream& operator<<( std::ostream& os, HttpClientRequestMethod method ) {
-					os << to_string( method );
+					os <<to_string( method );
 					return os;
 				}
 
 				std::istream& operator>>( std::istream& is, HttpClientRequestMethod & method ) {
 					std::string method_string;
-					is >> method_string;
+					is>> method_string;
 					method = http_request_method_from_string( method_string );
 					return is;
 				}

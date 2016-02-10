@@ -33,7 +33,7 @@
 namespace daw {
 	namespace nodepp {
 		namespace base {
-			using plugin_t = std::pair < daw::system::LibraryHandle, std::unique_ptr<daw::nodepp::plugins::IPlugin> >;
+			using plugin_t = std::pair <daw::system::LibraryHandle, std::unique_ptr<daw::nodepp::plugins::IPlugin>>;
 
 			std::vector<boost::filesystem::path> get_files_in_folder( boost::string_ref folder, std::vector<std::string> const& extensions );
 

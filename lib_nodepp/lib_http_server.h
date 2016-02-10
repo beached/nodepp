@@ -38,7 +38,7 @@ namespace daw {
 				namespace impl {
 					class HttpServerImpl;
 				}
-				using HttpServer = std::shared_ptr < impl::HttpServerImpl >;
+				using HttpServer = std::shared_ptr <impl::HttpServerImpl>;
 
 				HttpServer create_http_server( daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
 
@@ -46,7 +46,7 @@ namespace daw {
 					//////////////////////////////////////////////////////////////////////////
 					// Summary:		An HTTP Server class
 					// Requires:	daw::nodepp::lib::net::NetServer
-					class HttpServerImpl final: public daw::nodepp::base::enable_shared<HttpServerImpl>, public daw::nodepp::base::StandardEvents < HttpServerImpl > {
+					class HttpServerImpl final: public daw::nodepp::base::enable_shared<HttpServerImpl>, public daw::nodepp::base::StandardEvents <HttpServerImpl> {
 						daw::nodepp::lib::net::NetServer m_netserver;
 						std::list<HttpServerConnection> m_connections;
 

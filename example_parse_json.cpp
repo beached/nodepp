@@ -29,13 +29,13 @@
 #pragma omp single
 int main( int argc, char** argv ) {
 	if( argc <= 1 ) {
-		std::cerr << "Must supply a json file" << std::endl;
+		std::cerr <<"Must supply a json file" <<std::endl;
 		exit( EXIT_FAILURE );
 	}
 	boost::iostreams::mapped_file_source json_str;
 	json_str.open( argv[1] );
 	if( !json_str.is_open( ) ) {
-		std::cerr << "Error opening file: " << argv[1] << std::endl;
+		std::cerr <<"Error opening file: " <<argv[1] <<std::endl;
 		exit( EXIT_FAILURE );
 	}
 
@@ -44,12 +44,12 @@ int main( int argc, char** argv ) {
 
 	auto json = parse_json( boost::string_ref( json_str.data( ), json_str.size( ) ) );
 	if( !json ) {
-		std::cerr << "Could not find data" << std::endl;
+		std::cerr <<"Could not find data" <<std::endl;
 		exit( EXIT_FAILURE );
 	}
 	std::mutex m;
 	std::unique_lock<std::mutex> l;
-	std::cout << "value: " << json << "\n";
+	std::cout <<"value: " <<json <<"\n";
 	system( "pause" );
 	return EXIT_SUCCESS;
 }

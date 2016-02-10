@@ -147,29 +147,29 @@ namespace daw {
 
 	// For generic types that are functors, delegate to its 'operator()'
 	template <typename T>
-	struct function_traits: public function_traits < decltype(&T::operator()) > { };
+	struct function_traits: public function_traits <decltype(&T::operator())> { };
 
 	// for pointers to member function(const version)
 	template <typename ClassType, typename ReturnType, typename... Args>
-	struct function_traits < ReturnType( ClassType::* )(Args...) const > {
+	struct function_traits <ReturnType( ClassType::* )(Args...) const> {
 		enum { arity = sizeof...(Args) };
-		using type = std::function < ReturnType( Args... ) >;
+		using type = std::function <ReturnType( Args... )>;
 		using result_type = ReturnType;
 	};
 
 	// for pointers to member function
 	template <typename ClassType, typename ReturnType, typename... Args>
-	struct function_traits < ReturnType( ClassType::* )(Args...) > {
+	struct function_traits <ReturnType( ClassType::* )(Args...)> {
 		enum { arity = sizeof...(Args) };
-		using type = std::function < ReturnType( Args... ) >;
+		using type = std::function <ReturnType( Args... )>;
 		using result_type = ReturnType;
 	};
 
 	// for function pointers
 	template <typename ReturnType, typename... Args>
-	struct function_traits < ReturnType( *)(Args...) > {
+	struct function_traits <ReturnType( *)(Args...)> {
 		enum { arity = sizeof...(Args) };
-		using type = std::function < ReturnType( Args... ) >;
+		using type = std::function <ReturnType( Args... )>;
 		using result_type = ReturnType;
 	};
 
@@ -181,19 +181,19 @@ namespace daw {
 
 	//handles bind & multiple function call operator()'s
 	template<typename ReturnType, typename... Args, class T>
-	auto make_function( T&& t )	-> std::function < decltype(ReturnType( t( std::declval<Args>( )... ) ))(Args...) > {
+	auto make_function( T&& t )	-> std::function <decltype(ReturnType( t( std::declval<Args>( )... ) ))(Args...)> {
 		return { std::forward<T>( t ) };
 	}
 
 	//handles explicit overloads
 	template<typename ReturnType, typename... Args>
-	auto make_function( ReturnType( *p )(Args...) )	-> std::function < ReturnType( Args... ) > {
+	auto make_function( ReturnType( *p )(Args...) )	-> std::function <ReturnType( Args... )> {
 		return { p };
 	}
 
 	//handles explicit overloads
 	template<typename ReturnType, typename... Args, typename ClassType>
-	auto make_function( ReturnType( ClassType::*p )(Args...) )	-> std::function < ReturnType( Args... ) > {
+	auto make_function( ReturnType( ClassType::*p )(Args...) )	-> std::function <ReturnType( Args... )> {
 		return { p };
 	}
 
@@ -214,12 +214,12 @@ namespace daw {
 	template<typename T>
 	void copy_vect_and_set( std::vector<T> & source, std::vector<T> & destination, size_t num_items, T const & replacement_value ) {
 		using item_size_t = typename std::vector<T>::difference_type;
-		assert( num_items < std::numeric_limits<item_size_t>::max( ) );
+		assert( num_items <std::numeric_limits<item_size_t>::max( ) );
 		auto first = std::begin( source );
 		auto last = std::end( source );
 		auto max_dist = std::distance( first, last );
 		auto items = static_cast<item_size_t>(num_items);
-		if( items < max_dist ) {
+		if( items <max_dist ) {
 			last = first + items;
 		}
 
@@ -254,19 +254,19 @@ namespace daw {
 		static_assert(std::is_floating_point<U>::value, "Second template parameter must be a floating point type");
 		const auto rnd = std::ceil( static_cast<U>(value) / rnd_by );
 		const auto ret = rnd*rnd_by;
-		assert( ret >= value ); // , __func__": Error, return value should always be greater than or equal to value supplied" );
+		assert( ret>= value ); // , __func__": Error, return value should always be greater than or equal to value supplied" );
 		return static_cast<T>(ret);
 	}
 
 	template<typename T>
 	void copy_vect_and_set( std::shared_ptr<std::vector<T>> & source, std::shared_ptr<std::vector<T>> & destination, size_t num_items, T const & replacement_value ) {
 		using item_size_t = typename std::vector<T>::difference_type;
-		assert( num_items < std::numeric_limits<item_size_t>::max( ) );
+		assert( num_items <std::numeric_limits<item_size_t>::max( ) );
 		auto first = std::begin( *source );
 		auto last = std::end( *source );
 		auto max_dist = std::distance( first, last );
 		auto items = static_cast<item_size_t>(num_items);
-		if( items < max_dist ) {
+		if( items <max_dist ) {
 			last = first + items;
 		}
 
@@ -281,7 +281,7 @@ namespace daw {
 	}
 
 	template<typename Iterator, typename Pred>
-	auto find_all_where( Iterator first, Iterator last, Pred predicate ) -> std::vector < Iterator > {
+	auto find_all_where( Iterator first, Iterator last, Pred predicate ) -> std::vector <Iterator> {
 		std::vector<Iterator> results;
 		for( auto it = first; it != last; ++it ) {
 			if( predicate( *it ) ) {
@@ -292,14 +292,14 @@ namespace daw {
 	}
 
 	template<typename T, typename Pred>
-	auto find_all_where( T const & values, Pred predicate ) -> std::vector < decltype(std::begin( values )) > {
+	auto find_all_where( T const & values, Pred predicate ) -> std::vector <decltype(std::begin( values ))> {
 		return find_all_where( std::begin( values ), std::end( values ), predicate );
 	}
 
 	template<typename Iterator>
 	Iterator advance( Iterator it, Iterator last, typename Iterator::difference_type how_far ) {
 		auto result = it;
-		while( result != last && std::distance( it, result ) < how_far ) { ++it; }
+		while( result != last && std::distance( it, result ) <how_far ) { ++it; }
 		return it;
 	}
 
@@ -349,7 +349,7 @@ namespace daw {
 		if( static_cast<size_t>(std::distance( first, last )) != upper_value.size( ) ) {
 			return false;
 		}
-		for( size_t off = 0; off < upper_value.size( ); ++off ) {
+		for( size_t off = 0; off <upper_value.size( ); ++off ) {
 			auto const & left = upper_value[off];
 			auto const & right = daw::AsciiUpper( *(first + static_cast<std::ptrdiff_t>(off)) );
 			if( left != right ) {

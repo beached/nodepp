@@ -36,7 +36,7 @@ namespace daw {
 							return -1;
 						}
 						auto current_pos = stream.tellg( );
-						if( current_pos < 0 ) {
+						if( current_pos <0 ) {
 							return -1;
 						}
 						stream.seekg( 0, std::ifstream::end );
@@ -60,7 +60,7 @@ namespace daw {
 					}
 
 					auto fsize = in_file.tellg( );
-					if( fsize < 0 ) {
+					if( fsize <0 ) {
 						auto result = base::create_optional_error( "Error reading file length" );
 						result->add( "where", "read_file#tellg" );
 						return result;
@@ -99,7 +99,7 @@ namespace daw {
 
 				base::OptionalError write_file( boost::string_ref path, base::data_t const & buffer, FileWriteMode mode, size_t bytes_to_write ) {
 					// TODO: Write to a temp file first and then move
-					if( 0 == bytes_to_write || bytes_to_write > buffer.size( ) ) {
+					if( 0 == bytes_to_write || bytes_to_write> buffer.size( ) ) {
 						bytes_to_write = buffer.size( );	// TODO: verify this is what we want.  Covers errors but that may be OK
 					}
 					std::ofstream out_file;

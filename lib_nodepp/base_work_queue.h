@@ -39,7 +39,7 @@ namespace daw {
 				class WorkQueueImpl;
 			}	// namespace impl
 
-			using WorkQueue = std::shared_ptr < impl::WorkQueueImpl > ;
+			using WorkQueue = std::shared_ptr <impl::WorkQueueImpl> ;
 
 			WorkQueue create_work_queue( uint32_t max_workers = std::thread::hardware_concurrency( ), daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
 
@@ -57,7 +57,7 @@ namespace daw {
 					bool valid( ) const;
 				};
 
-				class WorkQueueImpl final: public daw::nodepp::base::enable_shared<WorkQueueImpl>, public daw::nodepp::base::StandardEvents < WorkQueueImpl > {
+				class WorkQueueImpl final: public daw::nodepp::base::enable_shared<WorkQueueImpl>, public daw::nodepp::base::StandardEvents <WorkQueueImpl> {
 					daw::concurrent_queue<work_item_t> m_work_queue;
 					std::atomic<bool> m_continue;
 					daw::thread::Semaphore<int> m_worker_count;

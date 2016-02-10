@@ -40,7 +40,7 @@ namespace daw {
 
 			template<typename ResultType, typename... ArgTypes>
 			daw::function_pointer_t<ResultType, ArgTypes...> get_function_address(void* handle, std::string function_name) {
-				using function_ptr_t = daw::function_pointer_t < ResultType, ArgTypes... > ;
+				using function_ptr_t = daw::function_pointer_t <ResultType, ArgTypes...> ;
 				dlerror();
 				auto function_ptr = reinterpret_cast<function_ptr_t>(dlsym(handle, function_name.c_str()));
 				auto has_error = dlerror();

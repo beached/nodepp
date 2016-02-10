@@ -112,7 +112,7 @@ namespace daw {
 				std::string HttpHeaders::to_string( ) {
 					std::stringstream ss;
 					for( auto const& header : headers ) {
-						ss << header.to_string( ) << "\r\n";
+						ss <<header.to_string( ) <<"\r\n";
 					}
 					return ss.str( );
 				}

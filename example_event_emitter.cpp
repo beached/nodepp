@@ -54,7 +54,7 @@ int main( int, char const ** ) {
 	} );
 
 	event_emitter->on( "done", []( double Asqm ) {
-		std::cout << Asqm << std::endl;
+		std::cout <<Asqm <<std::endl;
 	} );
 
 	auto srv = std::async( [event_emitter]( ) {

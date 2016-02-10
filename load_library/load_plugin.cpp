@@ -38,11 +38,11 @@ namespace daw {
 		namespace base {
 			using namespace daw::algorithm;
 
-			using plugin_t = std::pair < daw::system::LibraryHandle, std::unique_ptr<daw::nodepp::plugins::IPlugin> >;
+			using plugin_t = std::pair <daw::system::LibraryHandle, std::unique_ptr<daw::nodepp::plugins::IPlugin>>;
 
 			std::vector<boost::filesystem::path> get_files_in_folder( boost::string_ref folder, std::vector<std::string> const& extensions ) {
 				namespace fs = boost::filesystem;
-				auto result = std::vector < fs::path > { };
+				auto result = std::vector <fs::path> { };
 				auto p = fs::path( folder.data( ) );
 
 				if( fs::exists( p ) && fs::is_directory( p ) ) {
@@ -68,8 +68,8 @@ namespace daw {
 						// We are going to keep on going if we cannot load a plugin
 						std::stringstream ss;
 
-						ss << "Error loading plugin: " << filename << " with error\n" << ex.what( ) << std::endl;
-						std::cerr << ss.str( ) << std::endl;
+						ss <<"Error loading plugin: " <<filename <<" with error\n" <<ex.what( ) <<std::endl;
+						std::cerr <<ss.str( ) <<std::endl;
 					}
 				}
 

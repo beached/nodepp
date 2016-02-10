@@ -34,8 +34,8 @@
 namespace daw {
 	namespace nodepp {
 		namespace base {
-			using options_t = std::map < std::string, boost::any >;
-			using data_t = std::vector < char >;
+			using options_t = std::map <std::string, boost::any>;
+			using data_t = std::vector <char>;
 		}	// namespace base
 	}	// namespace nodepp
 }	// namespace daw

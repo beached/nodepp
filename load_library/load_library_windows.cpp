@@ -69,7 +69,7 @@ namespace daw {
 				if (!result) {
 					std::stringstream msg;
 					auto error_info = GetLastErrorAsString( );
-					msg << "Could not open library: error no: " << error_info.first << " with message: " << error_info.second;
+					msg <<"Could not open library: error no: " <<error_info.first <<" with message: " <<error_info.second;
 					throw std::runtime_error( msg.str( ) );
 				}
 				return result;

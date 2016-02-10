@@ -38,7 +38,7 @@ namespace daw {
 	namespace nodepp {
 		namespace base {
 			template<typename Derived>
-			struct enable_shared: public std::enable_shared_from_this < Derived > {
+			struct enable_shared: public std::enable_shared_from_this <Derived> {
 				std::shared_ptr<Derived> get_ptr( ) { return static_cast<Derived*>(this)->shared_from_this( ); }
 				std::weak_ptr<Derived> get_weak_ptr( ) { return this->get_ptr( ); }
 			protected:
@@ -49,7 +49,7 @@ namespace daw {
 				struct EventEmitterImpl;
 			}	// namespace impl
 
-			using EventEmitter = ::std::shared_ptr < impl::EventEmitterImpl >;
+			using EventEmitter = ::std::shared_ptr <impl::EventEmitterImpl>;
 
 			EventEmitter create_event_emitter( );
 
@@ -61,8 +61,8 @@ namespace daw {
 				///	Requires:	base::Callback
 				///
 				struct EventEmitterImpl final {
-					using listener_list_t = std::vector < std::pair<bool, Callback> >;
-					using listeners_t = std::unordered_map < std::string, listener_list_t >;
+					using listener_list_t = std::vector <std::pair<bool, Callback>>;
+					using listeners_t = std::unordered_map <std::string, listener_list_t>;
 					using callback_id_t = Callback::id_t;
 				private:
 					const int_least8_t c_max_emit_depth = 100;	// TODO: Magic Number
@@ -157,7 +157,7 @@ namespace daw {
 							throw std::runtime_error( "Empty event name passed to emit" );
 						}
 
-						if( ++(*m_emit_depth) > c_max_emit_depth ) {
+						if( ++(*m_emit_depth)> c_max_emit_depth ) {
 							throw std::runtime_error( "Max callback depth reached.  Possible loop" );
 						}
 						emit_impl( event, std::forward<Args>( args )... );

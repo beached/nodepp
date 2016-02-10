@@ -45,7 +45,7 @@ namespace daw {
 	};
 
 	template<class Result, class Func>
-	forwarding_visitor<Result, std::decay_t<Func> > make_forwarding_visitor( Func && func ) {
+	forwarding_visitor<Result, std::decay_t<Func>> make_forwarding_visitor( Func && func ) {
 		return { std::forward<Func>( func ) };
 	}
 

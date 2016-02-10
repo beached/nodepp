@@ -58,7 +58,7 @@ namespace daw {
 			}
 
 			Range& move_back( Iterator start ) {
-				assert( first > start );
+				assert( first> start );
 				--first;
 				return *this;
 			}
@@ -110,8 +110,8 @@ namespace daw {
 
 		template<typename Iterator>
 		Range<Iterator> make_range( Iterator first, Iterator last ) {
-			assert( std::distance( first, last ) >= 0 );
-			return Range < Iterator > { first, last };
+			assert( std::distance( first, last )>= 0 );
+			return Range < Iterator> { first, last };
 		}
 
 		template<typename Container, typename std::enable_if<daw::traits::is_container_not_string<Container>::value, long>::type = 0>
@@ -129,7 +129,7 @@ namespace daw {
 		template<typename Iterator>
 		void safe_advance( Range<Iterator> & range, typename std::iterator_traits<Iterator>::difference_type count ) {
 			assert( 0 <= count );
-			if( std::distance( range.first, range.last ) >= count ) {
+			if( std::distance( range.first, range.last )>= count ) {
 				range.first += count;
 			} else {
 				range.first = range.last;
