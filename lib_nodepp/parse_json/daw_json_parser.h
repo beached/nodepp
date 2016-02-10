@@ -68,7 +68,7 @@ namespace daw {
 				const_reference operator[]( size_t pos ) const;
 				size_t size( ) const;
 				void clear( );
-			};
+			};	// struct string_value
 
 			bool operator==( string_value const & first, string_value const & second );
 			bool operator==( string_value const & first, boost::string_ref const & second );
