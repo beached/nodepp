@@ -56,9 +56,10 @@ namespace daw {
 				string_value( string_value const & ) = default;
 				string_value( string_value && ) = default;
 				string_value & operator=( string_value const & ) = default;
-				string_value & operator=( std::string const & str );
 				string_value & operator=( string_value && ) = default;
+				
 				operator boost::string_ref( ) const;
+				
 				const_iterator begin( ) const;
 				const_iterator end( ) const;
 

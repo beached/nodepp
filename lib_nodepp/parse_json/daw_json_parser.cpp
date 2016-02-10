@@ -61,7 +61,7 @@ namespace daw {
 		
 			string_value create_string_value( char const * const first, char const * const last ) {
 				string_value result;
-				result.set( first, last );
+				result.set( first, last + 1 );
 				return result;
 			}
 
@@ -91,12 +91,6 @@ namespace daw {
 			void string_value::set( std::string const & str ) {
 				m_begin = str.data( );
 				m_end = str.data( ) + str.length( );
-			}
-
-			string_value & string_value::operator=( std::string const & str ) {
-				m_begin = str.data( );
-				m_end = str.data( ) + str.size( );
-				return *this;
 			}
 
 			string_value::const_reference string_value::operator[]( size_t pos ) const {
@@ -346,9 +340,9 @@ namespace daw {
 					ss <<"[ ";
 					const auto & arry = value.get_array( ).items;
 					if( !arry.empty( ) ) {
-						ss <<arry[0];
+						ss << arry[0];
 						for( size_t n = 1; n <arry.size( ); ++n ) {
-							ss <<", " <<arry[n];
+							ss << ", " << arry[n];
 						}
 					}
 					ss <<" ]";
