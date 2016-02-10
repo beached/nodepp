@@ -106,6 +106,14 @@ namespace daw {
 			size_t size( ) const {
 				return std::distance( first, last );
 			}
+
+			reference operator[]( size_t pos ) {
+				return *(first + pos);
+			}
+
+			const_reference operator[]( size_t pos ) const {
+				return *(first + pos);
+			}			
 		};	// struct Range
 
 		template<typename Iterator>

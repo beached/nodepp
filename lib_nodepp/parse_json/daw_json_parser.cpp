@@ -59,70 +59,70 @@ namespace daw {
 				return result;
 			}
 		
-			string_value create_string_value( char const * const first, char const * const last ) {
-				string_value result;
-				result.set( first, last + 1 );
-				return result;
-			}
-
-			string_value create_string_value(boost::string_ref const& str) {
-				string_value result;
-				result.set( str.begin( ), str.end( ) );
-				return result;
-			}
-			
-			string_value::operator boost::string_ref( ) const {
-				return boost::string_ref( begin( ), size( ) );
-			}
-
-			string_value::const_iterator string_value::begin( ) const {
-				return m_begin;
-			}
-
-			string_value::const_iterator string_value::end( ) const {
-				return m_end;
-			}
-
-			void string_value::set( const_iterator first, const_iterator last ) {
-				m_begin = first;
-				m_end = last + 1;
-			}
-
-			void string_value::set( std::string const & str ) {
-				m_begin = str.data( );
-				m_end = str.data( ) + str.length( );
-			}
-
-			string_value::const_reference string_value::operator[]( size_t pos ) const {
-				assert( m_begin + pos <m_end );
-				return *(m_begin + pos);
-			}
-			
-			size_t string_value::size( ) const {
-				return static_cast<size_t>(std::distance( m_begin, m_end ));
-			}
-
-			void string_value::clear( ) {
-				m_begin = nullptr;
-				m_end = nullptr;
-			}
-			
-			bool operator==( string_value const & first, string_value const & second ) {
-				return std::equal( first.begin( ), first.end( ), second.begin( ) );
-			}
-
-			bool operator==( string_value const & first, boost::string_ref const & second ) {
-				return std::equal( first.begin( ), first.end( ), second.begin( ) );
-			}
-
-			std::string to_string( string_value const & str ) {
-				return { str.begin( ), str.size( ) };
-			}
-
-			std::ostream& operator<<( std::ostream& os, string_value const& value ) {
-				os <<to_string( value );
-				return os;
-			}
+// 			string_value create_string_value( char const * const first, char const * const last ) {
+// 				string_value result;
+// 				result.set( first, last + 1 );
+// 				return result;
+// 			}
+// 
+// 			string_value create_string_value(boost::string_ref const& str) {
+// 				string_value result;
+// 				result.set( str.begin( ), str.end( ) );
+// 				return result;
+// 			}
+// 			
+// 			string_value::operator boost::string_ref( ) const {
+// 				return boost::string_ref( begin( ), size( ) );
+// 			}
+// 
+// 			string_value::const_iterator string_value::begin( ) const {
+// 				return m_begin;
+// 			}
+// 
+// 			string_value::const_iterator string_value::end( ) const {
+// 				return m_end;
+// 			}
+// 
+// 			void string_value::set( const_iterator first, const_iterator last ) {
+// 				m_begin = first;
+// 				m_end = last + 1;
+// 			}
+// 
+// 			void string_value::set( std::string const & str ) {
+// 				m_begin = str.data( );
+// 				m_end = str.data( ) + str.length( );
+// 			}
+// 
+// 			string_value::const_reference string_value::operator[]( size_t pos ) const {
+// 				assert( m_begin + pos <m_end );
+// 				return *(m_begin + pos);
+// 			}
+// 			
+// 			size_t string_value::size( ) const {
+// 				return static_cast<size_t>(std::distance( m_begin, m_end ));
+// 			}
+// 
+// 			void string_value::clear( ) {
+// 				m_begin = nullptr;
+// 				m_end = nullptr;
+// 			}
+// 			
+// 			bool operator==( string_value const & first, string_value const & second ) {
+// 				return std::equal( first.begin( ), first.end( ), second.begin( ) );
+// 			}
+// 
+// 			bool operator==( string_value const & first, boost::string_ref const & second ) {
+// 				return std::equal( first.begin( ), first.end( ), second.begin( ) );
+// 			}
+// 
+// 			std::string to_string( string_value const & str ) {
+// 				return { str.begin( ), str.size( ) };
+// 			}
+// 
+// 			std::ostream& operator<<( std::ostream& os, string_value const& value ) {
+// 				os <<to_string( value );
+// 				return os;
+// 			}
 
 			void value_t::u_value_t::clear( ) {
 				memset( this, 0, sizeof( u_value_t ) );
@@ -396,6 +396,10 @@ namespace daw {
 			std::ostream& operator<<(std::ostream& os, std::shared_ptr<value_t> const & value) {
 				os <<to_string( value );
 				return os;
+			}
+
+			boost::string_ref to_string_ref(string_value const& str) {
+				return { str.begin( ), str.size( ) };
 			}
 
 			object_value_item make_object_value_item( string_value first, value_t second ) {

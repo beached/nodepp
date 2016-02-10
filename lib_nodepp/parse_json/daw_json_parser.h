@@ -33,6 +33,7 @@
 #include <string>
 
 #include "daw_common_mixins.h"
+#include "daw_range.h"
 
 namespace daw {
 	namespace json {
@@ -41,35 +42,37 @@ namespace daw {
 			class value_t;
 			struct null_value final { };
 			
-			struct string_value final {
-				using iterator = char const * const;
-				using const_iterator = char const * const;
-				using value_type = char const;
-				using reference = char const &;
-				using const_reference = char const &;
-			private:
-				char const * m_begin;
-				char const * m_end;
-			public:
-				string_value( ) = default;
-				~string_value( ) = default;
-				string_value( string_value const & ) = default;
-				string_value( string_value && ) = default;
-				string_value & operator=( string_value const & ) = default;
-				string_value & operator=( string_value && ) = default;
-				
-				operator boost::string_ref( ) const;
-				
-				const_iterator begin( ) const;
-				const_iterator end( ) const;
-
-				void set( const_iterator first, const_iterator last );
-				void set( std::string const & str );
-
-				const_reference operator[]( size_t pos ) const;
-				size_t size( ) const;
-				void clear( );
-			};	// struct string_value
+// 			struct string_value final {
+// 				using iterator = char const * const;
+// 				using const_iterator = char const * const;
+// 				using value_type = char const;
+// 				using reference = char const &;
+// 				using const_reference = char const &;
+// 			private:
+// 				char const * m_begin;
+// 				char const * m_end;
+// 			public:
+// 				string_value( ) = default;
+// 				~string_value( ) = default;
+// 				string_value( string_value const & ) = default;
+// 				string_value( string_value && ) = default;
+// 				string_value & operator=( string_value const & ) = default;
+// 				string_value & operator=( string_value && ) = default;
+// 				
+// 				operator boost::string_ref( ) const;
+// 				
+// 				const_iterator begin( ) const;
+// 				const_iterator end( ) const;
+// 
+// 				void set( const_iterator first, const_iterator last );
+// 				void set( std::string const & str );
+// 
+// 				const_reference operator[]( size_t pos ) const;
+// 				size_t size( ) const;
+// 				void clear( );
+// 			};	// struct string_value
+// 
+			using string_value = daw::range::Range<char const *>;
 
 			bool operator==( string_value const & first, string_value const & second );
 			bool operator==( string_value const & first, boost::string_ref const & second );
@@ -79,6 +82,8 @@ namespace daw {
 
 			std::string to_string( string_value const & str );
 			std::ostream& operator<<( std::ostream& os, string_value const & value );
+			
+			boost::string_ref to_string_ref( string_value const & str );
 
 			using object_value_item = std::pair <string_value, value_t>;
 
