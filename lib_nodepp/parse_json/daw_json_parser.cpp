@@ -36,6 +36,29 @@ namespace daw {
 		namespace impl {
 			using namespace daw::range;
 
+			size_t hash_sequence( char const * first, char const * const last ) {
+				// FNV-1a hash function for bytes in [fist, last], see http://www.isthe.com/chongo/tech/comp/fnv/index.html
+			#if defined(_WIN64) || defined(__amd64__)
+				static_assert(sizeof( size_t ) == 8, "This code is for 64-bit size_t.");
+				size_t const fnv_offset_basis = 14695981039346656037ULL;
+				size_t const fnv_prime = 1099511628211ULL;
+
+			#elif defined(_WIN32) || defined(__i386__)
+				static_assert(sizeof( size_t ) == 4, "This code is for 32-bit size_t.");
+				size_t const fnv_offset_basis = 2166136261U;
+				size_t const fnv_prime = 16777619U;
+			#else
+				#error "Unknown platform for hash"
+			#endif 
+
+				auto result = fnv_offset_basis;
+				for( ; first <= last; ++first ) {
+					result ^= static_cast<size_t>(*first);
+					result *= fnv_prime;
+				}
+				return result;
+			}
+		
 			string_value create_string_value( char const * const first, char const * const last ) {
 				string_value result;
 				result.set( first, last );
@@ -744,27 +767,4 @@ namespace daw {
 	}	// namespace json
 }	// namespace daw
 
-namespace {
-	size_t hash_sequence( char const * first, char const * const last ) {
-		// FNV-1a hash function for bytes in [fist, last], see http://www.isthe.com/chongo/tech/comp/fnv/index.html
-#if defined(_WIN64) || defined(__amd64__)
-		static_assert(sizeof( size_t ) == 8, "This code is for 64-bit size_t.");
-		size_t const fnv_offset_basis = 14695981039346656037ULL;
-		size_t const fnv_prime = 1099511628211ULL;
 
-#elif defined(_WIN32) || defined(__i386__)
-		static_assert(sizeof( size_t ) == 4, "This code is for 32-bit size_t.");
-		size_t const fnv_offset_basis = 2166136261U;
-		size_t const fnv_prime = 16777619U;
-#else
-	#error "Unknown platform for hash"
-#endif 
-
-		auto result = fnv_offset_basis;
-		for( ; first <= last; ++first ) {
-			result ^= static_cast<size_t>(*first);
-			result *= fnv_prime;
-		}
-		return result;
-	}
-}
