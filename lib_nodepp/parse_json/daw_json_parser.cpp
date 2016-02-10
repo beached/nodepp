@@ -740,20 +740,22 @@ namespace daw {
 namespace {
 	// hash_sequence, borrowed from VS2015's string hash and modified to work with two iterators
 	size_t hash_sequence( char const * first, char const * const last ) {
-		// FNV-1a hash function for bytes in [_First, _First + _Count)
-#if defined(_WIN64)	// TODO Fix for cross platform
+		// FNV-1a hash function for bytes in [fist, last]
+#if defined(_WIN64) || defined(__amd64__)
 		static_assert(sizeof( size_t ) == 8, "This code is for 64-bit size_t.");
 		size_t const offset_basis = 14695981039346656037ULL;
 		size_t const prime = 1099511628211ULL;
 
-#else /* defined(_WIN64) */
+#elif defined(_WIN32) || defined(__i386__)
 		static_assert(sizeof( size_t ) == 4, "This code is for 32-bit size_t.");
 		size_t const offset_basis = 2166136261U;
 		size_t const prime = 16777619U;
-#endif /* defined(_WIN64) */
+#else
+	#error "Unknown platform for hash"
+#endif 
 
 		auto result = offset_basis;
-		for( ; first != last; ++first ) {
+		for( ; first <= last; ++first ) {
 			result ^= static_cast<size_t>(*first);
 			result *= prime;
 		}
