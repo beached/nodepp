@@ -80,6 +80,8 @@ namespace daw {
 			string_value create_string_value( char const * const first, char const * const last );
 			string_value create_string_value( boost::string_ref const & str );
 
+
+			void clear( string_value & str );
 			std::string to_string( string_value const & str );
 			std::ostream& operator<<( std::ostream& os, string_value const & value );
 			
@@ -89,7 +91,7 @@ namespace daw {
 
 			object_value_item make_object_value_item( string_value first, value_t second );
 
-			struct object_value final: public daw::mixins::VectorLikeProxy <object_value, std::vector<object_value_item>> {
+			struct object_value: public daw::mixins::VectorLikeProxy <object_value, std::vector<object_value_item>> {
 				std::vector<object_value_item> members_v;
 				object_value( ) = default;
 				~object_value( ) = default;

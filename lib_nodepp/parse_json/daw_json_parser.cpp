@@ -107,22 +107,26 @@ namespace daw {
 // 				m_end = nullptr;
 // 			}
 // 			
-// 			bool operator==( string_value const & first, string_value const & second ) {
-// 				return std::equal( first.begin( ), first.end( ), second.begin( ) );
-// 			}
-// 
-// 			bool operator==( string_value const & first, boost::string_ref const & second ) {
-// 				return std::equal( first.begin( ), first.end( ), second.begin( ) );
-// 			}
-// 
-// 			std::string to_string( string_value const & str ) {
-// 				return { str.begin( ), str.size( ) };
-// 			}
-// 
-// 			std::ostream& operator<<( std::ostream& os, string_value const& value ) {
-// 				os <<to_string( value );
-// 				return os;
-// 			}
+ 			bool operator==( string_value const & first, string_value const & second ) {
+ 				return std::equal( first.begin( ), first.end( ), second.begin( ) );
+ 			}
+ 
+ 			bool operator==( string_value const & first, boost::string_ref const & second ) {
+ 				return std::equal( first.begin( ), first.end( ), second.begin( ) );
+ 			}
+ 
+ 			void clear( string_value & str ) {
+				str = { nullptr, nullptr };
+			}
+
+ 			std::string to_string( string_value const & str ) {
+ 				return { str.begin( ), str.size( ) };
+ 			}
+ 
+			std::ostream& operator<<( std::ostream& os, string_value const& value ) {
+ 				os <<to_string( value );
+ 				return os;
+ 			}
 
 			void value_t::u_value_t::clear( ) {
 				memset( this, 0, sizeof( u_value_t ) );
@@ -145,7 +149,7 @@ namespace daw {
 			}
 
 			value_t::value_t( boost::string_ref value ): m_value_type( value_types::string ) {
-				m_value.string.set( value.data( ), value.data( ) + (value.size( )-1) );
+				m_value.string = { value.begin( ), value.end( ) };
 			}
 
 			value_t::value_t( string_value value ): m_value_type( value_types::string ) {
@@ -216,7 +220,7 @@ namespace daw {
 			value_t::value_t( value_t && other ) :
 				m_value( std::move( other.m_value ) ),
 				m_value_type( std::move( other.m_value_type ) ) {
-				other.m_value.string.clear( );
+				clear( other.m_value.string );
 				other.m_value_type = value_types::null;
 			}
 
@@ -224,7 +228,7 @@ namespace daw {
 				if( this != &rhs ) {
 					m_value = std::move( rhs.m_value );
 					m_value_type = std::move( rhs.m_value_type );
-					rhs.m_value.string.clear( );
+					clear( rhs.m_value.string );
 					rhs.m_value_type = value_types::null;
 				}
 				return *this;

@@ -37,10 +37,12 @@ namespace daw {
 			using const_reference = const reference;
 			using iterator = Iterator;
 			using const_iterator = const iterator;
-
-			Range( ) :
-				first( nullptr ),
-				last( nullptr ) { }
+			Range( ) = default;
+			Range( Range const & ) = default;
+			Range( Range && ) = default;
+			~Range( ) = default;
+			Range & operator=( Range const & ) = default;
+			Range & operator=( Range && ) = default;
 
 			Range( Iterator First, Iterator Last ) :
 				first( First ),
@@ -104,7 +106,8 @@ namespace daw {
 			}
 
 			size_t size( ) const {
-				return std::distance( first, last );
+				assert( first <= last );
+				return static_cast<size_t>( std::distance( first, last ) );
 			}
 
 			reference operator[]( size_t pos ) {
