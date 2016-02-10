@@ -252,7 +252,13 @@ namespace daw {
 				assert( m_value.string.begin( ) != nullptr );
 				return to_string( m_value.string );
 			}
-			
+
+			string_value value_t::get_string_value() const {
+				assert( m_value_type == value_types::string );
+				assert( m_value.string.begin( ) != nullptr );
+				return m_value.string;
+			}
+
 			bool value_t::is_integral( ) const {
 				return m_value_type == value_types::integral;
 			}
@@ -571,11 +577,11 @@ namespace daw {
 				template<typename Iterator>
 				boost::optional<object_value_item> parse_object_item( Range<Iterator> & range ) {
 					auto current = range;
-					auto label = parse_string( current );
+					boost::optional<value_t> label = parse_string( current );
 					if( !label || !label->is_string( ) ) {
 						return boost::optional<object_value_item>( );
 					}
-					auto lbl = label->get_string( );
+					auto const & lbl = label->get_string_value( );
 					skip_ws( current );
 					if( !is_equal( current.first, ':' ) ) {
 						return boost::optional<object_value_item>( );

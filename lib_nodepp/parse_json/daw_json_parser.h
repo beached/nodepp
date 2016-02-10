@@ -156,6 +156,7 @@ namespace daw {
 				double const & get_real( ) const;
 				double & get_real( );
 				std::string get_string( ) const;
+				string_value get_string_value( ) const;
 				bool const & get_boolean( ) const;
 				bool & get_boolean( );
 				object_value const & get_object( ) const;
