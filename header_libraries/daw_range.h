@@ -116,7 +116,15 @@ namespace daw {
 
 			const_reference operator[]( size_t pos ) const {
 				return *(first + pos);
-			}			
+			}
+
+			bool operator==( Range const & other ) const {
+				return std::equal( begin( ), end( ), other.begin( ) );
+			}
+
+			bool operator!=( Range const & other ) const {
+				return !std::equal( begin( ), end( ), other.begin( ) );
+			}
 		};	// struct Range
 
 		template<typename Iterator>

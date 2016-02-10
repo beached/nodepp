@@ -59,17 +59,13 @@ namespace daw {
 				return result;
 			}
 		
-// 			string_value create_string_value( char const * const first, char const * const last ) {
-// 				string_value result;
-// 				result.set( first, last + 1 );
-// 				return result;
-// 			}
-// 
-// 			string_value create_string_value(boost::string_ref const& str) {
-// 				string_value result;
-// 				result.set( str.begin( ), str.end( ) );
-// 				return result;
-// 			}
+			string_value create_string_value( char const * const first, char const * const last ) {
+				return { first, last };
+			}
+
+			string_value create_string_value(boost::string_ref const& str) {
+				return { str.begin( ), str.end( ) };
+			}
 // 			
 // 			string_value::operator boost::string_ref( ) const {
 // 				return boost::string_ref( begin( ), size( ) );
@@ -107,26 +103,26 @@ namespace daw {
 // 				m_end = nullptr;
 // 			}
 // 			
- 			bool operator==( string_value const & first, string_value const & second ) {
- 				return std::equal( first.begin( ), first.end( ), second.begin( ) );
- 			}
+			bool operator==( string_value const & first, string_value const & second ) {
+				return std::equal( first.begin( ), first.end( ), second.begin( ) );
+			}
  
- 			bool operator==( string_value const & first, boost::string_ref const & second ) {
- 				return std::equal( first.begin( ), first.end( ), second.begin( ) );
- 			}
+			bool operator==( string_value const & first, boost::string_ref const & second ) {
+				return std::equal( first.begin( ), first.end( ), second.begin( ) );
+			}
  
- 			void clear( string_value & str ) {
+			void clear( string_value & str ) {
 				str = { nullptr, nullptr };
 			}
 
- 			std::string to_string( string_value const & str ) {
- 				return { str.begin( ), str.size( ) };
- 			}
+			std::string to_string( string_value const & str ) {
+				return { str.begin( ), str.size( ) };
+			}
  
 			std::ostream& operator<<( std::ostream& os, string_value const& value ) {
- 				os <<to_string( value );
- 				return os;
- 			}
+				os <<to_string( value );
+				return os;
+			}
 
 			void value_t::u_value_t::clear( ) {
 				memset( this, 0, sizeof( u_value_t ) );
