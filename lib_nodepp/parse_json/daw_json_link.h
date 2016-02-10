@@ -81,7 +81,7 @@ namespace daw {
 				key_t k;
 				value_t v;
 				result.push_back( make_object_value_item( impl::create_string_value( "key" ), get_schema( "key", k ) ) );
-				result.push_back( make_object_value_item( impl::create_string_value( "value" ), get_schema( impl::create_string_value( "value" ), v ) ) );
+				result.push_back( make_object_value_item( impl::create_string_value( "value" ), get_schema( "value", v ) ) );
 				return make_type_obj( name, std::move( ::daw::json::impl::value_t( std::move( result ) ) ) );
 			}
 
