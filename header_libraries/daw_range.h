@@ -48,7 +48,6 @@ namespace daw {
 			Range( Iterator First, Iterator Last ):				
 				m_begin( First ),
 				m_end( Last ) { 
-				assert( m_begin <= m_end );
 			}
 
 			Range& move_next( ) {
@@ -76,12 +75,11 @@ namespace daw {
 				return !(m_begin != m_end);
 			}
 
-			iterator& begin( ) {
+			iterator begin( ) {
 				return m_begin;
 			}
 
-			void begin( iterator i ) {
-				assert( i <= m_end );
+			void set_begin( iterator i ) {
 				m_begin = i;
 			}
 
@@ -89,13 +87,11 @@ namespace daw {
 				return m_end;
 			}
 
-			void end( iterator i ) {
-				assert( m_begin <= i );
+			void set_end( iterator i ) {
 				m_end = i;
 			}
 
-			void reset( iterator First, iterator Last ) {
-				assert( First <= Last );
+			void set( iterator First, iterator Last ) {
 				m_begin = First;
 				m_end = Last;
 			}
@@ -125,7 +121,6 @@ namespace daw {
 			}
 
 			size_t size( ) const {
-				assert( m_begin <= m_end );
 				return static_cast<size_t>( std::distance( m_begin, m_end ) );
 			}
 
@@ -144,7 +139,7 @@ namespace daw {
 			bool operator!=( Range const & other ) const {
 				return !std::equal( m_begin, m_end, other.m_begin );
 			}
-		};	// struct Range
+		};	// class Range
 
 		template<typename Iterator>
 		Range<Iterator> make_range( Iterator first, Iterator last ) {
@@ -168,9 +163,9 @@ namespace daw {
 		void safe_advance( Range<Iterator> & range, typename std::iterator_traits<Iterator>::difference_type count ) {
 			assert( 0 <= count );
 			if( std::distance( range.begin( ), range.end( ) )>= count ) {
-				range.begin( ) += count;
+				range.set_begin( range.begin( ) + count );
 			} else {
-				range.begin( range.end( ) );
+				range.set_begin( range.end( ) );
 			}
 		}
 
