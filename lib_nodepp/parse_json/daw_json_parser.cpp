@@ -302,7 +302,7 @@ namespace daw {
 				switch( value.type( ) ) {
 				case value_t::value_types::array: {
 					ss <<"[ ";
-					const auto & arry = value.get_array( ).items;
+					const auto & arry = value.get_array( );
 					if( !arry.empty( ) ) {
 						ss << arry[0];
 						for( size_t n = 1; n <arry.size( ); ++n ) {
@@ -381,31 +381,7 @@ namespace daw {
 					return item.first == key;
 				} );
 			}
-
-			// 			object_value::iterator object_value::end( ) {
-			// 				return members.end( );
-			// 			}
-			//
-			// 			object_value::const_iterator object_value::end( ) const {
-			// 				return members.cend( );
-			// 			}
-			//
-			// 			object_value::iterator object_value::begin( ) {
-			// 				return members.begin( );
-			// 			}
-			//
-			// 			object_value::const_iterator object_value::begin( ) const {
-			// 				return members.cbegin( );
-			// 			}
-
-			// 			object_value::iterator object_value::insert( object_value::iterator where, object_value_item item ) {
-			// 				return members.insert( where, std::move( item ) );
-			// 			}
-
-			// 			void object_value::push_back( object_value_item item ) {
-			// 				members.push_back( std::move( item ) );
-			// 			}
-			//
+			
 			object_value::mapped_type & object_value::operator[]( boost::string_ref key ) {
 				auto pos = find( key );
 				if( end( ) == pos ) {
@@ -449,15 +425,15 @@ namespace daw {
 
 				template<typename Iterator>
 				void skip_ws( Range<Iterator> & range ) {
-					while( range.first != range.last && is_ws( range.first ) ) {
+					while( range.begin( ) != range.end( ) && is_ws( range.begin( ) ) ) {
 						range.move_next( );
 					}
 				}
 
 				template<typename Iterator>
 				bool forward_if_equal( Range<Iterator>& range, boost::string_ref value ) {
-					bool result = std::distance( range.first, range.last )>= static_cast<typename std::iterator_traits<Iterator>::difference_type>(value.size( ));
-					result = result && std::equal( range.first, range.first + value.size( ), std::begin( value ) );
+					bool result = std::distance( range.begin( ), range.end( ) )>= static_cast<typename std::iterator_traits<Iterator>::difference_type>(value.size( ));
+					result = result && std::equal( range.begin( ), range.begin( ) + value.size( ), std::begin( value ) );
 					if( result ) {
 						safe_advance( range, static_cast<typename std::iterator_traits<Iterator>::difference_type>(value.size( )) );
 					}
@@ -467,7 +443,7 @@ namespace daw {
 				template<typename Iterator>
 				value_opt_t parse_string( Range<Iterator>& range ) {
 					auto current = range;
-					if( !is_equal( current.first, '"' ) ) {
+					if( !is_equal( current.begin( ), '"' ) ) {
 						return value_opt_t( );
 					}
 					current.move_next( );
@@ -481,7 +457,7 @@ namespace daw {
 						current.move_next( );
 					}
 					if( !at_end( current ) ) {
-						auto result = value_t( create_string_value( range.first + 1, current.first ) );
+						auto result = value_t( create_string_value( range.begin( ) + 1, current.begin( ) ) );
 						current.move_next( );
 						range = current;
 						return result;
@@ -520,34 +496,34 @@ namespace daw {
 					if( '-' == current.front( ) ) {
 						current.move_next( );
 					}
-					while( !at_end( current ) && is_digit( current.first ) ) { current.move_next( ); };
+					while( !at_end( current ) && is_digit( current.begin( ) ) ) { current.move_next( ); };
 					bool is_float = !at_end( current ) && '.' == current.front( );
 					if( is_float ) {
 						current.move_next( );
-						while( !at_end( current ) && is_digit( current.first ) ) { current.move_next( ); };
-						if( is_equal_nc( current.first, 'e' ) ) {
+						while( !at_end( current ) && is_digit( current.begin( ) ) ) { current.move_next( ); };
+						if( is_equal_nc( current.begin( ), 'e' ) ) {
 							current.move_next( );
 							if( '-' == current.front( ) ) {
 								current.move_next( );
 							}
-							while( !at_end( current ) && is_digit( current.first ) ) { current.move_next( ); };
+							while( !at_end( current ) && is_digit( current.begin( ) ) ) { current.move_next( ); };
 						}
 					}
-					if( range.first == current.first ) {
+					if( range.begin( ) == current.begin( ) ) {
 						return value_opt_t( );
 					}
 
 					if( is_float ) {
 						try {
-							assert( range.first <= current.first );
-							auto result = value_t( boost::lexical_cast<double>(range.first, static_cast<size_t>(std::distance( range.first, current.first ))) );
+							assert( range.begin( ) <= current.begin( ) );
+							auto result = value_t( boost::lexical_cast<double>(range.begin( ), static_cast<size_t>(std::distance( range.begin( ), current.begin( ) ))) );
 							range = current;
 							return result;
 						} catch( boost::bad_lexical_cast const & ) { }
 					} else {
 						try {
-							assert( range.first <= current.first );
-							auto result = value_t( boost::lexical_cast<int64_t>(range.first, static_cast<size_t>(std::distance( range.first, current.first ))) );
+							assert( range.begin( ) <= current.begin( ) );
+							auto result = value_t( boost::lexical_cast<int64_t>(range.begin( ), static_cast<size_t>(std::distance( range.begin( ), current.begin( ) ))) );
 							range = current;
 							return result;
 						} catch( boost::bad_lexical_cast const & ) { }
@@ -568,7 +544,7 @@ namespace daw {
 					}
 					auto const & lbl = label->get_string_value( );
 					skip_ws( current );
-					if( !is_equal( current.first, ':' ) ) {
+					if( !is_equal( current.begin( ), ':' ) ) {
 						return boost::optional<object_value_item>( );
 					}
 					skip_ws( current.move_next( ) );
@@ -585,7 +561,7 @@ namespace daw {
 				template<typename Iterator>
 				value_opt_t parse_object( Range<Iterator> & range ) {
 					auto current = range;
-					if( !is_equal( current.first, '{' ) ) {
+					if( !is_equal( current.begin( ), '{' ) ) {
 						return value_opt_t( );
 					}
 					current.move_next( );
@@ -598,12 +574,12 @@ namespace daw {
 						}
 						result.push_back( *item );
 						skip_ws( current );
-						if( !is_equal( current.first, ',' ) ) {
+						if( !is_equal( current.begin( ), ',' ) ) {
 							break;
 						}
 						current.move_next( );
 					} while( !at_end( current ) );
-					if( !is_equal( current.first, '}' ) ) {
+					if( !is_equal( current.begin( ), '}' ) ) {
 						return value_opt_t( );
 					}
 					current.move_next( );
@@ -614,7 +590,7 @@ namespace daw {
 				template<typename Iterator>
 				value_opt_t parse_array( Range<Iterator>& range ) {
 					auto current = range;
-					if( !is_equal( current.first, '[' ) ) {
+					if( !is_equal( current.begin( ), '[' ) ) {
 						return value_opt_t( );
 					}
 					current.move_next( );
@@ -625,14 +601,14 @@ namespace daw {
 						if( !item ) {
 							return value_opt_t( );
 						}
-						results.items.push_back( std::move( *item ) );
+						results.push_back( std::move( *item ) );
 						skip_ws( current );
-						if( !is_equal( current.first, ',' ) ) {
+						if( !is_equal( current.begin( ), ',' ) ) {
 							break;
 						}
 						current.move_next( );
 					} while( !current.at_end( ) );
-					if( !is_equal( current.first, ']' ) ) {
+					if( !is_equal( current.begin( ), ']' ) ) {
 						return value_opt_t( );
 					}
 					current.move_next( );

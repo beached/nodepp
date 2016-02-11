@@ -92,9 +92,11 @@ namespace daw {
 			};	// struct object_value
 
 
-			struct array_value final {
-				std::vector<value_t> items;
-			};	// struct array_value
+// 			struct array_value final {
+// 				std::vector<value_t> items;
+// 			};	// struct array_value
+
+			using array_value = std::vector<value_t>;
 
 			class value_t {
 				struct u_value_t {

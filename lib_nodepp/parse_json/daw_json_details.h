@@ -109,7 +109,7 @@ namespace daw {
 			void json_to_value( Container & to, ::daw::json::impl::value_t const & from ) {
 				static_assert(!std::is_const<Container>::value, "To parameter on json_to_value cannot be const");
 				assert( from.is_array( ) );
-				auto const & source_array = from.get_array( ).items;
+				auto const & source_array = from.get_array( );
 				to.clear( );
 				std::transform( std::begin( source_array ), std::end( source_array ), std::back_inserter( to ), []( ::daw::json::impl::value_t const & value ) {
 					typename Container::value_type tmp;
@@ -139,7 +139,7 @@ namespace daw {
 			void json_to_value( MapContainer & to, ::daw::json::impl::value_t const & from ) {
 				static_assert(!std::is_const<MapContainer>::value, "To parameter on json_to_value cannot be const");
 				assert( from.is_array( ) );
-				auto const & source_array = from.get_array( ).items;
+				auto const & source_array = from.get_array( );
 				to.clear( );
 				std::transform( std::begin( source_array ), std::end( source_array ), std::inserter( to, std::end( to ) ), []( ::daw::json::impl::value_t const & value ) {
 					using key_t = typename std::decay<typename MapContainer::key_type>::type;

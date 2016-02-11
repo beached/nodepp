@@ -29,9 +29,10 @@
 namespace daw {
 	namespace range {
 		template<typename Iterator>
-		struct Range {
-			Iterator first;
-			Iterator last;
+		class Range {
+			Iterator m_begin;
+			Iterator m_end;
+		public:
 			using value_type = typename std::iterator_traits<Iterator>::value_type;
 			using reference = typename std::iterator_traits<Iterator>::reference;
 			using const_reference = const reference;
@@ -44,86 +45,104 @@ namespace daw {
 			Range & operator=( Range const & ) = default;
 			Range & operator=( Range && ) = default;
 
-			Range( Iterator First, Iterator Last ) :
-				first( First ),
-				last( Last ) { }
+			Range( Iterator First, Iterator Last ):				
+				m_begin( First ),
+				m_end( Last ) { 
+				assert( m_begin <= m_end );
+			}
 
 			Range& move_next( ) {
-				assert( first != last );
-				++first;
+				assert( m_begin != m_end );
+				++m_begin;
 				return *this;
 			}
 
 			Range& move_back( ) {
-				--first;
+				--m_begin;
 				return *this;
 			}
 
 			Range& move_back( Iterator start ) {
-				assert( first> start );
-				--first;
+				assert( m_begin > start );
+				--m_begin;
 				return *this;
 			}
 
 			bool at_end( ) const {
-				return first == last;
+				return !(m_begin != m_end);
 			}
 
 			bool empty( ) const {
-				return first == last;
+				return !(m_begin != m_end);
 			}
 
-			iterator begin( ) {
-				return first;
+			iterator& begin( ) {
+				return m_begin;
+			}
+
+			void begin( iterator i ) {
+				assert( i <= m_end );
+				m_begin = i;
 			}
 
 			iterator end( ) {
-				return last;
+				return m_end;
+			}
+
+			void end( iterator i ) {
+				assert( m_begin <= i );
+				m_end = i;
+			}
+
+			void reset( iterator First, iterator Last ) {
+				assert( First <= Last );
+				m_begin = First;
+				m_end = Last;
 			}
 
 			const_iterator begin( ) const {
-				return first;
+				return m_begin;
 			}
 
 			const_iterator end( ) const {
-				return last;
+				return m_end;
 			}
 
 			const_iterator cbegin( ) const {
-				return first;
+				return m_begin;
 			}
 
 			const_iterator cend( ) const {
-				return last;
+				return m_end;
 			}
 
 			reference front( ) {
-				return *first;
+				return *m_begin;
 			}
 
 			const_reference front( ) const {
-				return *first;
+				return *m_begin;
 			}
 
 			size_t size( ) const {
-				assert( first <= last );
-				return static_cast<size_t>( std::distance( first, last ) );
+				assert( m_begin <= m_end );
+				return static_cast<size_t>( std::distance( m_begin, m_end ) );
 			}
 
 			reference operator[]( size_t pos ) {
-				return *(first + pos);
+				return *(m_begin + pos);
 			}
 
 			const_reference operator[]( size_t pos ) const {
-				return *(first + pos);
+				return *(m_begin + pos);
 			}
 
 			bool operator==( Range const & other ) const {
-				return std::equal( begin( ), end( ), other.begin( ) );
+				return std::equal( m_begin, m_end, other.m_begin );
 			}
 
 			bool operator!=( Range const & other ) const {
-				return !std::equal( begin( ), end( ), other.begin( ) );
+				return !std::equal( m_begin, m_end, other.m_begin );
 			}
 		};	// struct Range
 
@@ -148,21 +167,21 @@ namespace daw {
 		template<typename Iterator>
 		void safe_advance( Range<Iterator> & range, typename std::iterator_traits<Iterator>::difference_type count ) {
 			assert( 0 <= count );
-			if( std::distance( range.first, range.last )>= count ) {
-				range.first += count;
+			if( std::distance( range.begin( ), range.end( ) )>= count ) {
+				range.begin( ) += count;
 			} else {
-				range.first = range.last;
+				range.begin( range.end( ) );
 			}
 		}
 
 		template<typename Iterator>
 		bool contains( Range<Iterator> const & range, typename std::iterator_traits<Iterator>::value_type const & key ) {
-			return std::find( range.first, range.last, key ) != range.last;
+			return std::find( range.begin( ), range.end( ), key ) != range.end( );
 		}
 
 		template<typename Iterator>
 		bool at_end( Range<Iterator> const & range ) {
-			return range.first == range.last;
+			return range.begin( ) == range.end( );
 		}
 	}	// namespace range
 }	// namespace daw

@@ -140,7 +140,7 @@ namespace daw {
 				using ::daw::json::impl::value_t;
 				switch( value.type( ) ) {
 				case value_t::value_types::array:
-					return value_to_json( name, value.get_array( ).items );
+					return value_to_json( name, value.get_array( ) );
 				case value_t::value_types::object:
 					return value_to_json_object( name, value.get_object( ) );
 				case value_t::value_types::boolean:
