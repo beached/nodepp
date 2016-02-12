@@ -63,7 +63,7 @@ namespace daw {
 				return { first, last };
 			}
 
-			string_value create_string_value(boost::string_ref const& str) {
+			string_value create_string_value( boost::string_ref const& str ) {
 				return { str.begin( ), str.end( ) };
 			}
 
@@ -80,11 +80,12 @@ namespace daw {
 			}
 
 			std::string to_string( string_value const & str ) {
-				return { str.begin( ), str.size( ) };
+				std::string result { str.begin( ), str.size( ) };
+				return result;
 			}
  
 			std::ostream& operator<<( std::ostream& os, string_value const& value ) {
-				os <<to_string( value );
+				os << to_string( value );
 				return os;
 			}
 

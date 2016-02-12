@@ -91,11 +91,6 @@ namespace daw {
 				mapped_type const & operator[]( boost::string_ref key ) const;
 			};	// struct object_value
 
-
-// 			struct array_value final {
-// 				std::vector<value_t> items;
-// 			};	// struct array_value
-
 			using array_value = std::vector<value_t>;
 
 			class value_t {
@@ -153,7 +148,7 @@ namespace daw {
 				bool is_null( ) const;
 				bool is_array( ) const;
 				bool is_object( ) const;
-			};
+			};	// class value_t
 
 			using value_opt_t = boost::optional <value_t> ;
 
