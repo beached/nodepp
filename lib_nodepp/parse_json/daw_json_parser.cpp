@@ -37,8 +37,8 @@ namespace daw {
 		
 		namespace {
 			template<typename T>
-			std::unique_ptr<T> copy_value( std::unique_ptr<T> const & ptr ) {
-				return std::make_unique<T>( *ptr );
+			T* copy_value( T* ptr ) {
+				return new T( *ptr );
 			}
 		}	// namespace anonymous
 
@@ -136,11 +136,11 @@ namespace daw {
 			}
 
 			value_t::value_t( array_value value ) : m_value_type( value_types::array ) {
-				m_value.array_v = std::make_unique<array_value>( std::move( value ) );
+				m_value.array_v = new array_value( std::move( value ) );
 			}
 
 			value_t::value_t( object_value value ) : m_value_type( value_types::object ) {
-				m_value.object = std::make_unique<object_value>( std::move( value ) );
+				m_value.object = new object_value( std::move( value ) );
 			}
 
 			value_t::value_t( value_t const & other ): m_value_type( other.m_value_type ) {
@@ -318,6 +318,11 @@ namespace daw {
 			}
 
 			void value_t::cleanup( ) {
+				if( m_value_type == value_types::array ) {
+					delete m_value.array_v;
+				} else if( m_value_type == value_types::object ) {
+					delete m_value.object;
+				}
 				m_value_type = value_types::null;
 				m_value.clear( );
 			}

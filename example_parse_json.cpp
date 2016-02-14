@@ -31,6 +31,8 @@ int main( int argc, char** argv ) {
 		std::cerr <<"Must supply a json file" <<std::endl;
 		exit( EXIT_FAILURE );
 	}
+
+
 	boost::iostreams::mapped_file_source json_str;
 	json_str.open( argv[1] );
 	if( !json_str.is_open( ) ) {
@@ -40,7 +42,9 @@ int main( int argc, char** argv ) {
 
 	using namespace daw::json::impl;
 	using namespace daw::json;
-	
+
+	std::cout << "value size " << sizeof( value_t ) << std::endl;
+
 	auto json = parse_json( daw::range::make_range( json_str.begin( ), json_str.end( ) ) );
 	if( json.is_null( ) ) {
 		std::cerr <<"Could not find data" <<std::endl;
