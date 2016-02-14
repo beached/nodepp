@@ -26,7 +26,6 @@
 #include <iostream>
 #include <mutex>
 
-#pragma omp single
 int main( int argc, char** argv ) {
 	if( argc <= 1 ) {
 		std::cerr <<"Must supply a json file" <<std::endl;

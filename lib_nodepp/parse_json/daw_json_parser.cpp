@@ -408,7 +408,7 @@ namespace daw {
 				}
 
 				bool is_ws( char const * const it ) {
-					static const std::array<char, 4> ws_chars = { 0x20, 0x09, 0x0A, 0x0D };
+					static const std::array<char, 4> ws_chars = { {0x20, 0x09, 0x0A, 0x0D} };
 					return contains( ws_chars.cbegin( ), ws_chars.cend( ), *it );
 				}
 

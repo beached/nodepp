@@ -262,7 +262,6 @@ namespace daw {
 
 			template<typename T>
 			static T decoder_helper( boost::string_ref name, json_obj const & json_values ) {
-				assert( json_values );
 				auto obj = json_values.get_object( );
 				auto member = obj.find( name );
 				if( obj.end( ) == member ) {
@@ -274,7 +273,6 @@ namespace daw {
 
 			template<typename T>
 			static boost::optional<T> nullable_decoder_helper( boost::string_ref name, json_obj const & json_values ) {
-				assert( json_values );
 				auto obj = json_values.get_object( );
 				auto member = obj.find( name );
 				if( obj.end( ) == member ) {
@@ -398,7 +396,6 @@ namespace daw {
 				data_description.bind_functions.encode = standard_encoder( name, value );
 				data_description.bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
 					assert( value_ptr );
-					assert( json_values );
 					auto obj = json_values.get_object( );
 					auto member = obj.find( name );
 					if( obj.end( ) == member ) {
@@ -421,7 +418,6 @@ namespace daw {
 				data_description.bind_functions.encode = standard_encoder( name, value );
 				data_description.bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
 					assert( value_ptr );
-					assert( json_values );
 					auto obj = json_values.get_object( );
 					auto member = obj.find( name );
 					if( obj.end( ) == member ) {
@@ -448,7 +444,6 @@ namespace daw {
 				data_description.bind_functions.encode = standard_encoder( name, value );
 				data_description.bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
 					assert( value_ptr );
-					assert( json_values );
 					auto obj = json_values.get_object( );
 					auto member = obj.find( name );
 					if( obj.end( ) == member ) {
@@ -473,7 +468,6 @@ namespace daw {
 				data_description.bind_functions.encode = standard_encoder( name, value );
 				data_description.bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
 					assert( value_ptr );
-					assert( json_values );
 					auto obj = json_values.get_object( );
 					auto member = obj.find( name );
 					if( obj.end( ) == member ) {
@@ -502,7 +496,6 @@ namespace daw {
 				data_description.bind_functions.encode = standard_encoder( name, value );
 				data_description.bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
 					assert( value_ptr );
-					assert( json_values );
 					auto val_obj = json_values.get_object( );
 					auto member = val_obj.find( name );
 					if( val_obj.end( ) == member ) {
@@ -528,7 +521,6 @@ namespace daw {
 				data_description.bind_functions.encode = standard_encoder( name, value );
 				data_description.bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
 					assert( value_ptr );
-					assert( json_values );
 					auto val_obj = json_values.get_object( );
 					auto member = val_obj.find( name );
 					if( val_obj.end( ) == member ) {
@@ -561,7 +553,6 @@ namespace daw {
 				};
 				data_description.bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
 					assert( value_ptr );
-					assert( json_values );
 					auto obj = json_values.get_object( );
 					auto member = obj.find( name );
 					if( obj.end( ) == member ) {
