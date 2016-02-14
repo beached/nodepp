@@ -159,12 +159,14 @@ namespace daw {
 					break;
 				case value_types::real:
 					m_value.real = other.m_value.real;
+					break;
 				case value_types::boolean:
 					m_value.boolean = other.m_value.boolean;
+					break;
 				case value_types::null:
 					break;
 				default:
-					throw std::exception( "Unknown value_t type" );
+					throw std::runtime_error( "Unknown value_t type" );
 				}
 			}
 
@@ -186,12 +188,14 @@ namespace daw {
 						break;
 					case value_types::real:
 						m_value.real = rhs.m_value.real;
+						break;
 					case value_types::boolean:
 						m_value.boolean = rhs.m_value.boolean;
+						break;
 					case value_types::null:
 						break;
 					default:
-						throw std::exception( "Unknown value_t type" );
+						throw std::runtime_error( "Unknown value_t type" );
 					}
 				}
 
