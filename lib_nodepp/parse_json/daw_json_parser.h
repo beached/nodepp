@@ -100,6 +100,10 @@ namespace daw {
 
 				mapped_type & operator[]( boost::string_ref key );
 				mapped_type const & operator[]( boost::string_ref key ) const;
+				
+				inline void shrink_to_fit( ) {
+					members_v.shrink_to_fit( );
+				}
 			};	// struct object_value
 
 			using array_value = std::vector<value_t>;

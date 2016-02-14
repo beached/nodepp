@@ -596,6 +596,7 @@ namespace daw {
 						throw JsonParserException( "Not a valid JSON object" );
 					}
 					range.move_next( );
+					result.shrink_to_fit( );
 					return value_t( std::move( result ) );
 				}
 
@@ -619,6 +620,7 @@ namespace daw {
 						throw JsonParserException( "Not a valid JSON array" );
 					}
 					range.move_next( );
+					results.shrink_to_fit( );
 					return value_t( std::move( results ) );
 				}
 			
