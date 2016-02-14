@@ -34,8 +34,16 @@
 namespace daw {
 	namespace json {
 		JsonParserException::JsonParserException(std::string msg): message( std::move( msg ) ) { }
+		
+		namespace {
+			template<typename T>
+			std::unique_ptr<T> copy_value( std::unique_ptr<T> const & ptr ) {
+				return std::make_unique<T>( *ptr );
+			}
+		}	// namespace anonymous
 
 		namespace impl {
+			
 			using namespace daw::range;
 
 			size_t hash_sequence( char const * first, char const * const last ) {
@@ -128,11 +136,11 @@ namespace daw {
 			}
 
 			value_t::value_t( array_value value ) : m_value_type( value_types::array ) {
-				m_value.array_v = std::move( value );
+				m_value.array_v = std::make_unique<array_value>( std::move( value ) );
 			}
 
 			value_t::value_t( object_value value ) : m_value_type( value_types::object ) {
-				m_value.object = std::move( value );
+				m_value.object = std::make_unique<object_value>( std::move( value ) );
 			}
 
 			value_t::value_t( value_t const & other ): m_value_type( other.m_value_type ) {
@@ -141,17 +149,22 @@ namespace daw {
 					m_value.string = other.m_value.string;
 					break;
 				case value_types::array:
-					m_value.array_v = other.m_value.array_v;
+					m_value.array_v = copy_value( other.m_value.array_v );
 					break;
 				case value_types::object:
-					m_value.object = other.m_value.object;
+					m_value.object = copy_value( other.m_value.object );
 					break;
 				case value_types::integral:
+					m_value.integral = other.m_value.integral;
+					break;
 				case value_types::real:
+					m_value.real = other.m_value.real;
 				case value_types::boolean:
+					m_value.boolean = other.m_value.boolean;
 				case value_types::null:
+					break;
 				default:
-					m_value = other.m_value;
+					throw std::exception( "Unknown value_t type" );
 				}
 			}
 
@@ -163,17 +176,22 @@ namespace daw {
 						m_value.string = rhs.m_value.string;
 						break;
 					case value_types::array:
-						m_value.array_v = rhs.m_value.array_v;
+						m_value.array_v = copy_value( rhs.m_value.array_v );
 						break;
 					case value_types::object:
-						m_value.object = rhs.m_value.object;
+						m_value.object = copy_value( rhs.m_value.object );
 						break;
 					case value_types::integral:
+						m_value.integral = rhs.m_value.integral;
+						break;
 					case value_types::real:
+						m_value.real = rhs.m_value.real;
 					case value_types::boolean:
+						m_value.boolean = rhs.m_value.boolean;
 					case value_types::null:
+						break;
 					default:
-						m_value = rhs.m_value;
+						throw std::exception( "Unknown value_t type" );
 					}
 				}
 
@@ -273,22 +291,26 @@ namespace daw {
 
 			object_value const & value_t::get_object( ) const {
 				assert( m_value_type == value_types::object );
-				return m_value.object;
+				assert( m_value.object );
+				return *m_value.object;
 			}
 
 			object_value & value_t::get_object( ) {
 				assert( m_value_type == value_types::object );
-				return m_value.object;
+				assert( m_value.object );
+				return *m_value.object;
 			}
 
 			array_value const & value_t::get_array( ) const {
 				assert( m_value_type == value_types::array );
-				return m_value.array_v;
+				assert( m_value.array_v );
+				return *m_value.array_v;
 			}
 
 			array_value & value_t::get_array( ) {
 				assert( m_value_type == value_types::array );
-				return m_value.array_v;
+				assert( m_value.array_v );
+				return *m_value.array_v;
 			}
 
 			void value_t::cleanup( ) {

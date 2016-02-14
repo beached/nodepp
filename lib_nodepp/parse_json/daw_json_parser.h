@@ -112,8 +112,8 @@ namespace daw {
 						string_value string;
 						bool boolean;
 					};
-					array_value array_v;
-					object_value object;
+					std::unique_ptr<array_value> array_v;
+					std::unique_ptr<object_value> object;
 					
 					void clear( );
 				} m_value;
