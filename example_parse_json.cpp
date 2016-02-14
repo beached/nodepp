@@ -42,7 +42,7 @@ int main( int argc, char** argv ) {
 	using namespace daw::json::impl;
 	using namespace daw::json;
 
-	auto json = parse_json( boost::string_ref( json_str.data( ), json_str.size( ) ) );
+	auto json = parse_json( daw::range::make_range( json_str.begin( ), json_str.end( ) ) );
 	if( !json ) {
 		std::cerr <<"Could not find data" <<std::endl;
 		exit( EXIT_FAILURE );
@@ -50,7 +50,7 @@ int main( int argc, char** argv ) {
 	std::mutex m;
 	std::unique_lock<std::mutex> l;
 	std::cout <<"value: " <<json <<"\n";
-	system( "pause" );
+	//system( "pause" );
 	return EXIT_SUCCESS;
 }
 

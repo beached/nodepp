@@ -670,13 +670,17 @@ namespace daw {
 			}	// namespace anonymous
 		}	// namespace impl
 
-		json_obj parse_json( boost::string_ref const json_text ) {
-			auto range = impl::make_range( json_text.begin( ), json_text.end( ) );
-			auto result = impl::parse_value( range );
+		json_obj parse_json( daw::range::Range<char const *> json_text ) {
+			auto result = impl::parse_value( json_text );
 			if( result ) {
 				return std::make_shared<impl::value_t>( std::move( *result ) );
 			}
 			return std::make_shared<impl::value_t>( nullptr );
+		}
+
+		json_obj parse_json( boost::string_ref const json_text ) {
+			auto range = range::make_range( json_text.begin( ), json_text.end( ) );
+			return parse_json( range );
 		}
 
 		template<> int64_t get<int64_t>( impl::value_t const & val ) {

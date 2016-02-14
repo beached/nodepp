@@ -161,6 +161,7 @@ namespace daw {
 		using json_obj = std::shared_ptr <impl::value_t> ;
 
 		json_obj parse_json( boost::string_ref const json_text );
+		json_obj parse_json( daw::range::Range<char const *> json_text );
 
 		template<typename T>
 		T get( impl::value_t const & );/*
