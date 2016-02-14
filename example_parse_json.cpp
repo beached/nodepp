@@ -40,7 +40,7 @@ int main( int argc, char** argv ) {
 
 	using namespace daw::json::impl;
 	using namespace daw::json;
-
+	std::cout << "value size " << sizeof( value_t ) << std::endl;
 	auto json = parse_json( daw::range::make_range( json_str.begin( ), json_str.end( ) ) );
 	if( json.is_null( ) ) {
 		std::cerr <<"Could not find data" <<std::endl;
