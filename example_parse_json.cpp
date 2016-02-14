@@ -43,13 +43,12 @@ int main( int argc, char** argv ) {
 	using namespace daw::json;
 
 	auto json = parse_json( daw::range::make_range( json_str.begin( ), json_str.end( ) ) );
-	if( !json ) {
+	if( json.is_null( ) ) {
 		std::cerr <<"Could not find data" <<std::endl;
 		exit( EXIT_FAILURE );
 	}
-	std::mutex m;
-	std::unique_lock<std::mutex> l;
-	std::cout <<"value: " <<json <<"\n";
+	
+	std::cout << "value: " << json <<"\n";
 	//system( "pause" );
 	return EXIT_SUCCESS;
 }

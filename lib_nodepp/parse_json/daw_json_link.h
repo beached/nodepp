@@ -263,7 +263,7 @@ namespace daw {
 			template<typename T>
 			static T decoder_helper( boost::string_ref name, json_obj const & json_values ) {
 				assert( json_values );
-				auto obj = json_values->get_object( );
+				auto obj = json_values.get_object( );
 				auto member = obj.find( name );
 				if( obj.end( ) == member ) {
 					// TODO: determine if correct course of action
@@ -275,7 +275,7 @@ namespace daw {
 			template<typename T>
 			static boost::optional<T> nullable_decoder_helper( boost::string_ref name, json_obj const & json_values ) {
 				assert( json_values );
-				auto obj = json_values->get_object( );
+				auto obj = json_values.get_object( );
 				auto member = obj.find( name );
 				if( obj.end( ) == member ) {
 					// TODO: determine if correct course of action
@@ -399,14 +399,14 @@ namespace daw {
 				data_description.bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
 					assert( value_ptr );
 					assert( json_values );
-					auto obj = json_values->get_object( );
+					auto obj = json_values.get_object( );
 					auto member = obj.find( name );
 					if( obj.end( ) == member ) {
 						// TODO: determine if correct course of action
 						throw std::runtime_error( "JSON object does not match expected object layout" );
 					}
 					assert( member->second.is_object( ) );
-					value_ptr->decode( std::make_shared<impl::value_t>( member->second ) );
+					value_ptr->decode( member->second );
 				};
 				m_data_map[impl::create_string_value( name )] = std::move( data_description );
 				return *this;
@@ -422,7 +422,7 @@ namespace daw {
 				data_description.bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
 					assert( value_ptr );
 					assert( json_values );
-					auto obj = json_values->get_object( );
+					auto obj = json_values.get_object( );
 					auto member = obj.find( name );
 					if( obj.end( ) == member ) {
 						// TODO: determine if correct course of action
@@ -431,7 +431,7 @@ namespace daw {
 					if( member->second.is_null( ) ) {
 						*value_ptr = boost::optional<T>( );
 					} else {
-						(*value_ptr)->decode( std::make_shared<impl::value_t>( member->second ) );
+						(*value_ptr)->decode( member->second );
 					}
 				};
 				m_data_map[impl::create_string_value( name )] = std::move( data_description );
@@ -449,7 +449,7 @@ namespace daw {
 				data_description.bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
 					assert( value_ptr );
 					assert( json_values );
-					auto obj = json_values->get_object( );
+					auto obj = json_values.get_object( );
 					auto member = obj.find( name );
 					if( obj.end( ) == member ) {
 						// TODO: determine if correct course of action
@@ -474,7 +474,7 @@ namespace daw {
 				data_description.bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
 					assert( value_ptr );
 					assert( json_values );
-					auto obj = json_values->get_object( );
+					auto obj = json_values.get_object( );
 					auto member = obj.find( name );
 					if( obj.end( ) == member ) {
 						// TODO: determine if correct course of action
@@ -503,7 +503,7 @@ namespace daw {
 				data_description.bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
 					assert( value_ptr );
 					assert( json_values );
-					auto val_obj = json_values->get_object( );
+					auto val_obj = json_values.get_object( );
 					auto member = val_obj.find( name );
 					if( val_obj.end( ) == member ) {
 						// TODO: determine if correct course of action
@@ -529,7 +529,7 @@ namespace daw {
 				data_description.bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
 					assert( value_ptr );
 					assert( json_values );
-					auto val_obj = json_values->get_object( );
+					auto val_obj = json_values.get_object( );
 					auto member = val_obj.find( name );
 					if( val_obj.end( ) == member ) {
 						// TODO: determine if correct course of action
@@ -562,7 +562,7 @@ namespace daw {
 				data_description.bind_functions.decode = [value_ptr, name]( json_obj const & json_values ) mutable {
 					assert( value_ptr );
 					assert( json_values );
-					auto obj = json_values->get_object( );
+					auto obj = json_values.get_object( );
 					auto member = obj.find( name );
 					if( obj.end( ) == member ) {
 						// TODO: determine if correct course of action
@@ -589,7 +589,7 @@ namespace daw {
 		template<typename Derived>
 		void json_to_value( JsonLink<Derived> & to, impl::value_t const & from ) {
 			auto val = from;
-			to.decode( std::make_shared<impl::value_t>( std::move( val ) ) );
+			to.decode( val );
 		}
 
 		template<typename Derived>

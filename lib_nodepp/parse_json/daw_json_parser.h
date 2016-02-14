@@ -37,6 +37,17 @@
 
 namespace daw {
 	namespace json {
+		struct JsonParserException final {
+			std::string message;
+			JsonParserException( ) = default;
+			JsonParserException(std::string msg);
+			~JsonParserException( ) = default;
+			JsonParserException( JsonParserException const & ) = default;
+			JsonParserException( JsonParserException && ) = default;
+			JsonParserException & operator=( JsonParserException const & ) = default;
+			JsonParserException & operator=( JsonParserException && ) = default;
+		};	// struct JsonParserException
+
 		namespace impl {
 			size_t hash_sequence( char const * first, char const * const last );
 			class value_t;
@@ -158,7 +169,7 @@ namespace daw {
 			std::ostream& operator<<( std::ostream& os, value_t const & value );
 			std::ostream& operator<<( std::ostream& os, std::shared_ptr<value_t> const & value );
 		}	// namespace impl
-		using json_obj = std::shared_ptr <impl::value_t> ;
+		using json_obj = impl::value_t;
 
 		json_obj parse_json( boost::string_ref const json_text );
 		json_obj parse_json( daw::range::Range<char const *> json_text );

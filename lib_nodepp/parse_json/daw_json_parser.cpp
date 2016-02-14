@@ -33,6 +33,8 @@
 
 namespace daw {
 	namespace json {
+		JsonParserException::JsonParserException(std::string msg): message( std::move( msg ) ) { }
+
 		namespace impl {
 			using namespace daw::range;
 
@@ -399,14 +401,14 @@ namespace daw {
 				return pos->second;
 			}
 			//
-			namespace {
+//			namespace {
 				template<typename Iterator>
 				bool contains( Iterator first, Iterator last, typename std::iterator_traits<Iterator>::value_type const & key ) {
 					return std::find( first, last, key ) != last;
 				}
 
 				bool is_ws( char const * const it ) {
-					const std::vector<char> ws_chars = { 0x20, 0x09, 0x0A, 0x0D };
+					static const std::array<char, 4> ws_chars = { 0x20, 0x09, 0x0A, 0x0D };
 					return contains( ws_chars.cbegin( ), ws_chars.cend( ), *it );
 				}
 
@@ -432,57 +434,56 @@ namespace daw {
 				}
 
 				template<typename Iterator>
-				bool forward_if_equal( Range<Iterator>& range, boost::string_ref value ) {
-					bool result = std::distance( range.begin( ), range.end( ) )>= static_cast<typename std::iterator_traits<Iterator>::difference_type>(value.size( ));
-					result = result && std::equal( range.begin( ), range.begin( ) + value.size( ), std::begin( value ) );
+				bool move_range_forward_if_equal( Range<Iterator>& range, boost::string_ref value ) {
+					auto const value_size = static_cast<typename std::iterator_traits<Iterator>::difference_type>( value.size( ) );
+					bool result = std::distance( range.begin( ), range.end( ) ) >= value_size;
+					result = result && std::equal( range.begin( ), range.begin( ) + value_size, std::begin( value ) );
 					if( result ) {
-						safe_advance( range, static_cast<typename std::iterator_traits<Iterator>::difference_type>(value.size( )) );
+						safe_advance( range, value_size );
 					}
 					return result;
 				}
 
 				template<typename Iterator>
-				value_opt_t parse_string( Range<Iterator>& range ) {
-					auto current = range;
-					if( !is_equal( current.begin( ), '"' ) ) {
-						return value_opt_t( );
+				value_t parse_string( Range<Iterator>& range ) {
+					if( !is_equal( range.begin( ), '"' ) ) {
+						throw JsonParserException( "Not a valid JSON string" );
 					}
-					current.move_next( );
-					int slash_count = 0;
-					while( !at_end( current ) ) {
-						auto const & cur_val = current.front( );
+					range.move_next( );
+					auto first = range.begin( );
+					size_t slash_count = 0;
+					while( !at_end( range ) ) {
+						auto const & cur_val = range.front( );
 						if( '"' == cur_val && slash_count % 2 == 0 ) {
 							break;
 						}
 						slash_count = '\\' == cur_val ? slash_count + 1 : 0;
-						current.move_next( );
+						range.move_next( );
 					}
-					if( !at_end( current ) ) {
-						auto result = value_t( create_string_value( range.begin( ) + 1, current.begin( ) ) );
-						current.move_next( );
-						range = current;
-						return result;
+					if( at_end( range ) ) {
+						throw JsonParserException( "Not a valid JSON string" );
 					}
-
-					return value_opt_t( );
+					auto result = value_t( create_string_value( first, range.begin( ) ) );
+					range.move_next( );
+					return result;
 				}
 
 				template<typename Iterator>
-				value_opt_t parse_bool( Range<Iterator>& range ) {
-					if( forward_if_equal( range, "true" ) ) {
+				value_t parse_bool( Range<Iterator>& range ) {
+					if( move_range_forward_if_equal( range, "true" ) ) {
 						return value_t( true );
-					} else if( forward_if_equal( range, "false" ) ) {
+					} else if( move_range_forward_if_equal( range, "false" ) ) {
 						return value_t( false );
 					}
-					return value_opt_t( );
+					throw JsonParserException( "Not a valid JSON bool" );
 				}
 
 				template<typename Iterator>
-				value_opt_t parse_null( Range<Iterator> & range ) {
-					if( forward_if_equal( range, "null" ) ) {
-						return value_t( nullptr );
+				value_t parse_null( Range<Iterator> & range ) {
+					if( !move_range_forward_if_equal( range, "null" ) ) {
+						throw JsonParserException( "Not a valid JSON null" );
 					}
-					return value_opt_t( );
+					return value_t( nullptr );					
 				}
 
 				template<typename Iterator>
@@ -492,190 +493,145 @@ namespace daw {
 				}
 
 				template<typename Iterator>
-				value_opt_t parse_number( Range<Iterator> & range ) {
-					auto current = range;
-					if( '-' == current.front( ) ) {
-						current.move_next( );
+				value_t parse_number( Range<Iterator> & range ) {
+					auto const first = range.begin( );
+					move_range_forward_if_equal( range, "-" );
+
+					while( !at_end( range ) && is_digit( range.begin( ) ) ) { 
+						range.move_next( ); 
 					}
-					while( !at_end( current ) && is_digit( current.begin( ) ) ) { current.move_next( ); };
-					bool is_float = !at_end( current ) && '.' == current.front( );
+					bool const is_float = !at_end( range ) && '.' == range.front( );
 					if( is_float ) {
-						current.move_next( );
-						while( !at_end( current ) && is_digit( current.begin( ) ) ) { current.move_next( ); };
-						if( is_equal_nc( current.begin( ), 'e' ) ) {
-							current.move_next( );
-							if( '-' == current.front( ) ) {
-								current.move_next( );
+						range.move_next( );
+						while( !at_end( range ) && is_digit( range.begin( ) ) ) { range.move_next( ); };
+						if( is_equal_nc( range.begin( ), 'e' ) ) {
+							range.move_next( );
+							if( '-' == range.front( ) ) {
+								range.move_next( );
 							}
-							while( !at_end( current ) && is_digit( current.begin( ) ) ) { current.move_next( ); };
+							while( !at_end( range ) && is_digit( range.begin( ) ) ) { range.move_next( ); };
 						}
 					}
-					if( range.begin( ) == current.begin( ) ) {
-						return value_opt_t( );
+					if( first == range.begin( ) ) {
+						throw JsonParserException( "Not a valid JSON number" );
 					}
 
 					if( is_float ) {
 						try {
-							assert( range.begin( ) <= current.begin( ) );
-							auto result = value_t( boost::lexical_cast<double>(range.begin( ), static_cast<size_t>(std::distance( range.begin( ), current.begin( ) ))) );
-							range = current;
+							assert( first <= range.begin( ) );
+							auto result = value_t( boost::lexical_cast<double>( first, static_cast<size_t>(std::distance( first, range.begin( ) ))) );
 							return result;
-						} catch( boost::bad_lexical_cast const & ) { }
-					} else {
-						try {
-							assert( range.begin( ) <= current.begin( ) );
-							auto result = value_t( boost::lexical_cast<int64_t>(range.begin( ), static_cast<size_t>(std::distance( range.begin( ), current.begin( ) ))) );
-							range = current;
-							return result;
-						} catch( boost::bad_lexical_cast const & ) { }
+						} catch( boost::bad_lexical_cast const & ) { 
+							throw JsonParserException( "Not a valid JSON number" );
+						}
 					}
-					// Error return null
-					return value_opt_t( );
+					try {
+						assert( first <= range.begin( ) );
+						auto result = value_t( boost::lexical_cast<int64_t>( first, static_cast<size_t>(std::distance( first, range.begin( ) ))) );
+						return result;
+					} catch( boost::bad_lexical_cast const & ) { 
+						throw JsonParserException( "Not a valid JSON number" );
+					}
 				}
 
 				template<typename Iterator>
-				value_opt_t parse_value( Range<Iterator> & range );
+				value_t parse_value( Range<Iterator> & range );
 
 				template<typename Iterator>
-				boost::optional<object_value_item> parse_object_item( Range<Iterator> & range ) {
-					auto current = range;
-					boost::optional<value_t> label = parse_string( current );
-					if( !label || !label->is_string( ) ) {
-						return boost::optional<object_value_item>( );
+				object_value_item parse_object_item( Range<Iterator> & range ) {
+					auto label = parse_string( range );
+					auto const & lbl = label.get_string_value( );
+					skip_ws( range );
+					if( !is_equal( range.begin( ), ':' ) ) {
+						throw JsonParserException( "Not a valid JSON object item" );
 					}
-					auto const & lbl = label->get_string_value( );
-					skip_ws( current );
-					if( !is_equal( current.begin( ), ':' ) ) {
-						return boost::optional<object_value_item>( );
-					}
-					skip_ws( current.move_next( ) );
-					auto value = parse_value( current );
-					if( !value ) {
-						return boost::optional<object_value_item>( );
-					}
-					range = current;
-
-					
-					return boost::optional<object_value_item>( std::make_pair( lbl, *value ) );
+					skip_ws( range.move_next( ) );
+					auto value = parse_value( range );
+					return std::make_pair( lbl, value );
 				}
 
 				template<typename Iterator>
-				value_opt_t parse_object( Range<Iterator> & range ) {
-					auto current = range;
-					if( !is_equal( current.begin( ), '{' ) ) {
-						return value_opt_t( );
+				value_t parse_object( Range<Iterator> & range ) {
+					if( !is_equal( range.begin( ), '{' ) ) {
+						throw JsonParserException( "Not a valid JSON object" );
 					}
-					current.move_next( );
+					range.move_next( );
 					object_value result;
 					do {
-						skip_ws( current );
-						auto item = parse_object_item( current );
-						if( !item ) {
-							return value_opt_t( );
-						}
-						result.push_back( *item );
-						skip_ws( current );
-						if( !is_equal( current.begin( ), ',' ) ) {
+						skip_ws( range );
+						result.push_back( parse_object_item( range ) );
+						skip_ws( range );
+						if( !is_equal( range.begin( ), ',' ) ) {
 							break;
 						}
-						current.move_next( );
-					} while( !at_end( current ) );
-					if( !is_equal( current.begin( ), '}' ) ) {
-						return value_opt_t( );
+						range.move_next( );
+					} while( !at_end( range ) );
+					if( !is_equal( range.begin( ), '}' ) ) {
+						throw JsonParserException( "Not a valid JSON object" );
 					}
-					current.move_next( );
-					range = current;
-					return value_opt_t( std::move( result ) );
+					range.move_next( );
+					return value_t( std::move( result ) );
 				}
 
 				template<typename Iterator>
-				value_opt_t parse_array( Range<Iterator>& range ) {
-					auto current = range;
-					if( !is_equal( current.begin( ), '[' ) ) {
-						return value_opt_t( );
+				value_t parse_array( Range<Iterator>& range ) {
+					if( !is_equal( range.begin( ), '[' ) ) {
+						throw JsonParserException( "Not a valid JSON array" );
 					}
-					current.move_next( );
+					range.move_next( );
 					array_value results;
 					do {
-						skip_ws( current );
-						auto item = parse_value( current );
-						if( !item ) {
-							return value_opt_t( );
-						}
-						results.push_back( std::move( *item ) );
-						skip_ws( current );
-						if( !is_equal( current.begin( ), ',' ) ) {
+						skip_ws( range );
+						results.push_back( parse_value( range ) );
+						skip_ws( range );
+						if( !is_equal( range.begin( ), ',' ) ) {
 							break;
 						}
-						current.move_next( );
-					} while( !current.at_end( ) );
-					if( !is_equal( current.begin( ), ']' ) ) {
-						return value_opt_t( );
+						range.move_next( );
+					} while( !range.at_end( ) );
+					if( !is_equal( range.begin( ), ']' ) ) {
+						throw JsonParserException( "Not a valid JSON array" );
 					}
-					current.move_next( );
-					range = current;
-					return value_opt_t( results );
+					range.move_next( );
+					return value_t( std::move( results ) );
 				}
-
+			
 				template<typename Iterator>
-				value_opt_t parse_value( Range<Iterator>& range ) {
-					auto current = range;
-					skip_ws( current );
-					switch( current.front( ) ) {
+				value_t parse_value( Range<Iterator>& range ) {
+					value_t result;
+					skip_ws( range );
+					switch( range.front( ) ) {
 					case '{':
-						if( auto obj = parse_object( current ) ) {
-							skip_ws( current );
-							range = current;
-							return obj;
-						}
+						result = parse_object( range );
 						break;
 					case '[':
-						if( auto obj = parse_array( current ) ) {
-							skip_ws( current );
-							range = current;
-							return obj;
-						}
+						result = parse_array( range );
 						break;
 					case '"':
-						if( auto obj = parse_string( current ) ) {
-							skip_ws( current );
-							range = current;
-							return obj;
-						}
+						result = parse_string( range );
 						break;
 					case 't':
 					case 'f':
-						if( auto obj = parse_bool( current ) ) {
-							skip_ws( current );
-							range = current;
-							return obj;
-						}
+						result = parse_bool( range );
 						break;
 					case 'n':
-						if( auto obj = parse_null( current ) ) {
-							skip_ws( current );
-							range = current;
-							return obj;
-						}
+						result = parse_null( range );
 						break;
 					default:
-						if( auto obj = parse_number( current ) ) {
-							skip_ws( current );
-							range = current;
-							return obj;
-						}
+						result = parse_number( range );
 					}
-					return value_opt_t( );
+					skip_ws( range );
+					return result;
 				}
-			}	// namespace anonymous
+		//	}	// namespace anonymous
 		}	// namespace impl
 
 		json_obj parse_json( daw::range::Range<char const *> json_text ) {
-			auto result = impl::parse_value( json_text );
-			if( result ) {
-				return std::make_shared<impl::value_t>( std::move( *result ) );
+			try {
+				return impl::parse_value( json_text );
+			} catch( JsonParserException const & ) {
+				return impl::value_t( nullptr );
 			}
-			return std::make_shared<impl::value_t>( nullptr );
 		}
 
 		json_obj parse_json( boost::string_ref const json_text ) {
