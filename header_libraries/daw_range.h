@@ -125,6 +125,14 @@ namespace daw {
 				return *m_begin;
 			}
 
+			reference operator*( ) {
+				return *m_begin;
+			}
+
+			const_reference operator*( ) const {
+				return *m_begin;
+			}
+
 			size_t size( ) const {
 				return static_cast<size_t>( std::distance( m_begin, m_end ) );
 			}

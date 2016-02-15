@@ -22,7 +22,6 @@
 
 #include <boost/lexical_cast.hpp>
 #include <boost/utility/string_ref.hpp>
-#include <emmintrin.h>
 #include <iterator>
 #include <string>
 #include <type_traits>
@@ -71,7 +70,7 @@ namespace daw {
 				return result;
 			}			
 		
-			string_value create_string_value( char const * const first, char const * const last ) {
+			string_value create_string_value( CharIterator first, CharIterator last ) {
 				return { first, last };
 			}
 
@@ -92,12 +91,13 @@ namespace daw {
 			}
 
 			std::string to_string( string_value const & str ) {
-				std::string result { str.begin( ), str.size( ) };
-				return result;
+				return std::string{ str.begin( ), str.size( ) };
 			}
  
 			std::ostream& operator<<( std::ostream& os, string_value const& value ) {
-				os << to_string( value );
+				for( auto const & c : value ) {
+					os << c;
+				}
 				return os;
 			}
 
@@ -105,9 +105,7 @@ namespace daw {
 				memset( this, 0, sizeof( u_value_t ) );
 			}
 
-			value_t::value_t( ) : m_value_type( value_types::null ) {
-				m_value.clear( );
-			}
+			value_t::value_t( ) : m_value_type( value_types::null ) { }
 
 			value_t::value_t( int64_t const & value ) : m_value_type( value_types::integral ) {				
 				m_value.integral = value;
@@ -133,9 +131,7 @@ namespace daw {
 				m_value.boolean = std::move( value );
 			}
 
-			value_t::value_t( std::nullptr_t ) : m_value_type( value_types::null ) {
-				m_value.clear( );
-			}
+			value_t::value_t( std::nullptr_t ) : m_value_type( value_types::null ) { }
 
 			value_t::value_t( array_value value ) : m_value_type( value_types::array ) {
 				m_value.array_v = new array_value( std::move( value ) );
@@ -230,12 +226,11 @@ namespace daw {
 				default:
 					throw std::runtime_error( "Unexpected value_t type" );
 				}
-				other.m_value_type = value_types::null;
 			}
 
 			value_t & value_t::operator=(value_t && rhs) {
-				rhs.m_value_type = rhs.m_value_type;
 				if( this != &rhs ) {
+					m_value_type = rhs.m_value_type;
 					switch( m_value_type ) {
 					case value_types::array:
 						m_value.array_v = rhs.m_value.array_v;
@@ -261,7 +256,6 @@ namespace daw {
 					default:
 						throw std::runtime_error( "Unexpected value_t type" );
 					}
-					rhs.m_value_type = value_types::null;
 				}
 				return *this;
 			}
@@ -507,7 +501,7 @@ namespace daw {
 			}
 
 			void skip_ws( Range<CharIterator> & range ) {
-				while( range.begin( ) != range.end( ) && is_ws( *range.begin( ) ) ) {
+				while( range.begin( ) != range.end( ) && is_ws( *range ) ) {
 					range.move_next( );
 				}
 			}
@@ -529,7 +523,7 @@ namespace daw {
 				auto first = range.begin( );
 				size_t slash_count = 0;
 				while( !at_end( range ) ) {
-					auto const & cur_val = *range.begin( );
+					auto const & cur_val = *range;
 					if( '"' == cur_val && slash_count % 2 == 0 ) {
 						break;
 					}
@@ -572,13 +566,13 @@ namespace daw {
 				while( !at_end( range ) && is_digit( range.begin( ) ) ) {
 					range.move_next( );
 				}
-				bool const is_float = !at_end( range ) && '.' == *range.begin( );
+				bool const is_float = !at_end( range ) && '.' == *range;
 				if( is_float ) {
 					range.move_next( );
 					while( !at_end( range ) && is_digit( range.begin( ) ) ) { range.move_next( ); };
 					if( is_equal_nc( range.begin( ), 'e' ) ) {
 						range.move_next( );
-						if( '-' == *range.begin( ) ) {
+						if( '-' == *range ) {
 							range.move_next( );
 						}
 						while( !at_end( range ) && is_digit( range.begin( ) ) ) { range.move_next( ); };
@@ -668,7 +662,7 @@ namespace daw {
 			value_t parse_value( Range<CharIterator>& range ) {
 				value_t result;
 				skip_ws( range );
-				switch( *range.begin( ) ) {
+				switch( *range ) {
 				case '{':
 					result = parse_object( range );
 					break;
@@ -696,9 +690,7 @@ namespace daw {
 
 		json_obj parse_json(char const* Begin, char const* End) {
 			try {
-				impl::CharIterator it_begin( Begin );
-				impl::CharIterator it_end( End );
-				auto range = range::make_range( it_begin, it_end );
+				auto range = range::make_range( Begin, End );
 				return impl::parse_value( range );
 			} catch( JsonParserException const & ) {
 				return impl::value_t( nullptr );
