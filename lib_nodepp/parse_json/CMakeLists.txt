@@ -29,6 +29,7 @@ set(SOURCE_FILES
 	daw_json_link.h
 	daw_json_parser.cpp
 	daw_json_parser.h
+	../../third_party/utf8/utf8.h
 )
 
 include_directories( ../../header_libraries )

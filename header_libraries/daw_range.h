@@ -38,6 +38,7 @@ namespace daw {
 			using const_reference = const reference;
 			using iterator = Iterator;
 			using const_iterator = const iterator;
+			using difference_type = typename std::iterator_traits<Iterator>::difference_type;
 			Range( ) = default;
 			Range( Range const & ) = default;
 			Range( Range && ) = default;
@@ -77,6 +78,10 @@ namespace daw {
 
 			iterator begin( ) {
 				return m_begin;
+			}
+
+			void advance( difference_type n ) {
+				std::advance( m_begin, n );
 			}
 
 			void set_begin( iterator i ) {
@@ -163,7 +168,7 @@ namespace daw {
 		void safe_advance( Range<Iterator> & range, typename std::iterator_traits<Iterator>::difference_type count ) {
 			assert( 0 <= count );
 			if( std::distance( range.begin( ), range.end( ) )>= count ) {
-				range.set_begin( range.begin( ) + count );
+				range.advance( count );
 			} else {
 				range.set_begin( range.end( ) );
 			}

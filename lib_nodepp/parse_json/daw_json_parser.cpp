@@ -30,6 +30,7 @@
 #include "daw_range.h"
 #include "daw_json_interface.h"
 #include "daw_json_parser.h"
+#include "../../third_party/include/utf8.h"
 
 namespace daw {
 	namespace json {
@@ -45,6 +46,7 @@ namespace daw {
 		namespace impl {
 			
 			using namespace daw::range;
+			using UTF8Iterator = utf8::iterator<char const *>;
 
 			size_t hash_sequence( char const * first, char const * const last ) {
 				// FNV-1a hash function for bytes in [fist, last], see http://www.isthe.com/chongo/tech/comp/fnv/index.html
@@ -67,7 +69,7 @@ namespace daw {
 					result *= fnv_prime;
 				}
 				return result;
-			}
+			}			
 		
 			string_value create_string_value( char const * const first, char const * const last ) {
 				return { first, last };
@@ -432,11 +434,454 @@ namespace daw {
 				return pos->second;
 			}
 
+			template<typename Iterator>
+			bool contains( Iterator first, Iterator last, typename std::iterator_traits<Iterator>::value_type const & key ) {
+				return std::find( first, last, key ) != last;
+			}
+
+			template<typename Iterator>
+			bool is_ws( Iterator it ) {
+				static const std::array<typename std::iterator_traits<Iterator>::value_type, 4> ws_chars = { {0x20, 0x09, 0x0A, 0x0D} };
+				return contains( ws_chars.cbegin( ), ws_chars.cend( ), *it );
+			}
+
+			template<typename T>
+			T lower_case( T val ) {
+				return val | ' ';
+			}
+
+			template<typename Iterator>
+			bool is_equal( Iterator it, typename std::iterator_traits<Iterator>::value_type val ) {
+				return *it == val;
+			}
+
+			template<typename Iterator>
+			bool is_equal_nc( Iterator it, typename std::iterator_traits<Iterator>::value_type val ) {
+				return lower_case( *it ) == lower_case( val );
+			}
+
+			template<typename Iterator>
+			void skip_ws( Range<Iterator> & range ) {
+				while( range.begin( ) != range.end( ) && is_ws( range.begin( ) ) ) {
+					range.move_next( );
+				}
+			}
+
+			template<typename Iterator>
+			bool move_range_forward_if_equal( Range<Iterator>& range, boost::string_ref value ) {
+				auto const value_size = static_cast<typename std::iterator_traits<Iterator>::difference_type>(value.size( ));
+				bool result = std::distance( range.begin( ), range.end( ) ) >= value_size;
+				result = result && std::equal( range.begin( ), range.begin( ) + value_size, std::begin( value ) );
+				if( result ) {
+					safe_advance( range, value_size );
+				}
+				return result;
+			}
+
+			template<typename Iterator>
+			value_t parse_string( Range<Iterator>& range ) {
+				if( !is_equal( range.begin( ), '"' ) ) {
+					throw JsonParserException( "Not a valid JSON string" );
+				}
+				range.move_next( );
+				auto first = range.begin( );
+				size_t slash_count = 0;
+				while( !at_end( range ) ) {
+					auto const & cur_val = *range.begin( );
+					if( '"' == cur_val && slash_count % 2 == 0 ) {
+						break;
+					}
+					slash_count = '\\' == cur_val ? slash_count + 1 : 0;
+					range.move_next( );
+				}
+				if( at_end( range ) ) {
+					throw JsonParserException( "Not a valid JSON string" );
+				}
+				auto result = value_t( create_string_value( first, range.begin( ) ) );
+				range.move_next( );
+				return result;
+			}
+
+			template<typename Iterator>
+			value_t parse_bool( Range<Iterator>& range ) {
+				if( move_range_forward_if_equal( range, "true" ) ) {
+					return value_t( true );
+				} else if( move_range_forward_if_equal( range, "false" ) ) {
+					return value_t( false );
+				}
+				throw JsonParserException( "Not a valid JSON bool" );
+			}
+
+			template<typename Iterator>
+			value_t parse_null( Range<Iterator> & range ) {
+				if( !move_range_forward_if_equal( range, "null" ) ) {
+					throw JsonParserException( "Not a valid JSON null" );
+				}
+				return value_t( nullptr );
+			}
+
+			template<typename Iterator>
+			bool is_digit( Iterator it ) {
+				auto const & test = *it;
+				return '0' <= test && test <= '9';
+			}
+
+			template<typename Iterator>
+			value_t parse_number( Range<Iterator> & range ) {
+				auto const first = range.begin( );
+				move_range_forward_if_equal( range, "-" );
+
+				while( !at_end( range ) && is_digit( range.begin( ) ) ) {
+					range.move_next( );
+				}
+				bool const is_float = !at_end( range ) && '.' == *range.begin( );
+				if( is_float ) {
+					range.move_next( );
+					while( !at_end( range ) && is_digit( range.begin( ) ) ) { range.move_next( ); };
+					if( is_equal_nc( range.begin( ), 'e' ) ) {
+						range.move_next( );
+						if( '-' == *range.begin( ) ) {
+							range.move_next( );
+						}
+						while( !at_end( range ) && is_digit( range.begin( ) ) ) { range.move_next( ); };
+					}
+				}
+				if( first == range.begin( ) ) {
+					throw JsonParserException( "Not a valid JSON number" );
+				}
+
+				if( is_float ) {
+					try {
+						auto result = value_t( boost::lexical_cast<double>(first, static_cast<size_t>(std::distance( first, range.begin( ) ))) );
+						return result;
+					} catch( boost::bad_lexical_cast const & ) {
+						throw JsonParserException( "Not a valid JSON number" );
+					}
+				}
+				try {
+					auto result = value_t( boost::lexical_cast<int64_t>(first, static_cast<size_t>(std::distance( first, range.begin( ) ))) );
+					return result;
+				} catch( boost::bad_lexical_cast const & ) {
+					throw JsonParserException( "Not a valid JSON number" );
+				}
+			}
+
+			template<typename Iterator>
+			value_t parse_value( Range<Iterator>& range );
+
+			template<typename Iterator>
+			object_value_item parse_object_item( Range<Iterator> & range ) {
+				auto label = parse_string( range );
+				auto const & lbl = label.get_string_value( );
+				skip_ws( range );
+				if( !is_equal( range.begin( ), ':' ) ) {
+					throw JsonParserException( "Not a valid JSON object item" );
+				}
+				skip_ws( range.move_next( ) );
+				auto value = parse_value( range );
+				return std::make_pair( lbl, value );
+			}
+
+			template<typename Iterator>
+			value_t parse_object( Range<Iterator> & range ) {
+				if( !is_equal( range.begin( ), '{' ) ) {
+					throw JsonParserException( "Not a valid JSON object" );
+				}
+				range.move_next( );
+				object_value result;
+				do {
+					skip_ws( range );
+					result.push_back( parse_object_item( range ) );
+					skip_ws( range );
+					if( !is_equal( range.begin( ), ',' ) ) {
+						break;
+					}
+					range.move_next( );
+				} while( !at_end( range ) );
+				if( !is_equal( range.begin( ), '}' ) ) {
+					throw JsonParserException( "Not a valid JSON object" );
+				}
+				range.move_next( );
+				result.shrink_to_fit( );
+				return value_t( std::move( result ) );
+			}
+
+			template<typename Iterator>
+			value_t parse_array( Range<Iterator>& range ) {
+				if( !is_equal( range.begin( ), '[' ) ) {
+					throw JsonParserException( "Not a valid JSON array" );
+				}
+				range.move_next( );
+				array_value results;
+				do {
+					skip_ws( range );
+					results.push_back( parse_value( range ) );
+					skip_ws( range );
+					if( !is_equal( range.begin( ), ',' ) ) {
+						break;
+					}
+					range.move_next( );
+				} while( !range.at_end( ) );
+				if( !is_equal( range.begin( ), ']' ) ) {
+					throw JsonParserException( "Not a valid JSON array" );
+				}
+				range.move_next( );
+				results.shrink_to_fit( );
+				return value_t( std::move( results ) );
+			}
+
+			template<typename Iterator>
+			value_t parse_value( Range<Iterator>& range ) {
+				value_t result;
+				skip_ws( range );
+				switch( *range.begin( ) ) {
+				case '{':
+					result = parse_object( range );
+					break;
+				case '[':
+					result = parse_array( range );
+					break;
+				case '"':
+					result = parse_string( range );
+					break;
+				case 't':
+				case 'f':
+					result = parse_bool( range );
+					break;
+				case 'n':
+					result = parse_null( range );
+					break;
+				default:
+					result = parse_number( range );
+				}
+				skip_ws( range );
+				return result;
+			}
+
+			//////
+			//////////////////////////////////////////////////////////////////////////
+			bool contains( UTF8Iterator first, UTF8Iterator last, typename std::iterator_traits<UTF8Iterator>::value_type const & key ) {
+				return std::find( first, last, key ) != last;
+			}
+
+			bool is_ws( UTF8Iterator it ) {
+				static const std::array<typename std::iterator_traits<UTF8Iterator>::value_type, 4> ws_chars = { { 0x20, 0x09, 0x0A, 0x0D } };
+				return contains( ws_chars.cbegin( ), ws_chars.cend( ), *it );
+			}
+
+
+			bool is_equal( UTF8Iterator it, typename std::iterator_traits<UTF8Iterator>::value_type val ) {
+				return *it == val;
+			}
+
+			bool is_equal_nc( UTF8Iterator it, typename std::iterator_traits<UTF8Iterator>::value_type val ) {
+				return lower_case( *it ) == lower_case( val );
+			}
+
+			void skip_ws( Range<UTF8Iterator> & range ) {
+				while( range.begin( ) != range.end( ) && is_ws( range.begin( ) ) ) {
+					range.move_next( );
+				}
+			}
+
+			bool move_range_forward_if_equal( Range<UTF8Iterator>& range, boost::string_ref value ) {
+				UTF8Iterator value_it_begin( value.begin( ), value.begin( ), value.end( ) );
+				UTF8Iterator value_it_end( value.end( ), value.begin( ), value.end( ) );
+				auto const value_size = static_cast<typename std::iterator_traits<UTF8Iterator>::difference_type>(std::distance( value_it_begin, value_it_end ));
+				auto result = std::distance( range.begin( ), range.end( ) ) >= value_size;
+				auto test_end = range.begin( );
+				utf8::unchecked::advance( test_end, value_size );
+				result = result && std::equal( range.begin( ), test_end, value_it_begin );
+				if( result ) {
+					safe_advance( range, value_size );
+				}
+				return result;
+			}
+
+			value_t parse_string( Range<UTF8Iterator>& range ) {
+				if( !is_equal( range.begin( ), '"' ) ) {
+					throw JsonParserException( "Not a valid JSON string" );
+				}
+				range.move_next( );
+				auto first = range.begin( );
+				size_t slash_count = 0;
+				while( !at_end( range ) ) {
+					auto const & cur_val = *range.begin( );
+					if( '"' == cur_val && slash_count % 2 == 0 ) {
+						break;
+					}
+					slash_count = '\\' == cur_val ? slash_count + 1 : 0;
+					range.move_next( );
+				}
+				if( at_end( range ) ) {
+					throw JsonParserException( "Not a valid JSON string" );
+				}
+				auto result = value_t( create_string_value( first, range.begin( ) ) );
+				range.move_next( );
+				return result;
+			}
+
+			value_t parse_bool( Range<UTF8Iterator>& range ) {
+				if( move_range_forward_if_equal( range, "true" ) ) {
+					return value_t( true );
+				} else if( move_range_forward_if_equal( range, "false" ) ) {
+					return value_t( false );
+				}
+				throw JsonParserException( "Not a valid JSON bool" );
+			}
+
+			value_t parse_null( Range<UTF8Iterator> & range ) {
+				if( !move_range_forward_if_equal( range, "null" ) ) {
+					throw JsonParserException( "Not a valid JSON null" );
+				}
+				return value_t( nullptr );
+			}
+
+			bool is_digit( UTF8Iterator it ) {
+				auto const & test = *it;
+				return '0' <= test && test <= '9';
+			}
+
+			value_t parse_number( Range<UTF8Iterator> & range ) {
+				auto const first = range.begin( );
+				move_range_forward_if_equal( range, "-" );
+
+				while( !at_end( range ) && is_digit( range.begin( ) ) ) {
+					range.move_next( );
+				}
+				bool const is_float = !at_end( range ) && '.' == *range.begin( );
+				if( is_float ) {
+					range.move_next( );
+					while( !at_end( range ) && is_digit( range.begin( ) ) ) { range.move_next( ); };
+					if( is_equal_nc( range.begin( ), 'e' ) ) {
+						range.move_next( );
+						if( '-' == *range.begin( ) ) {
+							range.move_next( );
+						}
+						while( !at_end( range ) && is_digit( range.begin( ) ) ) { range.move_next( ); };
+					}
+				}
+				if( first == range.begin( ) ) {
+					throw JsonParserException( "Not a valid JSON number" );
+				}
+
+				if( is_float ) {
+					try {
+						auto result = value_t( boost::lexical_cast<double>(first.base( ), static_cast<size_t>(std::distance( first.base( ), range.begin( ).base( ) ))) );
+						return result;
+					} catch( boost::bad_lexical_cast const & ) {
+						throw JsonParserException( "Not a valid JSON number" );
+					}
+				}
+				try {
+					auto result = value_t( boost::lexical_cast<int64_t>(first.base( ), static_cast<size_t>(std::distance( first.base( ), range.begin( ).base( ) ))) );
+					return result;
+				} catch( boost::bad_lexical_cast const & ) {
+					throw JsonParserException( "Not a valid JSON number" );
+				}
+			}
+
+			value_t parse_value( Range<UTF8Iterator>& range );
+
+			object_value_item parse_object_item( Range<UTF8Iterator> & range ) {
+				auto label = parse_string( range );
+				auto const & lbl = label.get_string_value( );
+				skip_ws( range );
+				if( !is_equal( range.begin( ), ':' ) ) {
+					throw JsonParserException( "Not a valid JSON object item" );
+				}
+				skip_ws( range.move_next( ) );
+				auto value = parse_value( range );
+				return std::make_pair( lbl, value );
+			}
+
+			value_t parse_object( Range<UTF8Iterator> & range ) {
+				if( !is_equal( range.begin( ), '{' ) ) {
+					throw JsonParserException( "Not a valid JSON object" );
+				}
+				range.move_next( );
+				object_value result;
+				do {
+					skip_ws( range );
+					result.push_back( parse_object_item( range ) );
+					skip_ws( range );
+					if( !is_equal( range.begin( ), ',' ) ) {
+						break;
+					}
+					range.move_next( );
+				} while( !at_end( range ) );
+				if( !is_equal( range.begin( ), '}' ) ) {
+					throw JsonParserException( "Not a valid JSON object" );
+				}
+				range.move_next( );
+				result.shrink_to_fit( );
+				return value_t( std::move( result ) );
+			}
+
+			value_t parse_array( Range<UTF8Iterator>& range ) {
+				if( !is_equal( range.begin( ), '[' ) ) {
+					throw JsonParserException( "Not a valid JSON array" );
+				}
+				range.move_next( );
+				array_value results;
+				do {
+					skip_ws( range );
+					results.push_back( parse_value( range ) );
+					skip_ws( range );
+					if( !is_equal( range.begin( ), ',' ) ) {
+						break;
+					}
+					range.move_next( );
+				} while( !range.at_end( ) );
+				if( !is_equal( range.begin( ), ']' ) ) {
+					throw JsonParserException( "Not a valid JSON array" );
+				}
+				range.move_next( );
+				results.shrink_to_fit( );
+				return value_t( std::move( results ) );
+			}
+
+			value_t parse_value( Range<UTF8Iterator>& range ) {
+				value_t result;
+				skip_ws( range );
+				switch( *range.begin( ) ) {
+				case '{':
+					result = parse_object( range );
+					break;
+				case '[':
+					result = parse_array( range );
+					break;
+				case '"':
+					result = parse_string( range );
+					break;
+				case 't':
+				case 'f':
+					result = parse_bool( range );
+					break;
+				case 'n':
+					result = parse_null( range );
+					break;
+				default:
+					result = parse_number( range );
+				}
+				skip_ws( range );
+				return result;
+			}
+
 		}	// namespace impl
 
+		json_obj parse_json(char const* Begin, char const* End) {
+			try {
+				utf8::iterator<char const *> it_begin( Begin, Begin, End );
+				utf8::iterator<char const *> it_end( End, Begin, End );
+				return impl::parse_value( range::make_range( it_begin, it_end ) );
+			} catch( JsonParserException const & ) {
+				return impl::value_t( nullptr );
+			}
+		}
+
 		json_obj parse_json( boost::string_ref const json_text ) {
-			auto range = range::make_range( json_text.begin( ), json_text.end( ) );
-			return parse_json( range );
+			return parse_json( json_text.begin( ), json_text.end( ) );
 		}
 
 		template<> int64_t get<int64_t>( impl::value_t const & val ) {
