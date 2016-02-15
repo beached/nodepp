@@ -42,7 +42,7 @@ int main( int argc, char** argv ) {
 	using namespace daw::json::impl;
 	using namespace daw::json;
 
-	std::cout << "value size " << sizeof( value_t ) << std::endl;
+	//std::cout << "value size " << sizeof( value_t ) << std::endl;
 
 	auto json = parse_json( json_str.begin( ), json_str.end( ) );
 	if( json.is_null( ) ) {
@@ -50,7 +50,7 @@ int main( int argc, char** argv ) {
 		exit( EXIT_FAILURE );
 	}
 	
-	std::cout << "value: " << json <<"\n";
+	//std::cout << "value: " << json <<"\n";
 	//system( "pause" );
 	return EXIT_SUCCESS;
 }

@@ -148,8 +148,7 @@ namespace daw {
 
 		template<typename Iterator>
 		Range<Iterator> make_range( Iterator first, Iterator last ) {
-			assert( std::distance( first, last )>= 0 );
-			return Range < Iterator> { first, last };
+			return Range<Iterator> { first, last };
 		}
 
 		template<typename Container, typename std::enable_if<daw::traits::is_container_not_string<Container>::value, long>::type = 0>

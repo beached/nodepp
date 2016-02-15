@@ -472,10 +472,7 @@ namespace daw {
 				UTF8Iterator value_begin( value.begin( ) );
 				UTF8Iterator value_end( value.end( ) );
 				auto const value_size = static_cast<typename std::iterator_traits<Iterator>::difference_type>( std::distance( value_begin, value_end ) );
-				bool result = std::distance( range.begin( ), range.end( ) ) >= value_size;
-				auto it = range.begin( );
-				std::advance( it, value_size );
-				result = result && std::equal( range.begin( ), it, value_begin );
+				auto result = std::equal( value_begin, value_end, range.begin( ) );
 				if( result ) {
 					safe_advance( range, value_size );
 				}
@@ -692,10 +689,7 @@ namespace daw {
 				UTF8Iterator value_it_begin( value.begin( ) );
 				UTF8Iterator value_it_end( value.end( ) );
 				auto const value_size = static_cast<typename std::iterator_traits<UTF8Iterator>::difference_type>(std::distance( value_it_begin, value_it_end ));
-				auto result = std::distance( range.begin( ), range.end( ) ) >= value_size;
-				auto test_end = range.begin( );
-				utf8::unchecked::advance( test_end, value_size );
-				result = result && std::equal( range.begin( ), test_end, value_it_begin );
+				auto result = std::equal( value_it_begin, value_it_end, range.begin( ) );
 				if( result ) {
 					safe_advance( range, value_size );
 				}
