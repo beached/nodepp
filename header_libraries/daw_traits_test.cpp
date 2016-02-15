@@ -56,7 +56,12 @@ BOOST_AUTO_TEST_CASE( daw_traits_is_regular ) {
 		int x;
 		NotRegular( int ):x( ) { }
 		NotRegular( ) = delete;
+		~NotRegular( ) = default;
 		NotRegular( NotRegular const & ) = delete;
+		NotRegular & operator=( NotRegular const & ) = delete;
+		NotRegular( NotRegular && ) = delete;
+		NotRegular & operator=( NotRegular && ) = delete;
+
 	};
 	BOOST_REQUIRE_MESSAGE( false == daw::traits::is_regular<NotRegular>::value, "2. struct NotRegular should report as being regular" );
 }

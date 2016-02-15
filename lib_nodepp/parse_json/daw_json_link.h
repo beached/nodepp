@@ -82,7 +82,7 @@ namespace daw {
 				value_t v;
 				result.push_back( make_object_value_item( impl::create_string_value( "key" ), get_schema( "key", k ) ) );
 				result.push_back( make_object_value_item( impl::create_string_value( "value" ), get_schema( "value", v ) ) );
-				return make_type_obj( name, std::move( ::daw::json::impl::value_t( std::move( result ) ) ) );
+				return make_type_obj( name, ::daw::json::impl::value_t( std::move( result ) ) );
 			}
 
 			template<typename T, typename std::enable_if<daw::traits::is_container_not_string<T>::value, long>::type>
