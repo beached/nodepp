@@ -204,18 +204,63 @@ namespace daw {
 				return *this;
 			}
 
-			value_t::value_t( value_t && other ) :
-				m_value( std::move( other.m_value ) ),
-				m_value_type( std::move( other.m_value_type ) ) {
-				clear( other.m_value.string );
+			value_t::value_t( value_t && other ) : m_value_type( other.m_value_type ) {
+				switch( m_value_type ) {
+				case value_types::array:
+					m_value.array_v = other.m_value.array_v;
+					other.m_value_type = value_types::null;
+					break;
+				case value_types::object: 
+					m_value.object = other.m_value.object;
+					other.m_value_type = value_types::null;
+					break;
+				case value_types::string:
+					m_value.string = other.m_value.string;
+					break;
+				case value_types::integral:
+					m_value.integral = other.m_value.integral;
+					break;
+				case value_types::real:
+					m_value.real = other.m_value.real;
+					break;
+				case value_types::boolean:
+					m_value.boolean = other.m_value.boolean;
+					break;
+				case value_types::null: break;
+				default:
+					throw std::runtime_error( "Unexpected value_t type" );
+				}
 				other.m_value_type = value_types::null;
 			}
 
 			value_t & value_t::operator=(value_t && rhs) {
+				rhs.m_value_type = rhs.m_value_type;
 				if( this != &rhs ) {
-					m_value = std::move( rhs.m_value );
-					m_value_type = std::move( rhs.m_value_type );
-					clear( rhs.m_value.string );
+					switch( m_value_type ) {
+					case value_types::array:
+						m_value.array_v = rhs.m_value.array_v;
+						rhs.m_value_type = value_types::null;
+						break;
+					case value_types::object:
+						m_value.object = rhs.m_value.object;
+						rhs.m_value_type = value_types::null;
+						break;
+					case value_types::string:
+						m_value.string = rhs.m_value.string;
+						break;
+					case value_types::integral:
+						m_value.integral = rhs.m_value.integral;
+						break;
+					case value_types::real:
+						m_value.real = rhs.m_value.real;
+						break;
+					case value_types::boolean:
+						m_value.boolean = rhs.m_value.boolean;
+						break;
+					case value_types::null: break;
+					default:
+						throw std::runtime_error( "Unexpected value_t type" );
+					}
 					rhs.m_value_type = value_types::null;
 				}
 				return *this;
