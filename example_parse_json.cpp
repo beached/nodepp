@@ -24,7 +24,7 @@
 #include <cstdlib>
 #include <boost/iostreams/device/mapped_file.hpp>
 #include <iostream>
-#include <mutex>
+#include "third_party/include/utf8.h"
 
 int main( int argc, char** argv ) {
 	if( argc <= 1 ) {
@@ -44,14 +44,16 @@ int main( int argc, char** argv ) {
 	using namespace daw::json;
 
 	//std::cout << "value size " << sizeof( value_t ) << std::endl;
+	utf8::iterator<char const *> it_begin( json_str.begin( ), json_str.begin( ), json_str.end( ) );
+	utf8::iterator<char const *> it_end( json_str.end( ), json_str.begin( ), json_str.end( ) );
 
-	auto json = parse_json( daw::range::make_range( json_str.begin( ), json_str.end( ) ) );
+	auto json = parse_json( daw::range::make_range( it_begin, it_end ) );
 	if( json.is_null( ) ) {
 		std::cerr <<"Could not find data" <<std::endl;
 		exit( EXIT_FAILURE );
 	}
 	
-	std::cout << "value: " << json <<"\n";
+	//std::cout << "value: " << json <<"\n";
 	//system( "pause" );
 	return EXIT_SUCCESS;
 }
