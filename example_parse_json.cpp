@@ -50,8 +50,8 @@ int main( int argc, char** argv ) {
 		exit( EXIT_FAILURE );
 	}
 	
-	std::cout << "value: " << json <<"\n";
-	system( "pause" );
+	//std::cout << "value: " << json <<"\n";
+	// system( "pause" );
 	return EXIT_SUCCESS;
 }
 
