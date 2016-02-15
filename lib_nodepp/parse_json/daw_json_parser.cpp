@@ -841,6 +841,7 @@ namespace daw {
 				return value_t( std::move( results ) );
 			}
 
+
 			value_t parse_value( Range<UTF8Iterator>& range ) {
 				value_t result;
 				skip_ws( range );
@@ -874,7 +875,8 @@ namespace daw {
 			try {
 				utf8::iterator<char const *> it_begin( Begin, Begin, End );
 				utf8::iterator<char const *> it_end( End, Begin, End );
-				return impl::parse_value( range::make_range( it_begin, it_end ) );
+				auto range = range::make_range( it_begin, it_end );
+				return impl::parse_value( range );
 			} catch( JsonParserException const & ) {
 				return impl::value_t( nullptr );
 			}
