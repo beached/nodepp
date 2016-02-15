@@ -320,13 +320,14 @@ namespace daw {
 			}
 
 			void value_t::cleanup( ) {
-				if( m_value_type == value_types::array ) {
+				if( m_value_type == value_types::array && m_value.array_v != nullptr ) {
 					delete m_value.array_v;
-				} else if( m_value_type == value_types::object ) {
+					m_value.array_v = nullptr;
+				} else if( m_value_type == value_types::object && m_value.object != nullptr ) {
 					delete m_value.object;
+					m_value.object = nullptr;
 				}
 				m_value_type = value_types::null;
-				m_value.clear( );
 			}
 
 			value_t::value_types value_t::type( ) const {
