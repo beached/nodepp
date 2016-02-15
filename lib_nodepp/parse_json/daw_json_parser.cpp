@@ -469,9 +469,13 @@ namespace daw {
 
 			template<typename Iterator>
 			bool move_range_forward_if_equal( Range<Iterator>& range, boost::string_ref value ) {
-				auto const value_size = static_cast<typename std::iterator_traits<Iterator>::difference_type>(value.size( ));
+				UTF8Iterator value_begin( value.begin( ) );
+				UTF8Iterator value_end( value.end( ) );
+				auto const value_size = static_cast<typename std::iterator_traits<Iterator>::difference_type>( std::distance( value_begin, value_end ) );
 				bool result = std::distance( range.begin( ), range.end( ) ) >= value_size;
-				result = result && std::equal( range.begin( ), range.begin( ) + value_size, std::begin( value ) );
+				auto it = range.begin( );
+				std::advance( it, value_size );
+				result = result && std::equal( range.begin( ), it, value_begin );
 				if( result ) {
 					safe_advance( range, value_size );
 				}
@@ -552,14 +556,14 @@ namespace daw {
 
 				if( is_float ) {
 					try {
-						auto result = value_t( boost::lexical_cast<double>(first, static_cast<size_t>(std::distance( first, range.begin( ) ))) );
+						auto result = value_t( boost::lexical_cast<double>(first.base( ), static_cast<size_t>(std::distance( first.base( ), range.begin( ).base( ) ))) );
 						return result;
 					} catch( boost::bad_lexical_cast const & ) {
 						throw JsonParserException( "Not a valid JSON number" );
 					}
 				}
 				try {
-					auto result = value_t( boost::lexical_cast<int64_t>(first, static_cast<size_t>(std::distance( first, range.begin( ) ))) );
+					auto result = value_t( boost::lexical_cast<int64_t>(first.base( ), static_cast<size_t>(std::distance( first.base( ), range.begin( ).base( ) ))) );
 					return result;
 				} catch( boost::bad_lexical_cast const & ) {
 					throw JsonParserException( "Not a valid JSON number" );
