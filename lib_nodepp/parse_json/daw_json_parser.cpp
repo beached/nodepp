@@ -431,19 +431,7 @@ namespace daw {
 				}
 				return pos->second;
 			}
-			//
-//			namespace {
 
-				bool is_ws( char const * const it ) {
-					static const std::array<char, 4> ws_chars = { {0x20, 0x09, 0x0A, 0x0D} };
-					return contains( ws_chars.cbegin( ), ws_chars.cend( ), *it );
-				}
-
-				char lower_case( char val ) {
-					return val | ' ';
-				}
-
-		//	}	// namespace anonymous
 		}	// namespace impl
 
 		json_obj parse_json( boost::string_ref const json_text ) {

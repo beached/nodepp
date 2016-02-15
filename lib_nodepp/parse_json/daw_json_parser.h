@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include <boost/lexical_cast.hpp>
 #include <boost/optional.hpp>
 #include <boost/utility/string_ref.hpp>
 #include <boost/variant.hpp>
@@ -177,9 +178,21 @@ namespace daw {
 
 		namespace impl {
 			using namespace daw::range;
+
 			template<typename Iterator>
 			bool contains( Iterator first, Iterator last, typename std::iterator_traits<Iterator>::value_type const & key ) {
 				return std::find( first, last, key ) != last;
+			}
+
+			template<typename Iterator>
+			bool is_ws( Iterator it ) {
+				static const std::array<typename std::iterator_traits<Iterator>::value_type, 4> ws_chars = { {0x20, 0x09, 0x0A, 0x0D} };
+				return contains( ws_chars.cbegin( ), ws_chars.cend( ), *it );
+			}
+
+			template<typename T>
+			T lower_case( T val ) {
+				return val | ' ';
 			}
 
 			template<typename Iterator>
@@ -301,6 +314,9 @@ namespace daw {
 			}
 
 			template<typename Iterator>
+			value_t parse_value( Range<Iterator>& range );
+
+			template<typename Iterator>
 			object_value_item parse_object_item( Range<Iterator> & range ) {
 				auto label = parse_string( range );
 				auto const & lbl = label.get_string_value( );
@@ -365,7 +381,7 @@ namespace daw {
 			value_t parse_value( Range<Iterator>& range ) {
 				value_t result;
 				skip_ws( range );
-				switch( range.front( ) ) {
+				switch( *range.begin( ) ) {
 				case '{':
 					result = parse_object( range );
 					break;
