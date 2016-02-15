@@ -46,7 +46,7 @@ namespace daw {
 		namespace impl {
 			
 			using namespace daw::range;
-			using UTF8Iterator = utf8::iterator<char const *>;
+			using UTF8Iterator = utf8::unchecked::iterator<char const *>;
 
 			size_t hash_sequence( char const * first, char const * const last ) {
 				// FNV-1a hash function for bytes in [fist, last], see http://www.isthe.com/chongo/tech/comp/fnv/index.html
@@ -685,8 +685,8 @@ namespace daw {
 			}
 
 			bool move_range_forward_if_equal( Range<UTF8Iterator>& range, boost::string_ref value ) {
-				UTF8Iterator value_it_begin( value.begin( ), value.begin( ), value.end( ) );
-				UTF8Iterator value_it_end( value.end( ), value.begin( ), value.end( ) );
+				UTF8Iterator value_it_begin( value.begin( ) );
+				UTF8Iterator value_it_end( value.end( ) );
 				auto const value_size = static_cast<typename std::iterator_traits<UTF8Iterator>::difference_type>(std::distance( value_it_begin, value_it_end ));
 				auto result = std::distance( range.begin( ), range.end( ) ) >= value_size;
 				auto test_end = range.begin( );
