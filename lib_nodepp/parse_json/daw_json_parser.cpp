@@ -22,6 +22,7 @@
 
 #include <boost/lexical_cast.hpp>
 #include <boost/utility/string_ref.hpp>
+#include <emmintrin.h>
 #include <iterator>
 #include <string>
 #include <type_traits>
@@ -46,7 +47,8 @@ namespace daw {
 		namespace impl {
 			
 			using namespace daw::range;
-			using UTF8Iterator = utf8::unchecked::iterator<char const *>;
+			using CharIterator = char const *;
+			using UTF8Iterator = utf8::unchecked::iterator<CharIterator>;
 
 			size_t hash_sequence( char const * first, char const * const last ) {
 				// FNV-1a hash function for bytes in [fist, last], see http://www.isthe.com/chongo/tech/comp/fnv/index.html
@@ -439,14 +441,16 @@ namespace daw {
 				return std::find( first, last, key ) != last;
 			}
 
-			template<typename Iterator>
-			bool is_ws( Iterator it ) {
-				static const std::array<typename std::iterator_traits<Iterator>::value_type, 4> ws_chars = { {0x20, 0x09, 0x0A, 0x0D} };
-				return contains( ws_chars.cbegin( ), ws_chars.cend( ), *it );
+			bool is_ws( uint32_t chr ) {
+				static const std::array<uint32_t, 21> ws_chars = { {
+						0x09, 0x0A, 0x0D, 0x20, 0xC2a0, 0xE19A80, 0xE28080,
+					0xE28081, 0xE28082, 0xE28083, 0xE28084, 0xE28085, 0xE28086, 0xE28087,
+					0xE28088, 0xE28089, 0xE2808A, 0xE2808B, 0xE280AF, 0xE2819F, 0xE38080 } };
+				return contains( ws_chars.cbegin( ), ws_chars.cend( ), chr );
 			}
 
 			template<typename T>
-			T lower_case( T val ) {
+			T ascii_lower_case( T val ) {
 				return val | ' ';
 			}
 
@@ -457,12 +461,12 @@ namespace daw {
 
 			template<typename Iterator>
 			bool is_equal_nc( Iterator it, typename std::iterator_traits<Iterator>::value_type val ) {
-				return lower_case( *it ) == lower_case( val );
+				return ascii_lower_case( *it ) == ascii_lower_case( val );
 			}
 
 			template<typename Iterator>
 			void skip_ws( Range<Iterator> & range ) {
-				while( range.begin( ) != range.end( ) && is_ws( range.begin( ) ) ) {
+				while( range.begin( ) != range.end( ) && is_ws( *range.begin( ) ) ) {
 					range.move_next( );
 				}
 			}
@@ -665,22 +669,16 @@ namespace daw {
 				return std::find( first, last, key ) != last;
 			}
 
-			bool is_ws( UTF8Iterator it ) {
-				static const std::array<typename std::iterator_traits<UTF8Iterator>::value_type, 4> ws_chars = { { 0x20, 0x09, 0x0A, 0x0D } };
-				return contains( ws_chars.cbegin( ), ws_chars.cend( ), *it );
-			}
-
-
 			bool is_equal( UTF8Iterator it, typename std::iterator_traits<UTF8Iterator>::value_type val ) {
 				return *it == val;
 			}
 
 			bool is_equal_nc( UTF8Iterator it, typename std::iterator_traits<UTF8Iterator>::value_type val ) {
-				return lower_case( *it ) == lower_case( val );
+				return ascii_lower_case( *it ) == ascii_lower_case( val );
 			}
 
 			void skip_ws( Range<UTF8Iterator> & range ) {
-				while( range.begin( ) != range.end( ) && is_ws( range.begin( ) ) ) {
+				while( range.begin( ) != range.end( ) && is_ws( *range.begin( ) ) ) {
 					range.move_next( );
 				}
 			}
@@ -871,8 +869,8 @@ namespace daw {
 
 		json_obj parse_json(char const* Begin, char const* End) {
 			try {
-				utf8::iterator<char const *> it_begin( Begin, Begin, End );
-				utf8::iterator<char const *> it_end( End, Begin, End );
+				impl::UTF8Iterator it_begin( Begin );
+				impl::UTF8Iterator it_end( End );
 				auto range = range::make_range( it_begin, it_end );
 				return impl::parse_value( range );
 			} catch( JsonParserException const & ) {
