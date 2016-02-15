@@ -31,7 +31,6 @@
 #include "daw_range.h"
 #include "daw_json_interface.h"
 #include "daw_json_parser.h"
-#include "../../third_party/include/utf8.h"
 
 namespace daw {
 	namespace json {
@@ -48,7 +47,6 @@ namespace daw {
 			
 			using namespace daw::range;
 			using CharIterator = char const *;
-			using UTF8Iterator = utf8::unchecked::iterator<CharIterator>;
 
 			size_t hash_sequence( char const * first, char const * const last ) {
 				// FNV-1a hash function for bytes in [fist, last], see http://www.isthe.com/chongo/tech/comp/fnv/index.html
