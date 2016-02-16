@@ -499,15 +499,6 @@ namespace daw {
 				return ascii_lower_case( *it ) == ascii_lower_case( val );
 			}
 
-// 			void skip_ws( Range<CharIterator> & range ) {
-// 				auto it_begin = range.begin( );
-// 				auto const it_end = range.end( );
-// 				while( it_begin != it_end && is_ws( *it_begin ) ) { 
-// 					++it_begin; 
-// 				}
-// 				range.set_begin( it_begin );
-// 			}
-
 			void skip_ws( Range<CharIterator> & range ) {
 				auto it_begin = range.begin( );
 				auto const it_end = range.end( );
@@ -560,7 +551,7 @@ namespace daw {
 					slash_count = '\\' == cur_val ? slash_count + 1 : 0;
 					++it_begin;
 				}
-				if( !(it_begin != it_end) ) {
+				if( it_begin == it_end ) {
 					throw JsonParserException( "Not a valid JSON string" );
 				}
 				auto result = value_t( create_string_value( it_first, it_begin ) );
