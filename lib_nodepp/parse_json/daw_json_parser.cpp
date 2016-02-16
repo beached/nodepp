@@ -480,10 +480,10 @@ namespace daw {
 			}
 
 			bool is_ws( char val ) {
-				auto result = 0x09 == val;
-				result |= 0x0A == val;
-				result |= 0x0D == val;
-				result |= 0x20 == val;
+				auto result = 0x09 - val == 0;
+				result |= 0x0A - val == 0;
+				result |= 0x0D - val == 0;
+				result |= 0x20 - val == 0;
 				return result;
 			}
 
