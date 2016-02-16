@@ -534,29 +534,35 @@ namespace daw {
 				return result;
 			}
 
-			value_t parse_string( Range<CharIterator>& range ) {
-				auto it_begin = range.begin( );
-				if( !is_equal( it_begin, '"' ) ) {
-					throw JsonParserException( "Not a valid JSON string" );
-				}
-				++it_begin;
-				auto const it_first = it_begin;
-				auto it_end = range.end( );
+			template<typename Iterator>
+			Iterator move_to_quote( Iterator it_current, Iterator const it_end ) { 
 				size_t slash_count = 0;
-				while( it_begin != it_end ) {
-					auto const & cur_val = *it_begin;
+				while( it_current != it_end ) {
+					auto const & cur_val = *it_current;
 					if( '"' == cur_val && slash_count % 2 == 0 ) {
 						break;
 					}
 					slash_count = '\\' == cur_val ? slash_count + 1 : 0;
-					++it_begin;
+					++it_current;
 				}
-				if( it_begin == it_end ) {
+				if( it_current == it_end ) {
 					throw JsonParserException( "Not a valid JSON string" );
 				}
-				auto result = value_t( create_string_value( it_first, it_begin ) );
-				++it_begin;
-				range.set_begin( it_begin );
+				return it_current;			
+			}
+
+			value_t parse_string( Range<CharIterator>& range ) {
+				if( !is_equal( range.begin( ), '"' ) ) {
+					throw JsonParserException( "Not a valid JSON string" );
+				}
+				auto it_current = range.begin( );
+				auto const it_end = range.end( );
+				++it_current;
+				auto const it_first = it_current;
+				it_current = move_to_quote( it_current, it_end );
+				value_t result( create_string_value( it_first, it_current ) );
+				++it_current;
+				range.set_begin( it_current );
 				return result;
 			}
 
@@ -620,7 +626,7 @@ namespace daw {
 				}
 			}
 
-			value_t parse_value( Range<CharIterator>& range );
+			value_t parse_value( Range<CharIterator>& range );			
 
 			object_value_item parse_object_item( Range<CharIterator> & range ) {
 				auto label = parse_string( range ).get_string_value();
@@ -682,7 +688,6 @@ namespace daw {
 				results.shrink_to_fit( );
 				return value_t( std::move( results ) );
 			}
-
 
 			value_t parse_value( Range<CharIterator>& range ) {
 				value_t result;
