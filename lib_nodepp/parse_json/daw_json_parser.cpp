@@ -30,6 +30,7 @@
 #include "daw_range.h"
 #include "daw_json_interface.h"
 #include "daw_json_parser.h"
+#include "../../third_party/include/utf8.h"
 
 namespace daw {
 	namespace json {
@@ -45,9 +46,10 @@ namespace daw {
 		namespace impl {
 			
 			using namespace daw::range;
-			using CharIterator = char const *;
+			using RawIterator = char const *;
+			using CharIterator = utf8::unchecked::iterator<RawIterator>;
 
-			size_t hash_sequence( char const * first, char const * const last ) {
+			size_t hash_sequence( RawIterator first, RawIterator const last ) {
 				// FNV-1a hash function for bytes in [fist, last], see http://www.isthe.com/chongo/tech/comp/fnv/index.html
 			#if defined(_WIN64) || defined(__amd64__)
 				static_assert(sizeof( size_t ) == 8, "This code is for 64-bit size_t.");
@@ -71,7 +73,7 @@ namespace daw {
 			}			
 		
 			string_value create_string_value( CharIterator first, CharIterator last ) {
-				return { first, last };
+				return { first.base( ), last.base( ) };
 			}
 
 			string_value create_string_value( boost::string_ref const& str ) {
@@ -502,27 +504,27 @@ namespace daw {
 			void skip_ws( Range<CharIterator> & range ) {
 				auto it_begin = range.begin( );
 				auto const it_end = range.end( );
-				auto last_inc = is_ws( *it_begin );
-				int inc = last_inc;
-				if( last_inc && std::distance( it_begin + inc, it_end ) > 2 ) {
+				int last_inc = is_ws( *it_begin );
+				std::advance( it_begin, last_inc );
+				if( last_inc && std::distance( it_begin, it_end )  > 2 ) {
 					do {
-						last_inc = is_ws( *(it_begin + inc) );
-						inc += last_inc;
-						last_inc = last_inc && is_ws( *(it_begin + inc) );
-						inc += last_inc;
-						last_inc = last_inc && is_ws( *(it_begin + inc) );
-						inc += last_inc;
-					} while( last_inc && std::distance( it_begin + inc, it_end ) > 2 );
+						last_inc = is_ws( *it_begin );
+						std::advance( it_begin, last_inc );
+						last_inc = last_inc && is_ws( *it_begin );
+						std::advance( it_begin, last_inc );
+						last_inc = last_inc && is_ws( *it_begin );
+						std::advance( it_begin, last_inc );
+					} while( last_inc && std::distance( it_begin, it_end ) > 2 );
 				}
 				if( last_inc ) {
-					last_inc = it_begin != it_end && is_ws( *(it_begin + inc) );
-					inc += last_inc;
-					last_inc = last_inc && (it_begin + inc) != it_end && is_ws( *(it_begin + inc) );
-					inc += last_inc;
-					last_inc = last_inc && (it_begin + inc) != it_end && is_ws( *(it_begin + inc) );
-					inc += last_inc;
+					last_inc = it_begin != it_end && is_ws( *it_begin );
+					std::advance( it_begin, last_inc );
+					last_inc = last_inc && it_begin != it_end && is_ws( *it_begin );
+					std::advance( it_begin, last_inc );
+					last_inc = last_inc && it_begin != it_end && is_ws( *it_begin );
+					std::advance( it_begin, last_inc );
 				}
-				range.set_begin( it_begin + inc );
+				range.set_begin( it_begin );
 			}
 
 			bool move_range_forward_if_equal( Range<CharIterator>& range, boost::string_ref const value ) {
@@ -594,13 +596,13 @@ namespace daw {
 				while( !at_end( range ) && is_digit( range.begin( ) ) ) {
 					range.move_next( );
 				}
-				bool const is_float = !at_end( range ) && '.' == *range;
+				auto const is_float = !at_end( range ) && '.' == *range.begin( );
 				if( is_float ) {
 					range.move_next( );
 					while( !at_end( range ) && is_digit( range.begin( ) ) ) { range.move_next( ); };
 					if( is_equal_nc( range.begin( ), 'e' ) ) {
 						range.move_next( );
-						if( '-' == *range ) {
+						if( '-' == *range.begin( ) ) {
 							range.move_next( );
 						}
 						while( !at_end( range ) && is_digit( range.begin( ) ) ) { range.move_next( ); };
@@ -610,20 +612,26 @@ namespace daw {
 					throw JsonParserException( "Not a valid JSON number" );
 				}
 
+				auto const number_range_size = std::distance( first, range.begin( ) );
+				auto number_range = std::make_unique<char[]>( number_range_size );
+				std::transform( first, range.begin( ), number_range.get( ), []( std::iterator_traits<CharIterator>::value_type const & value ) {
+					return static_cast<char>(value);
+				} );
 				if( is_float ) {
 					try {
-						auto result = value_t( boost::lexical_cast<double>(first, static_cast<size_t>(std::distance( first, range.begin( ) ))) );
+
+						auto result = value_t( boost::lexical_cast<double>( number_range.get( ), number_range_size ) );
 						return result;
 					} catch( boost::bad_lexical_cast const & ) {
 						throw JsonParserException( "Not a valid JSON number" );
 					}
 				}
 				try {
-					auto result = value_t( boost::lexical_cast<int64_t>(first, static_cast<size_t>(std::distance( first, range.begin( ) ))) );
+					auto result = value_t( boost::lexical_cast<int64_t>(number_range.get( ), number_range_size) );
 					return result;
 				} catch( boost::bad_lexical_cast const & ) {
 					throw JsonParserException( "Not a valid JSON number" );
-				}
+				}									
 			}
 
 			value_t parse_value( Range<CharIterator>& range );			
@@ -692,7 +700,7 @@ namespace daw {
 			value_t parse_value( Range<CharIterator>& range ) {
 				value_t result;
 				skip_ws( range );
-				switch( *range ) {
+				switch( *range.begin( ) ) {
 				case '{':
 					result = parse_object( range );
 					break;
@@ -720,7 +728,9 @@ namespace daw {
 
 		json_obj parse_json(char const* Begin, char const* End) {
 			try {
-				auto range = range::make_range( Begin, End );
+				impl::CharIterator it_begin( Begin );
+				impl::CharIterator it_end( End );
+				auto range = range::make_range( it_begin, it_end );
 				return impl::parse_value( range );
 			} catch( JsonParserException const & ) {
 				return impl::value_t( nullptr );
