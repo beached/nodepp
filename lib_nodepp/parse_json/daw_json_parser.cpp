@@ -499,11 +499,27 @@ namespace daw {
 				return ascii_lower_case( *it ) == ascii_lower_case( val );
 			}
 
+// 			void skip_ws( Range<CharIterator> & range ) {
+// 				auto it_begin = range.begin( );
+// 				auto const it_end = range.end( );
+// 				while( it_begin != it_end && is_ws( *it_begin ) ) { 
+// 					++it_begin; 
+// 				}
+// 				range.set_begin( it_begin );
+// 			}
+
 			void skip_ws( Range<CharIterator> & range ) {
 				auto it_begin = range.begin( );
 				auto const it_end = range.end( );
-				while( it_begin != it_end && is_ws( *it_begin ) ) { 
-					++it_begin; 
+				if( std::distance( it_begin, it_end ) > 3 ) {
+					auto inc = static_cast<int>(is_ws( *it_begin ));
+					std::advance( it_begin, inc );
+					inc = inc*(static_cast<int>(is_ws( *it_begin )));
+					std::advance( it_begin, inc );
+					inc = inc*(static_cast<int>(is_ws( *it_begin )));
+				}
+				while( it_begin != it_end && is_ws( *it_begin ) ) {
+					++it_begin;
 				}
 				range.set_begin( it_begin );
 			}
