@@ -48,6 +48,7 @@ namespace daw {
 			using namespace daw::range;
 			using RawIterator = char const *;
 			using CharIterator = utf8::unchecked::iterator<RawIterator>;
+			using CharType = std::iterator_traits<CharIterator>::value_type;
 
 			size_t hash_sequence( RawIterator first, RawIterator const last ) {
 				// FNV-1a hash function for bytes in [fist, last], see http://www.isthe.com/chongo/tech/comp/fnv/index.html
@@ -481,23 +482,23 @@ namespace daw {
 				return std::find( first, last, key ) != last;
 			}
 
-			bool is_ws( char val ) {
-				size_t result1 = 0x09 - val == 0;
-				size_t result2 = 0x0A - val == 0;
-				size_t result3 = 0x0D - val == 0;
-				size_t result4 = 0x20 - val == 0;
+			bool is_ws( CharType val ) {
+				size_t result1 = static_cast<CharType>(0x0009) - val == 0;
+				size_t result2 = static_cast<CharType>(0x000A) - val == 0;
+				size_t result3 = static_cast<CharType>(0x000D) - val == 0;
+				size_t result4 = static_cast<CharType>(0x0020) - val == 0;
 				return result1 + result2 + result3 + result4 > 0;
 			}
 
-			char ascii_lower_case( char val ) {
-				return val | ' ';
+			CharType ascii_lower_case( CharType val ) {
+				return val | static_cast<CharType>(' ');
 			}
 
-			bool is_equal( CharIterator it, typename std::iterator_traits<CharIterator>::value_type val ) {
+			bool is_equal( CharIterator it, CharType val ) {
 				return *it == val;
 			}
 
-			bool is_equal_nc( CharIterator it, typename std::iterator_traits<CharIterator>::value_type val ) {
+			bool is_equal_nc( CharIterator it, CharType val ) {
 				return ascii_lower_case( *it ) == ascii_lower_case( val );
 			}
 
@@ -612,7 +613,7 @@ namespace daw {
 					throw JsonParserException( "Not a valid JSON number" );
 				}
 
-				auto const number_range_size = std::distance( first, range.begin( ) );
+				auto const number_range_size = static_cast<size_t>(std::distance( first, range.begin( ) ));
 				auto number_range = std::make_unique<char[]>( number_range_size );
 				std::transform( first, range.begin( ), number_range.get( ), []( std::iterator_traits<CharIterator>::value_type const & value ) {
 					return static_cast<char>(value);
