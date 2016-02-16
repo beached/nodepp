@@ -649,8 +649,10 @@ namespace daw {
 				array_value results;
 				do {
 					skip_ws( range );
-					results.push_back( parse_value( range ) );
-					skip_ws( range );
+					if( !is_equal( range.begin( ), ']' ) ) {
+						results.push_back( parse_value( range ) );
+						skip_ws( range );
+					}
 					if( !is_equal( range.begin( ), ',' ) ) {
 						break;
 					}
