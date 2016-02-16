@@ -474,19 +474,18 @@ namespace daw {
 				return pos->second;
 			}
 
-			bool contains( CharIterator first, CharIterator last, typename std::iterator_traits<CharIterator>::value_type const & key ) {
+			template<typename Iterator>
+			bool contains( Iterator first, Iterator last, typename std::iterator_traits<Iterator>::value_type const & key ) {
 				return std::find( first, last, key ) != last;
 			}
 
 			bool is_ws( char val ) {
-				auto chr = static_cast<uint8_t>(val);
-				auto result = 0x09 - chr == 0;
-				result |= 0x0A - chr == 0;
-				result |= 0x0D - chr == 0;
-				result |= 0x20 - chr == 0;
+				auto result = 0x09 - val == 0;
+				result |= 0x0A - val == 0;
+				result |= 0x0D - val == 0;
+				result |= 0x20 - val == 0;
 				return result;
 			}
-
 
 			char ascii_lower_case( char val ) {
 				return val | ' ';
@@ -501,9 +500,12 @@ namespace daw {
 			}
 
 			void skip_ws( Range<CharIterator> & range ) {
-				while( range.begin( ) != range.end( ) && is_ws( *range ) ) {
-					range.move_next( );
+				auto it_begin = range.begin( );
+				auto const it_end = range.end( );
+				while( it_begin != it_end && is_ws( *it_begin ) ) { 
+					++it_begin; 
 				}
+				range.set_begin( it_begin );
 			}
 
 			bool move_range_forward_if_equal( Range<CharIterator>& range, boost::string_ref const value ) {
@@ -516,25 +518,28 @@ namespace daw {
 			}
 
 			value_t parse_string( Range<CharIterator>& range ) {
-				if( !is_equal( range.begin( ), '"' ) ) {
+				auto it_begin = range.begin( );
+				if( !is_equal( it_begin, '"' ) ) {
 					throw JsonParserException( "Not a valid JSON string" );
 				}
-				range.move_next( );
-				auto first = range.begin( );
+				++it_begin;
+				auto const it_first = it_begin;
+				auto it_end = range.end( );
 				size_t slash_count = 0;
-				while( !at_end( range ) ) {
-					auto const & cur_val = *range;
+				while( it_begin != it_end ) {
+					auto const & cur_val = *it_begin;
 					if( '"' == cur_val && slash_count % 2 == 0 ) {
 						break;
 					}
 					slash_count = '\\' == cur_val ? slash_count + 1 : 0;
-					range.move_next( );
+					++it_begin;
 				}
-				if( at_end( range ) ) {
+				if( !(it_begin != it_end) ) {
 					throw JsonParserException( "Not a valid JSON string" );
 				}
-				auto result = value_t( create_string_value( first, range.begin( ) ) );
-				range.move_next( );
+				auto result = value_t( create_string_value( it_first, it_begin ) );
+				++it_begin;
+				range.set_begin( it_begin );
 				return result;
 			}
 
