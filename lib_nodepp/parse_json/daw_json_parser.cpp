@@ -522,18 +522,16 @@ namespace daw {
 						last_inc = last_inc && is_ws( *(it_begin + inc) );
 						inc += last_inc;
 					} while( last_inc && std::distance( it_begin + inc, it_end ) > 3 );
-					it_begin += inc;
 				}
 				if( last_inc ) {
-					last_inc = it_begin != it_end && is_ws( *it_begin );
-					inc = last_inc;
-					last_inc = last_inc && (it_begin + inc) != it_end && is_ws( *(it_begin + inc) );
+					last_inc = it_begin != it_end && is_ws( *(it_begin + inc) );
 					inc += last_inc;
 					last_inc = last_inc && (it_begin + inc) != it_end && is_ws( *(it_begin + inc) );
 					inc += last_inc;
-					it_begin += inc;
+					last_inc = last_inc && (it_begin + inc) != it_end && is_ws( *(it_begin + inc) );
+					inc += last_inc;
 				}
-				range.set_begin( it_begin );
+				range.set_begin( it_begin + inc );
 			}
 
 			bool move_range_forward_if_equal( Range<CharIterator>& range, boost::string_ref const value ) {
