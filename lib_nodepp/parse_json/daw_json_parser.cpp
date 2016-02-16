@@ -27,7 +27,6 @@
 #include <type_traits>
 #include <utility>
 
-#include "daw_range.h"
 #include "daw_json_interface.h"
 #include "daw_json_parser.h"
 #include "../../third_party/include/utf8.h"
@@ -44,11 +43,46 @@ namespace daw {
 		}	// namespace anonymous
 
 		namespace impl {
-			
 			using namespace daw::range;
 			using RawIterator = char const *;
 			using CharIterator = utf8::unchecked::iterator<RawIterator>;
 			using CharType = std::iterator_traits<CharIterator>::value_type;
+
+			struct CharRange {
+				CharIterator it_begin;
+				CharIterator it_end;
+				size_t size;
+
+				CharRange & operator++( ) {
+					++it_begin;
+					--size;
+					return *this;
+				}
+
+				CharRange operator++( int ) {
+					CharRange result( *this );
+					++(*this);
+					return result;
+				}
+
+			};
+
+			void safe_advance( CharRange & range, typename std::iterator_traits<CharIterator>::difference_type const count ) {
+				assert( 0 <= count );
+				if( static_cast<size_t>( count ) <= range.size ) {
+					std::advance( range.it_begin, count );
+					range.size -= count;
+				} else {
+					range.it_begin = range.it_end;
+					range.size = 0;
+				}
+			}
+
+			bool at_end( CharRange & range ) {
+				return range.size == 0;
+			}
+
+
 
 			size_t hash_sequence( RawIterator first, RawIterator const last ) {
 				// FNV-1a hash function for bytes in [fist, last], see http://www.isthe.com/chongo/tech/comp/fnv/index.html
@@ -502,74 +536,71 @@ namespace daw {
 				return ascii_lower_case( *it ) == ascii_lower_case( val );
 			}
 
-			void skip_ws( Range<CharIterator> & range ) {
-				auto it_begin = range.begin( );
-				auto const it_end = range.end( );
-				int last_inc = is_ws( *it_begin );
-				std::advance( it_begin, last_inc );
-				if( last_inc && std::distance( it_begin, it_end )  > 2 ) {
+			void skip_ws( CharRange & range ) {
+				int last_inc = is_ws( *range.it_begin );
+				std::advance( range.it_begin, last_inc );
+				if( last_inc && range.size > 2 ) {
 					do {
-						last_inc = is_ws( *it_begin );
-						std::advance( it_begin, last_inc );
-						last_inc = last_inc && is_ws( *it_begin );
-						std::advance( it_begin, last_inc );
-						last_inc = last_inc && is_ws( *it_begin );
-						std::advance( it_begin, last_inc );
-					} while( last_inc && std::distance( it_begin, it_end ) > 2 );
+						last_inc = is_ws( *range.it_begin );
+						std::advance( range.it_begin, last_inc );
+						range.size -= last_inc;
+						last_inc = last_inc && is_ws( *range.it_begin );
+						std::advance( range.it_begin, last_inc );
+						last_inc = last_inc && is_ws( *range.it_begin );
+						range.size -= last_inc;
+						std::advance( range.it_begin, last_inc );
+						range.size -= last_inc;
+					} while( last_inc && range.size > 2 );
 				}
-				if( last_inc ) {
-					last_inc = it_begin != it_end && is_ws( *it_begin );
-					std::advance( it_begin, last_inc );
-					last_inc = last_inc && it_begin != it_end && is_ws( *it_begin );
-					std::advance( it_begin, last_inc );
-					last_inc = last_inc && it_begin != it_end && is_ws( *it_begin );
-					std::advance( it_begin, last_inc );
+				if( last_inc && range.size > 0 ) {
+					last_inc = range.size > 0 && is_ws( *range.it_begin );
+					std::advance( range.it_begin, last_inc );
+					range.size -= last_inc;
+					last_inc = last_inc && range.size > 0 && is_ws( *range.it_begin );
+					std::advance( range.it_begin, last_inc );
+					range.size -= last_inc;
+					last_inc = last_inc && range.size > 0 && is_ws( *range.it_begin );
+					std::advance( range.it_begin, last_inc );
 				}
-				range.set_begin( it_begin );
 			}
 
-			bool move_range_forward_if_equal( Range<CharIterator>& range, boost::string_ref const value ) {
+			bool move_range_forward_if_equal( CharRange & range, boost::string_ref const value ) {
 				auto const value_size = static_cast<typename std::iterator_traits<CharIterator>::difference_type>( std::distance( value.begin( ), value.end( ) ) );
-				auto result = std::equal( value.begin( ), value.end( ), range.begin( ) );
+				auto result = std::equal( value.begin( ), value.end( ), range.it_begin );
 				if( result ) {
 					safe_advance( range, value_size );
 				}
 				return result;
 			}
 
-			template<typename Iterator>
-			Iterator move_to_quote( Iterator it_current, Iterator const it_end ) { 
+			void move_to_quote( CharRange & range ) { 
 				size_t slash_count = 0;
-				while( it_current != it_end ) {
-					auto const & cur_val = *it_current;
+				while( range.size > 0 ) {
+					auto const & cur_val = *range.it_begin;
 					if( '"' == cur_val && slash_count % 2 == 0 ) {
 						break;
 					}
 					slash_count = '\\' == cur_val ? slash_count + 1 : 0;
-					++it_current;
+					++range;
 				}
-				if( it_current == it_end ) {
+				if( range.size == 0 ) {
 					throw JsonParserException( "Not a valid JSON string" );
 				}
-				return it_current;			
 			}
 
-			value_t parse_string( Range<CharIterator>& range ) {
-				if( !is_equal( range.begin( ), '"' ) ) {
+			value_t parse_string( CharRange & range ) {
+				if( !is_equal( range.it_begin, '"' ) ) {
 					throw JsonParserException( "Not a valid JSON string" );
 				}
-				auto it_current = range.begin( );
-				auto const it_end = range.end( );
-				++it_current;
-				auto const it_first = it_current;
-				it_current = move_to_quote( it_current, it_end );
-				value_t result( create_string_value( it_first, it_current ) );
-				++it_current;
-				range.set_begin( it_current );
+				++range;
+				auto const it_first = range.it_begin;
+				move_to_quote( range );
+				value_t result( create_string_value( it_first, range.it_begin ) );
+				++range;
 				return result;
 			}
 
-			value_t parse_bool( Range<CharIterator>& range ) {
+			value_t parse_bool( CharRange & range ) {
 				if( move_range_forward_if_equal( range, "true" ) ) {
 					return value_t( true );
 				} else if( move_range_forward_if_equal( range, "false" ) ) {
@@ -578,7 +609,7 @@ namespace daw {
 				throw JsonParserException( "Not a valid JSON bool" );
 			}
 
-			value_t parse_null( Range<CharIterator> & range ) {
+			value_t parse_null( CharRange & range ) {
 				if( !move_range_forward_if_equal( range, "null" ) ) {
 					throw JsonParserException( "Not a valid JSON null" );
 				}
@@ -590,32 +621,34 @@ namespace daw {
 				return '0' <= test && test <= '9';
 			}
 
-			value_t parse_number( Range<CharIterator> & range ) {
-				auto const first = range.begin( );
+			value_t parse_number( CharRange & range ) {
+				auto const first = range.it_begin;
+				auto const first_range_size = range.size;
 				move_range_forward_if_equal( range, "-" );
 
-				while( !at_end( range ) && is_digit( range.begin( ) ) ) {
-					range.move_next( );
+				while( !at_end( range ) && is_digit( range.it_begin ) ) {
+					++range;
+
 				}
-				auto const is_float = !at_end( range ) && '.' == *range.begin( );
+				auto const is_float = !at_end( range ) && '.' == *range.it_begin;
 				if( is_float ) {
-					range.move_next( );
-					while( !at_end( range ) && is_digit( range.begin( ) ) ) { range.move_next( ); };
-					if( is_equal_nc( range.begin( ), 'e' ) ) {
-						range.move_next( );
-						if( '-' == *range.begin( ) ) {
-							range.move_next( );
+					++range;
+					while( !at_end( range ) && is_digit( range.it_begin ) ) { ++range; };
+					if( is_equal_nc( range.it_begin, 'e' ) ) {
+						++range;
+						if( '-' == *range.it_begin ) {
+							++range;
 						}
-						while( !at_end( range ) && is_digit( range.begin( ) ) ) { range.move_next( ); };
+						while( !at_end( range ) && is_digit( range.it_begin ) ) { ++range; };
 					}
 				}
-				if( first == range.begin( ) ) {
+				if( first == range.it_begin ) {
 					throw JsonParserException( "Not a valid JSON number" );
 				}
 
-				auto const number_range_size = static_cast<size_t>(std::distance( first, range.begin( ) ));
+				auto const number_range_size = static_cast<size_t>(first_range_size - range.size);
 				auto number_range = std::make_unique<char[]>( number_range_size );
-				std::transform( first, range.begin( ), number_range.get( ), []( std::iterator_traits<CharIterator>::value_type const & value ) {
+				std::transform( first, range.it_begin, number_range.get( ), []( std::iterator_traits<CharIterator>::value_type const & value ) {
 					return static_cast<char>(value);
 				} );
 				if( is_float ) {
@@ -635,73 +668,73 @@ namespace daw {
 				}									
 			}
 
-			value_t parse_value( Range<CharIterator>& range );			
+			value_t parse_value( CharRange & range );			
 
-			object_value_item parse_object_item( Range<CharIterator> & range ) {
+			object_value_item parse_object_item( CharRange & range ) {
 				auto label = parse_string( range ).get_string_value();
 				skip_ws( range );
-				if( !is_equal( range.begin( ), ':' ) ) {
+				if( !is_equal( range.it_begin, ':' ) ) {
 					throw JsonParserException( "Not a valid JSON object item" );
 				}
-				skip_ws( range.move_next( ) );
+				skip_ws( ++range );
 				auto value = parse_value( range );
 				return std::make_pair( std::move( label ), std::move( value ) );
 			}
 
-			value_t parse_object( Range<CharIterator> & range ) {
-				if( !is_equal( range.begin( ), '{' ) ) {
+			value_t parse_object( CharRange & range ) {
+				if( !is_equal( range.it_begin, '{' ) ) {
 					throw JsonParserException( "Not a valid JSON object" );
 				}
-				range.move_next( );
+				++range;
 				object_value result;
 				do {
 					skip_ws( range );
-					if( is_equal( range.begin(), '"' ) ) {
+					if( is_equal( range.it_begin, '"' ) ) {
 						result.push_back( parse_object_item( range ) );
 						skip_ws( range );
 					}
-					if( !is_equal( range.begin( ), ',' ) ) {
+					if( !is_equal( range.it_begin, ',' ) ) {
 						break;
 					}
-					range.move_next( );
+					++range;
 				} while( !at_end( range ) );
-				if( !is_equal( range.begin( ), '}' ) ) {
+				if( !is_equal( range.it_begin, '}' ) ) {
 					throw JsonParserException( "Not a valid JSON object" );
 				}
-				range.move_next( );
+				++range;
 				result.shrink_to_fit( );
 				return value_t( std::move( result ) );
 			}
 
-			value_t parse_array( Range<CharIterator>& range ) {
-				if( !is_equal( range.begin( ), '[' ) ) {
+			value_t parse_array( CharRange & range ) {
+				if( !is_equal( range.it_begin, '[' ) ) {
 					throw JsonParserException( "Not a valid JSON array" );
 				}
-				range.move_next( );
+				++range;
 				array_value results;
 				do {
 					skip_ws( range );
-					if( !is_equal( range.begin( ), ']' ) ) {
+					if( !is_equal( range.it_begin, ']' ) ) {
 						results.push_back( parse_value( range ) );
 						skip_ws( range );
 					}
-					if( !is_equal( range.begin( ), ',' ) ) {
+					if( !is_equal( range.it_begin, ',' ) ) {
 						break;
 					}
-					range.move_next( );
-				} while( !range.at_end( ) );
-				if( !is_equal( range.begin( ), ']' ) ) {
+					++range;
+				} while( !at_end( range ) );
+				if( !is_equal( range.it_begin, ']' ) ) {
 					throw JsonParserException( "Not a valid JSON array" );
 				}
-				range.move_next( );
+				++range;
 				results.shrink_to_fit( );
 				return value_t( std::move( results ) );
 			}
 
-			value_t parse_value( Range<CharIterator>& range ) {
+			value_t parse_value( CharRange& range ) {
 				value_t result;
 				skip_ws( range );
-				switch( *range.begin( ) ) {
+				switch( *range.it_begin ) {
 				case '{':
 					result = parse_object( range );
 					break;
@@ -731,7 +764,9 @@ namespace daw {
 			try {
 				impl::CharIterator it_begin( Begin );
 				impl::CharIterator it_end( End );
-				auto range = range::make_range( it_begin, it_end );
+				auto range_size = std::distance( it_begin, it_end );
+				assert( 0 <= range_size );
+				impl::CharRange range { it_begin, it_end, static_cast<size_t>(range_size) };
 				return impl::parse_value( range );
 			} catch( JsonParserException const & ) {
 				return impl::value_t( nullptr );
