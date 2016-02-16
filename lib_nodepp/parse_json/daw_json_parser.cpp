@@ -525,9 +525,13 @@ namespace daw {
 					it_begin += inc;
 				}
 				if( last_inc ) {
-					while( it_begin != it_end && is_ws( *it_begin ) ) {
-						++it_begin;
-					}
+					last_inc = it_begin != it_end && is_ws( *it_begin );
+					inc = last_inc;
+					last_inc = last_inc && (it_begin + inc) != it_end && is_ws( *(it_begin + inc) );
+					inc += last_inc;
+					last_inc = last_inc && (it_begin + inc) != it_end && is_ws( *(it_begin + inc) );
+					inc += last_inc;
+					it_begin += inc;
 				}
 				range.set_begin( it_begin );
 			}
