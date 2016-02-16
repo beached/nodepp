@@ -43,14 +43,13 @@ namespace daw {
 		}	// namespace anonymous
 
 		namespace impl {
-			using namespace daw::range;
-			using RawIterator = char const *;
-			using CharIterator = utf8::unchecked::iterator<RawIterator>;
-			using CharType = std::iterator_traits<CharIterator>::value_type;
+// 			using CharIterator = char const *;
+// 			using UTFIterator = utf8::unchecked::iterator<CharIterator>;
+// 			using UTFValType = std::iterator_traits<UTFIterator>::value_type;
 
 			struct CharRange {
-				CharIterator it_begin;
-				CharIterator it_end;
+				UTFIterator it_begin;
+				UTFIterator it_end;
 				size_t size;
 
 				CharRange & operator++( ) {
@@ -67,7 +66,7 @@ namespace daw {
 
 			};
 
-			void safe_advance( CharRange & range, typename std::iterator_traits<CharIterator>::difference_type const count ) {
+			void safe_advance( CharRange & range, typename std::iterator_traits<UTFIterator>::difference_type const count ) {
 				assert( 0 <= count );
 				if( static_cast<size_t>( count ) <= range.size ) {
 					std::advance( range.it_begin, count );
@@ -82,9 +81,32 @@ namespace daw {
 				return range.size == 0;
 			}
 
+			CharRange::iterator CharRange::begin( ) {
+				return m_begin;
+			}
 
+			CharRange::const_iterator CharRange::begin( ) const {
+				return m_begin;
+			}
 
-			size_t hash_sequence( RawIterator first, RawIterator const last ) {
+			CharRange::iterator CharRange::end( ) {
+				return m_end;
+			}
+
+			CharRange::const_iterator CharRange::end( ) const {
+				return m_end;
+			}
+
+			size_t CharRange::size( ) const {
+				return m_size;
+			}
+
+			::daw::json::impl::CharRange::iterator::daw::json::impl::CharRange::begin( )
+			{
+				return m_begin;
+			}
+
+			size_t hash_sequence( CharIterator const first, CharIterator const last ) {
 				// FNV-1a hash function for bytes in [fist, last], see http://www.isthe.com/chongo/tech/comp/fnv/index.html
 			#if defined(_WIN64) || defined(__amd64__)
 				static_assert(sizeof( size_t ) == 8, "This code is for 64-bit size_t.");
@@ -107,28 +129,34 @@ namespace daw {
 				return result;
 			}			
 		
-			string_value create_string_value( CharIterator first, CharIterator last ) {
-				return { first.base( ), last.base( ) };
+			string_value create_string_value( UTFIterator first, UTFIterator last ) {
+				return { first, last, std::distance( first, last ) };
 			}
 
 			string_value create_string_value( boost::string_ref const& str ) {
-				return { str.begin( ), str.end( ) };
+				UTFIterator it_begin( str.begin( ) );
+				UTFIterator it_end( str.end( ) );
+				auto range_size = std::distance( it_begin, it_end );
+				return { it_begin, it_end, range_size };
 			}
 
 			bool operator==( string_value const & first, string_value const & second ) {
-				return std::equal( first.begin( ), first.end( ), second.begin( ) );
+				return std::equal( first.it_begin, first.it_end, second.it_end );
 			}
  
 			bool operator==( string_value const & first, boost::string_ref const & second ) {
-				return std::equal( first.begin( ), first.end( ), second.begin( ) );
+				return std::equal( first.it_begin, first.it_end, second.begin( ), []( UTFValType const & lhs, char const & rhs ) { 
+					return static_cast<char>(lhs) == rhs;
+				} );
 			}
  
 			void clear( string_value & str ) {
-				str = { nullptr, nullptr };
+				str.it_begin = str.it_end;
+				str.size = 0;
 			}
 
 			std::string to_string( string_value const & str ) {
-				return std::string{ str.begin( ), str.size( ) };
+				return std::string { str.it_begin.base( ), std::distance( str.it_begin.base( ), str.it_end.base( ) ) };
 			}
  
 			std::ostream& operator<<( std::ostream& os, string_value const& value ) {
@@ -444,8 +472,8 @@ namespace daw {
 						}
 					}
 					ss <<" }";
-				}
-												   break;
+					break;
+					}					
 				case value_t::value_types::real:
 					ss <<value.get_real( );
 					break;
@@ -516,23 +544,23 @@ namespace daw {
 				return std::find( first, last, key ) != last;
 			}
 
-			bool is_ws( CharType val ) {
-				size_t result1 = static_cast<CharType>(0x0009) - val == 0;
-				size_t result2 = static_cast<CharType>(0x000A) - val == 0;
-				size_t result3 = static_cast<CharType>(0x000D) - val == 0;
-				size_t result4 = static_cast<CharType>(0x0020) - val == 0;
+			bool is_ws( UTFValType val ) {
+				size_t result1 = static_cast<UTFValType>(0x0009) - val == 0;
+				size_t result2 = static_cast<UTFValType>(0x000A) - val == 0;
+				size_t result3 = static_cast<UTFValType>(0x000D) - val == 0;
+				size_t result4 = static_cast<UTFValType>(0x0020) - val == 0;
 				return result1 + result2 + result3 + result4 > 0;
 			}
 
-			CharType ascii_lower_case( CharType val ) {
-				return val | static_cast<CharType>(' ');
+			UTFValType ascii_lower_case( UTFValType val ) {
+				return val | static_cast<UTFValType>(' ');
 			}
 
-			bool is_equal( CharIterator it, CharType val ) {
+			bool is_equal( UTFIterator it, UTFValType val ) {
 				return *it == val;
 			}
 
-			bool is_equal_nc( CharIterator it, CharType val ) {
+			bool is_equal_nc( UTFIterator it, UTFValType val ) {
 				return ascii_lower_case( *it ) == ascii_lower_case( val );
 			}
 
@@ -565,7 +593,7 @@ namespace daw {
 			}
 
 			bool move_range_forward_if_equal( CharRange & range, boost::string_ref const value ) {
-				auto const value_size = static_cast<typename std::iterator_traits<CharIterator>::difference_type>( std::distance( value.begin( ), value.end( ) ) );
+				auto const value_size = static_cast<typename std::iterator_traits<UTFIterator>::difference_type>( std::distance( value.begin( ), value.end( ) ) );
 				auto result = std::equal( value.begin( ), value.end( ), range.it_begin );
 				if( result ) {
 					safe_advance( range, value_size );
@@ -616,7 +644,7 @@ namespace daw {
 				return value_t( nullptr );
 			}
 
-			bool is_digit( CharIterator it ) {
+			bool is_digit( UTFIterator it ) {
 				auto const & test = *it;
 				return '0' <= test && test <= '9';
 			}
@@ -648,7 +676,7 @@ namespace daw {
 
 				auto const number_range_size = static_cast<size_t>(first_range_size - range.size);
 				auto number_range = std::make_unique<char[]>( number_range_size );
-				std::transform( first, range.it_begin, number_range.get( ), []( std::iterator_traits<CharIterator>::value_type const & value ) {
+				std::transform( first, range.it_begin, number_range.get( ), []( std::iterator_traits<UTFIterator>::value_type const & value ) {
 					return static_cast<char>(value);
 				} );
 				if( is_float ) {
@@ -760,10 +788,10 @@ namespace daw {
 
 		}	// namespace impl
 
-		json_obj parse_json(char const* Begin, char const* End) {
+		json_obj parse_json(impl::CharIterator Begin, impl::CharIterator End) {
 			try {
-				impl::CharIterator it_begin( Begin );
-				impl::CharIterator it_end( End );
+				impl::UTFIterator it_begin( Begin );
+				impl::UTFIterator it_end( End );
 				auto range_size = std::distance( it_begin, it_end );
 				assert( 0 <= range_size );
 				impl::CharRange range { it_begin, it_end, static_cast<size_t>(range_size) };

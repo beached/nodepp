@@ -29,9 +29,8 @@
 #include <string>
 #include <vector>
 
-
 #include "daw_common_mixins.h"
-#include "daw_range.h"
+#include "../../third_party/include/utf8/unchecked.h"
 
 namespace daw {
 	namespace json {
@@ -47,23 +46,43 @@ namespace daw {
 		};	// struct JsonParserException
 
 		namespace impl {
-			size_t hash_sequence( char const * first, char const * const last );
 			class value_t;
 			struct null_value final { };
 			
-			using string_value = daw::range::Range<char const *>;
+			using CharIterator = char const *;
+			using UTFIterator = utf8::unchecked::iterator<CharIterator>;
+			using UTFValType = UTFIterator::value_type;
+
+			struct CharRange {
+				using iterator = UTFIterator;
+				using const_iterator = UTFIterator const;
+				using reference = UTFIterator::reference;
+				using const_reference = reference const;
+				using value_type = UTFIterator::value_type;
+				using difference_type = UTFIterator::difference_type;				
+			private:
+				iterator m_begin;
+				iterator m_end;
+				size_t m_size;
+			public:
+				iterator begin( );
+				const_iterator begin( ) const;
+				iterator end( );
+				const_iterator end( ) const;
+				size_t size( ) const;
+				CharRange & operator++( );
+				CharRange operator++( int );
+			};
+
+			size_t hash_sequence( CharIterator const first, CharIterator const last );
+
+			using string_value = CharRange;
 
 			bool operator==( string_value const & first, string_value const & second );
 			bool operator==( string_value const & first, boost::string_ref const & second );
 
-			string_value create_string_value( char const * const first, char const * const last );
+			string_value create_string_value( UTFIterator const first, UTFIterator const last );
 			string_value create_string_value( boost::string_ref const & str );
-
-			template<typename Utf8Iterator>
-			string_value create_string_value( Utf8Iterator first, Utf8Iterator last ) {
-				return { first.base( ), last.base( ) };
-			}
-
 
 			void clear( string_value & str );
 			std::string to_string( string_value const & str );
