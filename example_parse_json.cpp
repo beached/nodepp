@@ -24,6 +24,7 @@
 #include <cstdlib>
 #include <boost/iostreams/device/mapped_file.hpp>
 #include <iostream>
+#include <chrono>
 
 int main( int argc, char** argv ) {
 	if( argc <= 1 ) {
@@ -42,9 +43,17 @@ int main( int argc, char** argv ) {
 	using namespace daw::json::impl;
 	using namespace daw::json;
 
-	//std::cout << "value size " << sizeof( value_t ) << std::endl;
+	std::chrono::time_point<std::chrono::system_clock> start, end;
+
+	auto file_size = json_str.size( );
 
 	auto json = parse_json( json_str.begin( ), json_str.end( ) );
+	end = std::chrono::system_clock::now( );
+
+	std::chrono::duration<double> elapsed_seconds = end - start;
+
+	std::cout << "Total time: " << elapsed_seconds.count( ) << " total bytes: " << file_size << " speed: " << (static_cast<double>( file_size ) / elapsed_seconds.count( )) << std::endl;
+
 	if( json.is_null( ) ) {
 		std::cerr <<"Could not find data" <<std::endl;
 		exit( EXIT_FAILURE );
