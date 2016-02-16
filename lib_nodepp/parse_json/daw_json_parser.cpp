@@ -512,11 +512,14 @@ namespace daw {
 				auto it_begin = range.begin( );
 				auto const it_end = range.end( );
 				int inc = 0;
-				if( std::distance( it_begin, it_end ) >= 3 ) {
-					inc = static_cast<int>(is_ws( *it_begin ));
-					inc += inc *(static_cast<int>(is_ws( *(it_begin + 1) )));
-					inc += static_cast<int>(inc == 2)*(static_cast<int>(is_ws( *(it_begin + 2) )));
-					it_begin += inc;
+				if( std::distance( it_begin, it_end ) > 3 ) {
+					do {
+						inc = static_cast<int>(is_ws( *it_begin ));
+						inc += static_cast<int>(inc == 1 && is_ws( *(it_begin + 1) ));
+						inc += static_cast<int>(inc == 2 && is_ws( *(it_begin + 2) ));
+						inc += static_cast<int>(inc == 3 && is_ws( *(it_begin + 3) ));
+						it_begin += inc;
+					} while( inc != 0 && std::distance( it_begin, it_end ) > 3 );
 				}
 				if( inc != 0 ) {
 					while( it_begin != it_end && is_ws( *it_begin ) ) {
