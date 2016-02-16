@@ -511,7 +511,7 @@ namespace daw {
 			void skip_ws( Range<CharIterator> & range ) {
 				auto it_begin = range.begin( );
 				auto const it_end = range.end( );
-				auto last_inc = false;
+				auto last_inc = true;
 				if( std::distance( it_begin, it_end ) > 3 ) {
 					do {
 						last_inc = is_ws( *it_begin );
