@@ -607,14 +607,14 @@ namespace daw {
 
 			object_value_item parse_object_item( Range<CharIterator> & range ) {
 				auto label = parse_string( range );
-				auto const & lbl = label.get_string_value( );
+				auto lbl = label.get_string_value( );
 				skip_ws( range );
 				if( !is_equal( range.begin( ), ':' ) ) {
 					throw JsonParserException( "Not a valid JSON object item" );
 				}
 				skip_ws( range.move_next( ) );
 				auto value = parse_value( range );
-				return std::make_pair( lbl, std::move( value ) );
+				return std::make_pair( std::move( lbl ), std::move( value ) );
 			}
 
 			value_t parse_object( Range<CharIterator> & range ) {
