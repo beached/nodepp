@@ -480,11 +480,11 @@ namespace daw {
 			}
 
 			bool is_ws( char val ) {
-				auto result = 0x09 - val == 0;
-				result |= 0x0A - val == 0;
-				result |= 0x0D - val == 0;
-				result |= 0x20 - val == 0;
-				return result;
+				size_t result1 = 0x09 - val == 0;
+				size_t result2 = 0x0A - val == 0;
+				size_t result3 = 0x0D - val == 0;
+				size_t result4 = 0x20 - val == 0;
+				return result1 + result2 + result3 + result4 > 0;
 			}
 
 			char ascii_lower_case( char val ) {
@@ -504,7 +504,7 @@ namespace daw {
 				auto const it_end = range.end( );
 				auto last_inc = is_ws( *it_begin );
 				int inc = last_inc;
-				if( last_inc && std::distance( it_begin + inc, it_end ) > 3 ) {
+				if( last_inc && std::distance( it_begin + inc, it_end ) > 2 ) {
 					do {
 						last_inc = is_ws( *(it_begin + inc) );
 						inc += last_inc;
@@ -512,7 +512,7 @@ namespace daw {
 						inc += last_inc;
 						last_inc = last_inc && is_ws( *(it_begin + inc) );
 						inc += last_inc;
-					} while( last_inc && std::distance( it_begin + inc, it_end ) > 3 );
+					} while( last_inc && std::distance( it_begin + inc, it_end ) > 2 );
 				}
 				if( last_inc ) {
 					last_inc = it_begin != it_end && is_ws( *(it_begin + inc) );
