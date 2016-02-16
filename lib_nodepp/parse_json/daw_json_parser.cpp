@@ -511,19 +511,18 @@ namespace daw {
 			void skip_ws( Range<CharIterator> & range ) {
 				auto it_begin = range.begin( );
 				auto const it_end = range.end( );
-				auto last_inc = true;
-				if( std::distance( it_begin, it_end ) > 3 ) {
+				auto last_inc = is_ws( *it_begin );
+				int inc = last_inc;
+				if( last_inc && std::distance( it_begin + inc, it_end ) > 3 ) {
 					do {
-						last_inc = is_ws( *it_begin );
-						int inc = last_inc;
-						last_inc = last_inc && is_ws( *(it_begin + 1) );
+						last_inc = is_ws( *(it_begin + inc) );
 						inc += last_inc;
-						last_inc = last_inc && is_ws( *(it_begin + 2) );
+						last_inc = last_inc && is_ws( *(it_begin + inc) );
 						inc += last_inc;
-						last_inc = last_inc && is_ws( *(it_begin + 3) );
+						last_inc = last_inc && is_ws( *(it_begin + inc) );
 						inc += last_inc;
-						it_begin += inc;
-					} while( last_inc && std::distance( it_begin, it_end ) > 3 );
+					} while( last_inc && std::distance( it_begin + inc, it_end ) > 3 );
+					it_begin += inc;
 				}
 				if( last_inc ) {
 					while( it_begin != it_end && is_ws( *it_begin ) ) {
