@@ -47,12 +47,16 @@ int main( int argc, char** argv ) {
 
 	auto file_size = json_str.size( );
 
+	start = std::chrono::system_clock::now( );
+
 	auto json = parse_json( json_str.begin( ), json_str.end( ) );
+
 	end = std::chrono::system_clock::now( );
 
 	std::chrono::duration<double> elapsed_seconds = end - start;
 
-	std::cout << "Total time: " << elapsed_seconds.count( ) << " total bytes: " << file_size << " speed: " << (static_cast<double>( file_size ) / elapsed_seconds.count( )) << std::endl;
+	auto const speed = ((static_cast<double>( file_size ) / elapsed_seconds.count( ))/1024.0)/1024.0;
+	std::cout << "Total time: " << elapsed_seconds.count( ) << "s total file size: " << file_size << "bytes speed: " << speed << "MB/s" << std::endl;
 
 	if( json.is_null( ) ) {
 		std::cerr <<"Could not find data" <<std::endl;
