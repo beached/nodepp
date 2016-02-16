@@ -614,7 +614,7 @@ namespace daw {
 				}
 				skip_ws( range.move_next( ) );
 				auto value = parse_value( range );
-				return std::make_pair( lbl, value );
+				return std::make_pair( lbl, std::move( value ) );
 			}
 
 			value_t parse_object( Range<CharIterator> & range ) {
