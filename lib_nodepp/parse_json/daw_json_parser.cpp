@@ -84,17 +84,15 @@ namespace daw {
 
 			void safe_advance( CharRange & range, typename std::iterator_traits<UTFIterator>::difference_type const count ) {
 				assert( 0 <= count );
-				if( static_cast<size_t>( count ) <= range.size ) {
-					std::advance( range.it_begin, count );
-					range.size -= count;
+				if( static_cast<size_t>( count ) <= range.size( ) ) {
+					range.advance( count );
 				} else {
-					range.it_begin = range.it_end;
-					range.size = 0;
+					range.advance( range.size( ) );
 				}
 			}
 
 			bool at_end( CharRange & range ) {
-				return range.size == 0;
+				return range.size( ) == 0;
 			}
 
 			CharRange::iterator CharRange::begin( ) {
@@ -581,36 +579,31 @@ namespace daw {
 			}
 
 			void skip_ws( CharRange & range ) {
-				int last_inc = is_ws( *range.it_begin );
-				std::advance( range.it_begin, last_inc );
-				if( last_inc && range.size > 2 ) {
+				int last_inc = is_ws( *range.begin( ) );
+				range.advance( last_inc );
+				if( last_inc && range.size( ) > 2 ) {
 					do {
-						last_inc = is_ws( *range.it_begin );
-						std::advance( range.it_begin, last_inc );
-						range.size -= last_inc;
-						last_inc = last_inc && is_ws( *range.it_begin );
-						std::advance( range.it_begin, last_inc );
-						last_inc = last_inc && is_ws( *range.it_begin );
-						range.size -= last_inc;
-						std::advance( range.it_begin, last_inc );
-						range.size -= last_inc;
-					} while( last_inc && range.size > 2 );
+						last_inc = is_ws( *range.begin( ) );
+						range.advance( last_inc );
+						last_inc = last_inc && is_ws( *range.begin( ) );
+						range.advance( last_inc );
+						last_inc = last_inc && is_ws( *range.begin( ) );
+						range.advance( last_inc );
+					} while( last_inc && range.size( ) > 2 );
 				}
-				if( last_inc && range.size > 0 ) {
-					last_inc = range.size > 0 && is_ws( *range.it_begin );
-					std::advance( range.it_begin, last_inc );
-					range.size -= last_inc;
-					last_inc = last_inc && range.size > 0 && is_ws( *range.it_begin );
-					std::advance( range.it_begin, last_inc );
-					range.size -= last_inc;
-					last_inc = last_inc && range.size > 0 && is_ws( *range.it_begin );
-					std::advance( range.it_begin, last_inc );
+				if( last_inc && range.size( ) > 0 ) {
+					last_inc = range.size( ) > 0 && is_ws( *range.begin( ) );
+					range.advance( last_inc );
+					last_inc = last_inc && range.size( ) > 0 && is_ws( *range.begin( ) );
+					range.advance( last_inc );
+					last_inc = last_inc && range.size( ) > 0 && is_ws( *range.begin( ) );
+					range.advance( last_inc );
 				}
 			}
 
 			bool move_range_forward_if_equal( CharRange & range, boost::string_ref const value ) {
 				auto const value_size = static_cast<typename std::iterator_traits<UTFIterator>::difference_type>( std::distance( value.begin( ), value.end( ) ) );
-				auto result = std::equal( value.begin( ), value.end( ), range.it_begin );
+				auto result = std::equal( value.begin( ), value.end( ), range.begin( ) );
 				if( result ) {
 					safe_advance( range, value_size );
 				}
@@ -619,27 +612,27 @@ namespace daw {
 
 			void move_to_quote( CharRange & range ) { 
 				size_t slash_count = 0;
-				while( range.size > 0 ) {
-					auto const & cur_val = *range.it_begin;
+				while( range.size( ) > 0 ) {
+					auto const & cur_val = *range.begin( );
 					if( '"' == cur_val && slash_count % 2 == 0 ) {
 						break;
 					}
 					slash_count = '\\' == cur_val ? slash_count + 1 : 0;
 					++range;
 				}
-				if( range.size == 0 ) {
+				if( range.size( ) == 0 ) {
 					throw JsonParserException( "Not a valid JSON string" );
 				}
 			}
 
 			value_t parse_string( CharRange & range ) {
-				if( !is_equal( range.it_begin, '"' ) ) {
+				if( !is_equal( range.begin( ), '"' ) ) {
 					throw JsonParserException( "Not a valid JSON string" );
 				}
 				++range;
-				auto const it_first = range.it_begin;
+				auto const it_first = range.begin( );
 				move_to_quote( range );
-				value_t result( create_string_value( it_first, range.it_begin ) );
+				value_t result( create_string_value( it_first, range.begin( ) ) );
 				++range;
 				return result;
 			}
@@ -666,33 +659,33 @@ namespace daw {
 			}
 
 			value_t parse_number( CharRange & range ) {
-				auto const first = range.it_begin;
-				auto const first_range_size = range.size;
+				auto const first = range.begin( );
+				auto const first_range_size = range.size( );
 				move_range_forward_if_equal( range, "-" );
 
-				while( !at_end( range ) && is_digit( range.it_begin ) ) {
+				while( !at_end( range ) && is_digit( range.begin( ) ) ) {
 					++range;
 
 				}
-				auto const is_float = !at_end( range ) && '.' == *range.it_begin;
+				auto const is_float = !at_end( range ) && '.' == *range.begin( );
 				if( is_float ) {
 					++range;
-					while( !at_end( range ) && is_digit( range.it_begin ) ) { ++range; };
-					if( is_equal_nc( range.it_begin, 'e' ) ) {
+					while( !at_end( range ) && is_digit( range.begin( ) ) ) { ++range; };
+					if( is_equal_nc( range.begin( ), 'e' ) ) {
 						++range;
-						if( '-' == *range.it_begin ) {
+						if( '-' == *range.begin( ) ) {
 							++range;
 						}
-						while( !at_end( range ) && is_digit( range.it_begin ) ) { ++range; };
+						while( !at_end( range ) && is_digit( range.begin( ) ) ) { ++range; };
 					}
 				}
-				if( first == range.it_begin ) {
+				if( first == range.begin( ) ) {
 					throw JsonParserException( "Not a valid JSON number" );
 				}
 
-				auto const number_range_size = static_cast<size_t>(first_range_size - range.size);
+				auto const number_range_size = static_cast<size_t>(first_range_size - range.size( ));
 				auto number_range = std::make_unique<char[]>( number_range_size );
-				std::transform( first, range.it_begin, number_range.get( ), []( std::iterator_traits<UTFIterator>::value_type const & value ) {
+				std::transform( first, range.begin( ), number_range.get( ), []( std::iterator_traits<UTFIterator>::value_type const & value ) {
 					return static_cast<char>(value);
 				} );
 				if( is_float ) {
@@ -717,7 +710,7 @@ namespace daw {
 			object_value_item parse_object_item( CharRange & range ) {
 				auto label = parse_string( range ).get_string_value();
 				skip_ws( range );
-				if( !is_equal( range.it_begin, ':' ) ) {
+				if( !is_equal( range.begin( ), ':' ) ) {
 					throw JsonParserException( "Not a valid JSON object item" );
 				}
 				skip_ws( ++range );
@@ -726,23 +719,23 @@ namespace daw {
 			}
 
 			value_t parse_object( CharRange & range ) {
-				if( !is_equal( range.it_begin, '{' ) ) {
+				if( !is_equal( range.begin( ), '{' ) ) {
 					throw JsonParserException( "Not a valid JSON object" );
 				}
 				++range;
 				object_value result;
 				do {
 					skip_ws( range );
-					if( is_equal( range.it_begin, '"' ) ) {
+					if( is_equal( range.begin( ), '"' ) ) {
 						result.push_back( parse_object_item( range ) );
 						skip_ws( range );
 					}
-					if( !is_equal( range.it_begin, ',' ) ) {
+					if( !is_equal( range.begin( ), ',' ) ) {
 						break;
 					}
 					++range;
 				} while( !at_end( range ) );
-				if( !is_equal( range.it_begin, '}' ) ) {
+				if( !is_equal( range.begin( ), '}' ) ) {
 					throw JsonParserException( "Not a valid JSON object" );
 				}
 				++range;
@@ -751,23 +744,23 @@ namespace daw {
 			}
 
 			value_t parse_array( CharRange & range ) {
-				if( !is_equal( range.it_begin, '[' ) ) {
+				if( !is_equal( range.begin( ), '[' ) ) {
 					throw JsonParserException( "Not a valid JSON array" );
 				}
 				++range;
 				array_value results;
 				do {
 					skip_ws( range );
-					if( !is_equal( range.it_begin, ']' ) ) {
+					if( !is_equal( range.begin( ), ']' ) ) {
 						results.push_back( parse_value( range ) );
 						skip_ws( range );
 					}
-					if( !is_equal( range.it_begin, ',' ) ) {
+					if( !is_equal( range.begin( ), ',' ) ) {
 						break;
 					}
 					++range;
 				} while( !at_end( range ) );
-				if( !is_equal( range.it_begin, ']' ) ) {
+				if( !is_equal( range.begin( ), ']' ) ) {
 					throw JsonParserException( "Not a valid JSON array" );
 				}
 				++range;
@@ -778,7 +771,7 @@ namespace daw {
 			value_t parse_value( CharRange& range ) {
 				value_t result;
 				skip_ws( range );
-				switch( *range.it_begin ) {
+				switch( *range.begin( ) ) {
 				case '{':
 					result = parse_object( range );
 					break;
