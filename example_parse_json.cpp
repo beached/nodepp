@@ -56,6 +56,7 @@ int main( int argc, char** argv ) {
 	std::chrono::duration<double> elapsed_seconds = end - start;
 
 	auto const speed = ((static_cast<double>( file_size ) / elapsed_seconds.count( ))/1024.0)/1024.0;
+	std::cout << " size: " << sizeof( value_t ) << std::endl;
 	std::cout << "Total time: " << elapsed_seconds.count( ) << "s total file size: " << file_size << "bytes speed: " << speed << "MB/s" << std::endl;
 
 	if( json.is_null( ) ) {

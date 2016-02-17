@@ -281,6 +281,7 @@ namespace daw {
 					break;
 				case value_types::string:
 					m_value.string = other.m_value.string;
+					other.m_value_type = value_types::null;
 					break;
 				case value_types::integral:
 					m_value.integral = other.m_value.integral;
@@ -311,6 +312,7 @@ namespace daw {
 						break;
 					case value_types::string:
 						m_value.string = rhs.m_value.string;
+						rhs.m_value_type = value_types::null;
 						break;
 					case value_types::integral:
 						m_value.integral = rhs.m_value.integral;
