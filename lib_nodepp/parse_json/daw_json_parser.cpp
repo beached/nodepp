@@ -611,7 +611,7 @@ namespace daw {
 			void move_to_quote( CharRange & range ) { 
 				size_t slash_count = 0;
 				while( range.size( ) > 0 ) {
-					auto const & cur_val = *range.begin( );
+					auto const cur_val = *range.begin( );
 					if( '"' == cur_val && slash_count % 2 == 0 ) {
 						break;
 					}
