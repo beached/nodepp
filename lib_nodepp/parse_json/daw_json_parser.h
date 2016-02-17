@@ -65,6 +65,13 @@ namespace daw {
 				iterator m_end;
 				size_t m_size;
 			public:
+				CharRange( ) = delete;
+				~CharRange( ) = default;
+				CharRange( CharRange const & ) = default;
+				CharRange & operator=( CharRange const & ) = default;
+				CharRange( CharRange && ) = default;
+				CharRange & operator=( CharRange && ) = default;
+				CharRange( iterator Begin, iterator End );
 				iterator begin( );
 				const_iterator begin( ) const;
 				iterator end( );
@@ -72,10 +79,12 @@ namespace daw {
 				size_t size( ) const;
 				CharRange & operator++( );
 				CharRange operator++( int );
-				void advance( difference_type n );
+				void advance( size_t const n );
+				void safe_advance( size_t const count ); 
+				void set( iterator Begin, iterator End, difference_type Size = -1 );
 			};
 
-			size_t hash_sequence( CharIterator const first, CharIterator const last );
+			size_t hash_sequence( CharIterator first, CharIterator const last );
 
 			using string_value = CharRange;
 
@@ -136,7 +145,7 @@ namespace daw {
 					union {
 						int64_t integral;
 						double real;
-						string_value string;
+						string_value* string;
 						bool boolean;
 						array_value* array_v;
 						object_value* object;
