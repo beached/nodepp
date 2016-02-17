@@ -46,14 +46,14 @@ namespace daw {
 				{
 					auto values_range = daw::range::make_range( values.begin( ), values.end( ) );
 					if( !values_range.empty( ) ) {
-						result <<value_to_json( "", values_range.front( ) );
+						result <<value_to_json( "", *values_range.begin( ) );
 						values_range.move_next( );
-						for( auto const & item : values_range ) {
-							result <<"," <<value_to_json( "", item );
+						for( auto item : values_range ) {
+							result << "," <<value_to_json( "", item );
 						}
 					}
 				}
-				result <<" ]";
+				result << " ]";
 				return result.str( );
 			}
 

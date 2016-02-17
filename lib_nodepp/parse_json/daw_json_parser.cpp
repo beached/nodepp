@@ -43,28 +43,44 @@ namespace daw {
 		}	// namespace anonymous
 
 		namespace impl {
-// 			using CharIterator = char const *;
-// 			using UTFIterator = utf8::unchecked::iterator<CharIterator>;
-// 			using UTFValType = std::iterator_traits<UTFIterator>::value_type;
+			CharRange::iterator CharRange::begin( ) {
+				return m_begin;
+			}
 
-			struct CharRange {
-				UTFIterator it_begin;
-				UTFIterator it_end;
-				size_t size;
+			CharRange::const_iterator CharRange::begin( ) const {
+				return m_begin;
+			}
 
-				CharRange & operator++( ) {
-					++it_begin;
-					--size;
-					return *this;
-				}
+			CharRange::iterator CharRange::end( ) {
+				return m_end;
+			}
 
-				CharRange operator++( int ) {
-					CharRange result( *this );
-					++(*this);
-					return result;
-				}
 
-			};
+			CharRange::const_iterator CharRange::end( ) const {
+				return m_end;
+			}
+
+			size_t CharRange::size( ) const {
+				return m_size;
+			}
+
+			CharRange & CharRange::operator++( ) {
+				++m_begin;
+				--m_size;
+				return *this;
+			}
+
+			CharRange CharRange::operator++( int ) {
+				CharRange result( *this );
+				++(*this);
+				return result;
+			}
+
+			void CharRange::advance( CharRange::difference_type n ) {
+				assert( n <= m_size );
+				std::advance( m_begin, n );
+				m_size = static_cast<size_t>(m_size - n);
+			}
 
 			void safe_advance( CharRange & range, typename std::iterator_traits<UTFIterator>::difference_type const count ) {
 				assert( 0 <= count );
@@ -504,7 +520,7 @@ namespace daw {
 			}
 
 			boost::string_ref to_string_ref(string_value const& str) {
-				return { str.begin( ), str.size( ) };
+				return { str.begin( ).base( ), str.end( ).base( ) };
 			}
 
 			object_value_item make_object_value_item( string_value first, value_t second ) {

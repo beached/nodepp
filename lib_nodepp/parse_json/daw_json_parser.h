@@ -57,8 +57,8 @@ namespace daw {
 				using iterator = UTFIterator;
 				using const_iterator = UTFIterator const;
 				using reference = UTFIterator::reference;
-				using const_reference = reference const;
 				using value_type = UTFIterator::value_type;
+				using const_reference = value_type const &;
 				using difference_type = UTFIterator::difference_type;				
 			private:
 				iterator m_begin;
@@ -72,6 +72,7 @@ namespace daw {
 				size_t size( ) const;
 				CharRange & operator++( );
 				CharRange operator++( int );
+				void advance( difference_type n );
 			};
 
 			size_t hash_sequence( CharIterator const first, CharIterator const last );
@@ -218,7 +219,7 @@ namespace std {
 	template<>
 	struct hash<daw::json::impl::string_value> {
 		size_t operator()( daw::json::impl::string_value const & value ) const {
-			return daw::json::impl::hash_sequence( value.begin( ), value.end( ) );
+			return daw::json::impl::hash_sequence( value.begin( ).base( ), value.end( ).base( ) );
 		}
 	};
 }
