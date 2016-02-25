@@ -6,14 +6,13 @@ Template Tags
 <%="callback_name"%> -	insert text from callback 
 <%date%> -	insert current date
 <%time%> -	insert current time
-<%date_time%> -	insert date time string
-<%date_format=""%> -	date format using same format as std::put_time
-<%time_format=""%> -	date format using same format as std::put_time
-<%repeat="callback_name" style="" alt_style=""%> -	insert text from callback that generates an iterable list of items.  
-													The CSS style for each line can be provided, along with an alt_style
-													that is for every other line.
+<%date_format=""%> -	date format using same format as std::put_time.  Changes the date format on suceeding items
+<%time_format=""%> -	date format using same format as std::put_time.  Changes time format on suceeding items
+<%repeat="callback_name" prefix="" suffix=""%> -	insert text from callback that generates an iterable list of items.  
+													A prefix can be inserted before each item along with a sufix after
+													each item.  This can be useful for putting html open/close tags.
 
-Quotes within parameters can be escaped with a \ (e.g. style="image=\"test.jpg\"")
+Quotes within parameters can be escaped with a \ (e.g. prefix="<li class=\"list_item\">" suffix="</li>\n")
 
 
 
