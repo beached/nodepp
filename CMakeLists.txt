@@ -34,6 +34,7 @@ enable_testing( )
 add_subdirectory( ./lib_nodepp )
 add_subdirectory( ./header_libraries )
 add_subdirectory( ./load_library )
+add_subdirectory( ./parse_template )
 
 include_directories( ./lib_nodepp )
 include_directories( ./lib_nodepp/parse_json )
