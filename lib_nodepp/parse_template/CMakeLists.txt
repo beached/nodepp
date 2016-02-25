@@ -22,7 +22,8 @@ ENDIF( )
 
 set(SOURCE_FILES
 	daw_template.h
-	daw_template_parser.h
+	daw_parse_template.h
+	daw_parse_template.cpp
 )
 
 include_directories( ../../header_libraries )
