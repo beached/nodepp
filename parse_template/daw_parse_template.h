@@ -47,7 +47,7 @@
 			std::string process_template( );
 			std::vector<std::string> list_callbacks( ) const;
 			void callback_remove( boost::string_ref callback_name );
-
+			bool callback_exists( boost::string_ref callback_name ) const;
 			template<typename Function>
 			void add_callback( boost::string_ref callback_name, Function callback ) {
 				m_callbacks[callback_name.to_string( )] = callback;

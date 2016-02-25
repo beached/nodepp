@@ -22,6 +22,8 @@
 
 #include <algorithm>
 #include "daw_parse_template.h"
+#include <future>
+#include <numeric>
 
 
 namespace daw {
@@ -29,7 +31,7 @@ namespace daw {
 		namespace impl {
 			struct CallbackMap {
 				using iterator = typename boost::string_ref::iterator;
-				enum class CallbackTypes { Normal, Date, Time, DateFormat, TimeFormat, Repeat };
+				enum class CallbackTypes { Normal, Date, Time, DateFormat, TimeFormat, Repeat, Unknown };
 				std::vector<iterator> beginnings;
 				std::vector<iterator> endings;
 				std::vector<CallbackTypes> types;
@@ -54,6 +56,39 @@ namespace daw {
 					endings.push_back( ending );
 					types.push_back( callback_type );
 					callback_handles.push_back( callback_handle );
+				}
+
+				struct helpers {
+					template<typename T, typename Compare>
+					static std::vector<std::size_t> sort_permutation( std::vector<T> const & vec, Compare & compare ) {
+						std::vector<std::size_t> p( vec.size( ) );
+						std::iota( p.begin( ), p.end( ), 0 );
+						std::sort( p.begin( ), p.end( ), [&]( std::size_t i, std::size_t j ) { return compare( vec[i], vec[j] ); } );
+						return p;
+					}
+
+					template<typename T>
+					static std::vector<T> apply_permutation( std::vector<T> const & vec, std::vector<std::size_t> const & p ) {
+						std::vector<T> sorted_vec( p.size( ) );
+						std::transform( p.begin( ), p.end( ), sorted_vec.begin( ), [&]( std::size_t i ) { return vec[i]; } );
+						return sorted_vec;
+					}
+
+					static void wait_for_all( std::initializer_list<std::future<void>> items ) {
+						for( auto const & item : items ) {
+							item.wait( );
+						}
+					}
+				};
+
+				void sort( ) {
+					auto perm = helpers::sort_permutation( beginnings, []( auto const & A, auto const & B ) { return A < B; } );
+					helpers::wait_for_all( {
+						std::async( std::launch::async, [&]( ) { helpers::apply_permutation( beginnings, perm ); } ),
+						std::async( std::launch::async, [&]( ) { helpers::apply_permutation( endings, perm ); } ),
+						std::async( std::launch::async, [&]( ) { helpers::apply_permutation( types, perm ); } ),
+						std::async( std::launch::async, [&]( ) { helpers::apply_permutation( callback_handles, perm ); } )
+					} );
 				}
 			};
 		}
@@ -116,6 +151,94 @@ namespace daw {
 
 			auto current_it = m_template.begin( );
 
+			auto parse_tag_type = [&]( auto first, auto const & last ) {
+				auto result = impl::CallbackMap::CallbackTypes::Unknown;
+				switch( *first ) {
+				case '=':
+					result = impl::CallbackMap::CallbackTypes::Normal;
+					break;
+				case 'r':
+					++first;
+					if( find_string( first, last, "epeat" ) == last ) {
+						break;
+					}
+					result = impl::CallbackMap::CallbackTypes::Repeat;
+					break;
+				case 'd':
+					++first;
+					if( find_string( first, last, "ate" ) != last ) {
+						first += 3;
+						if( find_string( first, last, "_format" ) != last ) {
+							result = impl::CallbackMap::CallbackTypes::DateFormat;
+							break;
+						}
+						result = impl::CallbackMap::CallbackTypes::Date;
+					}
+					break;
+				case 't':
+					++first;
+					if( find_string( first, last, "ime" ) != last ) {
+						first += 3;
+						if( find_string( first, last, "_format" ) != last ) {
+							result = impl::CallbackMap::CallbackTypes::TimeFormat;
+							break;
+						}
+						result = impl::CallbackMap::CallbackTypes::Time;
+					}
+					break;
+				}
+				return result;
+			};
+
+			auto get_callback = [&]( size_t callback_map_pos ) {
+				daw::nodepp::base::Callback* result = nullptr;
+				switch( m_callback_map->types[callback_map_pos] )
+				{
+				case impl::CallbackMap::CallbackTypes::Normal: { 
+					auto first = m_callback_map->beginnings[callback_map_pos] + 2;
+					// TODO find quotes
+					auto name = boost::string_ref { first, std::distance( first, m_callback_map->endings[callback_map_pos] ) -1 };
+					if( callback_exists( name ) ) {
+						result = &(m_callbacks[name.to_string( )]);
+					}
+					}
+					break;
+				case impl::CallbackMap::CallbackTypes::Repeat: {
+					auto first = m_callback_map->beginnings[callback_map_pos] + 8;	// <%repeat=" legnth of repeat="
+						auto name = boost::string_ref { first, std::distance( first, m_callback_map->endings[callback_map_pos] ) };
+						if( callback_exists( name ) ) {
+							result = &(m_callbacks[name.to_string( )]);
+						}
+					}
+					break;
+				case impl::CallbackMap::CallbackTypes::Date: break;
+				case impl::CallbackMap::CallbackTypes::Time: break;
+				case impl::CallbackMap::CallbackTypes::DateFormat: break;
+				case impl::CallbackMap::CallbackTypes::TimeFormat: break;				
+				case impl::CallbackMap::CallbackTypes::Unknown: break;
+				default: break;
+				}
+
+				return result;
+			};
+
+			auto find_tags = [&]( auto first, auto const & last, boost::string_ref open_tag, boost::string_ref close_tag ) {
+				while( first != last ) {
+					first = find_string( first, last, open_tag ) + open_tag.size( );
+					if( first == last ) {
+						break;
+					}
+					auto open_it = first;
+					first = find_string( first, last, close_tag ) + close_tag.size( );
+					if( first == last ) {
+						break;
+					}
+					auto tag_type = parse_tag_type( open_it, first );
+					m_callback_map->add( open_it, first, tag_type );
+				}
+			};
+
+
 			while( (current_it = find_string( current_it, m_template.end( ), "<%" )) != m_template.end( ) ) {
 				current_it += 2;
 				if( *current_it == '=' ) {					
@@ -165,6 +288,10 @@ namespace daw {
 
 		void ParseTemplate::callback_remove(boost::string_ref callback_name) {
 			m_callbacks.erase( callback_name.to_string( ) );
+		}
+
+		bool ParseTemplate::callback_exists(boost::string_ref callback_name) const {
+			return m_callbacks.count( callback_name.to_string( ) );
 		}
 	}	// namespace parse_template
 }	// namespace daw
