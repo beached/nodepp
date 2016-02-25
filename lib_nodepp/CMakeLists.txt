@@ -27,7 +27,6 @@ endif( )
 enable_testing( )
 
 add_subdirectory( ./parse_json )
-add_subdirectory( ./parse_template )
 
 set(SOURCE_FILES
 		base_callback.cpp
@@ -90,7 +89,6 @@ set(SOURCE_FILES
 
 include_directories( ../header_libraries )
 include_directories( ./parse_json )
-include_directories( ./parse_template )
 include_directories( SYSTEM ${Boost_INCLUDE_DIRS} )
 #link_directories( ${Boost_LIBRARY_DIRS} )
 include_directories( SYSTEM ${OPENSSL_INCLUDE_DIR} )

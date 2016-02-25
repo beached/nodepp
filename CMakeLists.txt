@@ -37,6 +37,7 @@ add_subdirectory( ./load_library )
 
 include_directories( ./lib_nodepp )
 include_directories( ./lib_nodepp/parse_json )
+include_directories( ./parse_template )
 include_directories( ./header_libraries )
 include_directories( SYSTEM ${Boost_INCLUDE_DIRS} )
 link_directories( ${Boost_LIBRARY_DIRS} )
