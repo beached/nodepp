@@ -21,12 +21,38 @@
 // SOFTWARE.
 
 #pragma once
+#include <boost/utility/string_ref.hpp>
 #include <unordered_map>
 
-namespace daw {
-	namespace parse_template {
-		struct ParseTemplate {
-			std::unordered_map<std::string, int> m_callbacks;
+#include "base_callback.h"
+
+	namespace daw {
+		namespace parse_template {
+			namespace impl {
+				struct CallbackMap;
+			}
+		class ParseTemplate {
+			std::unordered_map<std::string, daw::nodepp::base::Callback> m_callbacks;
+			boost::string_ref m_template;
+			std::unique_ptr<impl::CallbackMap> m_callback_map;
+		public:
+			ParseTemplate( ) = delete;
+			~ParseTemplate( ) = default;
+			ParseTemplate( ParseTemplate const & other );
+			ParseTemplate( ParseTemplate && ) = default;
+			ParseTemplate & operator=( ParseTemplate const & rhs );
+			ParseTemplate & operator=( ParseTemplate && ) = default;
+			ParseTemplate( boost::string_ref template_string );
+			void generate_callbacks( );
+			std::string process_template( );
+			std::vector<std::string> list_callbacks( ) const;
+			void callback_remove( boost::string_ref callback_name );
+
+			template<typename Function>
+			void add_callback( boost::string_ref callback_name, Function callback ) {
+				m_callbacks[callback_name.to_string( )] = callback;
+			}
+
 		};
 	}	// namespace parse_template
 }	// namespace daw
