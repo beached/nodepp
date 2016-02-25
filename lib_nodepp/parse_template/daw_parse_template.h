@@ -21,4 +21,12 @@
 // SOFTWARE.
 
 #pragma once
+#include <unordered_map>
 
+namespace daw {
+	namespace parse_template {
+		struct ParseTemplate {
+			std::unordered_map<std::string, int> m_callbacks;
+		};
+	}	// namespace parse_template
+}	// namespace daw
