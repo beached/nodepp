@@ -26,8 +26,6 @@ set(SOURCE_FILES
 	daw_parse_template.cpp
 )
 
-add_subdirectory( ../lib_nodepp )
-
 include_directories( ../lib_nodepp )
 include_directories( ../../header_libraries )
 include_directories( SYSTEM ${Boost_INCLUDE_DIRS} )
