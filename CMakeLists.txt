@@ -63,4 +63,4 @@ add_executable(example_parse_json example_parse_json.cpp )
 target_link_libraries(example_parse_json parse_json ${CMAKE_DL_LIBS} ${Boost_Libs} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
 
 add_executable(example_parse_template example_parse_template.cpp )
-target_link_libraries(example_parse_template parse_template ${CMAKE_DL_LIBS} ${Boost_Libs} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
+target_link_libraries(example_parse_template parse_template lib_nodepp ${CMAKE_DL_LIBS} ${Boost_Libs} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
