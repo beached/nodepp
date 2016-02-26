@@ -52,7 +52,6 @@
 			void add_callback( boost::string_ref callback_name, Function callback ) {
 				m_callbacks[callback_name.to_string( )] = callback;
 			}
-
 		};
 	}	// namespace parse_template
 }	// namespace daw

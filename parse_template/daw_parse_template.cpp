@@ -24,38 +24,44 @@
 #include "daw_parse_template.h"
 #include <future>
 #include <numeric>
-
+#include <sstream>
+#include <ctime>
+#include <iomanip>
 
 namespace daw {
 	namespace parse_template {
 		namespace impl {
 			struct CallbackMap {
 				using iterator = typename boost::string_ref::iterator;
-				enum class CallbackTypes { Normal, Date, Time, DateFormat, TimeFormat, Repeat, Unknown };
+				enum class CallbackTypes { Normal, Date, Time, DateFormat, TimeFormat, Repeat, String, Unknown };
 				std::vector<iterator> beginnings;
 				std::vector<iterator> endings;
 				std::vector<CallbackTypes> types;
-				std::vector<daw::nodepp::base::Callback*> callback_handles;
+				std::vector<std::string> arguments;
+
+				size_t size( ) const {
+					return beginnings.size( );
+				}
 
 				void clear( ) {
 					beginnings.clear( );
 					endings.clear( );
 					types.clear( );
-					callback_handles.clear( );
+					arguments.clear( );
 				}
 
 				void add( iterator beginning, iterator ending, CallbackTypes callback_type ) {
 					beginnings.push_back( beginning );
 					endings.push_back( ending );
 					types.push_back( callback_type );
-					callback_handles.emplace_back( );
+					arguments.emplace_back( "" );
 				}
 
-				void add( iterator beginning, iterator ending, CallbackTypes callback_type, daw::nodepp::base::Callback* callback_handle ) {
+				void add( iterator beginning, iterator ending, CallbackTypes callback_type, std::string argument ) {
 					beginnings.push_back( beginning );
 					endings.push_back( ending );
 					types.push_back( callback_type );
-					callback_handles.push_back( callback_handle );
+					arguments.push_back( std::move( argument ) );
 				}
 
 				struct helpers {
@@ -87,7 +93,7 @@ namespace daw {
 						std::async( std::launch::async, [&]( ) { helpers::apply_permutation( beginnings, perm ); } ),
 						std::async( std::launch::async, [&]( ) { helpers::apply_permutation( endings, perm ); } ),
 						std::async( std::launch::async, [&]( ) { helpers::apply_permutation( types, perm ); } ),
-						std::async( std::launch::async, [&]( ) { helpers::apply_permutation( callback_handles, perm ); } )
+						std::async( std::launch::async, [&]( ) { helpers::apply_permutation( arguments, perm ); } )
 					} );
 				}
 			};
@@ -149,8 +155,6 @@ namespace daw {
 			assert( m_callback_map );
 			m_callback_map->clear( );
 
-			auto current_it = m_template.begin( );
-
 			auto parse_tag_type = [&]( auto first, auto const & last ) {
 				auto result = impl::CallbackMap::CallbackTypes::Unknown;
 				switch( *first ) {
@@ -191,23 +195,23 @@ namespace daw {
 			};
 
 			auto get_callback = [&]( size_t callback_map_pos ) {
-				daw::nodepp::base::Callback* result = nullptr;
+				std::string result = "";
 				switch( m_callback_map->types[callback_map_pos] )
 				{
 				case impl::CallbackMap::CallbackTypes::Normal: { 
 					auto first = m_callback_map->beginnings[callback_map_pos] + 2;
 					// TODO find quotes
-					auto name = boost::string_ref { first, std::distance( first, m_callback_map->endings[callback_map_pos] ) -1 };
+					auto name = boost::string_ref { first, static_cast<size_t>(std::distance( first, m_callback_map->endings[callback_map_pos] ) -1 ) };
 					if( callback_exists( name ) ) {
-						result = &(m_callbacks[name.to_string( )]);
+						result = name.to_string( );
 					}
 					}
 					break;
 				case impl::CallbackMap::CallbackTypes::Repeat: {
 					auto first = m_callback_map->beginnings[callback_map_pos] + 8;	// <%repeat=" legnth of repeat="
-						auto name = boost::string_ref { first, std::distance( first, m_callback_map->endings[callback_map_pos] ) };
+						auto name = boost::string_ref { first, static_cast<size_t>( std::distance( first, m_callback_map->endings[callback_map_pos] ) ) };
 						if( callback_exists( name ) ) {
-							result = &(m_callbacks[name.to_string( )]);
+							result = name.to_string( );
 						}
 					}
 					break;
@@ -216,6 +220,7 @@ namespace daw {
 				case impl::CallbackMap::CallbackTypes::DateFormat: break;
 				case impl::CallbackMap::CallbackTypes::TimeFormat: break;				
 				case impl::CallbackMap::CallbackTypes::Unknown: break;
+				case impl::CallbackMap::CallbackTypes::String: break;
 				default: break;
 				}
 
@@ -238,41 +243,75 @@ namespace daw {
 				}
 			};
 
-
-			while( (current_it = find_string( current_it, m_template.end( ), "<%" )) != m_template.end( ) ) {
-				current_it += 2;
-				if( *current_it == '=' ) {					
-					// Normal Callback
-					auto next_it = find_string( current_it, m_template.end( ), "%>" );
-					if( next_it == m_template.end( ) ) {
-						return;
+			auto add_strings = [&]( auto first, auto const & last ) {
+				for( size_t n = 0; n < m_callback_map->size( ); ++n ) {					
+					if( first + 2 != m_callback_map->beginnings[n] ) {
+						m_callback_map->add( first, first + (std::distance( first, m_callback_map->beginnings[n] ) - 2), impl::CallbackMap::CallbackTypes::String );
 					}
-					m_callback_map->add( current_it, next_it, impl::CallbackMap::CallbackTypes::Normal );
-					current_it = next_it;
-				} else if( find_string( current_it, m_template.end( ), "date" ) != m_template.end( ) ) {
-					current_it += 4;
-					if( find_string( current_it, m_template.end( ), "_format=\"" ) != m_template.end( ) ) {
-						current_it += 9;
-						auto end_format_it = find_string( current_it, m_template.end( ), "\"" );
-						if( end_format_it == m_template.end( ) ) {
-							return;
-						}
-
-
-					} else {
-						auto next_it = find_string( current_it, m_template.end( ), "%>" );
-						if( next_it == m_template.end( ) ) {
-							return;
-						}
-						m_callback_map->add( current_it, next_it, impl::CallbackMap::CallbackTypes::Date );
-					}
+					first = m_callback_map->endings[n];
 				}
-			}			
+			};
+
+			find_tags( m_template.begin( ), m_template.end( ), "<%", "%>" );
+			add_strings( m_template.begin( ), m_template.end( ) );
+			m_callback_map->sort( );
+			for( size_t n = 0; n < m_callback_map->size( ); ++n ) {
+				m_callback_map->arguments[n] = get_callback( n );
+			}
 		}
 
 		std::string ParseTemplate::process_template( ) {
-
-			return "";
+			std::stringstream ss;
+			std::string dte_format = "%x";
+			std::string tm_format = "%X";
+			for( size_t n = 0; n < m_callback_map->size( ); ++n ) {
+				switch( m_callback_map->types[n] ) {
+				case impl::CallbackMap::CallbackTypes::Normal: {
+						auto const & cb_name = m_callback_map->arguments[n];
+						if( !cb_name.empty( ) && callback_exists( cb_name ) ) {
+							std::string tmp;
+							m_callbacks[cb_name]( &tmp );
+							ss << tmp;
+						}
+					}
+					break;
+				case impl::CallbackMap::CallbackTypes::Date: {
+						std::time_t t = std::time( nullptr );
+						std::tm tm = *std::localtime( &t );						
+						ss << std::put_time( &tm, dte_format.c_str( ) );
+					}
+					break;
+				case impl::CallbackMap::CallbackTypes::Time: {
+					std::time_t t = std::time( nullptr );
+					std::tm tm = *std::localtime( &t );
+					ss << std::put_time( &tm, tm_format.c_str( ) );
+				}
+				break;
+				case impl::CallbackMap::CallbackTypes::DateFormat: 
+					dte_format = m_callback_map->arguments[n];
+					break;
+				case impl::CallbackMap::CallbackTypes::TimeFormat: 
+					tm_format = m_callback_map->arguments[n];
+					break;
+				case impl::CallbackMap::CallbackTypes::Repeat: {
+					auto const & cb_name = m_callback_map->arguments[n];
+					if( !cb_name.empty( ) && callback_exists( cb_name ) ) {
+						std::vector<std::string> tmp;
+						m_callbacks[cb_name]( &tmp );
+						for( auto const & line : tmp ) {
+							ss << line << "\n";
+						}
+					}
+				}
+				case impl::CallbackMap::CallbackTypes::String: 
+					ss << (boost::string_ref { m_callback_map->beginnings[n], static_cast<size_t>( std::distance( m_callback_map->beginnings[n], m_callback_map->endings[n] ) ) } );
+					break;
+				case impl::CallbackMap::CallbackTypes::Unknown:
+					ss << "Error, unknown tag at position " << std::distance( m_template.begin( ), m_callback_map->beginnings[n] ) << "\n";
+					break;
+				}
+			}
+			return ss.str( );
 		}
 
 		std::vector<std::string> ParseTemplate::list_callbacks() const {
@@ -291,8 +330,9 @@ namespace daw {
 		}
 
 		bool ParseTemplate::callback_exists(boost::string_ref callback_name) const {
-			return m_callbacks.count( callback_name.to_string( ) );
+			return m_callbacks.count( callback_name.to_string( ) ) != 0;
 		}
+
 	}	// namespace parse_template
 }	// namespace daw
 
