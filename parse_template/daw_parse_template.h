@@ -26,7 +26,7 @@
 #include <vector>
 #include <future>
 #include <string>
-
+#include <numeric>
 #include "base_callback.h"
 
 namespace daw {
