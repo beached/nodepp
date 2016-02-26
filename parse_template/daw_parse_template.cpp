@@ -65,17 +65,17 @@ namespace daw {
 				}
 
 				struct helpers {
-					template<typename T, typename Compare>
-					static std::vector<std::size_t> sort_permutation( std::vector<T> const & vec, Compare & compare ) {
+					template<typename Container, typename Compare>
+					static std::vector<std::size_t> sort_permutation( Container const & vec, Compare compare ) {
 						std::vector<std::size_t> p( vec.size( ) );
 						std::iota( p.begin( ), p.end( ), 0 );
 						std::sort( p.begin( ), p.end( ), [&]( std::size_t i, std::size_t j ) { return compare( vec[i], vec[j] ); } );
 						return p;
 					}
 
-					template<typename T>
-					static std::vector<T> apply_permutation( std::vector<T> const & vec, std::vector<std::size_t> const & p ) {
-						std::vector<T> sorted_vec( p.size( ) );
+					template<typename Container>
+					static auto apply_permutation( Container const & vec, std::vector<std::size_t> const & p ) {
+						std::vector<typename Container::value_type> sorted_vec( p.size( ) );
 						std::transform( p.begin( ), p.end( ), sorted_vec.begin( ), [&]( std::size_t i ) { return vec[i]; } );
 						return sorted_vec;
 					}
@@ -294,15 +294,16 @@ namespace daw {
 					tm_format = m_callback_map->arguments[n];
 					break;
 				case impl::CallbackMap::CallbackTypes::Repeat: {
-					auto const & cb_name = m_callback_map->arguments[n];
-					if( !cb_name.empty( ) && callback_exists( cb_name ) ) {
-						std::vector<std::string> tmp;
-						m_callbacks[cb_name]( &tmp );
-						for( auto const & line : tmp ) {
-							ss << line << "\n";
+						auto const & cb_name = m_callback_map->arguments[n];
+						if( !cb_name.empty( ) && callback_exists( cb_name ) ) {
+							std::vector<std::string> tmp;
+							m_callbacks[cb_name]( &tmp );
+							for( auto const & line : tmp ) {
+								ss << line << "\n";
+							}
 						}
 					}
-				}
+					break;	
 				case impl::CallbackMap::CallbackTypes::String: 
 					ss << (boost::string_ref { m_callback_map->beginnings[n], static_cast<size_t>( std::distance( m_callback_map->beginnings[n], m_callback_map->endings[n] ) ) } );
 					break;

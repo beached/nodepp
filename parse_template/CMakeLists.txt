@@ -27,7 +27,7 @@ set(SOURCE_FILES
 )
 
 include_directories( ../lib_nodepp )
-include_directories( ../../header_libraries )
+include_directories( ../header_libraries )
 include_directories( SYSTEM ${Boost_INCLUDE_DIRS} )
 link_directories( ${Boost_LIBRARY_DIRS} )
 

@@ -205,7 +205,7 @@ namespace utf8
 
     template <typename u16bit_iterator, typename octet_iterator>
     octet_iterator utf16to8 (u16bit_iterator start, u16bit_iterator end, octet_iterator result)
-    {i 
+    { 
         while (start != end) {
             uint32_t cp = utf8::internal::mask16(*start++);
             // Take care of surrogate pairs first
