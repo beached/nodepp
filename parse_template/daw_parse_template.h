@@ -27,7 +27,6 @@
 #include <future>
 #include <string>
 #include <numeric>
-#include "base_callback.h"
 
 namespace daw {
 	namespace parse_template {

@@ -27,6 +27,7 @@
 #include <iomanip>
 
 #include "daw_parse_template.h"
+#include <cassert>
 
 namespace daw {
 	namespace parse_template {

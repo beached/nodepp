@@ -24,28 +24,34 @@
 
 #include "daw_parse_template.h"
 #include <iostream>
+#include <boost/iostreams/device/mapped_file.hpp>
 
 
-int main( int, char const ** ) {
+int main( int argc, char const ** argv ) {
 	using namespace daw::parse_template;
 
-	std::string str = R"raw(<%="test_cb"%>
-<%date%>
-<%date_format="%Y"%>
-<%date%>
-<%repeat="test_repeat"%>
-)raw";
+	if( argc <= 1 ) {
+		std::cerr << "Must supply a template file" << std::endl;
+		exit( EXIT_FAILURE );
+	}
+
+	boost::iostreams::mapped_file_source template_str;
+	template_str.open( argv[1] );
+	if( !template_str.is_open( ) ) {
+		std::cerr << "Error opening file: " << argv[1] << std::endl;
+		exit( EXIT_FAILURE );
+	}
+
+	boost::string_ref str { template_str.begin( ), template_str.size( ) };
 
 	ParseTemplate p( str );
 
 	for( auto const & t : p.list_callbacks( ) ) {
 		std::cout << t << "\n";
 	}
-	p.add_callback( "test_cb", []( ) { return std::string{ "callback test\n" }; } );
-	p.add_callback( "test_repeat", []( ) {
-		return std::vector<std::string>{ 10, "test" };
-	} );
-	std::cout << "template before:\n" << str << "\n---\ntemplate after:\n" << p.process_template( ) << "\n---\n";
+	p.add_callback( "dummy_text_cb", []( ) { return std::string{ "This is some dummy text" }; } );
+
+	std::cout << "\n---\n" << p.process_template( ) << "\n---\n";
 	return EXIT_SUCCESS;
 }
 
