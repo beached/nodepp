@@ -31,16 +31,21 @@ int main( int, char const ** ) {
 
 	std::string str = R"raw(<%="test_cb"%>
 <%date%>
+<%date_format="%Y"%>
+<%date%>
+<%repeat="test_repeat"%>
 )raw";
 
 	ParseTemplate p( str );
-	p.generate_callbacks( );
+
 	for( auto const & t : p.list_callbacks( ) ) {
 		std::cout << t << "\n";
 	}
-	p.add_callback( "test_cb", []( std::string & output ) { output = "callback test\n"; } );
-
-	std::cout << "template before:\n" << str << "\n\ntemplate after:\n" << p.process_template( ) << std::endl;
+	p.add_callback( "test_cb", []( ) { return std::string{ "callback test\n" }; } );
+	p.add_callback( "test_repeat", []( ) {
+		return std::vector<std::string>{ 10, "test" };
+	} );
+	std::cout << "template before:\n" << str << "\n---\ntemplate after:\n" << p.process_template( ) << "\n---\n";
 	return EXIT_SUCCESS;
 }
 

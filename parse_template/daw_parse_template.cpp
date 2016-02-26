@@ -162,37 +162,27 @@ namespace daw {
 				return result;
 			};
 
-			auto get_callback = [&]( size_t callback_map_pos ) {
-				std::string result = "";
-				switch( m_callback_map->types[callback_map_pos] ) {
-				case impl::CallbackMap::CallbackTypes::Normal:
-				{
-					auto first = m_callback_map->beginnings[callback_map_pos] + 2;
-					// TODO find quotes
-					auto name = boost::string_ref { first, static_cast<size_t>(std::distance( first, m_callback_map->endings[callback_map_pos] ) - 1) };
-					if( callback_exists( name ) ) {
-						result = name.to_string( );
-					}
-				}
-				break;
-				case impl::CallbackMap::CallbackTypes::Repeat:
-				{
-					auto first = m_callback_map->beginnings[callback_map_pos] + 8;	// <%repeat=" legnth of repeat="
-					auto name = boost::string_ref { first, static_cast<size_t>(std::distance( first, m_callback_map->endings[callback_map_pos] )) };
-					if( callback_exists( name ) ) {
-						result = name.to_string( );
-					}
-				}
-				break;
-				case impl::CallbackMap::CallbackTypes::Date: break;
-				case impl::CallbackMap::CallbackTypes::Time: break;
-				case impl::CallbackMap::CallbackTypes::DateFormat: break;
-				case impl::CallbackMap::CallbackTypes::TimeFormat: break;
-				case impl::CallbackMap::CallbackTypes::Unknown: break;
-				case impl::CallbackMap::CallbackTypes::String: break;
-				default: break;
-				}
+			auto find_quoted_string = []( auto first, auto const & last ) {
 
+				auto result = std::make_pair( last, last );
+
+				auto in_quote = false;
+				auto prev_slash = false;
+				for( ; first != last; ++first ) {
+					if( !prev_slash && '"' == *first ) {
+						if( in_quote ) {
+							result.second = first;
+							break;
+						} else {
+							in_quote = true;
+							result.first = first + 1;
+						}
+					} else if( '\\' == *first ) {
+						prev_slash = true;
+					} else {
+						prev_slash = false;
+					}
+				}
 				return result;
 			};
 
@@ -210,12 +200,19 @@ namespace daw {
 					}
 					first += close_tag.size( );
 					auto tag_type = parse_tag_type( open_it, first );
-					m_callback_map->add( open_it, first, tag_type );
+
+					auto tag_argument = find_quoted_string( open_it, first );
+					std::string tag_argument_str;
+					if( tag_argument.first != tag_argument.second ) {
+						tag_argument_str = std::string( tag_argument.first, static_cast<size_t>(std::distance( tag_argument.first, tag_argument.second )) );
+					}
+					m_callback_map->add( open_it, first, tag_type, std::move( tag_argument_str ) );
 				}
 			};
 
 			auto add_strings = [&]( auto first, auto const & last ) {
-				for( size_t n = 0; n < m_callback_map->size( ); ++n ) {
+				auto const sz = m_callback_map->size( );
+				for( size_t n = 0; n < sz; ++n ) {
 					if( first + 2 != m_callback_map->beginnings[n] ) {
 						m_callback_map->add( first, first + (std::distance( first, m_callback_map->beginnings[n] ) - 2), impl::CallbackMap::CallbackTypes::String );
 					}
@@ -226,9 +223,6 @@ namespace daw {
 			find_tags( m_template.begin( ), m_template.end( ), "<%", "%>" );
 			add_strings( m_template.begin( ), m_template.end( ) );
 			m_callback_map->sort( );
-			for( size_t n = 0; n < m_callback_map->size( ); ++n ) {
-				m_callback_map->arguments[n] = get_callback( n );
-			}
 		}
 
 		std::string ParseTemplate::process_template( ) {
@@ -240,10 +234,8 @@ namespace daw {
 				case impl::CallbackMap::CallbackTypes::Normal:
 				{
 					auto const & cb_name = m_callback_map->arguments[n];
-					if( !cb_name.empty( ) && callback_exists( cb_name ) ) {
-						std::string tmp;
-						m_callbacks[cb_name]( &tmp );
-						ss << tmp;
+					if( !cb_name.empty( ) && callback_exists( cb_name ) && m_callbacks[cb_name].cb_normal ) {
+						ss << m_callbacks[cb_name].cb_normal( );
 					}
 				}
 				break;
@@ -270,9 +262,8 @@ namespace daw {
 				case impl::CallbackMap::CallbackTypes::Repeat:
 				{
 					auto const & cb_name = m_callback_map->arguments[n];
-					if( !cb_name.empty( ) && callback_exists( cb_name ) ) {
-						std::vector<std::string> tmp;
-						m_callbacks[cb_name]( &tmp );
+					if( !cb_name.empty( ) && callback_exists( cb_name ) && m_callbacks[cb_name].cb_repeat ) {
+						auto tmp = m_callbacks[cb_name].cb_repeat( );
 						for( auto const & line : tmp ) {
 							ss << line << "\n";
 						}
@@ -309,6 +300,13 @@ namespace daw {
 			return m_callbacks.count( callback_name.to_string( ) ) != 0;
 		}
 
+		void ParseTemplate::add_callback_impl(boost::string_ref callback_name, std::function<std::string()> callback) {
+			m_callbacks[callback_name.to_string( )].cb_normal = callback;
+		}
+
+		void ParseTemplate::add_callback_impl(boost::string_ref callback_name, std::function<std::vector<std::string>()> callback) {
+			m_callbacks[callback_name.to_string( )].cb_repeat = callback;
+		}
 	}	// namespace parse_template
 }	// namespace daw
 

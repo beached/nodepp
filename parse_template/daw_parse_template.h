@@ -44,7 +44,7 @@ namespace daw {
 				void clear( );
 				void add( iterator beginning, iterator ending, CallbackTypes callback_type );
 				void add( iterator beginning, iterator ending, CallbackTypes callback_type, std::string argument );
-				void sort( );				
+				void sort( );
 
 				struct helpers {
 					template<typename Container, typename Compare>
@@ -56,10 +56,10 @@ namespace daw {
 					}
 
 					template<typename Container>
-					static auto apply_permutation( Container const & vec, std::vector<std::size_t> const & p ) {
+					static void apply_permutation( Container & vec, std::vector<std::size_t> const & p ) {
 						std::vector<typename Container::value_type> sorted_vec( p.size( ) );
 						std::transform( p.begin( ), p.end( ), sorted_vec.begin( ), [&]( std::size_t i ) { return vec[i]; } );
-						return sorted_vec;
+						vec = std::move( sorted_vec );
 					}
 
 					static void wait_for_all( std::initializer_list<std::future<void>> items ) {
@@ -70,10 +70,16 @@ namespace daw {
 
 				};	// struct helpers
 			}; // struct CallbackMap
+
+			struct CB {
+				std::function<std::string( )> cb_normal;
+				std::function<std::vector<std::string>( )> cb_repeat;
+			};	// struct CB
+
 		} // namespace impl
 
 		class ParseTemplate {
-			std::unordered_map<std::string, daw::nodepp::base::Callback> m_callbacks;
+			std::unordered_map<std::string, impl::CB> m_callbacks;
 			boost::string_ref m_template;
 			std::unique_ptr<impl::CallbackMap> m_callback_map;
 		public:
@@ -89,10 +95,16 @@ namespace daw {
 			std::vector<std::string> list_callbacks( ) const;
 			void callback_remove( boost::string_ref callback_name );
 			bool callback_exists( boost::string_ref callback_name ) const;
-			template<typename Function>
-			void add_callback( boost::string_ref callback_name, Function callback ) {
-				m_callbacks[callback_name.to_string( )] = callback;
+			void add_callback_impl(boost::string_ref callback_name, std::function<std::string()> callback);
+			void add_callback_impl(boost::string_ref callback_name, std::function<std::vector<std::string>()> callback);
+
+			template<typename CallbackFunction>
+			void add_callback( boost::string_ref callback_name, CallbackFunction callback ) {
+				using result_t = std::result_of<CallbackFunction( )>::type;
+				std::function<result_t( )> cb = callback;
+				add_callback_impl( callback_name, cb );
 			}
+
 		};	// class ParseTemplate
 	}	// namespace parse_template
 }	// namespace daw
