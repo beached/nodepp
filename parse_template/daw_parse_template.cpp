@@ -198,15 +198,17 @@ namespace daw {
 
 			auto find_tags = [&]( auto first, auto const & last, boost::string_ref open_tag, boost::string_ref close_tag ) {
 				while( first != last ) {
-					first = find_string( first, last, open_tag ) + open_tag.size( );
+					first = find_string( first, last, open_tag );
 					if( first == last ) {
 						break;
 					}
+					first += open_tag.size( );
 					auto open_it = first;
-					first = find_string( first, last, close_tag ) + close_tag.size( );
+					first = find_string( first, last, close_tag );
 					if( first == last ) {
 						break;
 					}
+					first += close_tag.size( );
 					auto tag_type = parse_tag_type( open_it, first );
 					m_callback_map->add( open_it, first, tag_type );
 				}
