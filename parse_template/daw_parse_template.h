@@ -100,7 +100,7 @@ namespace daw {
 
 			template<typename CallbackFunction>
 			void add_callback( boost::string_ref callback_name, CallbackFunction callback ) {
-				using result_t = std::result_of<CallbackFunction( )>::type;
+				using result_t = typename std::result_of<CallbackFunction( )>::type;
 				std::function<result_t( )> cb = callback;
 				add_callback_impl( callback_name, cb );
 			}
