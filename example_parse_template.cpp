@@ -38,7 +38,7 @@ int main( int, char const ** ) {
 	for( auto const & t : p.list_callbacks( ) ) {
 		std::cout << t << "\n";
 	}
-	p.add_callback( "test_cb", []( auto & output ) { output = "callback test\n"; } );
+	p.add_callback( "test_cb", []( std::string & output ) { output = "callback test\n"; } );
 
 	std::cout << "template before:\n" << str << "\n\ntemplate after:\n" << p.process_template( ) << std::endl;
 	return EXIT_SUCCESS;

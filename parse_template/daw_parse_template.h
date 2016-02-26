@@ -30,45 +30,54 @@
 #include "base_callback.h"
 
 namespace daw {
-		namespace parse_template {
-			namespace impl {
-				struct CallbackMap {
-					using iterator = typename boost::string_ref::iterator;
-					enum class CallbackTypes { Normal, Date, Time, DateFormat, TimeFormat, Repeat, String, Unknown };
-					std::vector<iterator> beginnings;
-					std::vector<iterator> endings;
-					std::vector<CallbackTypes> types;
-					std::vector<std::string> arguments;
+	namespace parse_template {
+		namespace impl {
+			struct CallbackMap {
+				using iterator = typename boost::string_ref::iterator;
+				enum class CallbackTypes { Normal, Date, Time, DateFormat, TimeFormat, Repeat, String, Unknown };
+				std::vector<iterator> beginnings;
+				std::vector<iterator> endings;
+				std::vector<CallbackTypes> types;
+				std::vector<std::string> arguments;
 
-					size_t size( ) const;
-					void clear( );
-					void add( iterator beginning, iterator ending, CallbackTypes callback_type );
-					void add( iterator beginning, iterator ending, CallbackTypes callback_type, std::string argument );
-					static void wait_for_all( std::initializer_list<std::future<void>> items );
+				size_t size( ) const;
+				void clear( );
+				void add( iterator beginning, iterator ending, CallbackTypes callback_type );
+				void add( iterator beginning, iterator ending, CallbackTypes callback_type, std::string argument );
+				void sort( );				
 
-					struct helpers {
-						template<typename Container, typename Compare>
-						static std::vector<std::size_t> sort_permutation( Container const & vec, Compare compare ) {
-							std::vector<std::size_t> p( vec.size( ) );
-							std::iota( p.begin( ), p.end( ), 0 );
-							std::sort( p.begin( ), p.end( ), [&]( std::size_t i, std::size_t j ) { return compare( vec[i], vec[j] ); } );
-							return p;
+				struct helpers {
+					template<typename Container, typename Compare>
+					static std::vector<std::size_t> sort_permutation( Container const & vec, Compare compare ) {
+						std::vector<std::size_t> p( vec.size( ) );
+						std::iota( p.begin( ), p.end( ), 0 );
+						std::sort( p.begin( ), p.end( ), [&]( std::size_t i, std::size_t j ) { return compare( vec[i], vec[j] ); } );
+						return p;
+					}
+
+					template<typename Container>
+					static auto apply_permutation( Container const & vec, std::vector<std::size_t> const & p ) {
+						std::vector<typename Container::value_type> sorted_vec( p.size( ) );
+						std::transform( p.begin( ), p.end( ), sorted_vec.begin( ), [&]( std::size_t i ) { return vec[i]; } );
+						return sorted_vec;
+					}
+
+					static void wait_for_all( std::initializer_list<std::future<void>> items ) {
+						for( auto const & item : items ) {
+							item.wait( );
 						}
+					}
 
-						template<typename Container>
-						static auto apply_permutation( Container const & vec, std::vector<std::size_t> const & p ) {
-							std::vector<typename Container::value_type> sorted_vec( p.size( ) );
-							std::transform( p.begin( ), p.end( ), sorted_vec.begin( ), [&]( std::size_t i ) { return vec[i]; } );
-							return sorted_vec;
-						}
-					};	// struct helpers
-				}; // struct CallbackMap
+				};	// struct helpers
+			}; // struct CallbackMap
+		} // namespace impl
+
 		class ParseTemplate {
 			std::unordered_map<std::string, daw::nodepp::base::Callback> m_callbacks;
 			boost::string_ref m_template;
 			std::unique_ptr<impl::CallbackMap> m_callback_map;
 		public:
-			ParseTemplate( ) = delete;
+			ParseTemplate( ) = delete;	
 			~ParseTemplate( ) = default;
 			ParseTemplate( ParseTemplate const & other );
 			ParseTemplate( ParseTemplate && ) = default;
@@ -84,6 +93,6 @@ namespace daw {
 			void add_callback( boost::string_ref callback_name, Function callback ) {
 				m_callbacks[callback_name.to_string( )] = callback;
 			}
-		};
+		};	// class ParseTemplate
 	}	// namespace parse_template
 }	// namespace daw
