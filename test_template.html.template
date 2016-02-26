@@ -1,0 +1,13 @@
+<html>
+<head>
+<title>Test HTML</title>
+</head>
+<body>
+<p>
+Today's date is <%date%>.<br>
+</p>
+<p>
+Some dummy test<pre><%="dummy_text_cb"%></pre>
+</p>
+</body>
+</html>
