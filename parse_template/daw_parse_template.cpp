@@ -21,82 +21,50 @@
 // SOFTWARE.
 
 #include <algorithm>
-#include "daw_parse_template.h"
 #include <future>
-#include <numeric>
 #include <sstream>
 #include <ctime>
 #include <iomanip>
 
+#include "daw_parse_template.h"
+
 namespace daw {
 	namespace parse_template {
 		namespace impl {
-			struct CallbackMap {
-				using iterator = typename boost::string_ref::iterator;
-				enum class CallbackTypes { Normal, Date, Time, DateFormat, TimeFormat, Repeat, String, Unknown };
-				std::vector<iterator> beginnings;
-				std::vector<iterator> endings;
-				std::vector<CallbackTypes> types;
-				std::vector<std::string> arguments;
+			size_t CallbackMap::size( ) const {
+				return beginnings.size( );
+			}
 
-				size_t size( ) const {
-					return beginnings.size( );
-				}
+			void CallbackMap::clear( ) {
+				beginnings.clear( );
+				endings.clear( );
+				types.clear( );
+				arguments.clear( );
+			}
 
-				void clear( ) {
-					beginnings.clear( );
-					endings.clear( );
-					types.clear( );
-					arguments.clear( );
-				}
+			void CallbackMap::add( CallbackMap::iterator beginning, CallbackMap::iterator ending, CallbackMap::CallbackTypes callback_type ) {
+				beginnings.push_back( beginning );
+				endings.push_back( ending );
+				types.push_back( callback_type );
+				arguments.emplace_back( "" );
+			}
 
-				void add( iterator beginning, iterator ending, CallbackTypes callback_type ) {
-					beginnings.push_back( beginning );
-					endings.push_back( ending );
-					types.push_back( callback_type );
-					arguments.emplace_back( "" );
-				}
+			void CallbackMap::add( CallbackMap::iterator beginning, CallbackMap::iterator ending, CallbackMap::CallbackTypes callback_type, std::string argument ) {
+				beginnings.push_back( beginning );
+				endings.push_back( ending );
+				types.push_back( callback_type );
+				arguments.push_back( std::move( argument ) );
+			}
 
-				void add( iterator beginning, iterator ending, CallbackTypes callback_type, std::string argument ) {
-					beginnings.push_back( beginning );
-					endings.push_back( ending );
-					types.push_back( callback_type );
-					arguments.push_back( std::move( argument ) );
-				}
-
-				struct helpers {
-					template<typename Container, typename Compare>
-					static std::vector<std::size_t> sort_permutation( Container const & vec, Compare compare ) {
-						std::vector<std::size_t> p( vec.size( ) );
-						std::iota( p.begin( ), p.end( ), 0 );
-						std::sort( p.begin( ), p.end( ), [&]( std::size_t i, std::size_t j ) { return compare( vec[i], vec[j] ); } );
-						return p;
-					}
-
-					template<typename Container>
-					static auto apply_permutation( Container const & vec, std::vector<std::size_t> const & p ) {
-						std::vector<typename Container::value_type> sorted_vec( p.size( ) );
-						std::transform( p.begin( ), p.end( ), sorted_vec.begin( ), [&]( std::size_t i ) { return vec[i]; } );
-						return sorted_vec;
-					}
-
-					static void wait_for_all( std::initializer_list<std::future<void>> items ) {
-						for( auto const & item : items ) {
-							item.wait( );
-						}
-					}
-				};
-
-				void sort( ) {
-					auto perm = helpers::sort_permutation( beginnings, []( auto const & A, auto const & B ) { return A < B; } );
-					helpers::wait_for_all( {
-						std::async( std::launch::async, [&]( ) { helpers::apply_permutation( beginnings, perm ); } ),
-						std::async( std::launch::async, [&]( ) { helpers::apply_permutation( endings, perm ); } ),
-						std::async( std::launch::async, [&]( ) { helpers::apply_permutation( types, perm ); } ),
-						std::async( std::launch::async, [&]( ) { helpers::apply_permutation( arguments, perm ); } )
-					} );
-				}
-			};
+			void CallbackMap::sort( ) {
+				auto perm = helpers::sort_permutation( beginnings, []( auto const & A, auto const & B ) { return A < B; } );
+				helpers::wait_for_all( {
+					std::async( std::launch::async, [&]( ) { helpers::apply_permutation( beginnings, perm ); } ),
+					std::async( std::launch::async, [&]( ) { helpers::apply_permutation( endings, perm ); } ),
+									   std::async( std::launch::async, [&]( ) { helpers::apply_permutation( types, perm ); } ),
+									   std::async( std::launch::async, [&]( ) { helpers::apply_permutation( arguments, perm ); } )
+				} );
+			}
 		}
 		ParseTemplate::ParseTemplate( ParseTemplate const & other ):
 			m_callbacks( other.m_callbacks ),
@@ -106,7 +74,7 @@ namespace daw {
 			generate_callbacks( );
 		}
 
-		ParseTemplate& ParseTemplate::operator=(ParseTemplate const & rhs ) {
+		ParseTemplate& ParseTemplate::operator=( ParseTemplate const & rhs ) {
 			if( this != &rhs ) {
 				m_callbacks = rhs.m_callbacks;
 				m_template = rhs.m_template;
@@ -115,11 +83,11 @@ namespace daw {
 			return *this;
 		}
 
-		ParseTemplate::ParseTemplate(boost::string_ref template_string):
+		ParseTemplate::ParseTemplate( boost::string_ref template_string ):
 			m_callbacks( ),
 			m_template( template_string ),
-			m_callback_map( std::make_unique<impl::CallbackMap>( ) ) { 
-		
+			m_callback_map( std::make_unique<impl::CallbackMap>( ) ) {
+
 			generate_callbacks( );
 		}
 
@@ -138,7 +106,7 @@ namespace daw {
 			}
 
 			template<typename Iterator>
-			Iterator find_string( Iterator first, Iterator last, boost::string_ref value ) { 
+			Iterator find_string( Iterator first, Iterator last, boost::string_ref value ) {
 				auto result_it = std::find( first, last, *value.begin( ) );
 				while( result_it != last ) {
 
@@ -196,29 +164,30 @@ namespace daw {
 
 			auto get_callback = [&]( size_t callback_map_pos ) {
 				std::string result = "";
-				switch( m_callback_map->types[callback_map_pos] )
+				switch( m_callback_map->types[callback_map_pos] ) {
+				case impl::CallbackMap::CallbackTypes::Normal:
 				{
-				case impl::CallbackMap::CallbackTypes::Normal: { 
 					auto first = m_callback_map->beginnings[callback_map_pos] + 2;
 					// TODO find quotes
-					auto name = boost::string_ref { first, static_cast<size_t>(std::distance( first, m_callback_map->endings[callback_map_pos] ) -1 ) };
+					auto name = boost::string_ref { first, static_cast<size_t>(std::distance( first, m_callback_map->endings[callback_map_pos] ) - 1) };
 					if( callback_exists( name ) ) {
 						result = name.to_string( );
 					}
-					}
-					break;
-				case impl::CallbackMap::CallbackTypes::Repeat: {
+				}
+				break;
+				case impl::CallbackMap::CallbackTypes::Repeat:
+				{
 					auto first = m_callback_map->beginnings[callback_map_pos] + 8;	// <%repeat=" legnth of repeat="
-						auto name = boost::string_ref { first, static_cast<size_t>( std::distance( first, m_callback_map->endings[callback_map_pos] ) ) };
-						if( callback_exists( name ) ) {
-							result = name.to_string( );
-						}
+					auto name = boost::string_ref { first, static_cast<size_t>(std::distance( first, m_callback_map->endings[callback_map_pos] )) };
+					if( callback_exists( name ) ) {
+						result = name.to_string( );
 					}
-					break;
+				}
+				break;
 				case impl::CallbackMap::CallbackTypes::Date: break;
 				case impl::CallbackMap::CallbackTypes::Time: break;
 				case impl::CallbackMap::CallbackTypes::DateFormat: break;
-				case impl::CallbackMap::CallbackTypes::TimeFormat: break;				
+				case impl::CallbackMap::CallbackTypes::TimeFormat: break;
 				case impl::CallbackMap::CallbackTypes::Unknown: break;
 				case impl::CallbackMap::CallbackTypes::String: break;
 				default: break;
@@ -244,7 +213,7 @@ namespace daw {
 			};
 
 			auto add_strings = [&]( auto first, auto const & last ) {
-				for( size_t n = 0; n < m_callback_map->size( ); ++n ) {					
+				for( size_t n = 0; n < m_callback_map->size( ); ++n ) {
 					if( first + 2 != m_callback_map->beginnings[n] ) {
 						m_callback_map->add( first, first + (std::distance( first, m_callback_map->beginnings[n] ) - 2), impl::CallbackMap::CallbackTypes::String );
 					}
@@ -266,46 +235,50 @@ namespace daw {
 			std::string tm_format = "%X";
 			for( size_t n = 0; n < m_callback_map->size( ); ++n ) {
 				switch( m_callback_map->types[n] ) {
-				case impl::CallbackMap::CallbackTypes::Normal: {
-						auto const & cb_name = m_callback_map->arguments[n];
-						if( !cb_name.empty( ) && callback_exists( cb_name ) ) {
-							std::string tmp;
-							m_callbacks[cb_name]( &tmp );
-							ss << tmp;
-						}
+				case impl::CallbackMap::CallbackTypes::Normal:
+				{
+					auto const & cb_name = m_callback_map->arguments[n];
+					if( !cb_name.empty( ) && callback_exists( cb_name ) ) {
+						std::string tmp;
+						m_callbacks[cb_name]( &tmp );
+						ss << tmp;
 					}
-					break;
-				case impl::CallbackMap::CallbackTypes::Date: {
-						std::time_t t = std::time( nullptr );
-						std::tm tm = *std::localtime( &t );						
-						ss << std::put_time( &tm, dte_format.c_str( ) );
-					}
-					break;
-				case impl::CallbackMap::CallbackTypes::Time: {
+				}
+				break;
+				case impl::CallbackMap::CallbackTypes::Date:
+				{
+					std::time_t t = std::time( nullptr );
+					std::tm tm = *std::localtime( &t );
+					ss << std::put_time( &tm, dte_format.c_str( ) );
+				}
+				break;
+				case impl::CallbackMap::CallbackTypes::Time:
+				{
 					std::time_t t = std::time( nullptr );
 					std::tm tm = *std::localtime( &t );
 					ss << std::put_time( &tm, tm_format.c_str( ) );
 				}
 				break;
-				case impl::CallbackMap::CallbackTypes::DateFormat: 
+				case impl::CallbackMap::CallbackTypes::DateFormat:
 					dte_format = m_callback_map->arguments[n];
 					break;
-				case impl::CallbackMap::CallbackTypes::TimeFormat: 
+				case impl::CallbackMap::CallbackTypes::TimeFormat:
 					tm_format = m_callback_map->arguments[n];
 					break;
-				case impl::CallbackMap::CallbackTypes::Repeat: {
-						auto const & cb_name = m_callback_map->arguments[n];
-						if( !cb_name.empty( ) && callback_exists( cb_name ) ) {
-							std::vector<std::string> tmp;
-							m_callbacks[cb_name]( &tmp );
-							for( auto const & line : tmp ) {
-								ss << line << "\n";
-							}
+				case impl::CallbackMap::CallbackTypes::Repeat:
+				{
+					auto const & cb_name = m_callback_map->arguments[n];
+					if( !cb_name.empty( ) && callback_exists( cb_name ) ) {
+						std::vector<std::string> tmp;
+						m_callbacks[cb_name]( &tmp );
+						for( auto const & line : tmp ) {
+							ss << line << "\n";
 						}
 					}
-					break;	
-				case impl::CallbackMap::CallbackTypes::String: 
-					ss << (boost::string_ref { m_callback_map->beginnings[n], static_cast<size_t>( std::distance( m_callback_map->beginnings[n], m_callback_map->endings[n] ) ) } );
+				}
+				break;
+				case impl::CallbackMap::CallbackTypes::String:
+					ss << (boost::string_ref { m_callback_map->beginnings[n], static_cast<size_t>(std::distance( m_callback_map->beginnings[n], m_callback_map->endings[n] )) });
 					break;
 				case impl::CallbackMap::CallbackTypes::Unknown:
 					ss << "Error, unknown tag at position " << std::distance( m_template.begin( ), m_callback_map->beginnings[n] ) << "\n";
@@ -315,10 +288,10 @@ namespace daw {
 			return ss.str( );
 		}
 
-		std::vector<std::string> ParseTemplate::list_callbacks() const {
+		std::vector<std::string> ParseTemplate::list_callbacks( ) const {
 			std::vector<std::string> result;
 			result.reserve( m_callbacks.size( ) );
-			
+
 			std::transform( m_callbacks.begin( ), m_callbacks.end( ), std::back_inserter( result ), []( typename decltype(m_callbacks)::value_type item ) {
 				return item.first;
 			} );
@@ -326,11 +299,11 @@ namespace daw {
 			return result;
 		}
 
-		void ParseTemplate::callback_remove(boost::string_ref callback_name) {
+		void ParseTemplate::callback_remove( boost::string_ref callback_name ) {
 			m_callbacks.erase( callback_name.to_string( ) );
 		}
 
-		bool ParseTemplate::callback_exists(boost::string_ref callback_name) const {
+		bool ParseTemplate::callback_exists( boost::string_ref callback_name ) const {
 			return m_callbacks.count( callback_name.to_string( ) ) != 0;
 		}
 

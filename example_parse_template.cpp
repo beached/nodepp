@@ -23,18 +23,24 @@
 #include <cstdlib>
 
 #include "daw_parse_template.h"
+#include <iostream>
 
-template<typename Container, typename T>
-void if_exists_do( Container & container, T const & key, std::function<void( typename Container::iterator it )> action ) {
-	auto it = std::find( std::begin( container ), std::end( container ), key );
-	if( std::end( container ) != it ) {
-		action( it );
-	}
-}
 
 int main( int, char const ** ) {
-	using namespace daw::nodepp;
+	using namespace daw::parse_template;
 
+	std::string str = R"raw(<%="test_cb"%>
+<%date%>
+)raw";
+
+	ParseTemplate p( str );
+	p.generate_callbacks( );
+	for( auto const & t : p.list_callbacks( ) ) {
+		std::cout << t << "\n";
+	}
+	p.add_callback( "test_cb", []( auto & output ) { output = "callback test\n"; } );
+
+	std::cout << "template before:\n" << str << "\n\ntemplate after:\n" << p.process_template( ) << std::endl;
 	return EXIT_SUCCESS;
 }
 
