@@ -194,7 +194,7 @@ namespace daw {
 			void callback_remove( boost::string_ref callback_name );
 			bool callback_exists( boost::string_ref callback_name ) const;
 			void add_callback_impl(boost::string_ref callback_name, std::function<std::string()> callback);
-			void add_callback_impl(boost::string_ref callback_name, std::function<std::vector<std::string>( std::string, std::string )> callback);
+			void add_callback_impl(boost::string_ref callback_name, std::function<std::vector<std::string>( boost::string_ref, boost::string_ref )> callback);
 
 			template<typename CallbackFunction>
 			void add_callback( boost::string_ref callback_name, CallbackFunction callback ) {

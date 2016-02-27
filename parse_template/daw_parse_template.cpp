@@ -244,7 +244,7 @@ namespace daw {
 			m_callbacks[callback_name.to_string( )].cb_normal = callback;
 		}
 
-		void ParseTemplate::add_callback_impl(boost::string_ref callback_name, std::function<std::vector<std::string>( std::string, std::string )> callback) {
+		void ParseTemplate::add_callback_impl(boost::string_ref callback_name, std::function<std::vector<std::string>( boost::string_ref, boost::string_ref )> callback) {
 			m_callbacks[callback_name.to_string( )].cb_repeat = callback;
 		}
 	}	// namespace parse_template
