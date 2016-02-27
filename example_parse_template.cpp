@@ -50,7 +50,11 @@ int main( int argc, char const ** argv ) {
 		std::cout << t << "\n";
 	}
 	p.add_callback( "dummy_text_cb", []( ) { return std::string { "This is some dummy text" }; } );
+	p.add_callback( "repeat_test", []( ) {
+		std::vector<std::string> result;
 
+		return result;
+	} );
 	std::cout << "\n---\n";
 	p.process_template( std::cout );
 	std::cout << "\n---\n";

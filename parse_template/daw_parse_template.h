@@ -77,7 +77,7 @@ namespace daw {
 
 			struct CB {
 				std::function<std::string( )> cb_normal;
-				std::function<std::vector<std::string>( boost::string_ref prefix, boost::string_ref postfix )> cb_repeat;
+				std::function<std::vector<std::string>( )> cb_repeat;
 			};	// struct CB
 
 			template<typename T>
@@ -174,9 +174,9 @@ namespace daw {
 								prefix = m_callback_map->arguments[n][1];
 								postfix = m_callback_map->arguments[n][2];
 							}
-							auto tmp = m_callbacks[cb_name].cb_repeat( prefix, postfix );
+							auto tmp = m_callbacks[cb_name].cb_repeat( );
 							for( auto const & line : tmp ) {
-								out_stream << line << "\n";
+								out_stream << prefix << line << postfix << "\n";
 							}
 						}
 					}
@@ -194,7 +194,7 @@ namespace daw {
 			void callback_remove( boost::string_ref callback_name );
 			bool callback_exists( boost::string_ref callback_name ) const;
 			void add_callback_impl(boost::string_ref callback_name, std::function<std::string()> callback);
-			void add_callback_impl(boost::string_ref callback_name, std::function<std::vector<std::string>( boost::string_ref, boost::string_ref )> callback);
+			void add_callback_impl(boost::string_ref callback_name, std::function<std::vector<std::string>( )> callback);
 
 			template<typename CallbackFunction>
 			void add_callback( boost::string_ref callback_name, CallbackFunction callback ) {
