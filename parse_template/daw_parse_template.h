@@ -175,13 +175,12 @@ namespace daw {
 								postfix = m_callback_map->arguments[n][2];
 							}
 							auto tmp = m_callbacks[cb_name].cb_repeat( );
-							int32_t count = tmp.size( );
+							auto count = tmp.size( );
 							for( auto const & line : tmp ) {
 								out_stream << prefix << line << postfix;
-								if( count > 1 ) {
+								if( count-- > 1 ) {
 									out_stream << "\n";
 								}
-								--count;
 							}
 						}
 					}					
