@@ -45,10 +45,10 @@ namespace daw {
 				beginnings.push_back( beginning );
 				endings.push_back( ending );
 				types.push_back( callback_type );
-				arguments.emplace_back( "" );
+				arguments.emplace_back( std::vector<std::string>{ } );
 			}
 
-			void CallbackMap::add( CallbackMap::iterator beginning, CallbackMap::iterator ending, CallbackMap::CallbackTypes callback_type, std::string argument ) {
+			void CallbackMap::add( CallbackMap::iterator beginning, CallbackMap::iterator ending, CallbackMap::CallbackTypes callback_type, std::vector<std::string> argument ) {
 				beginnings.push_back( beginning );
 				endings.push_back( ending );
 				types.push_back( callback_type );
@@ -206,7 +206,7 @@ namespace daw {
 					if( tag_argument.first != tag_argument.second ) {
 						tag_argument_str = std::string( tag_argument.first, static_cast<size_t>(std::distance( tag_argument.first, tag_argument.second )) );
 					}
-					m_callback_map->add( open_it, first, tag_type, std::move( tag_argument_str ) );
+					m_callback_map->add( open_it, first, tag_type, { std::move( tag_argument_str ) } );
 				}
 			};
 
@@ -244,7 +244,7 @@ namespace daw {
 			m_callbacks[callback_name.to_string( )].cb_normal = callback;
 		}
 
-		void ParseTemplate::add_callback_impl(boost::string_ref callback_name, std::function<std::vector<std::string>()> callback) {
+		void ParseTemplate::add_callback_impl(boost::string_ref callback_name, std::function<std::vector<std::string>( std::string, std::string )> callback) {
 			m_callbacks[callback_name.to_string( )].cb_repeat = callback;
 		}
 	}	// namespace parse_template
