@@ -161,7 +161,7 @@ namespace daw {
 						break;
 					case impl::CallbackMap::CallbackTypes::Repeat:
 					{
-						if( m_callback_map->arguments[n].size( ) != 1 ) {
+						if( m_callback_map->arguments[n].empty( ) ) {
 							out_stream << "Error, invalid arguments, expected 1, at position " << std::distance( m_template.begin( ), m_callback_map->beginnings[n] ) << "\n";
 							break;
 						}
@@ -175,11 +175,16 @@ namespace daw {
 								postfix = m_callback_map->arguments[n][2];
 							}
 							auto tmp = m_callbacks[cb_name].cb_repeat( );
+							int32_t count = tmp.size( );
 							for( auto const & line : tmp ) {
-								out_stream << prefix << line << postfix << "\n";
+								out_stream << prefix << line << postfix;
+								if( count > 1 ) {
+									out_stream << "\n";
+								}
+								--count;
 							}
 						}
-					}
+					}					
 					break;
 					case impl::CallbackMap::CallbackTypes::Unknown:
 						out_stream << "Error, unknown tag at position " << std::distance( m_template.begin( ), m_callback_map->beginnings[n] ) << "\n";

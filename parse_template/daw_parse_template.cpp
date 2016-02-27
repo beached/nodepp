@@ -202,11 +202,19 @@ namespace daw {
 					auto tag_type = parse_tag_type( open_it_inside, first );
 
 					auto tag_argument = find_quoted_string( open_it_inside, first );
-					std::string tag_argument_str;
-					if( tag_argument.first != tag_argument.second ) {
-						tag_argument_str = std::string( tag_argument.first, static_cast<size_t>(std::distance( tag_argument.first, tag_argument.second )) );
+					auto current_quote_pos = tag_argument.first;
+					std::vector<std::string> tag_arguments;
+					while( current_quote_pos != first ) {					
+						std::string tag_argument_str = std::string( tag_argument.first, static_cast<size_t>(std::distance( tag_argument.first, tag_argument.second )) );
+						tag_arguments.push_back( std::move( tag_argument_str ) );
+						current_quote_pos = tag_argument.second;
+						if( current_quote_pos != first ) {
+							++current_quote_pos;
+						}
+						tag_argument = find_quoted_string( current_quote_pos, first );
+						current_quote_pos = tag_argument.second;
 					}
-					m_callback_map->add( open_it, first, tag_type, { std::move( tag_argument_str ) } );
+					m_callback_map->add( open_it, first, tag_type, std::move( tag_arguments ) );
 				}
 			};
 
