@@ -27,13 +27,15 @@
 #include <future>
 #include <string>
 #include <numeric>
+#include <ctime>
+#include <iomanip>
 
 namespace daw {
 	namespace parse_template {
 		namespace impl {
 			struct CallbackMap {
 				using iterator = typename boost::string_ref::iterator;
-				enum class CallbackTypes { Normal, Date, Time, DateFormat, TimeFormat, Repeat, String, Unknown };
+				enum class CallbackTypes { Normal, Date, Time, DateFormat, TimeFormat, Repeat, Unknown };
 				std::vector<iterator> beginnings;
 				std::vector<iterator> endings;
 				std::vector<CallbackTypes> types;
@@ -90,7 +92,73 @@ namespace daw {
 			ParseTemplate & operator=( ParseTemplate && ) = default;
 			ParseTemplate( boost::string_ref template_string );
 			void generate_callbacks( );
-			std::string process_template( );
+			std::string process_template_to_string();
+			
+			template<typename Stream>
+			void process_template( Stream & out_stream ) {
+				auto show_string = []( auto & stream, auto first, auto const last ) {
+					for( ; first != last; ++first ) {
+						stream << *first;
+					}
+					return first;
+				};
+
+				std::string dte_format = "%x";
+				std::string tm_format = "%X";
+
+				auto pos = m_template.begin( );
+
+				for( size_t n = 0; n < m_callback_map->size( ); ++n ) {
+					pos = show_string( out_stream, pos, m_callback_map->beginnings[n] );
+					switch( m_callback_map->types[n] ) {
+					case impl::CallbackMap::CallbackTypes::Normal:
+					{
+						auto const & cb_name = m_callback_map->arguments[n];
+						if( !cb_name.empty( ) && callback_exists( cb_name ) && m_callbacks[cb_name].cb_normal ) {
+							out_stream << m_callbacks[cb_name].cb_normal( );
+						}
+					}
+					break;
+					case impl::CallbackMap::CallbackTypes::Date:
+					{
+						std::time_t t = std::time( nullptr );
+						std::tm tm = *std::localtime( &t );
+						out_stream << std::put_time( &tm, dte_format.c_str( ) );
+					}
+					break;
+					case impl::CallbackMap::CallbackTypes::Time:
+					{
+						std::time_t t = std::time( nullptr );
+						std::tm tm = *std::localtime( &t );
+						out_stream << std::put_time( &tm, tm_format.c_str( ) );
+					}
+					break;
+					case impl::CallbackMap::CallbackTypes::DateFormat:
+						dte_format = m_callback_map->arguments[n];
+						break;
+					case impl::CallbackMap::CallbackTypes::TimeFormat:
+						tm_format = m_callback_map->arguments[n];
+						break;
+					case impl::CallbackMap::CallbackTypes::Repeat:
+					{
+						auto const & cb_name = m_callback_map->arguments[n];
+						if( !cb_name.empty( ) && callback_exists( cb_name ) && m_callbacks[cb_name].cb_repeat ) {
+							auto tmp = m_callbacks[cb_name].cb_repeat( );
+							for( auto const & line : tmp ) {
+								out_stream << line << "\n";
+							}
+						}
+					}
+					break;
+					case impl::CallbackMap::CallbackTypes::Unknown:
+						out_stream << "Error, unknown tag at position " << std::distance( m_template.begin( ), m_callback_map->beginnings[n] ) << "\n";
+						break;
+					}
+					pos = m_callback_map->endings[n];
+				}
+				show_string( out_stream, pos, m_template.end( ) );
+			}
+
 			std::vector<std::string> list_callbacks( ) const;
 			void callback_remove( boost::string_ref callback_name );
 			bool callback_exists( boost::string_ref callback_name ) const;

@@ -23,8 +23,6 @@
 #include <algorithm>
 #include <future>
 #include <sstream>
-#include <ctime>
-#include <iomanip>
 
 #include "daw_parse_template.h"
 #include <cassert>
@@ -193,16 +191,17 @@ namespace daw {
 					if( first == last ) {
 						break;
 					}
-					first += open_tag.size( );
 					auto open_it = first;
+					first += open_tag.size( );
+					auto open_it_inside = first;
 					first = find_string( first, last, close_tag );
 					if( first == last ) {
 						break;
 					}
 					first += close_tag.size( );
-					auto tag_type = parse_tag_type( open_it, first );
+					auto tag_type = parse_tag_type( open_it_inside, first );
 
-					auto tag_argument = find_quoted_string( open_it, first );
+					auto tag_argument = find_quoted_string( open_it_inside, first );
 					std::string tag_argument_str;
 					if( tag_argument.first != tag_argument.second ) {
 						tag_argument_str = std::string( tag_argument.first, static_cast<size_t>(std::distance( tag_argument.first, tag_argument.second )) );
@@ -211,75 +210,15 @@ namespace daw {
 				}
 			};
 
-			auto add_strings = [&]( auto first, auto const & last ) {
-				auto const sz = m_callback_map->size( );
-				for( size_t n = 0; n < sz; ++n ) {
-					if( first + 2 != m_callback_map->beginnings[n] ) {
-						m_callback_map->add( first, first + (std::distance( first, m_callback_map->beginnings[n] ) - 2), impl::CallbackMap::CallbackTypes::String );
-					}
-					first = m_callback_map->endings[n];
-				}
-			};
-
 			find_tags( m_template.begin( ), m_template.end( ), "<%", "%>" );
-			add_strings( m_template.begin( ), m_template.end( ) );
 			m_callback_map->sort( );
 		}
 
-		std::string ParseTemplate::process_template( ) {
-			std::stringstream ss;
-			std::string dte_format = "%x";
-			std::string tm_format = "%X";
-			for( size_t n = 0; n < m_callback_map->size( ); ++n ) {
-				switch( m_callback_map->types[n] ) {
-				case impl::CallbackMap::CallbackTypes::Normal:
-				{
-					auto const & cb_name = m_callback_map->arguments[n];
-					if( !cb_name.empty( ) && callback_exists( cb_name ) && m_callbacks[cb_name].cb_normal ) {
-						ss << m_callbacks[cb_name].cb_normal( );
-					}
-				}
-				break;
-				case impl::CallbackMap::CallbackTypes::Date:
-				{
-					std::time_t t = std::time( nullptr );
-					std::tm tm = *std::localtime( &t );
-					ss << std::put_time( &tm, dte_format.c_str( ) );
-				}
-				break;
-				case impl::CallbackMap::CallbackTypes::Time:
-				{
-					std::time_t t = std::time( nullptr );
-					std::tm tm = *std::localtime( &t );
-					ss << std::put_time( &tm, tm_format.c_str( ) );
-				}
-				break;
-				case impl::CallbackMap::CallbackTypes::DateFormat:
-					dte_format = m_callback_map->arguments[n];
-					break;
-				case impl::CallbackMap::CallbackTypes::TimeFormat:
-					tm_format = m_callback_map->arguments[n];
-					break;
-				case impl::CallbackMap::CallbackTypes::Repeat:
-				{
-					auto const & cb_name = m_callback_map->arguments[n];
-					if( !cb_name.empty( ) && callback_exists( cb_name ) && m_callbacks[cb_name].cb_repeat ) {
-						auto tmp = m_callbacks[cb_name].cb_repeat( );
-						for( auto const & line : tmp ) {
-							ss << line << "\n";
-						}
-					}
-				}
-				break;
-				case impl::CallbackMap::CallbackTypes::String:
-					ss << (boost::string_ref { m_callback_map->beginnings[n], static_cast<size_t>(std::distance( m_callback_map->beginnings[n], m_callback_map->endings[n] )) });
-					break;
-				case impl::CallbackMap::CallbackTypes::Unknown:
-					ss << "Error, unknown tag at position " << std::distance( m_template.begin( ), m_callback_map->beginnings[n] ) << "\n";
-					break;
-				}
-			}
-			return ss.str( );
+
+		std::string ParseTemplate::process_template_to_string( ) { 
+			std::stringstream result;
+			process_template( result );
+			return result.str( );
 		}
 
 		std::vector<std::string> ParseTemplate::list_callbacks( ) const {

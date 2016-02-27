@@ -49,9 +49,11 @@ int main( int argc, char const ** argv ) {
 	for( auto const & t : p.list_callbacks( ) ) {
 		std::cout << t << "\n";
 	}
-	p.add_callback( "dummy_text_cb", []( ) { return std::string{ "This is some dummy text" }; } );
+	p.add_callback( "dummy_text_cb", []( ) { return std::string { "This is some dummy text" }; } );
 
-	std::cout << "\n---\n" << p.process_template( ) << "\n---\n";
+	std::cout << "\n---\n";
+	p.process_template( std::cout );
+	std::cout << "\n---\n";
 	return EXIT_SUCCESS;
 }
 
