@@ -9,5 +9,8 @@ Today's date is <%date%>.<br>
 <p>
 Some dummy test<pre><%="dummy_text_cb"%></pre>
 </p>
+<ol>
+<%repeat="repeat_test" prefix="<li>" suffix="</li>"%>
+</ol>
 </body>
 </html>

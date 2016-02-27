@@ -52,7 +52,10 @@ int main( int argc, char const ** argv ) {
 	p.add_callback( "dummy_text_cb", []( ) { return std::string { "This is some dummy text" }; } );
 	p.add_callback( "repeat_test", []( ) {
 		std::vector<std::string> result;
-
+		std::string s;
+		for( size_t n=0; n<10; ++n ) {
+			result.push_back( s + static_cast<char>('0' + n) );
+		}
 		return result;
 	} );
 	std::cout << "\n---\n";
