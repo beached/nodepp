@@ -32,6 +32,8 @@
 
 namespace daw {
 	namespace parse_template {
+		class ParseTemplate;
+
 		namespace impl {
 			struct CallbackMap {
 				using iterator = typename boost::string_ref::iterator;
@@ -77,6 +79,11 @@ namespace daw {
 				std::function<std::vector<std::string>( )> cb_repeat;
 			};	// struct CB
 
+			template<typename T>
+			T const & make_const( T const & value ) {
+				return value;
+			}
+
 		} // namespace impl
 
 		class ParseTemplate {
@@ -84,7 +91,7 @@ namespace daw {
 			boost::string_ref m_template;
 			std::unique_ptr<impl::CallbackMap> m_callback_map;
 		public:
-			ParseTemplate( ) = delete;	
+			ParseTemplate( ) = default;	
 			~ParseTemplate( ) = default;
 			ParseTemplate( ParseTemplate const & other );
 			ParseTemplate( ParseTemplate && ) = default;
@@ -92,8 +99,8 @@ namespace daw {
 			ParseTemplate & operator=( ParseTemplate && ) = default;
 			ParseTemplate( boost::string_ref template_string );
 			void generate_callbacks( );
-			std::string process_template_to_string();
-			
+			std::string process_template_to_string();		
+
 			template<typename Stream>
 			void process_template( Stream & out_stream ) {
 				auto show_string = []( auto & stream, auto first, auto const last ) {
