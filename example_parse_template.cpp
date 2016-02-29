@@ -44,11 +44,13 @@ int main( int argc, char const ** argv ) {
 
 	boost::string_ref str { template_str.begin( ), template_str.size( ) };
 
-	ParseTemplate p( str );
+	auto p = createa_parse_template( template_str.begin( ), template_str.end( ) );
 
 	for( auto const & t : p.list_callbacks( ) ) {
 		std::cout << t << "\n";
 	}
+	boost::string_ref t;
+
 	p.add_callback( "dummy_text_cb", []( ) { return std::string { "This is some dummy text" }; } );
 	p.add_callback( "repeat_test", []( ) {
 		std::vector<std::string> result;
