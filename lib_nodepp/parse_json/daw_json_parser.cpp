@@ -45,41 +45,6 @@ namespace daw {
 
 		namespace impl {
 		
-			string_value create_string_value(nodepp::base::UTFIterator first, nodepp::base::UTFIterator last ) {
-				return { first, last };
-			}
-
-			string_value create_string_value( boost::string_ref const& str ) {
-				nodepp::base::UTFIterator it_begin( str.begin( ) );
-				nodepp::base::UTFIterator it_end( str.end( ) );
-				return { it_begin, it_end };
-			}
-
-			bool operator==( string_value const & first, string_value const & second ) {
-				return std::equal( first.begin( ), first.end( ), second.begin( ) );
-			}
- 
-			bool operator==( string_value const & first, boost::string_ref const & second ) {
-				return std::equal( first.begin( ), first.end( ), second.begin( ), []( nodepp::base::UTFValType const & lhs, char const & rhs ) { 
-					return static_cast<char>(lhs) == rhs;
-				} );
-			}
- 
-			void clear( string_value & str ) {
-				str.advance( str.size( ) );
-			}
-
-			std::string to_string( string_value const & str ) {
-				return std::string { str.begin( ).base( ), static_cast<size_t>(std::distance( str.begin( ).base( ), str.end( ).base( ) )) };
-			}
- 
-			std::ostream& operator<<( std::ostream& os, string_value const& value ) {
-				for( auto c : value ) {
-					os << c;
-				}
-				return os;
-			}
-
 			void value_t::u_value_t::clear( ) {
 				memset( this, 0, sizeof( u_value_t ) );
 			}
@@ -95,7 +60,7 @@ namespace daw {
 			}
 
 			value_t::value_t( std::string const & value ) : m_value_type( value_types::string ) {
-				m_value.string = new string_value{ create_string_value( value ) };
+				m_value.string = new string_value{ create_char_range( value ) };
 			}
 
 			value_t::value_t( boost::string_ref value ): m_value_type( value_types::string ) {
@@ -450,7 +415,7 @@ namespace daw {
 			object_value::mapped_type & object_value::operator[]( boost::string_ref key ) {
 				auto pos = find( key );
 				if( end( ) == pos ) {
-					pos = insert( pos, std::make_pair<string_value, value_t>( create_string_value( key ), value_t( nullptr ) ) );
+					pos = insert( pos, std::make_pair<string_value, value_t>( create_char_range( key ), value_t( nullptr ) ) );
 				}
 				return pos->second;
 			}
@@ -542,7 +507,7 @@ namespace daw {
 				++range;
 				auto const it_first = range.begin( );
 				move_to_quote( range );
-				value_t result( create_string_value( it_first, range.begin( ) ) );
+				value_t result( create_char_range( it_first, range.begin( ) ) );
 				++range;
 				return result;
 			}

@@ -51,18 +51,6 @@ namespace daw {
 
 			using string_value = nodepp::base::CharRange;
 
-			bool operator==( string_value const & first, string_value const & second );
-			bool operator==( string_value const & first, boost::string_ref const & second );
-
-			string_value create_string_value(nodepp::base::UTFIterator const first, nodepp::base::UTFIterator const last );
-			string_value create_string_value( boost::string_ref const & str );
-
-			void clear( string_value & str );
-			std::string to_string( string_value const & str );
-			std::ostream& operator<<( std::ostream& os, string_value const & value );
-			
-			boost::string_ref to_string_ref( string_value const & str );
-
 			using object_value_item = std::pair <string_value, value_t>;
 
 			object_value_item make_object_value_item( string_value first, value_t second );

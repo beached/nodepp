@@ -20,7 +20,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#pragma once
 #include "daw_char_range.h"
 #include <cassert>
 
@@ -116,6 +115,42 @@ namespace daw {
 				}
 				return result;
 			}
+
+			CharRange create_char_range(nodepp::base::UTFIterator first, nodepp::base::UTFIterator last ) {
+				return { first, last };
+			}
+
+			CharRange create_char_range( boost::string_ref const& str ) {
+				nodepp::base::UTFIterator it_begin( str.begin( ) );
+				nodepp::base::UTFIterator it_end( str.end( ) );
+				return { it_begin, it_end };
+			}
+
+			bool operator==( CharRange const & first, CharRange const & second ) {
+				return std::equal( first.begin( ), first.end( ), second.begin( ) );
+			}
+ 
+			bool operator==( CharRange const & first, boost::string_ref const & second ) {
+				return std::equal( first.begin( ), first.end( ), second.begin( ), []( nodepp::base::UTFValType const & lhs, char const & rhs ) { 
+					return static_cast<char>(lhs) == rhs;
+				} );
+			}
+ 
+			void clear( CharRange & str ) {
+				str.advance( str.size( ) );
+			}
+
+			std::string to_string( CharRange const & str ) {
+				return std::string { str.begin( ).base( ), static_cast<size_t>(std::distance( str.begin( ).base( ), str.end( ).base( ) )) };
+			}
+ 
+			std::ostream& operator<<( std::ostream& os, CharRange const& value ) {
+				for( auto c : value ) {
+					os << c;
+				}
+				return os;
+			}
+
 
 		}	// namespace base
 	}	// namespace nodepp

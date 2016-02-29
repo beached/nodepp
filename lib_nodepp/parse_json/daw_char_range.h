@@ -21,6 +21,7 @@
 // SOFTWARE.
 
 #pragma once
+#include <boost/utility/string_ref.hpp>
 #include "../third_party/include/utf8/unchecked.h"
 
 namespace daw {
@@ -62,6 +63,19 @@ namespace daw {
 				void safe_advance( size_t const count );
 				void set( iterator Begin, iterator End, difference_type Size = -1 );
 			};	// struct CharRange
+
+			CharRange create_char_range(nodepp::base::UTFIterator const first, nodepp::base::UTFIterator const last );
+			CharRange create_char_range( boost::string_ref const & str );
+
+			bool operator==( CharRange const & first, CharRange const & second );
+			bool operator==( CharRange const & first, boost::string_ref const & second );
+
+			void clear( CharRange & str );
+			std::string to_string( CharRange const & str );
+			std::ostream& operator<<( std::ostream& os, CharRange const & value );
+			
+			boost::string_ref to_string_ref( CharRange const & str );
+
 
 			bool at_end( CharRange const & range );
 		}	// namespace base
