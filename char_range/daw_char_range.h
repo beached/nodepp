@@ -57,6 +57,7 @@ namespace daw {
 				iterator end( );
 				const_iterator end( ) const;
 				size_t size( ) const;
+				bool empty( ) const;
 				CharRange & operator++( );
 				CharRange operator++( int );
 				void advance( size_t const n );

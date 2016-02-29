@@ -21,7 +21,6 @@
 // SOFTWARE.
 
 #pragma once
-#include <boost/utility/string_ref.hpp>
 #include <unordered_map>
 #include <vector>
 #include <future>
@@ -39,17 +38,17 @@ namespace daw {
 
 		namespace impl {
 			struct CallbackMap {
-				using iterator = typename boost::string_ref::iterator;
+				using iterator = typename range::CharRange::iterator;
 				enum class CallbackTypes { Normal, Date, Time, DateFormat, TimeFormat, Repeat, Unknown };
 				std::vector<iterator> beginnings;
 				std::vector<iterator> endings;
 				std::vector<CallbackTypes> types;
-				std::vector<std::vector<std::string>> arguments;
+				std::vector<std::vector<range::CharRange>> arguments;
 
 				size_t size( ) const;
 				void clear( );
 				void add( iterator beginning, iterator ending, CallbackTypes callback_type );
-				void add( iterator beginning, iterator ending, CallbackTypes callback_type, std::vector<std::string> argument );
+				void add( iterator beginning, iterator ending, CallbackTypes callback_type, std::vector<range::CharRange> argument );
 				void sort( );
 
 				struct helpers {
@@ -128,8 +127,8 @@ namespace daw {
 							break;
 						}
 						auto const & cb_name = m_callback_map->arguments[n][0];
-						if( !cb_name.empty( ) && callback_exists( cb_name ) && m_callbacks[cb_name].cb_normal ) {
-							out_stream << m_callbacks[cb_name].cb_normal( );
+						if( !cb_name.empty( ) && callback_exists( cb_name ) && m_callbacks[to_string( cb_name )].cb_normal ) {
+							out_stream << m_callbacks[to_string( cb_name )].cb_normal( );
 						}
 					}
 					break;
@@ -152,14 +151,14 @@ namespace daw {
 							out_stream << "Error, invalid arguments, expected 1, at position " << std::distance( m_template.begin( ), m_callback_map->beginnings[n] ) << "\n";
 							break;
 						}
-						dte_format = m_callback_map->arguments[n][0];
+						dte_format = to_string( m_callback_map->arguments[n][0] );
 						break;
 					case impl::CallbackMap::CallbackTypes::TimeFormat:
 						if( m_callback_map->arguments[n].size( ) != 1 ) {
 							out_stream << "Error, invalid arguments, expected 1, at position " << std::distance( m_template.begin( ), m_callback_map->beginnings[n] ) << "\n";
 							break;
 						}
-						tm_format = m_callback_map->arguments[n][0];
+						tm_format = to_string( m_callback_map->arguments[n][0] );
 						break;
 					case impl::CallbackMap::CallbackTypes::Repeat:
 					{
@@ -169,14 +168,14 @@ namespace daw {
 						}
 						auto const & cb_name = m_callback_map->arguments[n][0];
 
-						if( !cb_name.empty( ) && callback_exists( cb_name ) && m_callbacks[cb_name].cb_repeat ) {
+						if( !cb_name.empty( ) && callback_exists( cb_name ) && m_callbacks[to_string( cb_name )].cb_repeat ) {
 							std::string prefix = "";
 							std::string postfix = "";
 							if( m_callback_map->arguments[n].size( ) == 3 ) {
-								prefix = m_callback_map->arguments[n][1];
-								postfix = m_callback_map->arguments[n][2];
+								prefix = to_string( m_callback_map->arguments[n][1] );
+								postfix = to_string( m_callback_map->arguments[n][2] );
 							}
-							auto tmp = m_callbacks[cb_name].cb_repeat( );
+							auto tmp = m_callbacks[to_string( cb_name )].cb_repeat( );
 							auto count = tmp.size( );
 							for( auto const & line : tmp ) {
 								out_stream << prefix << line << postfix;
@@ -197,13 +196,13 @@ namespace daw {
 			}
 
 			std::vector<std::string> list_callbacks( ) const;
-			void callback_remove( boost::string_ref callback_name );
-			bool callback_exists( boost::string_ref callback_name ) const;
-			void add_callback_impl(boost::string_ref callback_name, std::function<std::string()> callback);
-			void add_callback_impl(boost::string_ref callback_name, std::function<std::vector<std::string>( )> callback);
+			void callback_remove( range::CharRange callback_name );
+			bool callback_exists( range::CharRange callback_name ) const;
+			void add_callback_impl( range::CharRange callback_name, std::function<std::string()> callback );
+			void add_callback_impl( range::CharRange callback_name, std::function<std::vector<std::string>( )> callback );
 
 			template<typename CallbackFunction>
-			void add_callback( boost::string_ref callback_name, CallbackFunction callback ) {
+			void add_callback( range::CharRange callback_name, CallbackFunction callback ) {
 				using result_t = typename std::result_of<CallbackFunction( )>::type;
 				std::function<result_t( )> cb = callback;
 				add_callback_impl( callback_name, cb );

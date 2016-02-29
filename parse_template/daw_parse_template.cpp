@@ -48,7 +48,7 @@ namespace daw {
 				arguments.emplace_back( std::vector<std::string>{ } );
 			}
 
-			void CallbackMap::add( CallbackMap::iterator beginning, CallbackMap::iterator ending, CallbackMap::CallbackTypes callback_type, std::vector<std::string> argument ) {
+			void CallbackMap::add( CallbackMap::iterator beginning, CallbackMap::iterator ending, CallbackMap::CallbackTypes callback_type, std::vector<range::CharRange> argument ) {
 				beginnings.push_back( beginning );
 				endings.push_back( ending );
 				types.push_back( callback_type );
@@ -65,6 +65,7 @@ namespace daw {
 				} );
 			}
 		}
+
 		ParseTemplate::ParseTemplate( ParseTemplate const & other ):
 			m_callbacks( other.m_callbacks ),
 			m_template( other.m_template ),
@@ -104,8 +105,8 @@ namespace daw {
 				return true;
 			}
 
-			template<typename Iterator>
-			Iterator find_string( Iterator first, Iterator last, boost::string_ref value ) {
+			template<typename Iterator, typename String>
+			Iterator find_string( Iterator first, Iterator last, String const & value ) {
 				auto result_it = std::find( first, last, *value.begin( ) );
 				while( result_it != last ) {
 
@@ -240,19 +241,19 @@ namespace daw {
 			return result;
 		}
 
-		void ParseTemplate::callback_remove( boost::string_ref callback_name ) {
+		void ParseTemplate::callback_remove( range::CharRange callback_name ) {
 			m_callbacks.erase( callback_name.to_string( ) );
 		}
 
-		bool ParseTemplate::callback_exists( boost::string_ref callback_name ) const {
+		bool ParseTemplate::callback_exists( range::CharRange callback_name ) const {
 			return m_callbacks.count( callback_name.to_string( ) ) != 0;
 		}
 
-		void ParseTemplate::add_callback_impl(boost::string_ref callback_name, std::function<std::string()> callback) {
+		void ParseTemplate::add_callback_impl(range::CharRange callback_name, std::function<std::string()> callback) {
 			m_callbacks[callback_name.to_string( )].cb_normal = callback;
 		}
 
-		void ParseTemplate::add_callback_impl(boost::string_ref callback_name, std::function<std::vector<std::string>( )> callback) {
+		void ParseTemplate::add_callback_impl(range::CharRange callback_name, std::function<std::vector<std::string>( )> callback) {
 			m_callbacks[callback_name.to_string( )].cb_repeat = callback;
 		}
 	}	// namespace parse_template

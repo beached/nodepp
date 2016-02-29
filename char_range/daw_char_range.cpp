@@ -50,6 +50,10 @@ namespace daw {
 		size_t CharRange::size( ) const {
 			return m_size;
 		}
+		
+		bool CharRange::empty( ) const {
+			return m_size == 0;
+		}
 
 		CharRange & CharRange::operator++( ) {
 			++m_begin;
