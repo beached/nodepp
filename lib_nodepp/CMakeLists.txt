@@ -31,8 +31,6 @@ add_subdirectory( ./parse_json )
 set(SOURCE_FILES
 		base_callback.cpp
 		base_callback.h
-		base_char_range.cpp
-		base_char_range.h
 		base_encoding.cpp
 		base_enoding.h
 		base_error.cpp

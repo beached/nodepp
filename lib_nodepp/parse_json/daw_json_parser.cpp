@@ -29,7 +29,8 @@
 
 #include "daw_json_interface.h"
 #include "daw_json_parser.h"
-#include "../../third_party/include/utf8.h"
+#include "daw_char_range.h"
+#include <daw_range.h>
 
 namespace daw {
 	namespace json {
@@ -43,103 +44,14 @@ namespace daw {
 		}	// namespace anonymous
 
 		namespace impl {
-			CharRange::CharRange( CharRange::iterator Begin, CharRange::iterator End ):
-				m_begin( Begin ),
-				m_end( End ),
-				m_size( static_cast<size_t>( std::distance( Begin, End ) ) ) { }
-
-			CharRange::iterator CharRange::begin( ) {
-				return m_begin;
-			}
-
-			CharRange::const_iterator CharRange::begin( ) const {
-				return m_begin;
-			}
-
-			CharRange::iterator CharRange::end( ) {
-				return m_end;
-			}
-
-
-			CharRange::const_iterator CharRange::end( ) const {
-				return m_end;
-			}
-
-			size_t CharRange::size( ) const {
-				return m_size;
-			}
-
-			CharRange & CharRange::operator++( ) {
-				++m_begin;
-				--m_size;
-				return *this;
-			}
-
-			CharRange CharRange::operator++( int ) {
-				CharRange result( *this );
-				++(*this);
-				return result;
-			}
-
-			void CharRange::advance( size_t const n ) {
-				assert( n <= m_size );
-				utf8::unchecked::advance( m_begin, n );
-				m_size -= n;
-			}
-
-			void CharRange::safe_advance( size_t const count ) {
-				if( count <= m_size ) {
-					advance( count );
-				} else {
-					advance( m_size );
-				}
-			}
-
-			void CharRange::set( CharRange::iterator Begin, CharRange::iterator End, CharRange::difference_type Size ) {
-				m_begin = Begin;
-				m_end = End;
-				if( Size < 0 ) {
-					m_size = static_cast<size_t>(std::distance( m_begin, m_end ));
-				} else {
-					m_size = static_cast<size_t>( Size );
-				}
-
-			}
-
-			bool at_end( CharRange & range ) {
-				return range.size( ) == 0;
-			}
-
-			size_t hash_sequence( CharIterator first, CharIterator const last ) {
-				// FNV-1a hash function for bytes in [fist, last], see http://www.isthe.com/chongo/tech/comp/fnv/index.html
-			#if defined(_WIN64) || defined(__amd64__)
-				static_assert(sizeof( size_t ) == 8, "This code is for 64-bit size_t.");
-				size_t const fnv_offset_basis = 14695981039346656037ULL;
-				size_t const fnv_prime = 1099511628211ULL;
-
-			#elif defined(_WIN32) || defined(__i386__)
-				static_assert(sizeof( size_t ) == 4, "This code is for 32-bit size_t.");
-				size_t const fnv_offset_basis = 2166136261U;
-				size_t const fnv_prime = 16777619U;
-			#else
-				#error "Unknown platform for hash"
-			#endif 
-
-				auto result = fnv_offset_basis;
-				for( ; first <= last; ++first ) {
-					result ^= static_cast<size_t>(*first);
-					result *= fnv_prime;
-				}
-				return result;
-			}			
 		
-			string_value create_string_value( UTFIterator first, UTFIterator last ) {
+			string_value create_string_value(nodepp::base::UTFIterator first, nodepp::base::UTFIterator last ) {
 				return { first, last };
 			}
 
 			string_value create_string_value( boost::string_ref const& str ) {
-				UTFIterator it_begin( str.begin( ) );
-				UTFIterator it_end( str.end( ) );
+				nodepp::base::UTFIterator it_begin( str.begin( ) );
+				nodepp::base::UTFIterator it_end( str.end( ) );
 				return { it_begin, it_end };
 			}
 
@@ -148,7 +60,7 @@ namespace daw {
 			}
  
 			bool operator==( string_value const & first, boost::string_ref const & second ) {
-				return std::equal( first.begin( ), first.end( ), second.begin( ), []( UTFValType const & lhs, char const & rhs ) { 
+				return std::equal( first.begin( ), first.end( ), second.begin( ), []( nodepp::base::UTFValType const & lhs, char const & rhs ) { 
 					return static_cast<char>(lhs) == rhs;
 				} );
 			}
@@ -187,8 +99,8 @@ namespace daw {
 			}
 
 			value_t::value_t( boost::string_ref value ): m_value_type( value_types::string ) {
-				UTFIterator it_begin{ value.begin( ) };
-				UTFIterator it_end{ value.end( ) };
+				nodepp::base::UTFIterator it_begin{ value.begin( ) };
+				nodepp::base::UTFIterator it_end{ value.end( ) };
 				m_value.string = new string_value{ it_begin, it_end };
 			}
 
@@ -556,27 +468,27 @@ namespace daw {
 				return std::find( first, last, key ) != last;
 			}
 
-			bool is_ws( UTFValType val ) {
-				size_t result1 = static_cast<UTFValType>(0x0009) - val == 0;
-				size_t result2 = static_cast<UTFValType>(0x000A) - val == 0;
-				size_t result3 = static_cast<UTFValType>(0x000D) - val == 0;
-				size_t result4 = static_cast<UTFValType>(0x0020) - val == 0;
+			bool is_ws(nodepp::base::UTFValType val ) {
+				size_t result1 = static_cast<nodepp::base::UTFValType>(0x0009) - val == 0;
+				size_t result2 = static_cast<nodepp::base::UTFValType>(0x000A) - val == 0;
+				size_t result3 = static_cast<nodepp::base::UTFValType>(0x000D) - val == 0;
+				size_t result4 = static_cast<nodepp::base::UTFValType>(0x0020) - val == 0;
 				return result1 + result2 + result3 + result4 > 0;
 			}
 
-			UTFValType ascii_lower_case( UTFValType val ) {
-				return val | static_cast<UTFValType>(' ');
+			nodepp::base::UTFValType ascii_lower_case( nodepp::base::UTFValType val ) {
+				return val | static_cast<nodepp::base::UTFValType>(' ');
 			}
 
-			bool is_equal( UTFIterator it, UTFValType val ) {
+			bool is_equal(nodepp::base::UTFIterator it, nodepp::base::UTFValType val ) {
 				return *it == val;
 			}
 
-			bool is_equal_nc( UTFIterator it, UTFValType val ) {
+			bool is_equal_nc(nodepp::base::UTFIterator it, nodepp::base::UTFValType val ) {
 				return ascii_lower_case( *it ) == ascii_lower_case( val );
 			}
 
-			void skip_ws( CharRange & range ) {
+			void skip_ws(nodepp::base::CharRange & range ) {
 				size_t last_inc = is_ws( *range.begin( ) );
 				range.advance( last_inc );
 				if( last_inc && range.size( ) > 2 ) {
@@ -599,7 +511,7 @@ namespace daw {
 				}
 			}
 
-			bool move_range_forward_if_equal( CharRange & range, boost::string_ref const value ) {
+			bool move_range_forward_if_equal(nodepp::base::CharRange & range, boost::string_ref const value ) {
 				auto const value_size = static_cast<size_t>( std::distance( value.begin( ), value.end( ) ) );
 				auto result = std::equal( value.begin( ), value.end( ), range.begin( ) );
 				if( result ) {
@@ -608,7 +520,7 @@ namespace daw {
 				return result;
 			}
 
-			void move_to_quote( CharRange & range ) { 
+			void move_to_quote(nodepp::base::CharRange & range ) { 
 				size_t slash_count = 0;
 				while( range.size( ) > 0 ) {
 					auto const cur_val = *range.begin( );
@@ -623,7 +535,7 @@ namespace daw {
 				}
 			}
 
-			value_t parse_string( CharRange & range ) {
+			value_t parse_string(nodepp::base::CharRange & range ) {
 				if( !is_equal( range.begin( ), '"' ) ) {
 					throw JsonParserException( "Not a valid JSON string" );
 				}
@@ -635,7 +547,7 @@ namespace daw {
 				return result;
 			}
 
-			value_t parse_bool( CharRange & range ) {
+			value_t parse_bool(nodepp::base::CharRange & range ) {
 				if( move_range_forward_if_equal( range, "true" ) ) {
 					return value_t( true );
 				} else if( move_range_forward_if_equal( range, "false" ) ) {
@@ -644,19 +556,19 @@ namespace daw {
 				throw JsonParserException( "Not a valid JSON bool" );
 			}
 
-			value_t parse_null( CharRange & range ) {
+			value_t parse_null(nodepp::base::CharRange & range ) {
 				if( !move_range_forward_if_equal( range, "null" ) ) {
 					throw JsonParserException( "Not a valid JSON null" );
 				}
 				return value_t( nullptr );
 			}
 
-			bool is_digit( UTFIterator it ) {
+			bool is_digit(nodepp::base::UTFIterator it ) {
 				auto const & test = *it;
 				return '0' <= test && test <= '9';
 			}
 
-			value_t parse_number( CharRange & range ) {
+			value_t parse_number(nodepp::base::CharRange & range ) {
 				auto const first = range.begin( );
 				auto const first_range_size = range.size( );
 				move_range_forward_if_equal( range, "-" );
@@ -683,7 +595,7 @@ namespace daw {
 
 				auto const number_range_size = static_cast<size_t>(first_range_size - range.size( ));
 				auto number_range = std::make_unique<char[]>( number_range_size );
-				std::transform( first, range.begin( ), number_range.get( ), []( std::iterator_traits<UTFIterator>::value_type const & value ) {
+				std::transform( first, range.begin( ), number_range.get( ), []( std::iterator_traits<nodepp::base::UTFIterator>::value_type const & value ) {
 					return static_cast<char>(value);
 				} );
 				if( is_float ) {
@@ -703,9 +615,9 @@ namespace daw {
 				}									
 			}
 
-			value_t parse_value( CharRange & range );			
+			value_t parse_value(nodepp::base::CharRange & range );			
 
-			object_value_item parse_object_item( CharRange & range ) {
+			object_value_item parse_object_item(nodepp::base::CharRange & range ) {
 				auto label = parse_string( range ).get_string_value();
 				skip_ws( range );
 				if( !is_equal( range.begin( ), ':' ) ) {
@@ -716,7 +628,7 @@ namespace daw {
 				return std::make_pair( std::move( label ), std::move( value ) );
 			}
 
-			value_t parse_object( CharRange & range ) {
+			value_t parse_object(nodepp::base::CharRange & range ) {
 				if( !is_equal( range.begin( ), '{' ) ) {
 					throw JsonParserException( "Not a valid JSON object" );
 				}
@@ -741,7 +653,7 @@ namespace daw {
 				return value_t( std::move( result ) );
 			}
 
-			value_t parse_array( CharRange & range ) {
+			value_t parse_array(nodepp::base::CharRange & range ) {
 				if( !is_equal( range.begin( ), '[' ) ) {
 					throw JsonParserException( "Not a valid JSON array" );
 				}
@@ -766,7 +678,7 @@ namespace daw {
 				return value_t( std::move( results ) );
 			}
 
-			value_t parse_value( CharRange& range ) {
+			value_t parse_value(nodepp::base::CharRange& range ) {
 				value_t result;
 				skip_ws( range );
 				switch( *range.begin( ) ) {
@@ -795,11 +707,11 @@ namespace daw {
 
 		}	// namespace impl
 
-		json_obj parse_json(impl::CharIterator Begin, impl::CharIterator End) {
+		json_obj parse_json(nodepp::base::CharIterator Begin, nodepp::base::CharIterator End) {
 			try {
-				impl::UTFIterator it_begin( Begin );
-				impl::UTFIterator it_end( End );
-				impl::CharRange range { it_begin, it_end };
+				nodepp::base::UTFIterator it_begin( Begin );
+				nodepp::base::UTFIterator it_end( End );
+				nodepp::base::CharRange range { it_begin, it_end };
 				return impl::parse_value( range );
 			} catch( JsonParserException const & ) {
 				return impl::value_t( nullptr );

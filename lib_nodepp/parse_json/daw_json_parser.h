@@ -30,7 +30,7 @@
 #include <vector>
 
 #include "daw_common_mixins.h"
-#include "../../third_party/include/utf8/unchecked.h"
+#include "daw_char_range.h"
 
 namespace daw {
 	namespace json {
@@ -48,50 +48,13 @@ namespace daw {
 		namespace impl {
 			class value_t;
 			struct null_value final { };
-			
-			using CharIterator = char const *;
-			using UTFIterator = utf8::unchecked::iterator<CharIterator>;
-			using UTFValType = UTFIterator::value_type;
 
-			struct CharRange {
-				using iterator = UTFIterator;
-				using const_iterator = UTFIterator const;
-				using reference = UTFIterator::reference;
-				using value_type = UTFIterator::value_type;
-				using const_reference = value_type const &;
-				using difference_type = UTFIterator::difference_type;				
-			private:
-				iterator m_begin;
-				iterator m_end;
-				size_t m_size;
-			public:
-				CharRange( ) = delete;
-				~CharRange( ) = default;
-				CharRange( CharRange const & ) = default;
-				CharRange & operator=( CharRange const & ) = default;
-				CharRange( CharRange && ) = default;
-				CharRange & operator=( CharRange && ) = default;
-				CharRange( iterator Begin, iterator End );
-				iterator begin( );
-				const_iterator begin( ) const;
-				iterator end( );
-				const_iterator end( ) const;
-				size_t size( ) const;
-				CharRange & operator++( );
-				CharRange operator++( int );
-				void advance( size_t const n );
-				void safe_advance( size_t const count ); 
-				void set( iterator Begin, iterator End, difference_type Size = -1 );
-			};
-
-			size_t hash_sequence( CharIterator first, CharIterator const last );
-
-			using string_value = CharRange;
+			using string_value = nodepp::base::CharRange;
 
 			bool operator==( string_value const & first, string_value const & second );
 			bool operator==( string_value const & first, boost::string_ref const & second );
 
-			string_value create_string_value( UTFIterator const first, UTFIterator const last );
+			string_value create_string_value(nodepp::base::UTFIterator const first, nodepp::base::UTFIterator const last );
 			string_value create_string_value( boost::string_ref const & str );
 
 			void clear( string_value & str );
@@ -228,7 +191,7 @@ namespace std {
 	template<>
 	struct hash<daw::json::impl::string_value> {
 		size_t operator()( daw::json::impl::string_value const & value ) const {
-			return daw::json::impl::hash_sequence( value.begin( ).base( ), value.end( ).base( ) );
+			return daw::nodepp::base::hash_sequence( value.begin( ).base( ), value.end( ).base( ) );
 		}
 	};
 }

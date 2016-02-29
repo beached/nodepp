@@ -21,6 +21,8 @@ ELSEIF( ${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" )
 ENDIF( )
 
 set(SOURCE_FILES
+	daw_char_range.cpp
+	daw_char_range.h
 	daw_json.cpp
 	daw_json.h
 	daw_json_details.h
