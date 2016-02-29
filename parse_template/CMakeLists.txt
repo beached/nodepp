@@ -27,7 +27,7 @@ include_directories( ../header_libraries )
 include_directories( SYSTEM ${Boost_INCLUDE_DIRS} )
 link_directories( ${Boost_LIBRARY_DIRS} )
 
-add_library (parse_template SHARED ${SOURCE_FILES})
+add_library (parse_template STATIC ${SOURCE_FILES})
 
 enable_testing( )
 

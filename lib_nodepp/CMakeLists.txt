@@ -91,5 +91,5 @@ include_directories( SYSTEM ${Boost_INCLUDE_DIRS} )
 include_directories( SYSTEM ${OPENSSL_INCLUDE_DIR} )
 
 
-add_library (lib_nodepp SHARED ${SOURCE_FILES})
+add_library (lib_nodepp STATIC ${SOURCE_FILES})
 target_link_libraries( lib_nodepp parse_json ${Boost_Libraries} ${OPENSSL_LIBRARIES} )

@@ -32,7 +32,7 @@ include_directories( ../../char_range )
 include_directories( SYSTEM ${Boost_INCLUDE_DIRS} )
 link_directories( ${Boost_LIBRARY_DIRS} )
 
-add_library (parse_json SHARED ${SOURCE_FILES} )
+add_library (parse_json STATIC ${SOURCE_FILES} )
 
 enable_testing( )
 

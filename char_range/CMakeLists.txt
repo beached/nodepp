@@ -24,7 +24,7 @@ set(SOURCE_FILES
 include_directories( SYSTEM ${Boost_INCLUDE_DIRS} )
 link_directories( ${Boost_LIBRARY_DIRS} )
 
-add_library( char_range SHARED ${SOURCE_FILES} )
+add_library( char_range STATIC ${SOURCE_FILES} )
 
 enable_testing( )
 
