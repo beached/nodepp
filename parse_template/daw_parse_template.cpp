@@ -45,7 +45,7 @@ namespace daw {
 				beginnings.push_back( beginning );
 				endings.push_back( ending );
 				types.push_back( callback_type );
-				arguments.emplace_back( std::vector<std::string>{ } );
+				arguments.emplace_back( std::vector<range::CharRange>{ } );
 			}
 
 			void CallbackMap::add( CallbackMap::iterator beginning, CallbackMap::iterator ending, CallbackMap::CallbackTypes callback_type, std::vector<range::CharRange> argument ) {
@@ -92,8 +92,8 @@ namespace daw {
 		}
 
 		namespace {
-			template<typename Iterator>
-			bool is_equal_shortest( Iterator first1, Iterator last1, Iterator first2, Iterator last2 ) {
+			template<typename Iterator1, typename Iterator2>
+			bool is_equal_shortest( Iterator1 first1, Iterator1 last1, Iterator2 first2, Iterator2 last2 ) {
 				// compare the two ranges to the length of the shortest
 				while( first1 != last1 && first2 != last2 ) {
 					if( *first1 != *first2 ) {
@@ -105,8 +105,8 @@ namespace daw {
 				return true;
 			}
 
-			template<typename Iterator, typename String>
-			Iterator find_string( Iterator first, Iterator last, String const & value ) {
+			template<typename Iterator>
+			Iterator find_string( Iterator first, Iterator last, boost::string_ref value ) {
 				auto result_it = std::find( first, last, *value.begin( ) );
 				while( result_it != last ) {
 
