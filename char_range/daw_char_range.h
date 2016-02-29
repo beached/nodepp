@@ -62,7 +62,11 @@ namespace daw {
 				void advance( size_t const n );
 				void safe_advance( size_t const count );
 				void set( iterator Begin, iterator End, difference_type Size = -1 );
+				CharRange & operator+=( size_t const n );
 			};	// struct CharRange
+
+			CharRange operator+( CharRange range, size_t const n );
+
 
 			CharRange create_char_range( UTFIterator const first,  UTFIterator const last );
 			CharRange create_char_range( boost::string_ref const & str );

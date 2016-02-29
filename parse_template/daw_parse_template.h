@@ -31,6 +31,8 @@
 #include <iomanip>
 #include <cassert>
 
+#include "daw_char_range.h"
+
 namespace daw {
 	namespace parse_template {
 		class ParseTemplate;
@@ -89,7 +91,7 @@ namespace daw {
 
 		class ParseTemplate {
 			std::unordered_map<std::string, impl::CB> m_callbacks;
-			boost::string_ref m_template;
+			range::CharRange m_template;
 			std::unique_ptr<impl::CallbackMap> m_callback_map;
 		public:
 			ParseTemplate( ) = default;	
@@ -98,7 +100,7 @@ namespace daw {
 			ParseTemplate( ParseTemplate && ) = default;
 			ParseTemplate & operator=( ParseTemplate const & rhs );
 			ParseTemplate & operator=( ParseTemplate && ) = default;
-			ParseTemplate( boost::string_ref template_string );
+			ParseTemplate( range::CharRange template_string );
 			void generate_callbacks( );
 			std::string process_template_to_string();		
 

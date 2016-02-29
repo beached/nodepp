@@ -82,7 +82,7 @@ namespace daw {
 			return *this;
 		}
 
-		ParseTemplate::ParseTemplate( boost::string_ref template_string ):
+		ParseTemplate::ParseTemplate( range::CharRange template_string ):
 			m_callbacks( ),
 			m_template( template_string ),
 			m_callback_map( std::make_unique<impl::CallbackMap>( ) ) {
