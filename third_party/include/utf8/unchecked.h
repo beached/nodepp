@@ -207,6 +207,7 @@ namespace utf8
                 ::std::advance(it, utf8::internal::sequence_length(it));
                 return temp;
             }  
+
             iterator& operator -- ()
             {
                 utf8::unchecked::prior(it);
@@ -218,7 +219,30 @@ namespace utf8
                 utf8::unchecked::prior(it);
                 return temp;
             }
+
+			template<typename Distance>
+			iterator & operator+=( Distance const n ) {
+				std::advance( *this, n );
+				return *this;
+			}
+
+			template<typename Distance>
+			iterator & operator-=( Distance const n ) {
+				std::advance( *this, -n );
+				return *this;
+			}
+
           }; // class iterator
+
+        template<typename octet_iterator, typename Distance>
+		iterator<octet_iterator> operator+( iterator<octet_iterator> it, Distance const n ) {
+			return it += n;
+		}
+
+        template<typename octet_iterator, typename Distance>
+		iterator<octet_iterator> operator-( iterator<octet_iterator> it, Distance const n ) {
+			return it -= n;
+		}
 
     } // namespace utf8::unchecked
 } // namespace utf8 
