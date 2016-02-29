@@ -143,9 +143,9 @@ namespace daw {
 				return std::string { str.begin( ).base( ), static_cast<size_t>(std::distance( str.begin( ).base( ), str.end( ).base( ) )) };
 			}
  
-			std::ostream& operator<<( std::ostream& os, CharRange const & value ) {
-				for( auto c : value ) {
-					os << c;
+			std::ostream& operator<<( std::ostream & os, CharRange const & value ) {
+				for( auto it = value.begin( ).base( ); it != value.end( ).base( ); ++it ) {
+					os << *it;
 				}
 				return os;
 			}

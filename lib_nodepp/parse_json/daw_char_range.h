@@ -21,6 +21,7 @@
 // SOFTWARE.
 
 #pragma once
+#include <iostream>
 #include <boost/utility/string_ref.hpp>
 #include "../third_party/include/utf8/unchecked.h"
 
@@ -71,7 +72,8 @@ namespace daw {
 
 			void clear( CharRange & str );
 			std::string to_string( CharRange const & str );
-			std::ostream& operator<<( std::ostream& os, CharRange const & value );
+
+			std::ostream& operator<<( std::ostream & os, CharRange const & value );
 			
 			boost::string_ref to_string_ref( CharRange const & str );
 
