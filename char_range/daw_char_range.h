@@ -52,7 +52,6 @@ namespace daw {
 				CharRange( CharRange && ) = default;
 				CharRange & operator=( CharRange && ) = default;
 				CharRange( iterator Begin, iterator End );
-				CharRange( char const * str );
 				iterator begin( );
 				const_iterator begin( ) const;
 				iterator end( );
@@ -73,6 +72,7 @@ namespace daw {
 			CharRange create_char_range( UTFIterator const first,  UTFIterator const last );
 			CharRange create_char_range( boost::string_ref const & str );
 			CharRange create_char_range( CharIterator first, CharIterator last );
+			CharRange create_char_range( CharIterator first );
 
 			bool operator==( CharRange const & first, CharRange const & second );
 			bool operator==( CharRange const & first, boost::string_ref const & second );

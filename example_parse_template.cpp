@@ -51,8 +51,8 @@ int main( int argc, char const ** argv ) {
 	}
 	boost::string_ref t;
 
-	p.add_callback( "dummy_text_cb", []( ) { return std::string { "This is some dummy text" }; } );
-	p.add_callback( "repeat_test", []( ) {
+	p.add_callback( daw::range::create_char_range( "dummy_text_cb" ), []( ) { return std::string { "This is some dummy text" }; } );
+	p.add_callback( daw::range::create_char_range( "repeat_test" ), []( ) {
 		std::vector<std::string> result;
 		std::string s;
 		for( size_t n=0; n<10; ++n ) {

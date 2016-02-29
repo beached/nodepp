@@ -30,11 +30,6 @@ namespace daw {
 			m_end( End ),
 			m_size( static_cast<size_t>(std::distance( Begin, End )) ) { }
 
-		CharRange::CharRange( char const * str ):
-			m_begin( utf8::unchecked::iterator<char const *>( str ) ),
-			m_end( utf8::unchecked::iterator<char const *>( str + strlen( str ) ) ),
-			m_size( strlen( str ) ) { }
-
 		CharRange::iterator CharRange::begin( ) {
 			return m_begin;
 		}
@@ -148,6 +143,10 @@ namespace daw {
 			UTFIterator it_begin( first );
 			UTFIterator it_end( last );
 			return { it_begin, it_end };
+		}
+
+		CharRange create_char_range( CharIterator first ) { 
+			return create_char_range( first, first + strlen( first ) );
 		}
 
 		bool operator==( CharRange const & first, CharRange const & second ) {

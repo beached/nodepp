@@ -41,15 +41,16 @@ namespace daw {
 		namespace generate {
 			template<typename Container, typename std::enable_if<daw::traits::is_container_not_string<Container>::value, long>::type>
 			std::string value_to_json( boost::string_ref name, Container const & values ) {
+				boost::string_ref empty_str( "" );
 				std::stringstream result;
 				result <<::daw::json::details::json_name( name ) <<"[ ";
 				{
 					auto values_range = daw::range::make_range( values.begin( ), values.end( ) );
 					if( !values_range.empty( ) ) {
-						result <<value_to_json( "", *values_range.begin( ) );
+						result << value_to_json( empty_str, *values_range.begin( ) );
 						values_range.move_next( );
 						for( auto item : values_range ) {
-							result << "," <<value_to_json( "", item );
+							result << "," << value_to_json( empty_str, item );
 						}
 					}
 				}

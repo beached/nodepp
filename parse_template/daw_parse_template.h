@@ -105,7 +105,8 @@ namespace daw {
 
 			template<typename Stream>
 			void process_template( Stream & out_stream ) {
-				auto show_string = []( auto & stream, auto first, auto const last ) {
+				auto show_string = []( auto & stream, char const * first, char const * last ) {
+
 					for( ; first != last; ++first ) {
 						stream << *first;
 					}
@@ -118,7 +119,7 @@ namespace daw {
 				auto pos = m_template.begin( );
 
 				for( size_t n = 0; n < m_callback_map->size( ); ++n ) {
-					pos = show_string( out_stream, pos, m_callback_map->beginnings[n] );
+					pos = show_string( out_stream, pos.base( ), m_callback_map->beginnings[n].base( ) );
 					switch( m_callback_map->types[n] ) {
 					case impl::CallbackMap::CallbackTypes::Normal:
 					{
@@ -192,7 +193,7 @@ namespace daw {
 					}
 					pos = m_callback_map->endings[n];
 				}
-				show_string( out_stream, pos, m_template.end( ) );
+				show_string( out_stream, pos.base( ), m_template.end( ).base( ) );
 			}
 
 			std::vector<std::string> list_callbacks( ) const;
