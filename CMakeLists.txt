@@ -52,7 +52,7 @@ add_executable(example_web_service example_web_service.cpp )
 target_link_libraries(example_web_service char_range lib_nodepp parse_json ${CMAKE_DL_LIBS} ${Boost_Libs} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
 
 add_executable(example_web_client example_web_client.cpp )
-target_link_libraries(example_web_client char_range lib_nodepp parse_json ${CMAKE_DL_LIBS} ${Boost_Libs} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
+target_link_libraries(example_web_client lib_nodepp parse_json char_range ${CMAKE_DL_LIBS} ${Boost_Libs} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
 
 add_executable(example_event_emitter example_event_emitter.cpp )
 target_link_libraries(example_event_emitter char_range lib_nodepp ${CMAKE_DL_LIBS} ${Boost_Libs} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
