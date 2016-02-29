@@ -87,7 +87,7 @@ namespace daw {
 						return *this;
 					}
 
-					NetSocketStreamReadMode const& NetSocketStreamImpl::current_read_mode( ) const {
+					NetSocketStreamReadMode const & NetSocketStreamImpl::current_read_mode( ) const {
 						return m_read_options.read_mode;
 					}
 

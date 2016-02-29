@@ -60,12 +60,12 @@ namespace daw {
 			}
 
 			value_t::value_t( std::string const & value ) : m_value_type( value_types::string ) {
-				m_value.string = new string_value{ create_char_range( value ) };
+				m_value.string = new string_value{range::create_char_range( value ) };
 			}
 
 			value_t::value_t( boost::string_ref value ): m_value_type( value_types::string ) {
-				nodepp::base::UTFIterator it_begin{ value.begin( ) };
-				nodepp::base::UTFIterator it_end{ value.end( ) };
+				range::UTFIterator it_begin{ value.begin( ) };
+				range::UTFIterator it_end{ value.end( ) };
 				m_value.string = new string_value{ it_begin, it_end };
 			}
 
@@ -389,13 +389,6 @@ namespace daw {
 				return os;
 			}
 
-			boost::string_ref to_string_ref(string_value const& str) {
-				auto it_begin = str.begin( ).base( );
-				auto it_end = str.end( ).base( );
-					
-				return { it_begin, static_cast<size_t>( std::distance( it_begin, it_end ) ) };
-			}
-
 			object_value_item make_object_value_item( string_value first, value_t second ) {
 				return std::make_pair<string_value, value_t>( std::move( first ), std::move( second ) );
 			}
@@ -415,7 +408,7 @@ namespace daw {
 			object_value::mapped_type & object_value::operator[]( boost::string_ref key ) {
 				auto pos = find( key );
 				if( end( ) == pos ) {
-					pos = insert( pos, std::make_pair<string_value, value_t>( create_char_range( key ), value_t( nullptr ) ) );
+					pos = insert( pos, std::make_pair<string_value, value_t>(range::create_char_range( key ), value_t( nullptr ) ) );
 				}
 				return pos->second;
 			}
@@ -433,27 +426,27 @@ namespace daw {
 				return std::find( first, last, key ) != last;
 			}
 
-			bool is_ws(nodepp::base::UTFValType val ) {
-				size_t result1 = static_cast<nodepp::base::UTFValType>(0x0009) - val == 0;
-				size_t result2 = static_cast<nodepp::base::UTFValType>(0x000A) - val == 0;
-				size_t result3 = static_cast<nodepp::base::UTFValType>(0x000D) - val == 0;
-				size_t result4 = static_cast<nodepp::base::UTFValType>(0x0020) - val == 0;
+			bool is_ws(range::UTFValType val ) {
+				size_t result1 = static_cast<range::UTFValType>(0x0009) - val == 0;
+				size_t result2 = static_cast<range::UTFValType>(0x000A) - val == 0;
+				size_t result3 = static_cast<range::UTFValType>(0x000D) - val == 0;
+				size_t result4 = static_cast<range::UTFValType>(0x0020) - val == 0;
 				return result1 + result2 + result3 + result4 > 0;
 			}
 
-			nodepp::base::UTFValType ascii_lower_case( nodepp::base::UTFValType val ) {
-				return val | static_cast<nodepp::base::UTFValType>(' ');
+			range::UTFValType ascii_lower_case( range::UTFValType val ) {
+				return val | static_cast<range::UTFValType>(' ');
 			}
 
-			bool is_equal(nodepp::base::UTFIterator it, nodepp::base::UTFValType val ) {
+			bool is_equal(range::UTFIterator it, range::UTFValType val ) {
 				return *it == val;
 			}
 
-			bool is_equal_nc(nodepp::base::UTFIterator it, nodepp::base::UTFValType val ) {
+			bool is_equal_nc(range::UTFIterator it, range::UTFValType val ) {
 				return ascii_lower_case( *it ) == ascii_lower_case( val );
 			}
 
-			void skip_ws(nodepp::base::CharRange & range ) {
+			void skip_ws(range::CharRange & range ) {
 				size_t last_inc = is_ws( *range.begin( ) );
 				range.advance( last_inc );
 				if( last_inc && range.size( ) > 2 ) {
@@ -476,7 +469,7 @@ namespace daw {
 				}
 			}
 
-			bool move_range_forward_if_equal(nodepp::base::CharRange & range, boost::string_ref const value ) {
+			bool move_range_forward_if_equal(range::CharRange & range, boost::string_ref const value ) {
 				auto const value_size = static_cast<size_t>( std::distance( value.begin( ), value.end( ) ) );
 				auto result = std::equal( value.begin( ), value.end( ), range.begin( ) );
 				if( result ) {
@@ -485,7 +478,7 @@ namespace daw {
 				return result;
 			}
 
-			void move_to_quote(nodepp::base::CharRange & range ) { 
+			void move_to_quote(range::CharRange & range ) { 
 				size_t slash_count = 0;
 				while( range.size( ) > 0 ) {
 					auto const cur_val = *range.begin( );
@@ -500,19 +493,19 @@ namespace daw {
 				}
 			}
 
-			value_t parse_string(nodepp::base::CharRange & range ) {
+			value_t parse_string(range::CharRange & range ) {
 				if( !is_equal( range.begin( ), '"' ) ) {
 					throw JsonParserException( "Not a valid JSON string" );
 				}
 				++range;
 				auto const it_first = range.begin( );
 				move_to_quote( range );
-				value_t result( create_char_range( it_first, range.begin( ) ) );
+				value_t result(range::create_char_range( it_first, range.begin( ) ) );
 				++range;
 				return result;
 			}
 
-			value_t parse_bool(nodepp::base::CharRange & range ) {
+			value_t parse_bool(range::CharRange & range ) {
 				if( move_range_forward_if_equal( range, "true" ) ) {
 					return value_t( true );
 				} else if( move_range_forward_if_equal( range, "false" ) ) {
@@ -521,19 +514,19 @@ namespace daw {
 				throw JsonParserException( "Not a valid JSON bool" );
 			}
 
-			value_t parse_null(nodepp::base::CharRange & range ) {
+			value_t parse_null(range::CharRange & range ) {
 				if( !move_range_forward_if_equal( range, "null" ) ) {
 					throw JsonParserException( "Not a valid JSON null" );
 				}
 				return value_t( nullptr );
 			}
 
-			bool is_digit(nodepp::base::UTFIterator it ) {
+			bool is_digit(range::UTFIterator it ) {
 				auto const & test = *it;
 				return '0' <= test && test <= '9';
 			}
 
-			value_t parse_number(nodepp::base::CharRange & range ) {
+			value_t parse_number(range::CharRange & range ) {
 				auto const first = range.begin( );
 				auto const first_range_size = range.size( );
 				move_range_forward_if_equal( range, "-" );
@@ -560,7 +553,7 @@ namespace daw {
 
 				auto const number_range_size = static_cast<size_t>(first_range_size - range.size( ));
 				auto number_range = std::make_unique<char[]>( number_range_size );
-				std::transform( first, range.begin( ), number_range.get( ), []( std::iterator_traits<nodepp::base::UTFIterator>::value_type const & value ) {
+				std::transform( first, range.begin( ), number_range.get( ), []( std::iterator_traits<range::UTFIterator>::value_type const & value ) {
 					return static_cast<char>(value);
 				} );
 				if( is_float ) {
@@ -580,9 +573,9 @@ namespace daw {
 				}									
 			}
 
-			value_t parse_value(nodepp::base::CharRange & range );			
+			value_t parse_value(range::CharRange & range );			
 
-			object_value_item parse_object_item(nodepp::base::CharRange & range ) {
+			object_value_item parse_object_item(range::CharRange & range ) {
 				auto label = parse_string( range ).get_string_value();
 				skip_ws( range );
 				if( !is_equal( range.begin( ), ':' ) ) {
@@ -593,7 +586,7 @@ namespace daw {
 				return std::make_pair( std::move( label ), std::move( value ) );
 			}
 
-			value_t parse_object(nodepp::base::CharRange & range ) {
+			value_t parse_object(range::CharRange & range ) {
 				if( !is_equal( range.begin( ), '{' ) ) {
 					throw JsonParserException( "Not a valid JSON object" );
 				}
@@ -618,7 +611,7 @@ namespace daw {
 				return value_t( std::move( result ) );
 			}
 
-			value_t parse_array(nodepp::base::CharRange & range ) {
+			value_t parse_array(range::CharRange & range ) {
 				if( !is_equal( range.begin( ), '[' ) ) {
 					throw JsonParserException( "Not a valid JSON array" );
 				}
@@ -643,7 +636,7 @@ namespace daw {
 				return value_t( std::move( results ) );
 			}
 
-			value_t parse_value(nodepp::base::CharRange& range ) {
+			value_t parse_value(range::CharRange& range ) {
 				value_t result;
 				skip_ws( range );
 				switch( *range.begin( ) ) {
@@ -672,11 +665,11 @@ namespace daw {
 
 		}	// namespace impl
 
-		json_obj parse_json(nodepp::base::CharIterator Begin, nodepp::base::CharIterator End) {
+		json_obj parse_json( range::CharIterator Begin, range::CharIterator End ) {
 			try {
-				nodepp::base::UTFIterator it_begin( Begin );
-				nodepp::base::UTFIterator it_end( End );
-				nodepp::base::CharRange range { it_begin, it_end };
+				range::UTFIterator it_begin( Begin );
+				range::UTFIterator it_end( End );
+				range::CharRange range { it_begin, it_end };
 				return impl::parse_value( range );
 			} catch( JsonParserException const & ) {
 				return impl::value_t( nullptr );

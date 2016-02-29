@@ -25,13 +25,12 @@
 #include "../third_party/include/utf8/unchecked.h"
 
 namespace daw {
-	namespace nodepp {
-		namespace base {
+	namespace range {
 			using CharIterator = char const *;
 			using UTFIterator = utf8::unchecked::iterator<CharIterator>;
 			using UTFValType = UTFIterator::value_type;
 
-			size_t hash_sequence( nodepp::base::CharIterator first, CharIterator const last );
+			size_t hash_sequence( CharIterator first, CharIterator const last );
 
 			struct CharRange {
 				using iterator = UTFIterator;
@@ -64,7 +63,7 @@ namespace daw {
 				void set( iterator Begin, iterator End, difference_type Size = -1 );
 			};	// struct CharRange
 
-			CharRange create_char_range(nodepp::base::UTFIterator const first, nodepp::base::UTFIterator const last );
+			CharRange create_char_range( UTFIterator const first,  UTFIterator const last );
 			CharRange create_char_range( boost::string_ref const & str );
 
 			bool operator==( CharRange const & first, CharRange const & second );
@@ -78,6 +77,14 @@ namespace daw {
 
 
 			bool at_end( CharRange const & range );
-		}	// namespace base
-	}	// namespace nodepp
+	}	// namespace range
 }	// namespace daw
+
+namespace std {
+	template<>
+	struct hash<daw::range::CharRange> {
+		size_t operator()( daw::range::CharRange const & value ) const {
+			return daw::range::hash_sequence( value.begin( ).base( ), value.end( ).base( ) );
+		}
+	};
+}

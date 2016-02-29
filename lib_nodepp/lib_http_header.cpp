@@ -77,7 +77,7 @@ namespace daw {
 					return it;
 				}
 
-				std::string const& HttpHeaders::operator[]( boost::string_ref header_name ) const {
+				std::string const & HttpHeaders::operator[]( boost::string_ref header_name ) const {
 					return find( header_name )->value;
 				}
 
@@ -93,7 +93,7 @@ namespace daw {
 					return find( header_name ) != headers.cend( );
 				}
 
-				std::string const& HttpHeaders::at( boost::string_ref header_name ) const {
+				std::string const & HttpHeaders::at( boost::string_ref header_name ) const {
 					auto it = HttpHeaders::find( header_name );
 					if( it != std::end( headers ) ) {
 						return it->value;
@@ -111,7 +111,7 @@ namespace daw {
 
 				std::string HttpHeaders::to_string( ) {
 					std::stringstream ss;
-					for( auto const& header : headers ) {
+					for( auto const & header : headers ) {
 						ss <<header.to_string( ) <<"\r\n";
 					}
 					return ss.str( );

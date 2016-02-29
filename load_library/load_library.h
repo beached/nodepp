@@ -52,7 +52,7 @@ namespace daw {
 				OSLibraryHandle & operator=( OSLibraryHandle && ) = default;
 
 				handle_t& get( );
-				handle_t const& get( ) const;
+				handle_t const & get( ) const;
 					
 			};	// class OSLibraryHandle
 		}	// namespace impl

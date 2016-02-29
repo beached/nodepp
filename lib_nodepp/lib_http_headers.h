@@ -64,10 +64,10 @@ namespace daw {
 					std::vector<HttpHeader>::iterator find( boost::string_ref header_name );
 					std::vector<HttpHeader>::const_iterator find( boost::string_ref header_name ) const;
 
-					std::string const& operator[]( boost::string_ref header_name ) const;
+					std::string const & operator[]( boost::string_ref header_name ) const;
 					std::string & operator[]( boost::string_ref header_name );
 
-					std::string const& at( boost::string_ref header_name ) const;
+					std::string const & at( boost::string_ref header_name ) const;
 					std::string & at( boost::string_ref header_name );
 
 					bool exits( boost::string_ref header_name ) const;

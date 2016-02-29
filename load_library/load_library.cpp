@@ -44,7 +44,7 @@ namespace daw {
 				return m_handle( );
 			}
 
-			OSLibraryHandle::handle_t const& OSLibraryHandle::get( ) const {
+			OSLibraryHandle::handle_t const & OSLibraryHandle::get( ) const {
 				return m_handle( );
 			}
 

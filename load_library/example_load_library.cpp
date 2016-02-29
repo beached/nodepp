@@ -10,7 +10,7 @@
 
 using namespace daw::algorithm;
 
-std::vector<boost::filesystem::path> get_files_in_folder( std::string folder, std::vector<std::string> const& extensions ) {
+std::vector<boost::filesystem::path> get_files_in_folder( std::string folder, std::vector<std::string> const & extensions ) {
 	namespace fs = boost::filesystem;
 	auto result = std::vector<fs::path> { };
 	auto p = fs::path( folder.c_str( ) );

@@ -40,7 +40,7 @@ namespace daw {
 
 			using plugin_t = std::pair <daw::system::LibraryHandle, std::unique_ptr<daw::nodepp::plugins::IPlugin>>;
 
-			std::vector<boost::filesystem::path> get_files_in_folder( boost::string_ref folder, std::vector<std::string> const& extensions ) {
+			std::vector<boost::filesystem::path> get_files_in_folder( boost::string_ref folder, std::vector<std::string> const & extensions ) {
 				namespace fs = boost::filesystem;
 				auto result = std::vector <fs::path> { };
 				auto p = fs::path( folder.data( ) );

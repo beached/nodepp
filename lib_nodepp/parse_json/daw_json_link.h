@@ -36,6 +36,7 @@
 
 #include "daw_json.h"
 #include "daw_json_parser.h"
+#include "daw_char_range.h"
 
 namespace daw {
 	namespace json {
@@ -80,8 +81,8 @@ namespace daw {
 				using value_t = typename std::decay<Value>::type;
 				key_t k;
 				value_t v;
-				result.push_back( make_object_value_item( impl::create_char_range( "key" ), get_schema( "key", k ) ) );
-				result.push_back( make_object_value_item( impl::create_char_range( "value" ), get_schema( "value", v ) ) );
+				result.push_back( make_object_value_item( range::create_char_range( "key" ), get_schema( "key", k ) ) );
+				result.push_back( make_object_value_item( range::create_char_range( "value" ), get_schema( "value", v ) ) );
 				return make_type_obj( name, ::daw::json::impl::value_t( std::move( result ) ) );
 			}
 
@@ -90,10 +91,10 @@ namespace daw {
 				using ::daw::json::impl::make_object_value_item;
 				daw::json::impl::object_value result;
 
-				static daw::json::impl::object_value_item const obj_type = std::make_pair( impl::create_char_range( "type" ), daw::json::impl::value_t( daw::traits::is_map_like<T>::value ? std::string( "map" ) : std::string( "array" ) ) );
+				static daw::json::impl::object_value_item const obj_type = std::make_pair( range::create_char_range( "type" ), daw::json::impl::value_t( daw::traits::is_map_like<T>::value ? std::string( "map" ) : std::string( "array" ) ) );
 				result.push_back( obj_type );
 				typename T::value_type t;
-				result.push_back( make_object_value_item( impl::create_char_range( "element_type" ), get_schema( "", t ) ) );
+				result.push_back( make_object_value_item( range::create_char_range( "element_type" ), get_schema( "", t ) ) );
 				return make_type_obj( name, ::daw::json::impl::value_t( std::move( result ) ) );
 			}
 
@@ -112,7 +113,7 @@ namespace daw {
 				T t;
 				auto result = get_schema( name, t );
 				auto & obj = result.get_object( );
-				obj.push_back( make_object_value_item( impl::create_char_range( "nullable" ), ::daw::json::impl::value_t( std::string( "nullable" ) ) ) );
+				obj.push_back( make_object_value_item( range::create_char_range( "nullable" ), ::daw::json::impl::value_t( std::string( "nullable" ) ) ) );
 				return result;
 			}
 
@@ -120,7 +121,7 @@ namespace daw {
 			::daw::json::impl::value_t get_schema( boost::string_ref name, T const & ) {
 				auto result = make_type_obj( name, ::daw::json::impl::value_t( std::string( "string" ) ) );
 				auto & obj = result.get_object( );
-				obj.push_back( make_object_value_item( impl::create_char_range( "string_object" ), ::daw::json::impl::value_t( std::string( "string_object" ) ) ) );
+				obj.push_back( make_object_value_item( range::create_char_range( "string_object" ), ::daw::json::impl::value_t( std::string( "string_object" ) ) ) );
 				return result;
 			}
 		}
@@ -172,7 +173,7 @@ namespace daw {
 				data_description_t data_description;
 				data_description.json_type = ::daw::json::schema::get_schema( name, value );
 				data_description.bind_functions = standard_bind_functions( name, value );
-				m_data_map[impl::create_char_range( name )] = std::move( data_description );
+				m_data_map[range::create_char_range( name )] = std::move( data_description );
 				return *this;
 			}
 
@@ -332,7 +333,7 @@ namespace daw {
 					assert( result>= std::numeric_limits<T>::min( ) );
 					*value_ptr = static_cast<T>(result);
 				};
-				m_data_map[impl::create_char_range( name )] = std::move( data_description );
+				m_data_map[range::create_char_range( name )] = std::move( data_description );
 				return *this;
 			}
 
@@ -354,7 +355,7 @@ namespace daw {
 					}
 					*value_ptr = static_cast<T>(*result);
 				};
-				m_data_map[impl::create_char_range( name )] = std::move( data_description );
+				m_data_map[range::create_char_range( name )] = std::move( data_description );
 				return *this;
 			}
 
@@ -405,7 +406,7 @@ namespace daw {
 					assert( member->second.is_object( ) );
 					value_ptr->decode( member->second );
 				};
-				m_data_map[impl::create_char_range( name )] = std::move( data_description );
+				m_data_map[range::create_char_range( name )] = std::move( data_description );
 				return *this;
 			}
 
@@ -430,7 +431,7 @@ namespace daw {
 						(*value_ptr)->decode( member->second );
 					}
 				};
-				m_data_map[impl::create_char_range( name )] = std::move( data_description );
+				m_data_map[range::create_char_range( name )] = std::move( data_description );
 				return *this;
 			}
 
@@ -482,7 +483,7 @@ namespace daw {
 						json_to_value( *value_ptr, member->second );
 					}
 				};
-				m_data_map[impl::create_char_range( name )] = std::move( data_description );
+				m_data_map[range::create_char_range( name )] = std::move( data_description );
 				return *this;
 			}
 
@@ -506,7 +507,7 @@ namespace daw {
 					using namespace parse;
 					json_to_value( *value_ptr, member->second );
 				};
-				m_data_map[impl::create_char_range( name )] = std::move( data_description );
+				m_data_map[range::create_char_range( name )] = std::move( data_description );
 				return *this;
 			}
 
@@ -564,7 +565,7 @@ namespace daw {
 					auto str = ss.str( );
 					ss>> *value_ptr;
 				};
-				m_data_map[impl::create_char_range( name )] = std::move( data_description );
+				m_data_map[range::create_char_range( name )] = std::move( data_description );
 				return *this;
 			}
 

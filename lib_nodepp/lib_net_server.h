@@ -78,7 +78,7 @@ namespace daw {
 						void listen( std::string socket_path );
 						void close( );
 
-						daw::nodepp::lib::net::NetAddress const& address( ) const;
+						daw::nodepp::lib::net::NetAddress const & address( ) const;
 
 						void set_max_connections( uint16_t value );
 

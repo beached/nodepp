@@ -49,7 +49,7 @@ namespace daw {
 			class value_t;
 			struct null_value final { };
 
-			using string_value = nodepp::base::CharRange;
+			using string_value = range::CharRange;
 
 			using object_value_item = std::pair <string_value, value_t>;
 
@@ -174,12 +174,3 @@ namespace daw {
 		template<> impl::array_value get<impl::array_value>( impl::value_t const & val );
 	}	// namespace json
 }	// namespace daw
-
-namespace std {
-	template<>
-	struct hash<daw::json::impl::string_value> {
-		size_t operator()( daw::json::impl::string_value const & value ) const {
-			return daw::nodepp::base::hash_sequence( value.begin( ).base( ), value.end( ).base( ) );
-		}
-	};
-}

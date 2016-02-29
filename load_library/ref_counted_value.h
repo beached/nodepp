@@ -46,11 +46,11 @@ namespace daw {
 			*m_counter = 1;
 		}
 
-		ReferenceCountedValue( ReferenceCountedValue const& other ) : m_value{ other.m_value }, m_counter{ other.m_counter }, m_cleaner{ other.m_cleaner } {
+		ReferenceCountedValue( ReferenceCountedValue const & other ) : m_value{ other.m_value }, m_counter{ other.m_counter }, m_cleaner{ other.m_cleaner } {
 			++(*other.m_counter);
 		}
 
-		ReferenceCountedValue& operator=(ReferenceCountedValue const& rhs) {
+		ReferenceCountedValue& operator=(ReferenceCountedValue const & rhs) {
 			if( this != &rhs ) {
 				m_value = rhs.m_value;
 				m_counter = rhs.m_counter;

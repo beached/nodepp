@@ -24,8 +24,7 @@
 #include <cassert>
 
 namespace daw {
-	namespace nodepp {
-		namespace base {
+	namespace range {
 			CharRange::CharRange( CharRange::iterator Begin, CharRange::iterator End ):
 				m_begin( Begin ),
 				m_end( End ),
@@ -116,13 +115,13 @@ namespace daw {
 				return result;
 			}
 
-			CharRange create_char_range(nodepp::base::UTFIterator first, nodepp::base::UTFIterator last ) {
+			CharRange create_char_range( UTFIterator first,  UTFIterator last ) {
 				return { first, last };
 			}
 
-			CharRange create_char_range( boost::string_ref const& str ) {
-				nodepp::base::UTFIterator it_begin( str.begin( ) );
-				nodepp::base::UTFIterator it_end( str.end( ) );
+			CharRange create_char_range( boost::string_ref const & str ) {
+				UTFIterator it_begin( str.begin( ) );
+				UTFIterator it_end( str.end( ) );
 				return { it_begin, it_end };
 			}
 
@@ -131,7 +130,7 @@ namespace daw {
 			}
  
 			bool operator==( CharRange const & first, boost::string_ref const & second ) {
-				return std::equal( first.begin( ), first.end( ), second.begin( ), []( nodepp::base::UTFValType const & lhs, char const & rhs ) { 
+				return std::equal( first.begin( ), first.end( ), second.begin( ), []( UTFValType const & lhs, char const & rhs ) { 
 					return static_cast<char>(lhs) == rhs;
 				} );
 			}
@@ -144,14 +143,19 @@ namespace daw {
 				return std::string { str.begin( ).base( ), static_cast<size_t>(std::distance( str.begin( ).base( ), str.end( ).base( ) )) };
 			}
  
-			std::ostream& operator<<( std::ostream& os, CharRange const& value ) {
+			std::ostream& operator<<( std::ostream& os, CharRange const & value ) {
 				for( auto c : value ) {
 					os << c;
 				}
 				return os;
 			}
 
+			boost::string_ref to_string_ref( CharRange const & str ) {
+				auto it_begin = str.begin( ).base( );
+				auto it_end = str.end( ).base( );
 
-		}	// namespace base
-	}	// namespace nodepp
+				return { it_begin, static_cast<size_t>(std::distance( it_begin, it_end )) };
+			}
+
+		}	// namespace range
 }	// namespace daw

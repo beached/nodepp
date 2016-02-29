@@ -95,7 +95,7 @@ namespace daw {
 		}
 
 		template<typename Arg>
-		details::string_t to_string( Arg const& arg ) {
+		details::string_t to_string( Arg const & arg ) {
 			return boost::lexical_cast<details::string_t>(arg);
 		}
 

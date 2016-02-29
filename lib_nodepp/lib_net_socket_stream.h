@@ -143,7 +143,7 @@ namespace daw {
 						bool can_write( ) const;
 
 						NetSocketStreamImpl& set_read_mode( NetSocketStreamReadMode mode );
-						NetSocketStreamReadMode const& current_read_mode( ) const;
+						NetSocketStreamReadMode const & current_read_mode( ) const;
 						NetSocketStreamImpl& set_read_predicate( std::function <std::pair<NetSocketStreamImpl::match_iterator_t, bool>( NetSocketStreamImpl::match_iterator_t begin, NetSocketStreamImpl::match_iterator_t end )> match_function );
 						NetSocketStreamImpl& clear_read_predicate( );
 						NetSocketStreamImpl& set_read_until_values( std::string values, bool is_regex );
