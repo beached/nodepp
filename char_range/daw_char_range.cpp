@@ -144,7 +144,7 @@ namespace daw {
 			return { it_begin, it_end };
 		}
 		
-		CharRange create_char_range( CharIterator * first, CharIterator * last ) {
+		CharRange create_char_range( CharIterator first, CharIterator last ) {
 			UTFIterator it_begin( first );
 			UTFIterator it_end( last );
 			return { it_begin, it_end };
