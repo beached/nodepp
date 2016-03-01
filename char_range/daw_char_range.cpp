@@ -22,6 +22,7 @@
 
 #include "daw_char_range.h"
 #include <cassert>
+#include <cstring>
 
 namespace daw {
 	namespace range {
