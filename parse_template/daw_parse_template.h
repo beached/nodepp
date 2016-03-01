@@ -105,7 +105,7 @@ namespace daw {
 
 			template<typename Stream>
 			void process_template( Stream & out_stream ) {
-				auto show_string = []( auto & stream, char const * first, char const * last ) {
+				auto show_string = []( auto & stream, range::CharIterator first, range::CharIterator const last ) {
 
 					for( ; first != last; ++first ) {
 						stream << *first;
