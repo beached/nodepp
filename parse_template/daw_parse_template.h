@@ -116,10 +116,10 @@ namespace daw {
 				std::string dte_format = "%x";
 				std::string tm_format = "%X";
 
-				auto pos = m_template.begin( );
+				auto pos = m_template.begin( ).base( );
 
 				for( size_t n = 0; n < m_callback_map->size( ); ++n ) {
-					pos = show_string( out_stream, pos.base( ), m_callback_map->beginnings[n].base( ) );
+					pos = show_string( out_stream, pos, m_callback_map->beginnings[n].base( ) );
 					switch( m_callback_map->types[n] ) {
 					case impl::CallbackMap::CallbackTypes::Normal:
 					{
@@ -191,9 +191,9 @@ namespace daw {
 						out_stream << "Error, unknown tag at position " << std::distance( m_template.begin( ), m_callback_map->beginnings[n] ) << "\n";
 						break;
 					}
-					pos = m_callback_map->endings[n];
+					pos = m_callback_map->endings[n].base( );
 				}
-				show_string( out_stream, pos.base( ), m_template.end( ).base( ) );
+				show_string( out_stream, pos, m_template.end( ).base( ) );
 			}
 
 			std::vector<std::string> list_callbacks( ) const;

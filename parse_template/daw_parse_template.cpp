@@ -92,11 +92,33 @@ namespace daw {
 		}
 
 		namespace {
+			template<bool, typename T1, typename T2>
+			struct is_cond {
+				typedef T1 type;
+			};
+
+			template<typename T1, typename T2>
+			struct is_cond<false, T1, T2> {
+				typedef T2 type;
+			};
+
+			template<typename T1, typename T2>
+			struct largest {
+				 typedef typename is_cond< (sizeof(T1)>sizeof(T2)), T1, T2>::type type;
+			};
+			
+			template<typename T1, typename T2>
+			using largest_t = typename largest<T1, T2>::type;
+
 			template<typename Iterator1, typename Iterator2>
 			bool is_equal_shortest( Iterator1 first1, Iterator1 last1, Iterator2 first2, Iterator2 last2 ) {
 				// compare the two ranges to the length of the shortest
 				while( first1 != last1 && first2 != last2 ) {
-					if( *first1 != *first2 ) {
+					using v_type = largest_t<decltype(*first1), decltype(*first2)>;
+					v_type const value1 = *first1;
+					v_type const value2 = *first2;
+
+					if( value1 != value2 ) {
 						return false;
 					}
 					++first1;
