@@ -82,9 +82,12 @@ namespace daw {
 			};	// struct CB
 
 			template<typename T>
-			T const & make_const( T const & value ) {
+			constexpr T const & make_const( T & value ) noexcept {
 				return value;
 			}
+
+			template<typename T>
+			T const & make_const( T && ) = delete;
 
 		} // namespace impl
 
