@@ -8,14 +8,20 @@ echo "Boost Root is set to: '${BOOST_ROOT}'"
 if [ ! -d "${BOOST_ROOT}" ]; then
 	BUILD_TYPE=${CC}
 	BOOST_FILE="boost_${BOOST_VERSION}.tar.bz2"
-	mkdir "/tmp/${BUILD_TYPE}"
+	if [ ! -d "/tmp/${BUILD_TYPE}" ]; then
+		mkdir "/tmp/${BUILD_TYPE}"
+	fi
 	cd "/tmp/${BUILDTYPE}"
-	wget -O "${BOOST_FILE}" "http://sourceforge.net/projects/boost/files/boost/1.60.0/boost_${BOOST_VERSION}.tar.bz2/download"
+	if [ ! -f "/tmp/${BUILDTYPE}/${BOOST_FILE}" ]; then
+		echo "Downloading Boost"
+		wget -O "${BOOST_FILE}" "https://sourceforge.net/projects/boost/files/boost/1.60.0/boost_${BOOST_VERSION}.tar.bz2/download"
+	fi
+	echo "Expanding ${BOOST_FILE}"
 	tar -xjf ${BOOST_FILE}
 
-	echo "building boost";
+	echo "Building Boost";
 	cd "boost_${BOOST_VERSION}";
-	echo "Building boost in '`pwd`'"
+	echo "Building Boost in '`pwd`'"
 	./bootstrap.sh toolset=${CC} --prefix="${BOOST_ROOT}"
 	./b2 toolset=${CC} cxxflags="${CXXFLAGS}" linkflags="${LINKFLAGS}" --prefix="${BOOST_ROOT}" install;
 else
