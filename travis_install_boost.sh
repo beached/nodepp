@@ -7,17 +7,19 @@ BOOST_VERSION="1_60_0"
 echo "Boost Root is set to: '${BOOST_ROOT}'"
 if [ ! -d "${BOOST_ROOT}" ]; then
 	BUILD_TYPE=${CC}
+	echo "Build Type: ${BUILD_TYPE}"
 	BOOST_FILE="boost_${BOOST_VERSION}.tar.bz2"
 	if [ ! -d "/tmp/${BUILD_TYPE}" ]; then
 		mkdir "/tmp/${BUILD_TYPE}"
 	fi
-	cd "/tmp/${BUILDTYPE}"
-	if [ ! -f "/tmp/${BUILDTYPE}/${BOOST_FILE}" ]; then
+	cd /tmp
+	if [ ! -f "/tmp/${BOOST_FILE}" ]; then
 		echo "Downloading Boost"
 		wget -O "${BOOST_FILE}" "https://sourceforge.net/projects/boost/files/boost/1.60.0/boost_${BOOST_VERSION}.tar.bz2/download"
 	fi
-	echo "Expanding ${BOOST_FILE}"
-	tar -xjf ${BOOST_FILE}
+	cd "/tmp/${BUILD_TYPE}"
+	echo "Expanding ${BOOST_FILE}" into `pwd`
+	tar -xjf /tmp/${BOOST_FILE}
 
 	echo "Building Boost";
 	cd "boost_${BOOST_VERSION}";

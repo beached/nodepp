@@ -43,7 +43,6 @@ namespace daw {
 			return m_end;
 		}
 
-
 		CharRange::const_iterator CharRange::end( ) const {
 			return m_end;
 		}
@@ -101,6 +100,18 @@ namespace daw {
 		CharRange & CharRange::operator+=( size_t const n ) { 
 			advance( n );
 			return *this;
+		}
+
+		CharIterator CharRange::raw_begin( ) const {
+			return m_begin.base( );
+		}
+
+		CharIterator CharRange::raw_end( ) const {
+			return m_end.base( );
+		}
+
+		size_t CharRange::raw_size( ) const {
+			static_cast<size_t>(std::distance( m_begin.base( ), m_end.base( ) ));
 		}
 
 		bool at_end( CharRange const & range ) {

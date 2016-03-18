@@ -64,6 +64,10 @@ namespace daw {
 				void safe_advance( size_t const count );
 				void set( iterator Begin, iterator End, difference_type Size = -1 );
 				CharRange & operator+=( size_t const n );
+ 				CharIterator raw_begin( ) const {
+                		CharIterator raw_end( ) const {
+                		size_t raw_size( ) const {
+
 			};	// struct CharRange
 
 			CharRange operator+( CharRange range, size_t const n );
@@ -84,7 +88,7 @@ namespace daw {
 			
 			boost::string_ref to_string_ref( CharRange const & str );
 
-
+			
 			bool at_end( CharRange const & range );
 	}	// namespace range
 }	// namespace daw
