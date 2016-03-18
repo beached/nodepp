@@ -111,7 +111,7 @@ namespace daw {
 		}
 
 		size_t CharRange::raw_size( ) const {
-			static_cast<size_t>(std::distance( m_begin.base( ), m_end.base( ) ));
+			return static_cast<size_t>(std::distance( m_begin.base( ), m_end.base( ) ));
 		}
 
 		bool at_end( CharRange const & range ) {
