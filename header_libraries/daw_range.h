@@ -125,6 +125,18 @@ namespace daw {
 				return *m_begin;
 			}
 
+			reference back( ) {
+				auto it = m_begin;
+				std::advance( it, size( ) -1 );
+				return *it; 
+			}
+
+			const_reference back( ) const {
+				auto it = m_begin;
+				std::advance( it, size( ) -1 );
+				return *it; 
+			}
+
 			reference operator*( ) {
 				return *m_begin;
 			}
