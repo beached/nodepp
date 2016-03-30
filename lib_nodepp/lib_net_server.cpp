@@ -179,6 +179,11 @@ namespace daw {
 					}
 				}	// namespace impl
 
+				NetServer create_net_server_nossl(daw::nodepp::base::EventEmitter emitter) {
+					auto tmp = new impl::NetServerImpl( boost::asio::ssl::context::tlsv12_server, std::move( emitter ) );
+					return NetServer( tmp );
+				}
+
 				NetServer create_net_server( base::EventEmitter emitter ) {
 					auto tmp = new impl::NetServerImpl( std::move( emitter ) );
 					return NetServer( tmp );

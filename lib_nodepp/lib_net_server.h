@@ -45,6 +45,7 @@ namespace daw {
 				using EndPoint = boost::asio::ip::tcp::endpoint;
 
 				NetServer create_net_server( daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
+				NetServer create_net_server_nossl( daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
 				NetServer create_net_server( boost::asio::ssl::context::method ctx_method, daw::nodepp::base::EventEmitter emitter = daw::nodepp::base::create_event_emitter( ) );
 
 				namespace impl {
@@ -61,7 +62,7 @@ namespace daw {
 					public:
 						friend daw::nodepp::lib::net::NetServer daw::nodepp::lib::net::create_net_server( daw::nodepp::base::EventEmitter );
 						friend daw::nodepp::lib::net::NetServer daw::nodepp::lib::net::create_net_server( boost::asio::ssl::context::method, daw::nodepp::base::EventEmitter );
-
+						friend daw::nodepp::lib::net::NetServer daw::nodepp::lib::net::create_net_server_nossl( daw::nodepp::base::EventEmitter emitter );
 						NetServerImpl( ) = delete;
 						~NetServerImpl( );
 						NetServerImpl( NetServerImpl const & ) = default;
