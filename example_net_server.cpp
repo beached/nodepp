@@ -77,18 +77,18 @@ int main( int argc, char const ** argv ) {
 				} else if( msg == "dir" ) {
 					socket <<get_directory_listing( "." ) <<"\r\nREADY\r\n";
 				} else if( msg == "help" ) {
-					socket <<"quit - close connection\r\n";
-					socket <<"dir - show directory listing\r\n";
-					socket <<"help - this message\r\n";
-					socket <<"READY\r\n";
+					socket << "quit - close connection\r\n";
+					socket << "dir - show directory listing\r\n";
+					socket << "help - this message\r\n";
+					socket << "READY\r\n";
 				} else if( msg == "starttls" ) {
 					NetSocketStream local_socket = socket;
 					socket->socket( ).async_handshake( impl::BoostSocket::BoostSocketValueType::handshake_type::server, [local_socket]( auto const & error ) mutable {
 						if( error ) {
-							std::cerr <<"Error starting encryption: " <<error <<": " <<error.message( ) <<std::endl;
+							std::cerr <<"Error starting encryption: " << error <<": " <<error.message( ) <<std::endl;
 							return;
 						}
-						local_socket <<"Encryption enabled\r\n";
+						local_socket << "Encryption enabled\r\n";
 					} );
 				} else {
 					socket <<"SYNTAX ERROR\r\n\nREADY\r\n";
