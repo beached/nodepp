@@ -38,7 +38,13 @@ namespace daw {
 			using data_t = std::vector <char>;
 
 			template<typename T>
-			static T from_data_t_to_value( daw::nodepp::base::data_t const & buffer, size_t pos = 0 ) {
+			static auto from_data_t_to_value( daw::nodepp::base::data_t const & buffer, size_t pos = 0 ) -> typename std::enable_if<std::is_const<decltype(buffer.data( ))>::value, T>::type {
+				assert( sizeof( T ) + pos <= buffer.size( ) );
+				return *(reinterpret_cast<T const *>(buffer.data( ) + pos));
+			}
+
+			template<typename T>
+			static auto from_data_t_to_value( daw::nodepp::base::data_t const & buffer, size_t pos = 0 ) -> typename std::enable_if<!std::is_const<decltype(buffer.data( ))>::value, T>::type {
 				assert( sizeof( T ) + pos <= buffer.size( ) );
 				return *(reinterpret_cast<T*>(buffer.data( ) + pos));
 			}
