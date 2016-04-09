@@ -171,13 +171,13 @@ namespace daw {
 			return Range<Iterator> { first, last };
 		}
 
-		template<typename Container, typename std::enable_if<daw::traits::is_container_not_string<Container>::value, long>::type = 0>
+		template<typename Container, typename std::enable_if_t<daw::traits::is_container_not_string<Container>::value, long> = 0>
 		Range<typename Container::iterator> make_range( Container & container ) {
 			using Iterator = decltype(std::begin( container ));
 			return Range<Iterator>( std::begin( container ), std::end( container ) );
 		}
 
-		template<typename Container, typename std::enable_if<daw::traits::is_container_not_string<Container>::value, long>::type = 0>
+		template<typename Container, typename std::enable_if_t<daw::traits::is_container_not_string<Container>::value, long> = 0>
 		Range<typename Container::const_iterator> make_range( Container const & container ) {
 			using Iterator = decltype(std::begin( container ));
 			return Range<Iterator>( std::begin( container ), std::end( container ) );

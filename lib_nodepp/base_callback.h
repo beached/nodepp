@@ -49,7 +49,7 @@ namespace daw {
 				Callback( );
 				~Callback( ) = default;
 
-				template<typename Listener, typename = typename std::enable_if<!std::is_same<Listener, Callback>::value>::type>
+				template<typename Listener, typename = typename std::enable_if_t<!std::is_same<Listener, Callback>::value>>
 				Callback( Listener listener ): m_id( s_last_id++ ), m_callback( daw::make_function( listener ) ) { }
 
 				Callback( Callback const & ) = default;
@@ -70,7 +70,7 @@ namespace daw {
 
 				template<typename... Args>
 				void operator( )( Args&&... args ) {
-					using cb_type = std::function <void( typename std::remove_reference<Args>::type... )>;
+					using cb_type = std::function <void( typename std::remove_reference_t<Args>... )>;
 					try {
 						auto callback = boost::any_cast<cb_type>(m_callback);
 						callback( std::forward<Args>( args )... );

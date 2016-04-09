@@ -39,7 +39,7 @@ namespace daw {
 	namespace impl {
 		template<typename ResultType, typename... ArgTypes>
 		struct make_function_pointer_impl {
-			using type = typename std::add_pointer<ResultType( ArgTypes... )>::type;
+			using type = typename std::add_pointer_t<ResultType( ArgTypes... )>;
 		};
 
 		template<typename ResultType, typename ClassType, typename... ArgTypes>

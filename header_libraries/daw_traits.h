@@ -73,19 +73,19 @@ namespace daw {
 		template <typename First, typename... Args>
 		struct max_sizeof < First, Args...> {
 			typedef typename max_sizeof<Args...>::type next;
-			typedef typename std::conditional<sizeof( First )>= sizeof( next ), First, next>::type type;
+			typedef std::conditional_t<sizeof( First )>= sizeof( next ), First, next> type;
 			static const size_t value = sizeof( type );
 		};
 
 		//////////////////////////////////////////////////////////////////////////
 		/// Summary:	Returns true if all values passed are true
 		///
-		template<typename BoolType, typename std::enable_if<!std::is_integral<BoolType>::value, long>::type = 0>
+		template<typename BoolType, typename std::enable_if_t<!std::is_integral<BoolType>::value, long> = 0>
 		bool are_true( BoolType b1 ) {
 			return b1 == true;
 		}
 
-		template<typename IntLike, typename std::enable_if<std::is_integral<IntLike>::value, long>::type = 0>
+		template<typename IntLike, typename std::enable_if_t<std::is_integral<IntLike>::value, long> = 0>
 		bool are_true( IntLike b1 ) {
 			return b1 != 0;
 		}
@@ -167,7 +167,7 @@ namespace daw {
 			template<typename T, typename = void> \
 			class has_##MemberName##_member_impl: public std::false_type {}; \
 		template<typename T> \
-		class has_##MemberName##_member_impl< T, typename std::enable_if<std::is_class<T>::value>::type> { \
+		class has_##MemberName##_member_impl< T, typename std::enable_if_t<std::is_class<T>::value>> { \
 					struct Fallback { \
 						int MemberName; \
 																																																																																																																																																																																																																																																																																																																																																																																																																																																													}; \

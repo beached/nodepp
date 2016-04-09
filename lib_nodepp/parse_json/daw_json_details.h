@@ -39,7 +39,7 @@
 namespace daw {
 	namespace json {
 		namespace generate {
-			template<typename Container, typename std::enable_if<daw::traits::is_container_not_string<Container>::value, long>::type>
+			template<typename Container, typename std::enable_if_t<daw::traits::is_container_not_string<Container>::value, long>>
 			std::string value_to_json( boost::string_ref name, Container const & values ) {
 				boost::string_ref empty_str( "" );
 				std::stringstream result;
@@ -63,7 +63,7 @@ namespace daw {
 				return ::daw::json::details::json_name( name ) + "{ " + value_to_json( "key", value.first ) + ", " + value_to_json( "value", value.second ) + " }";
 			}
 
-			template<typename Number, typename std::enable_if<std::is_floating_point<Number>::value, int>::type>
+			template<typename Number, typename std::enable_if_t<std::is_floating_point<Number>::value, int>>
 			std::string value_to_json_number( boost::string_ref name, Number const & value ) {
 				std::stringstream ss;
 				ss <<::daw::json::details::json_name( name );
@@ -71,7 +71,7 @@ namespace daw {
 				return ss.str( );
 			}
 
-			template<typename Number, typename std::enable_if<std::is_integral<Number>::value, int>::type>
+			template<typename Number, typename std::enable_if_t<std::is_integral<Number>::value, int>>
 			std::string value_to_json_number( boost::string_ref name, Number const & value ) {
 				return ::daw::json::details::json_name( name ) + std::to_string( value );
 			}
@@ -106,7 +106,7 @@ namespace daw {
 		}	// namespace generate
 
 		namespace parse {
-			template<typename Container, typename std::enable_if<daw::traits::is_vector_like_not_string<Container>::value, long>::type>
+			template<typename Container, typename std::enable_if_t<daw::traits::is_vector_like_not_string<Container>::value, long>>
 			void json_to_value( Container & to, ::daw::json::impl::value_t const & from ) {
 				static_assert(!std::is_const<Container>::value, "To parameter on json_to_value cannot be const");
 				assert( from.is_array( ) );
@@ -136,7 +136,7 @@ namespace daw {
 				to = std::make_pair<Key, Value>( std::move( key ), std::move( value ) );
 			}
 
-			template<typename MapContainer, typename std::enable_if<daw::traits::is_map_like<MapContainer>::value, long>::type>
+			template<typename MapContainer, typename std::enable_if_t<daw::traits::is_map_like<MapContainer>::value, long>>
 			void json_to_value( MapContainer & to, ::daw::json::impl::value_t const & from ) {
 				static_assert(!std::is_const<MapContainer>::value, "To parameter on json_to_value cannot be const");
 				assert( from.is_array( ) );
@@ -151,7 +151,7 @@ namespace daw {
 				} );
 			}
 
-			template<typename T, typename std::enable_if<std::is_integral<T>::value && !std::is_same<T, int64_t>::value, long>::type>
+			template<typename T, typename std::enable_if_t<std::is_integral<T>::value && !std::is_same<T, int64_t>::value, long>>
 			void json_to_value( T & to, ::daw::json::impl::value_t const & from ) {
 				static_assert(!std::is_const<decltype(to)>::value, "To parameter on json_to_value cannot be const");
 				assert( from.is_integral( ) );
@@ -186,7 +186,7 @@ namespace daw {
 				}
 			}
 
-			template<typename T, typename std::enable_if<has_decode_member<T>::value, long>::type>
+			template<typename T, typename std::enable_if_t<has_decode_member<T>::value, long>>
 			T decode_to_new( boost::string_ref json_values ) {
 				T result;
 				result.decode( json_values );

@@ -57,19 +57,19 @@ namespace daw {
 			template<typename Key, typename Value>
 			::daw::json::impl::value_t get_schema( boost::string_ref name, std::pair<Key, Value> const & );
 
-			template<typename T, typename std::enable_if<daw::traits::is_container_not_string<T>::value, long>::type = 0>
+			template<typename T, typename std::enable_if_t<daw::traits::is_container_not_string<T>::value, long> = 0>
 			::daw::json::impl::value_t get_schema( boost::string_ref name, T const & );
 
-			template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long>::type = 0>
+			template<typename T, typename std::enable_if_t<std::is_floating_point<T>::value, long> = 0>
 			::daw::json::impl::value_t get_schema( boost::string_ref name, T const & );
 
-			template<typename T, typename std::enable_if<std::is_integral<T>::value && !std::is_same<bool, T>::value, long>::type = 0>
+			template<typename T, typename std::enable_if_t<std::is_integral<T>::value && !std::is_same<bool, T>::value, long> = 0>
 			::daw::json::impl::value_t get_schema( boost::string_ref name, T const & );
 
 			template<typename T>
 			::daw::json::impl::value_t get_schema( boost::string_ref name, boost::optional<T> const & );
 
-			template<typename T, typename std::enable_if<daw::traits::is_streamable<T>::value && !daw::traits::is_numeric<T>::value && !std::is_same<std::string, T>::value, long>::type = 0>
+			template<typename T, typename std::enable_if_t<daw::traits::is_streamable<T>::value && !daw::traits::is_numeric<T>::value && !std::is_same<std::string, T>::value, long> = 0>
 			::daw::json::impl::value_t get_schema( boost::string_ref name, T const & );
 
 			template<typename Key, typename Value>
@@ -86,7 +86,7 @@ namespace daw {
 				return make_type_obj( name, ::daw::json::impl::value_t( std::move( result ) ) );
 			}
 
-			template<typename T, typename std::enable_if<daw::traits::is_container_not_string<T>::value, long>::type>
+			template<typename T, typename std::enable_if_t<daw::traits::is_container_not_string<T>::value, long>>
 			::daw::json::impl::value_t get_schema( boost::string_ref name, T const & ) {
 				using ::daw::json::impl::make_object_value_item;
 				daw::json::impl::object_value result;
@@ -98,12 +98,12 @@ namespace daw {
 				return make_type_obj( name, ::daw::json::impl::value_t( std::move( result ) ) );
 			}
 
-			template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long>::type>
+			template<typename T, typename std::enable_if_t<std::is_floating_point<T>::value, long>>
 			::daw::json::impl::value_t get_schema( boost::string_ref name, T const & ) {
 				return make_type_obj( name, ::daw::json::impl::value_t( std::string( "real" ) ) );
 			}
 
-			template<typename T, typename std::enable_if<std::is_integral<T>::value && !std::is_same<bool, T>::value, long>::type>
+			template<typename T, typename std::enable_if_t<std::is_integral<T>::value && !std::is_same<bool, T>::value, long>>
 			::daw::json::impl::value_t get_schema( boost::string_ref name, T const & ) {
 				return make_type_obj( name, ::daw::json::impl::value_t( std::string( "integer" ) ) );
 			}
@@ -117,7 +117,7 @@ namespace daw {
 				return result;
 			}
 
-			template<typename T, typename std::enable_if<daw::traits::is_streamable<T>::value && !daw::traits::is_numeric<T>::value && !std::is_same<std::string, T>::value, long>::type>
+			template<typename T, typename std::enable_if_t<daw::traits::is_streamable<T>::value && !daw::traits::is_numeric<T>::value && !std::is_same<std::string, T>::value, long>>
 			::daw::json::impl::value_t get_schema( boost::string_ref name, T const & ) {
 				auto result = make_type_obj( name, ::daw::json::impl::value_t( std::string( "string" ) ) );
 				auto & obj = result.get_object( );
@@ -316,7 +316,7 @@ namespace daw {
 				return bind_functions;
 			}
 
-			template<typename T, typename std::enable_if<std::is_integral<T>::value, long>::type = 0>
+			template<typename T, typename std::enable_if_t<std::is_integral<T>::value, long> = 0>
 			JsonLink& link_integral( boost::string_ref name, T& value ) {
 				auto value_ptr = &value;
 				set_name( value, name.to_string( ) );
@@ -337,7 +337,7 @@ namespace daw {
 				return *this;
 			}
 
-			template<typename T, typename std::enable_if<std::is_integral<T>::value, long>::type = 0>
+			template<typename T, typename std::enable_if_t<std::is_integral<T>::value, long> = 0>
 			JsonLink& link_integral( boost::string_ref name, boost::optional<T>& value ) {
 				auto value_ptr = &value;
 				set_name( value, name.to_string( ) );
@@ -410,7 +410,7 @@ namespace daw {
 				return *this;
 			}
 
-			template<typename T, typename std::enable_if<std::is_base_of<JsonLink<T>, T>::value, long>::type = 0>
+			template<typename T, typename std::enable_if_t<std::is_base_of<JsonLink<T>, T>::value, long> = 0>
 			JsonLink& link_object( boost::string_ref name, boost::optional<T>& value ) {
 				auto value_ptr = &value;
 				set_name( value, name.to_string( ) );
