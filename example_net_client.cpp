@@ -46,7 +46,7 @@ int main( int argc, char const ** argv ) {
 	po::notify( vm );
 
 	if( vm.count("help") ) {
-		std::cout <<desc <<std::endl;
+		std::cout << desc << std::endl;
 	    return EXIT_SUCCESS;
 	}
 
@@ -55,11 +55,11 @@ int main( int argc, char const ** argv ) {
 	std::function<void( NetSocketStream )> current_state;
 
 	auto const state_quit = [&]( auto s ) {
-		s <<"quit\r\n";
+		s << "quit\r\n";
 	};
 
 	auto const state_send_dir = [&]( auto s ) {
-		s <<"dir\r\n";
+		s << "dir\r\n";
 		current_state = state_quit;
 	};
 
@@ -68,10 +68,10 @@ int main( int argc, char const ** argv ) {
 	};
 
 	auto const state_start_encrypton = [&]( NetSocketStream s ) {
-		s <<"starttls\r\n";
+		s << "starttls\r\n";
 		s->socket( ).async_handshake( impl::BoostSocket::BoostSocketValueType::handshake_type::client, [&]( auto const & error ) mutable {
 			if( error ) {
-				std::cerr <<"Error starting encryption: " <<error <<": " <<error.message( ) <<std::endl;
+				std::cerr << "Error starting encryption: " << error << ": " << error.message( ) << std::endl;
 				return;
 			}
 			current_state = state_send_dir;
@@ -87,18 +87,19 @@ int main( int argc, char const ** argv ) {
 		ctx.load_verify_file( ca_cert.c_str( ) );
 		ctx.set_options( context::default_workarounds | boost::asio::ssl::context::single_dh_use );
 	}
-	socket->on_connected( [socket]( ) mutable {
-		std::cout <<"Connection from: " <<socket->remote_address( ) <<":" <<socket->remote_port( ) <<std::endl;
-		socket->read_async( );
-	} ).on_data_received( [&]( auto data_buffer, bool ) mutable {
-		if( data_buffer ) {
-			auto const msg = std::string { data_buffer->begin( ), data_buffer->end( ) };
-			std::cout <<msg;
-			current_state( socket );
+	socket->on_connected( []( auto s ) mutable {
+		std::cout << "Connection from: " << s->remote_address( ) << ":" << s->remote_port( ) << std::endl;
+		s->read_async( );
+	} ).on_data_received( [socket, &current_state]( auto data_buffer, bool ) mutable {
+		if( !data_buffer ) {
+			return;
 		}
+		auto const msg = std::string { data_buffer->begin( ), data_buffer->end( ) };
+		std::cout << msg;
+		current_state( socket );
 	} ).set_read_until_values( "READY\r\n", false );
 
-	socket->connect( host_name.c_str( ), port );
+	socket->connect( host_name, port );
 
 	base::start_service( base::StartServiceMode::Single );
 	return EXIT_SUCCESS;

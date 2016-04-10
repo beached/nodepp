@@ -53,15 +53,15 @@ namespace daw {
 					HttpClientConnectionImpl::~HttpClientConnectionImpl( ) { }
 					void HttpClientImpl::request( std::string scheme, std::string host, uint16_t port, daw::nodepp::lib::http::HttpClientRequest request ) {
 						auto socket = m_client;
-						socket->on_connected( [socket, scheme, request, host, port]( ) mutable {
+						socket->on_connected( [scheme, request, host, port]( auto s ) mutable {
 							auto const & request_line = request->request_line;
 							std::stringstream ss;
 							ss <<to_string( request_line.method ) <<" " <<to_string( request_line.url ) <<" HTTP/1.1\r\n";
 							ss <<"Host: " <<host <<":" <<std::to_string( port ) <<"\r\n\r\n";
 							auto msg = ss.str( );
-							socket->end( msg );
-							socket->set_read_mode( net::NetSocketStreamReadMode::double_newline );
-							socket->read_async( );
+							s->end( msg );
+							s->set_read_mode( net::NetSocketStreamReadMode::double_newline );
+							s->read_async( );
 						} ).on_data_received( [socket]( std::shared_ptr<base::data_t> data_buffer, bool ) {
 							if( data_buffer ) {
 								for( auto const & ch : *data_buffer ) {
