@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.8.4)
-
 project(NodePP)
+
+include(ExternalProject)
 
 set(Boost_USE_STATIC_LIBS OFF) 
 set(Boost_USE_MULTITHREADED ON)  
@@ -24,6 +25,16 @@ ENDIF( )
 if(THREADS_HAVE_PTHREAD_ARG)
 	set(COMPILER_SPECIFIC_LIBS, "-lpthread" )
 endif( )
+
+ExternalProject_Add( 
+	header_libraries
+	GIT_REPOSITORY "https://github.com/beached/header_libraries.git"
+	SOURCE_DIR "${CMAKE_SOURCE_DIR}/header_libraries"
+	GIT_TAG "master"
+	PATCH_COMMAND ""
+	INSTALL_COMMAND ""
+	TEST_COMMAND ""
+)
 
 enable_testing( )
 
