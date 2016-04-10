@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 2.8.4)
 project(NodePP)
 
-include(ExternalProject)
 
 set(Boost_USE_STATIC_LIBS OFF) 
 set(Boost_USE_MULTITHREADED ON)  
@@ -26,27 +25,30 @@ if(THREADS_HAVE_PTHREAD_ARG)
 	set(COMPILER_SPECIFIC_LIBS, "-lpthread" )
 endif( )
 
+include(ExternalProject)
 ExternalProject_Add( 
 	header_libraries
 	GIT_REPOSITORY "https://github.com/beached/header_libraries.git"
-	SOURCE_DIR "${CMAKE_SOURCE_DIR}/header_libraries"
+	SOURCE_DIR "${CMAKE_BINARY_DIR}/3rdparty/header_libraries"
 	GIT_TAG "master"
 	PATCH_COMMAND ""
 	INSTALL_COMMAND ""
 	TEST_COMMAND ""
 )
+include_directories( "${CMAKE_BINARY_DIR}/3rdparty/header_libraries" )
 
 enable_testing( )
 
 add_subdirectory( ./lib_nodepp )
+add_dependencies( lib_nodepp header_libraries )
 add_subdirectory( ./load_library )
 add_subdirectory( ./parse_template )
+add_dependencies( parse_template header_libraries )
 add_subdirectory( ./char_range ${CMAKE_CURRENT_BINARY_DIR}/char_range )
 
 include_directories( ./lib_nodepp )
 include_directories( ./lib_nodepp/parse_json )
 include_directories( ./parse_template )
-include_directories( ./header_libraries )
 include_directories( ./char_range )
 include_directories( SYSTEM ${Boost_INCLUDE_DIRS} )
 link_directories( ${Boost_LIBRARY_DIRS} )

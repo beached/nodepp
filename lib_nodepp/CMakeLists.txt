@@ -20,9 +20,12 @@ if(THREADS_HAVE_PTHREAD_ARG)
 	set(COMPILER_SPECIFIC_LIBS, "-lpthread" )
 endif( )
 
+include_directories( "${CMAKE_BINARY_DIR}/3rdparty/header_libraries" )
+
 enable_testing( )
 
 add_subdirectory( ./parse_json )
+add_dependencies( parse_json header_libraries )
 
 set(SOURCE_FILES
 		base_callback.cpp
@@ -83,7 +86,6 @@ set(SOURCE_FILES
 		lib_http_client_connection_options.h
 )
 
-include_directories( ../header_libraries )
 include_directories( ./parse_json )
 include_directories( ../char_range )
 include_directories( SYSTEM ${Boost_INCLUDE_DIRS} )

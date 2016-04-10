@@ -30,7 +30,8 @@ set(SOURCE_FILES
 	ref_counted_value.h
 )
 
-include_directories( ../header_libraries )
+include_directories( "${CMAKE_BINARY_DIR}/3rdparty/header_libraries" )
+
 include_directories( SYSTEM ${Boost_INCLUDE_DIRS} )
 link_directories( ${Boost_LIBRARY_DIRS} )
 
