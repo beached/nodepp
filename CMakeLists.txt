@@ -39,7 +39,6 @@ ExternalProject_Add(
 enable_testing( )
 
 add_subdirectory( ./lib_nodepp )
-add_subdirectory( ./header_libraries )
 add_subdirectory( ./load_library )
 add_subdirectory( ./parse_template )
 add_subdirectory( ./char_range ${CMAKE_CURRENT_BINARY_DIR}/char_range )
