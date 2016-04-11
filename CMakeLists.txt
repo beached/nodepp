@@ -35,7 +35,10 @@ ExternalProject_Add(
 	INSTALL_COMMAND ""
 	TEST_COMMAND ""
 )
-include_directories( "${CMAKE_BINARY_DIR}/3rdparty/header_libraries" )
+
+set( header_libraries_include "${CMAKE_BINARY_DIR}/3rdparty/header_libraries" )
+set_property( GLOBAL PROPERTY header_libraries_include ${header_libraries_include} )
+include_directories( SYSTEM ${header_libraries_include} )
 
 enable_testing( )
 
