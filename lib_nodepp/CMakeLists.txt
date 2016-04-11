@@ -20,7 +20,7 @@ if(THREADS_HAVE_PTHREAD_ARG)
 	set(COMPILER_SPECIFIC_LIBS, "-lpthread" )
 endif( )
 
-include_directories( "${CMAKE_BINARY_DIR}/3rdparty/header_libraries" )
+include_directories( SYSTEM "${CMAKE_BINARY_DIR}/3rdparty/header_libraries" )
 
 enable_testing( )
 

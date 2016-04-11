@@ -173,7 +173,7 @@ namespace daw {
 
 						//////////////////////////////////////////////////////////////////////////
 						/// Summary: Event emitted when a connection is established
-						NetSocketStreamImpl& on_next_connected( std::function<void( )> listener );
+						NetSocketStreamImpl& on_next_connected( std::function<void( NetSocketStream )> listener );
 
 						//////////////////////////////////////////////////////////////////////////
 						/// StreamReadable

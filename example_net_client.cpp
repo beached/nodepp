@@ -83,22 +83,28 @@ int main( int argc, char const ** argv ) {
 
 	if( !ca_cert.empty( ) ) {
 		using namespace boost::asio::ssl;
-		boost::asio::ssl::context & ctx = socket->socket( ).encryption_context( );
+		auto& ctx = socket->socket( ).encryption_context( );
 		ctx.load_verify_file( ca_cert.c_str( ) );
-		ctx.set_options( context::default_workarounds | boost::asio::ssl::context::single_dh_use );
+		ctx.set_options( context::default_workarounds | context::single_dh_use );
 	}
-	socket->on_connected( []( auto s ) mutable {
-		std::cout << "Connection from: " << s->remote_address( ) << ":" << s->remote_port( ) << std::endl;
-		s->read_async( );
-	} ).on_data_received( [socket, &current_state]( auto data_buffer, bool ) mutable {
+
+	auto on_data_received = [sck = socket, &current_state]( auto data_buffer, bool ) mutable {
 		if( !data_buffer ) {
 			return;
 		}
 		auto const msg = std::string { data_buffer->begin( ), data_buffer->end( ) };
 		std::cout << msg;
-		current_state( socket );
-	} ).set_read_until_values( "READY\r\n", false );
+		current_state( sck );
+	};
 
+	auto on_connected = []( auto sck ) {
+		std::cout << "Connection from: " << sck->remote_address( ) << ":" << sck->remote_port( ) << std::endl;
+		sck->read_async( );
+	};
+
+	socket->on_connected( on_connected );	
+	socket->on_data_received( on_data_received );
+	socket->set_read_until_values( "READY\r\n", false );
 	socket->connect( host_name, port );
 
 	base::start_service( base::StartServiceMode::Single );
