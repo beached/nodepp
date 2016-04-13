@@ -35,13 +35,17 @@ ExternalProject_Add(
 	INSTALL_COMMAND ""
 	TEST_COMMAND ""
 )
-include_directories( "${CMAKE_BINARY_DIR}/3rdparty/header_libraries" )
+
+set( header_libraries_include "${CMAKE_BINARY_DIR}/3rdparty/header_libraries" )
+set_property( GLOBAL PROPERTY header_libraries_include ${header_libraries_include} )
+include_directories( SYSTEM ${header_libraries_include} )
 
 enable_testing( )
 
 add_subdirectory( ./lib_nodepp )
 add_dependencies( lib_nodepp header_libraries )
 add_subdirectory( ./load_library )
+add_dependencies( load_library header_libraries )
 add_subdirectory( ./parse_template )
 add_dependencies( parse_template header_libraries )
 add_subdirectory( ./char_range ${CMAKE_CURRENT_BINARY_DIR}/char_range )

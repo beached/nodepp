@@ -260,8 +260,12 @@ namespace daw {
 						return *this;
 					}
 
-					NetSocketStreamImpl& NetSocketStreamImpl::on_next_connected( std::function<void( )> listener ) {
-						this->emitter( )->add_listener( "connect", listener, true );
+					NetSocketStreamImpl& NetSocketStreamImpl::on_next_connected( std::function<void( NetSocketStream )> listener ) {
+						this->emitter( )->add_listener( "connect", [obj = this->get_weak_ptr( ), cb = listener]( ) {
+							if( auto self = obj.lock( ) ) {
+								cb( self );
+							}
+						}, true );
 						return *this;
 					}
 
