@@ -37,7 +37,7 @@ namespace daw {
 
 				std::string HttpHeader::to_string( ) const {
 					return name + ": " + value;
-					//return daw::string::string_format( "{0}: {1}", name, value );
+					//return daw::string::fmt( "{0}: {1}", name, value );
 				}
 
 				bool HttpHeader::empty( ) const {
