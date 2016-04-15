@@ -48,14 +48,14 @@ namespace daw {
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Event emitted when a pending write is completed
-					Derived& on_write_completion( std::function<void( )> listener ) {
+					Derived& on_write_completion( std::function<void( std::shared_ptr<Derived> )> listener ) {
 						derived_emitter( )->add_listener( "write_completion", listener );
 						return derived( );
 					}
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Event emitted when the next pending write is completed
-					Derived& on_next_write_completion( std::function<void( )> listener ) {
+					Derived& on_next_write_completion( std::function<void( std::shared_ptr<Derived> )> listener ) {
 						derived_emitter( )->add_listener( "write_completion", listener );
 						return derived( );
 					}
@@ -63,7 +63,7 @@ namespace daw {
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Event emitted when end( ... ) has been called and all
 					///				data has been flushed
-					Derived& on_all_writes_completed( std::function<void( )> listener ) {
+					Derived& on_all_writes_completed( std::function<void( std::shared_ptr<Derived> )> listener ) {
 						derived_emitter( )->add_listener( "all_writes_completed", listener );
 						return derived( );
 					}
@@ -97,35 +97,35 @@ namespace daw {
 				public:
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Event emitted when data is received
-					Derived& on_data_received( std::function<void( std::shared_ptr<base::data_t>, bool )> listener ) {
+					Derived& on_data_received( std::function<void( std::shared_ptr<Derived>, std::shared_ptr<base::data_t>, bool )> listener ) {
 						derived_emitter( )->add_listener( "data_received", listener );
 						return derived( );
 					}
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Event emitted when data is received
-					Derived& on_next_data_received( std::function<void( std::shared_ptr<base::data_t>, bool )> listener ) {
+					Derived& on_next_data_received( std::function<void( std::shared_ptr<Derived>, std::shared_ptr<base::data_t>, bool )> listener ) {
 						derived_emitter( )->add_listener( "data_received", listener, true );
 						return derived( );
 					}
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Event emitted when of of stream is read.
-					Derived& on_eof( std::function<void( )> listener ) {
+					Derived& on_eof( std::function<void( std::shared_ptr<Derived> )> listener ) {
 						derived_emitter( )->add_listener( "eof", listener );
 						return derived( );
 					}
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Event emitted when of of stream is read.
-					Derived& on_next_eof( std::function<void( )> listener ) {
+					Derived& on_next_eof( std::function<void( std::shared_ptr<Derived> )> listener ) {
 						derived_emitter( )->add_listener( "eof", listener, true );
 						return derived( );
 					}
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Event emitted when the stream is closed
-					Derived& on_closed( std::function<void( )> listener ) {
+					Derived& on_closed( std::function<void( std::shared_ptr<Derived> )> listener ) {
 						derived_emitter( )->add_listener( "closed", listener );
 						return derived( );
 					}
