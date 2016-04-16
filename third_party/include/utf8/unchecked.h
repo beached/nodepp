@@ -222,7 +222,7 @@ namespace utf8
 
 			template<typename Distance>
 			iterator & operator+=( Distance const n ) {
-				std::advance( *this, n );
+				std::advance( *this, static_cast<difference_type>(n) );
 				return *this;
 			}
 

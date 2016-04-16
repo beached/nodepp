@@ -80,6 +80,7 @@ namespace daw {
 									//auto const & query = request->request_line.url.query;
 									if( sizeof...(Argument)> 0 ) {
 										if( auto const & query = request->request_line.url.query ) {
+
 										} else if( request->body ) {
 										}
 									} else if( !self.expired( ) ) {
@@ -89,9 +90,14 @@ namespace daw {
 
 									break;
 								}
+								case daw::nodepp::lib::http::HttpClientRequestMethod::Any:
+								case daw::nodepp::lib::http::HttpClientRequestMethod::Connect:
+								case daw::nodepp::lib::http::HttpClientRequestMethod::Delete:
+								case daw::nodepp::lib::http::HttpClientRequestMethod::Head:
+								case daw::nodepp::lib::http::HttpClientRequestMethod::Options:
 								case daw::nodepp::lib::http::HttpClientRequestMethod::Post:
-
-									break;
+								case daw::nodepp::lib::http::HttpClientRequestMethod::Put:
+								case daw::nodepp::lib::http::HttpClientRequestMethod::Trace:
 								default:
 									throw std::runtime_error( "Web Service HTTP Method not implemented" );
 								}

@@ -115,8 +115,8 @@ namespace daw {
 				// compare the two ranges to the length of the shortest
 				while( first1 != last1 && first2 != last2 ) {
 					using v_type = largest_t<decltype(*first1), decltype(*first2)>;
-					v_type const value1 = *first1;
-					v_type const value2 = *first2;
+					v_type const value1 = static_cast<v_type>(*first1);
+					v_type const value2 = static_cast<v_type>(*first2);
 
 					if( value1 != value2 ) {
 						return false;
