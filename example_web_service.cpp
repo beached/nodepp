@@ -75,8 +75,8 @@ int main( int, char const ** ) {
 
 		auto schema_json = daw::json::generate::value_to_json( "", schema );
 
-		response->on_all_writes_completed( [response]( ) mutable {
-			response->close( );
+		response->on_all_writes_completed( []( auto resp ) mutable {
+			resp->close( );
 		} ).send_status( 200 )
 			.add_header( "Content-Type", "application/json" )
 			.add_header( "Connection", "close" )

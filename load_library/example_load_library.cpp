@@ -6,7 +6,7 @@
 
 #include "load_library.h"
 #include "plugin_base.h"
-#include "range_algorithm.h"
+#include "daw_range_algorithm.h"
 
 using namespace daw::algorithm;
 

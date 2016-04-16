@@ -30,7 +30,7 @@
 #include "lib_http.h"
 #include "lib_http_headers.h"
 #include "lib_http_server_response.h"
-#include "range_algorithm.h"
+#include "daw_range_algorithm.h"
 #include "daw_string.h"
 
 namespace daw {
@@ -52,11 +52,11 @@ namespace daw {
 					void HttpServerResponseImpl::start( ) {
 						auto obj = this->get_weak_ptr( );
 						on_socket_if_valid( [obj]( lib::net::NetSocketStream socket ) {
-							socket->on_write_completion( [obj]( ) {
+							socket->on_write_completion( [obj]( auto ) {
 								if( !obj.expired( ) ) {
 									obj.lock( )->emit_write_completion( );
 								}
-							} ).on_all_writes_completed( [obj]( ) {
+							} ).on_all_writes_completed( [obj]( auto ) {
 								if( !obj.expired( ) ) {
 									obj.lock( )->emit_all_writes_completed( );
 								}

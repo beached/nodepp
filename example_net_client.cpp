@@ -88,7 +88,7 @@ int main( int argc, char const ** argv ) {
 		ctx.set_options( context::default_workarounds | context::single_dh_use );
 	}
 
-	auto on_data_received = [sck = socket, &current_state]( auto data_buffer, bool ) mutable {
+	auto on_data_received = [&current_state]( auto sck, auto data_buffer, bool ) mutable {
 		if( !data_buffer ) {
 			return;
 		}
