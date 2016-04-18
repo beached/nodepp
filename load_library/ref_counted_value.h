@@ -36,8 +36,17 @@ namespace daw {
 	public:
 		
 		template<typename... Args>
-		ReferenceCountedValue( Args&&... args ) : m_value{ new T( std::forward<Args&&>( args )... ) }, m_counter{ new counter_t( ) }, m_cleaner{ nullptr } {
-			daw::exception::daw_throw_on_null( m_counter, "Unable to allocate value" );
+		ReferenceCountedValue( Args&&... args ) : m_value{ nullptr }, m_counter{ nullptr }, m_cleaner{ nullptr } {
+			m_value = new T( std::forward<Args&&>( args )... );
+			try {
+				m_counter = new counter_t( );
+				daw::exception::daw_throw_on_null( m_counter, "Unable to allocate value" );
+			} catch( ... ) {
+				if( m_value ) {
+					delete m_value;
+				}
+				throw;
+			}
 			*m_counter = 1;
 		}
 
