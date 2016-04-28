@@ -97,14 +97,14 @@ namespace daw {
 				public:
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Event emitted when data is received
-					Derived & on_data_received( ::std::function<void( ::std::shared_ptr<Derived>, ::std::shared_ptr<base::data_t>, bool )> listener ) {
+					Derived & on_data_received( ::std::function<void( ::std::shared_ptr<base::data_t>, bool )> listener ) {
 						derived_emitter( )->add_listener( "data_received", listener );
 						return derived( );
 					}
 
 					//////////////////////////////////////////////////////////////////////////
 					/// Summary:	Event emitted when data is received
-					Derived & on_next_data_received( ::std::function<void( ::std::shared_ptr<Derived>, ::std::shared_ptr<base::data_t>, bool )> listener ) {
+					Derived & on_next_data_received( ::std::function<void( ::std::shared_ptr<base::data_t>, bool )> listener ) {
 						derived_emitter( )->add_listener( "data_received", listener, true );
 						return derived( );
 					}
@@ -134,7 +134,7 @@ namespace daw {
 					/// Summary:	Emit an event with the data received and whether the eof
 					///				has been reached
 					void emit_data_received( ::std::shared_ptr<daw::nodepp::base::data_t> buffer, bool end_of_file ) {
-						derived_emitter( )->emit( "data_received", derived( )->get_shared_ptr( ) ::std::move( buffer ), end_of_file );
+						derived_emitter( )->emit( "data_received", ::std::move( buffer ), end_of_file );
 					}
 
 					//////////////////////////////////////////////////////////////////////////

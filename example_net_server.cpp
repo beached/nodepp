@@ -69,29 +69,32 @@ int main( int argc, char const ** argv ) {
 	srv->on_connection( [&]( NetSocketStream socket ) {
 		std::cout <<"Connection from: " <<socket->remote_address( ) <<":" <<socket->remote_port( ) <<std::endl;
 
-		socket->on_data_received( []( auto sck, std::shared_ptr<daw::nodepp::base::data_t> data_buffer, bool ) mutable {
-			if( data_buffer ) {
-				auto const msg = daw::AsciiLower( daw::string::trim_copy( std::string { data_buffer->begin( ), data_buffer->end( ) } ) );
-				if( msg == "quit" ) {
-					sck->end( "GOOD-BYTE\r\n" );
-				} else if( msg == "dir" ) {
-					sck <<get_directory_listing( "." ) <<"\r\nREADY\r\n";
-				} else if( msg == "help" ) {
-					sck << "quit - close connection\r\n";
-					sck << "dir - show directory listing\r\n";
-					sck << "help - this message\r\n";
-					sck << "READY\r\n";
-				} else if( msg == "starttls" ) {
-					NetSocketStream local_socket = sck;
-					sck->socket( ).async_handshake( impl::BoostSocket::BoostSocketValueType::handshake_type::server, [local_socket]( auto const & error ) mutable {
-						if( error ) {
-							std::cerr <<"Error starting encryption: " << error <<": " <<error.message( ) <<std::endl;
-							return;
-						}
-						local_socket << "Encryption enabled\r\n";
-					} );
-				} else {
-					sck <<"SYNTAX ERROR\r\n\nREADY\r\n";
+		socket->on_data_received( [obj=socket->get_weak_ptr( )]( std::shared_ptr<daw::nodepp::base::data_t> data_buffer, bool ) mutable {
+
+			if( auto sck = obj.lock( ) ) {
+				if( data_buffer ) {
+					auto const msg = daw::AsciiLower( daw::string::trim_copy( std::string { data_buffer->begin( ), data_buffer->end( ) } ) );
+					if( msg == "quit" ) {
+						sck->end( "GOOD-BYTE\r\n" );
+					} else if( msg == "dir" ) {
+						sck << get_directory_listing( "." ) << "\r\nREADY\r\n";
+					} else if( msg == "help" ) {
+						sck << "quit - close connection\r\n";
+						sck << "dir - show directory listing\r\n";
+						sck << "help - this message\r\n";
+						sck << "READY\r\n";
+					} else if( msg == "starttls" ) {
+						NetSocketStream local_socket = sck;
+						sck->socket( ).async_handshake( impl::BoostSocket::BoostSocketValueType::handshake_type::server, [local_socket]( auto const & error ) mutable {
+							if( error ) {
+								std::cerr << "Error starting encryption: " << error << ": " << error.message( ) << std::endl;
+								return;
+							}
+							local_socket << "Encryption enabled\r\n";
+						} );
+					} else {
+						sck << "SYNTAX ERROR\r\n\nREADY\r\n";
+					}
 				}
 			}
 		} ).on_error( []( auto error ) {
