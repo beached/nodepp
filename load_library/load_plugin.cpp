@@ -42,7 +42,7 @@ namespace daw {
 
 			std::vector<boost::filesystem::path> get_files_in_folder( boost::string_ref folder, std::vector<std::string> const & extensions ) {
 				namespace fs = boost::filesystem;
-				auto result = std::vector <fs::path> { };
+				std::vector<boost::filesystem::path> result;
 				auto p = fs::path( folder.data( ) );
 
 				if( fs::exists( p ) && fs::is_directory( p ) ) {
