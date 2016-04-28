@@ -74,7 +74,8 @@ namespace daw {
 							} else {
 								throw std::runtime_error( "Null buffer passed to NetSocketStream->on_data_received event" );
 							}
-						} ).delegate_to( "closed", obj, "closed" )
+						} )
+							.delegate_to( "closed", obj, "closed" )
 							.on_error( obj, "HttpConnectionImpl::start" )
 							.set_read_mode( lib::net::NetSocketStreamReadMode::double_newline );
 
