@@ -88,22 +88,21 @@ int main( int argc, char const ** argv ) {
 		ctx.set_options( context::default_workarounds | context::single_dh_use );
 	}
 
-	auto on_data_received = [&current_state]( auto sck, auto data_buffer, bool ) mutable {
-		if( !data_buffer ) {
-			return;
-		}
-		auto const msg = std::string { data_buffer->begin( ), data_buffer->end( ) };
-		std::cout << msg;
-		current_state( sck );
-	};
-
+	
 	auto on_connected = []( auto sck ) {
 		std::cout << "Connection from: " << sck->remote_address( ) << ":" << sck->remote_port( ) << std::endl;
 		sck->read_async( );
 	};
 
 	socket->on_connected( on_connected );	
-	socket->on_data_received( on_data_received );
+	socket->on_data_received( [&current_state, sck=socket]( auto data_buffer, bool ) mutable {
+		if( !data_buffer ) {
+			return;
+		}
+		auto const msg = std::string { data_buffer->begin( ), data_buffer->end( ) };
+		std::cout << msg;
+		current_state( sck );
+	} );
 	socket->set_read_until_values( "READY\r\n", false );
 	socket->connect( host_name, port );
 
