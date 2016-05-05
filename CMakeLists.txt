@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.8.4)
 project(NodePP)
 
+include( ExternalProject )
 
 set(Boost_USE_STATIC_LIBS OFF) 
 set(Boost_USE_MULTITHREADED ON)  
@@ -25,20 +26,18 @@ if(THREADS_HAVE_PTHREAD_ARG)
 	set(COMPILER_SPECIFIC_LIBS, "-lpthread" )
 endif( )
 
-include(ExternalProject)
 ExternalProject_Add( 
 	header_libraries
 	GIT_REPOSITORY "https://github.com/beached/header_libraries.git"
 	SOURCE_DIR "${CMAKE_BINARY_DIR}/3rdparty/header_libraries"
 	GIT_TAG "master"
 	PATCH_COMMAND ""
-	INSTALL_COMMAND ""
+	INSTALL_DIR "${CMAKE_BINARY_DIR}/install"
 	TEST_COMMAND ""
-)
+	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/install
+ )
 
-set( header_libraries_include "${CMAKE_BINARY_DIR}/3rdparty/header_libraries" )
-set_property( GLOBAL PROPERTY header_libraries_include ${header_libraries_include} )
-include_directories( SYSTEM ${header_libraries_include} )
+include_directories( SYSTEM "${CMAKE_BINARY_DIR}/install/include" )
 
 add_subdirectory( ./lib_nodepp )
 add_dependencies( lib_nodepp header_libraries )

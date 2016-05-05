@@ -28,7 +28,7 @@
 #include <memory>
 #include <thread>
 
-#include "daw_semaphore.h"
+#include <daw/daw_semaphore.h>
 #include "base_event_emitter.h"
 #include "concurrent_queue.h"
 
