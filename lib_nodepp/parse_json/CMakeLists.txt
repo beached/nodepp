@@ -2,6 +2,8 @@ cmake_minimum_required( VERSION 2.8.0 )
 
 project( parse_json )
 
+include( ExternalProject )
+
 find_package( Boost 1.59.0 COMPONENTS system filesystem regex unit_test_framework REQUIRED )
 set( Boost_Libs ${BOOST_Libraries} -lboost_system -lboost_regex -lboost_filesystem -lboost_program_options -lboost_unit_test_framework )
 
@@ -15,6 +17,34 @@ elseif( ${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" )
 	find_package( Threads REQUIRED )
 	set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -g -O3 -Wall -Wno-deprecated-declarations" )
 endif( )
+
+ExternalProject_Add( 
+	char_range
+	GIT_REPOSITORY "https://github.com/beached/char_range.git"
+	SOURCE_DIR "${CMAKE_BINARY_DIR}/3rdparty/char_range"
+	GIT_TAG "master"
+	PATCH_COMMAND ""
+	INSTALL_DIR "${CMAKE_BINARY_DIR}/install"
+	TEST_COMMAND ""
+	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/install
+ )
+
+ExternalProject_Add( 
+	header_libraries
+	GIT_REPOSITORY "https://github.com/beached/header_libraries.git"
+	SOURCE_DIR "${CMAKE_BINARY_DIR}/3rdparty/header_libraries"
+	GIT_TAG "master"
+	PATCH_COMMAND ""
+	INSTALL_DIR "${CMAKE_BINARY_DIR}/install"
+	TEST_COMMAND ""
+	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/install
+ )
+
+include_directories( SYSTEM "${CMAKE_BINARY_DIR}/install/include" )
+link_directories( "${CMAKE_BINARY_DIR}/install/lib" )
+
+include_directories( SYSTEM ${Boost_INCLUDE_DIRS} )
+link_directories( ${Boost_LIBRARY_DIRS} )
 
 set( HEADER_FILES
 	daw_json.h
@@ -30,13 +60,7 @@ set( SOURCE_FILES
 	daw_json_parser.cpp
  )
 
-include_directories( ../../header_libraries )
-include_directories( ../../char_range )
-include_directories( SYSTEM ${Boost_INCLUDE_DIRS} )
-link_directories( ${Boost_LIBRARY_DIRS} )
-
 add_library ( parse_json STATIC ${HEADER_FILES} ${SOURCE_FILES} )
-
 install( TARGETS parse_json DESTINATION lib )
 
 foreach( CUR_PREFIX ${HEADER_FILES} )

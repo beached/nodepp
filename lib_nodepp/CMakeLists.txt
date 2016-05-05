@@ -2,6 +2,8 @@ cmake_minimum_required( VERSION 2.8.4 )
 
 project( lib_nodepp )
 
+include( ExternalProject )
+
 find_package( Boost 1.59.0 COMPONENTS system filesystem regex unit_test_framework REQUIRED )
 find_package( OpenSSL REQUIRED )
 

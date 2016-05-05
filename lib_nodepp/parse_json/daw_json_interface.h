@@ -31,7 +31,7 @@
 #include <utility>
 
 #include "daw_json_parser.h"
-#include "daw_traits.h"
+#include <daw/daw_traits.h>
 
 namespace daw {
 	namespace json {

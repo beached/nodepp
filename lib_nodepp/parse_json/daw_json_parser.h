@@ -30,7 +30,7 @@
 #include <vector>
 
 #include <daw/daw_common_mixins.h>
-#include <daw/daw_char_range.h>
+#include <daw/char_range/daw_char_range.h>
 
 namespace daw {
 	namespace json {

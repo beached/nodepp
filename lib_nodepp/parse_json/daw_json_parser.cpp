@@ -29,8 +29,8 @@
 
 #include "daw_json_interface.h"
 #include "daw_json_parser.h"
-#include "daw_char_range.h"
-#include <daw_range.h>
+#include <daw/char_range/daw_char_range.h>
+#include <daw/daw_range.h>
 
 namespace daw {
 	namespace json {

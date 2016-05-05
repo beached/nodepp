@@ -25,8 +25,33 @@ set( SOURCE_FILES
 	daw_parse_template.cpp
  )
 
+ExternalProject_Add( 
+	header_libraries
+	GIT_REPOSITORY "https://github.com/beached/header_libraries.git"
+	SOURCE_DIR "${CMAKE_BINARY_DIR}/3rdparty/header_libraries"
+	GIT_TAG "master"
+	PATCH_COMMAND ""
+	INSTALL_DIR "${CMAKE_BINARY_DIR}/install"
+	TEST_COMMAND ""
+	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/install
+ )
+
+ExternalProject_Add(
+	char_range
+	GIT_REPOSITORY "https://github.com/beached/char_range.git"
+	SOURCE_DIR "${CMAKE_BINARY_DIR}/3rdparty/char_range"
+	GIT_TAG "master"
+	PATCH_COMMAND ""
+	INSTALL_DIR "${CMAKE_BINARY_DIR}/install"
+	TEST_COMMAND ""
+	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/install
+ )
+
+include_directories( SYSTEM "${CMAKE_BINARY_DIR}/install/include" )
+link_directories( "${CMAKE_BINARY_DIR}/install/lib" )
+
 include_directories( ../lib_nodepp )
-include_directories( ../char_range )
+
 include_directories( SYSTEM ${Boost_INCLUDE_DIRS} )
 link_directories( ${Boost_LIBRARY_DIRS} )
 
