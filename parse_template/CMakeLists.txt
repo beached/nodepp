@@ -31,7 +31,7 @@ link_directories( ${Boost_LIBRARY_DIRS} )
 
 add_library (parse_template STATIC ${SOURCE_FILES})
 
-enable_testing( )
+#enable_testing( )
 
 #add_executable( parse_template_test_bin parse_template_test.cpp )
 #target_link_libraries( parse_template_test_bin parse_template ${Boost_Libs} )

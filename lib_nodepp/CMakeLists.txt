@@ -24,7 +24,7 @@ set( header_libraries_include "${CMAKE_BINARY_DIR}/3rdparty/header_libraries" )
 set_property( GLOBAL PROPERTY header_libraries_include ${header_libraries_include} )
 include_directories( SYSTEM ${header_libraries_include} )
 
-enable_testing( )
+#enable_testing( )
 
 add_subdirectory( ./parse_json )
 add_dependencies( parse_json header_libraries )

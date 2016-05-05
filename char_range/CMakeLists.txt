@@ -26,5 +26,5 @@ link_directories( ${Boost_LIBRARY_DIRS} )
 
 add_library( char_range STATIC ${SOURCE_FILES} )
 
-enable_testing( )
+#enable_testing( )
 
