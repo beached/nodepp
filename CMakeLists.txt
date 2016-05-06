@@ -48,50 +48,62 @@ ExternalProject_Add(
 	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/install
  )
 
+ExternalProject_Add(
+	parse_json
+	GIT_REPOSITORY "https://github.com/beached/parse_json.git"
+	SOURCE_DIR "${CMAKE_BINARY_DIR}/3rdparty/parse_json"
+	GIT_TAG "master"
+	PATCH_COMMAND ""
+	INSTALL_DIR "${CMAKE_BINARY_DIR}/install"
+	TEST_COMMAND ""
+	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/install
+ )
+
 include_directories( SYSTEM "${CMAKE_BINARY_DIR}/install/include" )
 link_directories( "${CMAKE_BINARY_DIR}/install/lib" )
 
 add_subdirectory( ./lib_nodepp )
-add_dependencies( lib_nodepp header_libraries )
-add_subdirectory( ./load_library )
-add_dependencies( load_library header_libraries )
 add_subdirectory( ./parse_template )
-add_dependencies( parse_template header_libraries )
-add_subdirectory( ./char_range ${CMAKE_CURRENT_BINARY_DIR}/char_range )
 
 include_directories( ./lib_nodepp )
-include_directories( ./lib_nodepp/parse_json )
 include_directories( ./parse_template )
-include_directories( ./char_range )
+
 include_directories( SYSTEM ${Boost_INCLUDE_DIRS} )
 link_directories( ${Boost_LIBRARY_DIRS} )
 include_directories( SYSTEM ${OPENSSL_INCLUDE_DIR} )
 
 add_executable(example_net_server example_net_server.cpp )
-target_link_libraries(example_net_server char_range lib_nodepp ${CMAKE_DL_LIBS} ${Boost_Libs} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
+target_link_libraries(example_net_server lib_nodepp ${CMAKE_DL_LIBS} ${Boost_Libs} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
+add_dependencies( example_net_server header_libraries char_range )
 add_test( example_net_server_test, example_net_server )
 
 add_executable(example_net_client example_net_client.cpp )
-target_link_libraries(example_net_client char_range lib_nodepp ${Boost_Libs} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
+target_link_libraries(example_net_client lib_nodepp ${Boost_Libs} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
+add_dependencies( example_net_client header_libraries char_range )
 add_test( example_net_client_test, example_net_client )
 
 add_executable(example_web_service example_web_service.cpp )
-target_link_libraries(example_web_service char_range lib_nodepp parse_json ${CMAKE_DL_LIBS} ${Boost_Libs} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
+target_link_libraries(example_web_service lib_nodepp ${CMAKE_DL_LIBS} ${Boost_Libs} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
+add_dependencies( example_web_service header_libraries char_range parse_json )
 add_test( example_web_service_test, example_web_service )
 
 add_executable(example_web_client example_web_client.cpp )
-target_link_libraries(example_web_client lib_nodepp parse_json char_range ${CMAKE_DL_LIBS} ${Boost_Libs} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
+target_link_libraries(example_web_client lib_nodepp ${CMAKE_DL_LIBS} ${Boost_Libs} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
+add_dependencies( example_web_client header_libraries char_range parse_json )
 add_test( example_web_client_test, example_web_client )
 
 add_executable(example_event_emitter example_event_emitter.cpp )
-target_link_libraries(example_event_emitter char_range lib_nodepp ${CMAKE_DL_LIBS} ${Boost_Libs} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
+target_link_libraries(example_event_emitter lib_nodepp ${CMAKE_DL_LIBS} ${Boost_Libs} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
+add_dependencies( example_event_emitter header_libraries char_range )
 add_test( example_event_emitter_test, example_event_emitter )
 
 add_executable(example_parse_json example_parse_json.cpp )
-target_link_libraries(example_parse_json parse_json char_range ${CMAKE_DL_LIBS} ${Boost_Libs} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
+target_link_libraries(example_parse_json ${CMAKE_DL_LIBS} ${Boost_Libs} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
+add_dependencies( example_event_emitter header_libraries parse_json char_range )
 add_test( example_parse_json_test, example_parse_json )
 
 add_executable(example_parse_template example_parse_template.cpp )
-target_link_libraries(example_parse_template parse_template char_range ${CMAKE_DL_LIBS} ${Boost_Libs} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
+target_link_libraries(example_parse_template parse_template ${CMAKE_DL_LIBS} ${Boost_Libs} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
+add_dependencies( example_parse_template header_libraries char_range )
 add_test( example_parse_template_test, example_parse_template )
 
