@@ -22,8 +22,41 @@ if( THREADS_HAVE_PTHREAD_ARG )
 	set( COMPILER_SPECIFIC_LIBS, "-lpthread" )
 endif( )
 
-add_subdirectory( ./parse_json )
-#add_dependencies( parse_json )
+ExternalProject_Add(
+    header_libraries
+    GIT_REPOSITORY "https://github.com/beached/header_libraries.git"
+    SOURCE_DIR "${CMAKE_BINARY_DIR}/3rdparty/header_libraries"
+    GIT_TAG "master"
+    PATCH_COMMAND ""
+    INSTALL_DIR "${CMAKE_BINARY_DIR}/install"
+    TEST_COMMAND ""
+    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/install
+)
+
+ExternalProject_Add(
+    parse_json
+    GIT_REPOSITORY "https://github.com/beached/parse_json.git"
+    SOURCE_DIR "${CMAKE_BINARY_DIR}/3rdparty/parse_json"
+    GIT_TAG "master"
+    PATCH_COMMAND ""
+    INSTALL_DIR "${CMAKE_BINARY_DIR}/install"
+    TEST_COMMAND ""
+    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/install
+)
+
+ExternalProject_Add(
+    char_range
+    GIT_REPOSITORY "https://github.com/beached/char_range.git"
+    SOURCE_DIR "${CMAKE_BINARY_DIR}/3rdparty/char_range"
+    GIT_TAG "master"
+    PATCH_COMMAND ""
+    INSTALL_DIR "${CMAKE_BINARY_DIR}/install"
+    TEST_COMMAND ""
+    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/install
+)
+
+include_directories( SYSTEM "${CMAKE_BINARY_DIR}/install/include" )
+link_directories( "${CMAKE_BINARY_DIR}/install/lib" )
 
 set( HEADER_FILES
 		base_callback.h
@@ -87,14 +120,19 @@ set( SOURCE_FILES
 		lib_http_client_connection_options.cpp
  )
 
-include_directories( ../char_range )
 include_directories( SYSTEM ${Boost_INCLUDE_DIRS} )
 include_directories( SYSTEM ${OPENSSL_INCLUDE_DIR} )
 
-add_library ( lib_nodepp STATIC ${HEADER_FILES} ${SOURCE_FILES} )
-target_link_libraries( lib_nodepp parse_json ${Boost_Libraries} ${OPENSSL_LIBRARIES} )
+add_library ( lib_nodepp_static STATIC ${HEADER_FILES} ${SOURCE_FILES} )
+add_library ( lib_nodepp SHARED ${HEADER_FILES} ${SOURCE_FILES} )
+target_link_libraries( lib_nodepp ${Boost_Libraries} ${OPENSSL_LIBRARIES} )
+target_link_libraries( lib_nodepp_static ${Boost_Libraries} ${OPENSSL_LIBRARIES} )
+
+add_dependencies( lib_nodepp_static header_libraries char_range parse_json )
+add_dependencies( lib_nodepp header_libraries char_range parse_json )
 
 install( TARGETS lib_nodepp DESTINATION lib )
+install( TARGETS lib_nodepp_static DESTINATION lib )
 
 foreach( CUR_PREFIX ${HEADER_FILES} )
 	install( FILES "${CUR_PREFIX}" DESTINATION include/daw/nodepp )

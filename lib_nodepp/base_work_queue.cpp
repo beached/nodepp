@@ -25,7 +25,7 @@
 #include <iostream>
 #include "base_error.h"
 #include "base_work_queue.h"
-#include "scope_guard.h"
+#include <daw/scope_guard.h>
 #include "base_service_handle.h"
 
 namespace daw {

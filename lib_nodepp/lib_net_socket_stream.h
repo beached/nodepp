@@ -34,7 +34,7 @@
 #include "base_stream.h"
 #include "base_types.h"
 #include "base_write_buffer.h"
-#include <daw/daw_semaphore.h>
+#include "daw_semaphore.h"
 #include "base_selfdestruct.h"
 #include "lib_net_dns.h"
 #include "lib_net_socket_boost_socket.h"
