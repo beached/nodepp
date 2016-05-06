@@ -59,6 +59,18 @@ ExternalProject_Add(
 	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/install
  )
 
+ExternalProject_Add(
+	parse_template
+	GIT_REPOSITORY "https://github.com/beached/parse_template.git"
+	SOURCE_DIR "${CMAKE_BINARY_DIR}/3rdparty/parse_template"
+	GIT_TAG "master"
+	PATCH_COMMAND ""
+	INSTALL_DIR "${CMAKE_BINARY_DIR}/install"
+	TEST_COMMAND ""
+	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/install
+ )
+
+
 include_directories( SYSTEM "${CMAKE_BINARY_DIR}/install/include" )
 link_directories( "${CMAKE_BINARY_DIR}/install/lib" )
 
@@ -103,7 +115,7 @@ add_dependencies( example_event_emitter header_libraries parse_json char_range )
 add_test( example_parse_json_test, example_parse_json )
 
 add_executable(example_parse_template example_parse_template.cpp )
-target_link_libraries(example_parse_template parse_template ${CMAKE_DL_LIBS} ${Boost_Libs} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
-add_dependencies( example_parse_template header_libraries char_range )
+target_link_libraries(example_parse_template ${CMAKE_DL_LIBS} ${Boost_Libs} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
+add_dependencies( example_parse_template header_libraries char_range parse_template )
 add_test( example_parse_template_test, example_parse_template )
 
