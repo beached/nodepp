@@ -71,9 +71,9 @@ ExternalProject_Add(
  )
 
 ExternalProject_Add(
-	lib_nodepp
-	GIT_REPOSITORY "https://github.com/beached/lib_nodepp.git"
-	SOURCE_DIR "${CMAKE_BINARY_DIR}/3rdparty/lib_nodepp"
+	nodepp
+	GIT_REPOSITORY "https://github.com/beached/nodepp.git"
+	SOURCE_DIR "${CMAKE_BINARY_DIR}/3rdparty/nodepp"
 	GIT_TAG "master"
 	PATCH_COMMAND ""
 	INSTALL_DIR "${CMAKE_BINARY_DIR}/install"
@@ -90,27 +90,27 @@ include_directories( SYSTEM ${OPENSSL_INCLUDE_DIR} )
 
 add_executable(example_net_server example_net_server.cpp )
 target_link_libraries(example_net_server ${CMAKE_DL_LIBS} ${Boost_Libs} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
-add_dependencies( example_net_server header_libraries char_range lib_nodepp )
+add_dependencies( example_net_server header_libraries char_range nodepp )
 add_test( example_net_server_test, example_net_server )
 
 add_executable(example_net_client example_net_client.cpp )
 target_link_libraries(example_net_client ${Boost_Libs} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
-add_dependencies( example_net_client header_libraries char_range lib_nodepp )
+add_dependencies( example_net_client header_libraries char_range nodepp )
 add_test( example_net_client_test, example_net_client )
 
 add_executable(example_web_service example_web_service.cpp )
 target_link_libraries(example_web_service ${CMAKE_DL_LIBS} ${Boost_Libs} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
-add_dependencies( example_web_service header_libraries char_range parse_json lib_nodepp )
+add_dependencies( example_web_service header_libraries char_range parse_json nodepp )
 add_test( example_web_service_test, example_web_service )
 
 add_executable(example_web_client example_web_client.cpp )
 target_link_libraries(example_web_client ${CMAKE_DL_LIBS} ${Boost_Libs} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
-add_dependencies( example_web_client header_libraries char_range parse_json lib_nodepp )
+add_dependencies( example_web_client header_libraries char_range parse_json nodepp )
 add_test( example_web_client_test, example_web_client )
 
 add_executable(example_event_emitter example_event_emitter.cpp )
 target_link_libraries(example_event_emitter ${CMAKE_DL_LIBS} ${Boost_Libs} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS})
-add_dependencies( example_event_emitter lib_nodepp header_libraries char_range )
+add_dependencies( example_event_emitter nodepp header_libraries char_range )
 add_test( example_event_emitter_test, example_event_emitter )
 
 add_executable(example_parse_json example_parse_json.cpp )
