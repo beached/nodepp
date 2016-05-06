@@ -23,7 +23,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <boost/program_options.hpp>
-#include "lib_net_socket_stream.h"
+#include <daw/nodepp/lib_net_socket_stream.h>
 
 int main( int argc, char const ** argv ) {
 	using namespace daw::nodepp;

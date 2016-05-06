@@ -23,13 +23,13 @@
 #include <cstdlib>
 #include <memory>
 
-#include "base_work_queue.h"
-#include "daw_json.h"
-#include "lib_http_request.h"
-#include "lib_http_site.h"
-#include "lib_http_webservice.h"
-#include "lib_net_server.h"
-#include "parse_json/daw_json_link.h"
+#include <daw/nodepp/base_work_queue.h>
+#include <daw/parse_json/daw_json.h>
+#include <daw/nodepp/lib_http_request.h>
+#include <daw/nodepp/lib_http_site.h>
+#include <daw/nodepp/lib_http_webservice.h>
+#include <daw/nodepp/lib_net_server.h>
+#include <daw/parse_json/daw_json_link.h>
 
 template<typename Container, typename T>
 void if_exists_do( Container & container, T const & key, std::function<void( typename Container::iterator it )> action ) {

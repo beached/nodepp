@@ -24,8 +24,8 @@
 #include <memory>
 #include <iostream>
 
-#include "daw_json.h"
-#include "lib_http_client.h"
+#include <daw/parse_json/daw_json.h>
+#include <daw/nodepp/lib_http_client.h>
 
 int main( int, char ** ) {
 	using namespace daw::nodepp::lib;

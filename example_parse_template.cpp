@@ -22,7 +22,7 @@
 
 #include <cstdlib>
 
-#include "daw_parse_template.h"
+#include <daw/parse_template/daw_parse_template.h>
 #include <iostream>
 #include <boost/iostreams/device/mapped_file.hpp>
 
