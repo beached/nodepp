@@ -88,7 +88,7 @@ link_directories( ${Boost_LIBRARY_DIRS} )
 include_directories( SYSTEM ${OPENSSL_INCLUDE_DIR} )
 
 set( NODEPP_DEPS header_libraries_prj char_range_prj parse_json_prj lib_nodepp_prj )
-set( NODEPP_LIBS nodepp parse_json char_range ${Library_Dependencies} )
+set( NODEPP_LIBS nodepp char_range parse_json ${Library_Dependencies} )
 
 add_executable( example_net_server example_net_server.cpp )
 target_link_libraries( example_net_server ${NODEPP_LIBS} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS} )
