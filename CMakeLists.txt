@@ -10,7 +10,7 @@ find_package( Boost 1.59.0 REQUIRED COMPONENTS system filesystem regex unit_test
 find_package( OpenSSL REQUIRED )
 set( Library_Dependencies ${BOOST_Libraries} -lboost_system -lboost_regex -lboost_filesystem -lboost_program_options -lboost_iostreams ${OPENSSL_LIBRARIES} )
 
-if( ${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC" )
+if( ${CMAKE_CXX_COMPILER_ID} STREQUAL 'MSVC' )
 	set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_WIN32_WINNT=0x0601 /MP" )
 	set( Library_Dependencies )
 elseif( ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang" )
