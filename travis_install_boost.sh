@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-BOOST_VERSION="1_60_0"
+BOOST_VERSION="1_61_0"
 
 # PREREQS:  BOOST_ROOT, CC, CXXFLAGS, LINKFLAGS
 
@@ -15,7 +15,7 @@ if [ ! -d "${BOOST_ROOT}" ]; then
 	cd /tmp
 	if [ ! -f "/tmp/${BOOST_FILE}" ]; then
 		echo "Downloading Boost"
-		wget -O "${BOOST_FILE}" "https://sourceforge.net/projects/boost/files/boost/1.60.0/boost_${BOOST_VERSION}.tar.bz2/download"
+		wget -O "${BOOST_FILE}" "https://sourceforge.net/projects/boost/files/boost/1.61.0/boost_${BOOST_VERSION}.tar.bz2/download"
 	fi
 	cd "/tmp/${BUILD_TYPE}"
 	echo "Expanding ${BOOST_FILE}" into `pwd`
