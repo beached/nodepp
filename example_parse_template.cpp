@@ -21,11 +21,9 @@
 // SOFTWARE.
 
 #include <cstdlib>
-
-#include <daw/parse_template/daw_parse_template.h>
 #include <iostream>
-#include <boost/iostreams/device/mapped_file.hpp>
-
+#include <daw/parse_template/daw_parse_template.h>
+#include <daw/daw_memory_mapped_file.h>
 
 int main( int argc, char const ** argv ) {
 	using namespace daw::parse_template;
@@ -35,8 +33,7 @@ int main( int argc, char const ** argv ) {
 		exit( EXIT_FAILURE );
 	}
 
-	boost::iostreams::mapped_file_source template_str;
-	template_str.open( argv[1] );
+	daw::filesystem::MemoryMappedFile<char> template_str( argv[1] );
 	if( !template_str.is_open( ) ) {
 		std::cerr << "Error opening file: " << argv[1] << std::endl;
 		exit( EXIT_FAILURE );

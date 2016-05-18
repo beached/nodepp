@@ -21,8 +21,8 @@
 // SOFTWARE.
 
 #include <daw/parse_json/daw_json_parser.h>
+#include <daw/daw_memory_mapped_file.h>
 #include <cstdlib>
-#include <boost/iostreams/device/mapped_file.hpp>
 #include <iostream>
 #include <chrono>
 
@@ -32,9 +32,7 @@ int main( int argc, char** argv ) {
 		exit( EXIT_FAILURE );
 	}
 
-
-	boost::iostreams::mapped_file_source json_str;
-	json_str.open( argv[1] );
+	daw::filesystem::MemoryMappedFile<char> json_str( argv[1] );
 	if( !json_str.is_open( ) ) {
 		std::cerr <<"Error opening file: " <<argv[1] <<std::endl;
 		exit( EXIT_FAILURE );
@@ -49,7 +47,7 @@ int main( int argc, char** argv ) {
 
 	start = std::chrono::system_clock::now( );
 
-	auto json = parse_json( json_str.begin( ), json_str.end( ) );
+	auto json = parse_json( json_str.cbegin( ), json_str.cend( ) );
 
 	end = std::chrono::system_clock::now( );
 
