@@ -24,11 +24,17 @@ ELSE( )
 	ENDIF()
 ENDIF()
 
+if( ${BINARY_DIR} MATCHES "/binary$" )
+    set( DEP_BINARY_DIR "${CMAKE_BINARY_DIR}" )
+else( )
+    set( DEP_BINARY_DIR "${CMAKE_BINARY_DIR}/binary" )
+endif( )
+
 externalproject_add( 
 	header_libraries_prj
 	GIT_REPOSITORY "https://github.com/beached/header_libraries.git"
 	SOURCE_DIR "${CMAKE_BINARY_DIR}/dependencies/header_libraries"
-	BINARY_DIR "${CMAKE_BINARY_DIR}"
+	BINARY_DIR "${DEP_BINARY_DIR}"
 	GIT_TAG "master"
 	PATCH_COMMAND ""
 	INSTALL_DIR "${CMAKE_BINARY_DIR}/install"
@@ -40,7 +46,7 @@ externalproject_add(
 	char_range_prj
 	GIT_REPOSITORY "https://github.com/beached/char_range.git"
 	SOURCE_DIR "${CMAKE_BINARY_DIR}/dependencies/char_range"
-	BINARY_DIR "${CMAKE_BINARY_DIR}"
+	BINARY_DIR "${DEP_BINARY_DIR}"
 	GIT_TAG "master"
 	PATCH_COMMAND ""
 	INSTALL_DIR "${CMAKE_BINARY_DIR}/install"
@@ -52,7 +58,7 @@ externalproject_add(
 	parse_json_prj
 	GIT_REPOSITORY "https://github.com/beached/parse_json.git"
 	SOURCE_DIR "${CMAKE_BINARY_DIR}/dependencies/parse_json"
-	BINARY_DIR "${CMAKE_BINARY_DIR}"
+	BINARY_DIR "${DEP_BINARY_DIR}"
 	GIT_TAG "master"
 	PATCH_COMMAND ""
 	INSTALL_DIR "${CMAKE_BINARY_DIR}/install"
@@ -64,7 +70,7 @@ externalproject_add(
 	parse_template_prj
 	GIT_REPOSITORY "https://github.com/beached/parse_template.git"
 	SOURCE_DIR "${CMAKE_BINARY_DIR}/dependencies/parse_template"
-	BINARY_DIR "${CMAKE_BINARY_DIR}"
+	BINARY_DIR "${DEP_BINARY_DIR}"
 	GIT_TAG "master"
 	PATCH_COMMAND ""
 	INSTALL_DIR "${CMAKE_BINARY_DIR}/install"
@@ -76,7 +82,7 @@ externalproject_add(
 	lib_nodepp_prj
 	GIT_REPOSITORY "https://github.com/beached/lib_nodepp.git"
 	SOURCE_DIR "${CMAKE_BINARY_DIR}/dependencies/lib_nodepp"
-	BINARY_DIR "${CMAKE_BINARY_DIR}"
+	BINARY_DIR "${DEP_BINARY_DIR}"
 	GIT_TAG "master"
 	PATCH_COMMAND ""
 	INSTALL_DIR "${CMAKE_BINARY_DIR}/install"
