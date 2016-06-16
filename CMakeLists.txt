@@ -33,65 +33,65 @@ endif( )
 externalproject_add( 
 	header_libraries_prj
 	GIT_REPOSITORY "https://github.com/beached/header_libraries.git"
-	SOURCE_DIR "${CMAKE_BINARY_DIR}/dependencies/header_libraries"
+	SOURCE_DIR "${DEP_BINARY_DIR}/dependencies/header_libraries"
 	BINARY_DIR "${DEP_BINARY_DIR}"
+	INSTALL_DIR "${DEP_BINARY_DIR}/install"
+	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${DEP_BINARY_DIR}/install
 	GIT_TAG "master"
 	PATCH_COMMAND ""
-	INSTALL_DIR "${CMAKE_BINARY_DIR}/install"
 	TEST_COMMAND ""
-	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/install
 )
 
 externalproject_add( 
 	char_range_prj
 	GIT_REPOSITORY "https://github.com/beached/char_range.git"
-	SOURCE_DIR "${CMAKE_BINARY_DIR}/dependencies/char_range"
+	SOURCE_DIR "${DEP_BINARY_DIR}/dependencies/char_range"
 	BINARY_DIR "${DEP_BINARY_DIR}"
+	INSTALL_DIR "${DEP_BINARY_DIR}/install"
+	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${DEP_BINARY_DIR}/install
 	GIT_TAG "master"
 	PATCH_COMMAND ""
-	INSTALL_DIR "${CMAKE_BINARY_DIR}/install"
 	TEST_COMMAND ""
-	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/install
 )
 
 externalproject_add( 
 	parse_json_prj
 	GIT_REPOSITORY "https://github.com/beached/parse_json.git"
-	SOURCE_DIR "${CMAKE_BINARY_DIR}/dependencies/parse_json"
+	SOURCE_DIR "${DEP_BINARY_DIR}/dependencies/parse_json"
 	BINARY_DIR "${DEP_BINARY_DIR}"
+	INSTALL_DIR "${DEP_BINARY_DIR}/install"
+	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${DEP_BINARY_DIR}/install
 	GIT_TAG "master"
 	PATCH_COMMAND ""
-	INSTALL_DIR "${CMAKE_BINARY_DIR}/install"
 	TEST_COMMAND ""
-	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/install
 )
 
 externalproject_add( 
 	parse_template_prj
 	GIT_REPOSITORY "https://github.com/beached/parse_template.git"
-	SOURCE_DIR "${CMAKE_BINARY_DIR}/dependencies/parse_template"
+	SOURCE_DIR "${DEP_BINARY_DIR}/dependencies/parse_template"
 	BINARY_DIR "${DEP_BINARY_DIR}"
+	INSTALL_DIR "${DEP_BINARY_DIR}/install"
+	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${DEP_BINARY_DIR}/install
 	GIT_TAG "master"
 	PATCH_COMMAND ""
-	INSTALL_DIR "${CMAKE_BINARY_DIR}/install"
 	TEST_COMMAND ""
-	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/install
 )
 
 externalproject_add( 
 	lib_nodepp_prj
 	GIT_REPOSITORY "https://github.com/beached/lib_nodepp.git"
-	SOURCE_DIR "${CMAKE_BINARY_DIR}/dependencies/lib_nodepp"
+	SOURCE_DIR "${DEP_BINARY_DIR}/dependencies/lib_nodepp"
 	BINARY_DIR "${DEP_BINARY_DIR}"
+	INSTALL_DIR "${DEP_BINARY_DIR}/install"
+	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${DEP_BINARY_DIR}/install
 	GIT_TAG "master"
 	PATCH_COMMAND ""
-	INSTALL_DIR "${CMAKE_BINARY_DIR}/install"
 	TEST_COMMAND ""
-	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/install
 )
 
-include_directories( SYSTEM "${CMAKE_BINARY_DIR}/install/include" )
-link_directories( "${CMAKE_BINARY_DIR}/install/lib" )
+include_directories( SYSTEM "${DEP_BINARY_DIR}/install/include" )
+link_directories( "${DEP_BINARY_DIR}/install/lib" )
 
 include_directories( SYSTEM ${Boost_INCLUDE_DIRS} )
 link_directories( ${Boost_LIBRARY_DIRS} )
