@@ -20,11 +20,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <daw/parse_json/daw_json_parser.h>
-#include <daw/daw_memory_mapped_file.h>
 #include <cstdlib>
 #include <iostream>
 #include <chrono>
+
+#include <daw/json/daw_json_parser.h>
+#include <daw/daw_memory_mapped_file.h>
 
 int main( int argc, char** argv ) {
 	if( argc <= 1 ) {
