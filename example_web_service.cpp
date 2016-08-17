@@ -60,6 +60,7 @@ int main( int, char const ** ) {
 	};
 
 	auto test = create_web_service( HttpClientRequestMethod::Get, "/people", ws_handler );
+	auto srv = create_http_server( );
 
 	auto site = create_http_site( );
 
@@ -85,7 +86,9 @@ int main( int, char const ** ) {
 		std::cerr <<error <<std::endl;
 	} ).on_page_error( 404, []( lib::http::HttpClientRequest request, lib::http::HttpServerResponse response, uint16_t ) {
 		response->end( "Johnny Five is alive\r\n" );
-	} ).listen_on( 8080 );
+	} );
+
+	site->listen_on( 8080 );
 
 	base::start_service( base::StartServiceMode::Single );
 	return EXIT_SUCCESS;
