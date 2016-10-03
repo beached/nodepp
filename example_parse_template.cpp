@@ -41,7 +41,7 @@ int main( int argc, char const ** argv ) {
 
 	boost::string_ref str { template_str.begin( ), template_str.size( ) };
 
-	auto p = createa_parse_template( template_str.begin( ), template_str.end( ) );
+	auto p = create_parse_template( template_str.begin( ), template_str.end( ) );
 
 	for( auto const & t : p.list_callbacks( ) ) {
 		std::cout << t << "\n";
