@@ -46,10 +46,45 @@ int main( int, char const ** ) {
 
 	struct X: public daw::json::JsonLink <X> {
 		int value;
-		X( int val = 0 ): value( std::move( val ) ) {
+
+		X( int val = 0 ): 
+				daw::json::JsonLink<X>{ },
+				value{ std::move( val ) } {
+
+			set_links( );
+		}
+	
+		~X( ) = default; 
+
+		X( X const & other ):
+				daw::json::JsonLink<X>{ },
+				value{ other.value } {
+
 			set_links( );
 		}
 
+		X( X && other ):
+				daw::json::JsonLink<X>{ },
+				value{ std::move( other.value ) } {
+
+			set_links( );
+		}
+
+		X & operator=( X const & rhs ) {
+			if( this != &rhs ) {
+				value = rhs.value;
+			}
+			return *this;
+		}
+
+		X & operator=( X && rhs ) {
+			if( this != &rhs ) {
+				value = std::move( rhs.value );
+			}
+			return *this;
+		}
+
+	private:
 		void set_links( ) {
 			link_integral( "value", value );
 		}
@@ -62,15 +97,15 @@ int main( int, char const ** ) {
 	auto test = create_web_service( HttpClientRequestMethod::Get, "/people", ws_handler );
 	auto srv = create_http_server( );
 
-	auto site = create_http_site( );
+	auto site = HttpSiteCreate( );
 
 	test->connect( site );
 
 	site->on_listening( []( daw::nodepp::lib::net::EndPoint endpoint ) {
 		std::cout <<"Listening on " <<endpoint <<"\n";
 	} ).on_requests_for( HttpClientRequestMethod::Get, "/", [&]( HttpClientRequest request, HttpServerResponse response ) {
-		auto req = request->encode( );
-		request->decode( req );
+		auto req = request->to_string( );
+		request->from_string( req );
 
 		auto schema = request->get_schema_obj( );
 

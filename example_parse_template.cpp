@@ -20,6 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <boost/utility/string_view.hpp>
 #include <cstdlib>
 #include <iostream>
 #include <daw/parse_template/daw_parse_template.h>
@@ -39,14 +40,14 @@ int main( int argc, char const ** argv ) {
 		exit( EXIT_FAILURE );
 	}
 
-	boost::string_ref str { template_str.begin( ), template_str.size( ) };
+	boost::string_view str { template_str.begin( ), template_str.size( ) };
 
 	auto p = create_parse_template( template_str.begin( ), template_str.end( ) );
 
 	for( auto const & t : p.list_callbacks( ) ) {
 		std::cout << t << "\n";
 	}
-	boost::string_ref t;
+	boost::string_view t;
 
 	p.add_callback( daw::range::create_char_range( "dummy_text_cb" ), []( ) { return std::string { "This is some dummy text" }; } );
 	p.add_callback( daw::range::create_char_range( "repeat_test" ), []( ) {
