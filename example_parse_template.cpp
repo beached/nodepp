@@ -34,7 +34,7 @@ int main( int argc, char const ** argv ) {
 		exit( EXIT_FAILURE );
 	}
 
-	daw::filesystem::MemoryMappedFile<char> template_str( argv[1] );
+	daw::filesystem::memory_mapped_file_t<char> template_str( argv[1] );
 	if( !template_str.is_open( ) ) {
 		std::cerr << "Error opening file: " << argv[1] << std::endl;
 		exit( EXIT_FAILURE );
