@@ -33,7 +33,7 @@ int main( int argc, char** argv ) {
 		exit( EXIT_FAILURE );
 	}
 
-	daw::filesystem::MemoryMappedFile<char> json_str( argv[1] );
+	daw::filesystem::memory_mapped_file_t<char> json_str( argv[1] );
 	if( !json_str.is_open( ) ) {
 		std::cerr <<"Error opening file: " <<argv[1] <<std::endl;
 		exit( EXIT_FAILURE );

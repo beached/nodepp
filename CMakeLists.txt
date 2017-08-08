@@ -24,9 +24,9 @@ else( )
 endif()
 
 if( ${BINARY_DIR} MATCHES "/binary$" )
-    set( DEP_BINARY_DIR "${CMAKE_BINARY_DIR}" )
+	set( DEP_BINARY_DIR "${CMAKE_BINARY_DIR}" )
 else( )
-    set( DEP_BINARY_DIR "${CMAKE_BINARY_DIR}/binary" )
+	set( DEP_BINARY_DIR "${CMAKE_BINARY_DIR}/binary" )
 endif( )
 
 externalproject_add( 
@@ -39,30 +39,30 @@ externalproject_add(
 )
 
 externalproject_add(
-    header_libraries_prj
-    GIT_REPOSITORY "https://github.com/beached/header_libraries.git"
-    SOURCE_DIR "${DEP_BINARY_DIR}/dependencies/header_libraries"
-    GIT_TAG "master"
-    INSTALL_DIR "${DEP_BINARY_DIR}/install"
-    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${DEP_BINARY_DIR}/install
+	header_libraries_prj
+	GIT_REPOSITORY "https://github.com/beached/header_libraries.git"
+	SOURCE_DIR "${DEP_BINARY_DIR}/dependencies/header_libraries"
+	GIT_TAG "master"
+	INSTALL_DIR "${DEP_BINARY_DIR}/install"
+	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${DEP_BINARY_DIR}/install
 )
 
 externalproject_add(
-    char_range_prj
-    GIT_REPOSITORY "https://github.com/beached/char_range.git"
-    SOURCE_DIR "${DEP_BINARY_DIR}/dependencies/char_range"
-    GIT_TAG "master"
-    INSTALL_DIR "${DEP_BINARY_DIR}/install"
-    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${DEP_BINARY_DIR}/install
+	char_range_prj
+	GIT_REPOSITORY "https://github.com/beached/char_range.git"
+	SOURCE_DIR "${DEP_BINARY_DIR}/dependencies/char_range"
+	GIT_TAG "master"
+	INSTALL_DIR "${DEP_BINARY_DIR}/install"
+	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${DEP_BINARY_DIR}/install
 )
 
 externalproject_add(
-    parse_json_prj
-    GIT_REPOSITORY "https://github.com/beached/parse_json.git"
-    SOURCE_DIR "${DEP_BINARY_DIR}/dependencies/parse_json"
-    GIT_TAG "master"
-    INSTALL_DIR "${DEP_BINARY_DIR}/install"
-    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${DEP_BINARY_DIR}/install
+	parse_json_prj
+	GIT_REPOSITORY "https://github.com/beached/parse_json.git"
+	SOURCE_DIR "${DEP_BINARY_DIR}/dependencies/parse_json"
+	GIT_TAG "master"
+	INSTALL_DIR "${DEP_BINARY_DIR}/install"
+	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${DEP_BINARY_DIR}/install
 )
 
 externalproject_add( 
@@ -75,6 +75,15 @@ externalproject_add(
 	GIT_TAG "master"
 )
 
+externalproject_add(
+	date_prj
+	GIT_REPOSITORY "https://github.com/beached/date.git"
+	SOURCE_DIR "${CMAKE_BINARY_DIR}/dependencies/date"
+	GIT_TAG "master"
+	INSTALL_DIR "${CMAKE_BINARY_DIR}/install"
+	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/install
+)
+
 include_directories( SYSTEM "${CMAKE_BINARY_DIR}/install/include" )
 link_directories( "${CMAKE_BINARY_DIR}/install/lib" )
 include_directories( SYSTEM "${DEP_BINARY_DIR}/install/include" )
@@ -84,8 +93,8 @@ include_directories( SYSTEM ${Boost_INCLUDE_DIRS} )
 link_directories( ${Boost_LIBRARY_DIRS} )
 include_directories( SYSTEM ${OPENSSL_INCLUDE_DIR} )
 
-set( NODEPP_DEPS header_libraries_prj char_range_prj parse_json_prj lib_nodepp_prj )
-set( NODEPP_LIBS nodepp char_range parse_json  ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} )
+set( NODEPP_DEPS header_libraries_prj char_range_prj parse_json_prj lib_nodepp_prj date_prj )
+set( NODEPP_LIBS nodepp char_range parse_json ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} )
 
 add_executable( example_net_server example_net_server.cpp )
 target_link_libraries( example_net_server ${NODEPP_LIBS} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS} )
@@ -114,11 +123,11 @@ add_test( example_event_emitter_test, example_event_emitter )
 
 add_executable( example_parse_json example_parse_json.cpp )
 target_link_libraries( example_parse_json parse_json char_range ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS} )
-add_dependencies( example_parse_json header_libraries_prj parse_json_prj char_range_prj )
+add_dependencies( example_parse_json header_libraries_prj parse_json_prj char_range_prj date_prj )
 add_test( example_parse_json_test, example_parse_json )
 
 add_executable( example_parse_template example_parse_template.cpp )
 target_link_libraries( example_parse_template char_range parse_template ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${COMPILER_SPECIFIC_LIBS} )
-add_dependencies( example_parse_template header_libraries_prj char_range_prj parse_template_prj )
+add_dependencies( example_parse_template header_libraries_prj char_range_prj parse_template_prj date_prj )
 add_test( example_parse_template_test, example_parse_template )
 
